@@ -45,6 +45,8 @@ function QuickBookModal({ item, tab, onClose }) {
   const [email, setEmail] = useStateB(prefill.email);
   const [phone, setPhone] = useStateB(prefill.phone);
   const [notes, setNotes] = useStateB('');
+  const [needTransport, setNeedTransport] = useStateB(false);
+  const [pickupAddr, setPickupAddr] = useStateB('');
   const [sent, setSent] = useStateB(false);
 
   useEffectB(() => {
@@ -57,11 +59,17 @@ function QuickBookModal({ item, tab, onClose }) {
   const dateLabel = new Date(date).toLocaleDateString(lang === 'no' ? 'no-NO' : lang === 'fr' ? 'fr-FR' : 'en-GB',
     { day: 'numeric', month: 'short', year: 'numeric' });
 
+  const transportLine = () => needTransport
+    ? tx(`\n• Transport needed: yes${pickupAddr ? ` (pickup: ${pickupAddr})` : ''}`,
+         `\n• Trenger transport: ja${pickupAddr ? ` (henting: ${pickupAddr})` : ''}`,
+         `\n• Transport nécessaire : oui${pickupAddr ? ` (prise en charge : ${pickupAddr})` : ''}`)
+    : '';
+
   const buildMessage = () => {
     return tx(
-      `Hi Marrakech Story, I'd like to book just this:\n\n• ${item.name}\n• Date: ${dateLabel}\n• People: ${people}\n• Name: ${name}\n• Email: ${email}\n• Phone: ${phone}${notes ? `\n• Notes: ${notes}` : ''}`,
-      `Hei Marrakech Story, jeg vil bestille kun dette:\n\n• ${item.name}\n• Dato: ${dateLabel}\n• Antall: ${people}\n• Navn: ${name}\n• E-post: ${email}\n• Telefon: ${phone}${notes ? `\n• Notater: ${notes}` : ''}`,
-      `Bonjour Marrakech Story, je souhaite réserver uniquement ceci :\n\n• ${item.name}\n• Date : ${dateLabel}\n• Personnes : ${people}\n• Nom : ${name}\n• Email : ${email}\n• Téléphone : ${phone}${notes ? `\n• Notes : ${notes}` : ''}`
+      `Hi Marrakech Story, I'd like to book just this:\n\n• ${item.name}\n• Date: ${dateLabel}\n• People: ${people}\n• Name: ${name}\n• Email: ${email}\n• Phone: ${phone}${transportLine()}${notes ? `\n• Notes: ${notes}` : ''}`,
+      `Hei Marrakech Story, jeg vil bestille kun dette:\n\n• ${item.name}\n• Dato: ${dateLabel}\n• Antall: ${people}\n• Navn: ${name}\n• E-post: ${email}\n• Telefon: ${phone}${transportLine()}${notes ? `\n• Notater: ${notes}` : ''}`,
+      `Bonjour Marrakech Story, je souhaite réserver uniquement ceci :\n\n• ${item.name}\n• Date : ${dateLabel}\n• Personnes : ${people}\n• Nom : ${name}\n• Email : ${email}\n• Téléphone : ${phone}${transportLine()}${notes ? `\n• Notes : ${notes}` : ''}`
     );
   };
 
@@ -70,7 +78,7 @@ function QuickBookModal({ item, tab, onClose }) {
     // Save the request locally so it shows up in the profile dashboard
     try {
       const reqs = JSON.parse(localStorage.getItem('ms_requests') || '[]');
-      reqs.push({ type: 'single', item: item.name, tab, date, people, name, email, phone, notes, at: Date.now() });
+      reqs.push({ type: 'single', item: item.name, tab, date, people, name, email, phone, notes, needTransport, pickupAddr, at: Date.now() });
       localStorage.setItem('ms_requests', JSON.stringify(reqs));
     } catch {}
     window.open(whatsappUrl(buildMessage()), '_blank', 'noopener');
@@ -84,7 +92,7 @@ function QuickBookModal({ item, tab, onClose }) {
     window.location.href = `mailto:marrakechstory@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     try {
       const reqs = JSON.parse(localStorage.getItem('ms_requests') || '[]');
-      reqs.push({ type: 'single', item: item.name, tab, date, people, name, email, phone, notes, at: Date.now() });
+      reqs.push({ type: 'single', item: item.name, tab, date, people, name, email, phone, notes, needTransport, pickupAddr, at: Date.now() });
       localStorage.setItem('ms_requests', JSON.stringify(reqs));
     } catch {}
     setSent(true);
@@ -145,10 +153,26 @@ function QuickBookModal({ item, tab, onClose }) {
                   <span>{tx('Phone', 'Telefon', 'Téléphone')}</span>
                   <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} autoComplete="tel" placeholder="+47 …" />
                 </label>
+                <div className="ms-qb-transport">
+                  <label className="ms-qb-transport-row">
+                    <input type="checkbox" checked={needTransport} onChange={e => setNeedTransport(e.target.checked)} />
+                    <span>
+                      <strong>{tx('I need transportation', 'Jeg trenger transport', 'J\'ai besoin de transport')}</strong>
+                      <em>{tx('Transport is not included — tick to add a driver.',
+                              'Transport er ikke inkludert — kryss av om vi skal legge til sjåfør.',
+                              'Le transport n\'est pas inclus — cochez pour ajouter un chauffeur.')}</em>
+                    </span>
+                  </label>
+                  {needTransport && (
+                    <input className="ms-qb-transport-addr"
+                      value={pickupAddr} onChange={e => setPickupAddr(e.target.value)}
+                      placeholder={tx('Pickup address (hotel / riad name)', 'Henteadresse (hotell / riad)', 'Adresse de prise en charge')} />
+                  )}
+                </div>
                 <label className="ms-qb-field" style={{ gridColumn: '1 / -1' }}>
                   <span>{tx('Notes (optional)', 'Notater (valgfritt)', 'Notes (optionnel)')}</span>
                   <textarea rows={2} value={notes} onChange={e => setNotes(e.target.value)}
-                    placeholder={tx('Allergies, hotel pickup address, time preference…', 'Allergier, henteadresse, tidspreferanse …', 'Allergies, adresse, préférence horaire …')} />
+                    placeholder={tx('Allergies, time preference…', 'Allergier, tidspreferanse …', 'Allergies, préférence horaire …')} />
                 </label>
               </div>
 

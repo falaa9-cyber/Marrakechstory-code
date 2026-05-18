@@ -5,7 +5,7 @@
 // ============================================
 const { useState: useStateHs, useEffect: useEffectHs } = React;
 
-const HERO_IMG      = "assets/photos/hero/hero-riad.jpg";
+const HERO_IMG      = "assets/photos/hero/hero-riad.jpg?v=69";
 const HERO_FALLBACK = "assets/photos/nobu-hotel-marrakech-marbella-review-683ddd3e251e9.avif";
 
 function useResolvedHeroImage(primary, fallback) {
@@ -49,11 +49,6 @@ function HeroSlider() {
             Marrakech<em>Story</em>
           </span>
         </h1>
-        <p className="ms-hero-lead">
-          {tx("Let's write your Moroccan story together — from the hum of the medina to the silence of the Sahara, shaped by the people who actually live here.",
-              "Vi skriver din marokkanske historie sammen — fra medinaens puls til Saharas stillhet, formet av folk som faktisk bor her.",
-              "Écrivons votre histoire marocaine ensemble — du tumulte de la médina au silence du Sahara, façonnée par ceux qui vivent ici.")}
-        </p>
         <div className="ms-hero-cta-row">
           <a href="#plan" className="btn btn-primary ms-hero-cta">
             {tx('Plan my trip', 'Planlegg min reise', 'Planifier mon voyage')} →

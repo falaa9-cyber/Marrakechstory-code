@@ -319,16 +319,16 @@ function ItineraryBuilder() {
   const price = usePrice();
 
   const [data, setData] = useSF({
-    duration: 7,
-    travellers: ctx.travellers,
-    accommodation: 'riad',
-    pace: 'balanced',
+    duration: 0,
+    travellers: { adults: 0, children: 0, infants: 0 },
+    accommodation: '',
+    pace: '',
     interests: [],
     occasion: '',
     avoid: '',
     notes: '',
-    budget: 'mid',
-    startDate: ctx.dates.dep,
+    budget: '',
+    startDate: '',
     flex: 'flex3',
     name: '',
     email: '',
@@ -339,21 +339,26 @@ function ItineraryBuilder() {
     bookedTransport: false,
     bookedActivities: false,
     endDate: '',
-    arriveCity: 'Marrakech (RAK)',
-    departCity: 'Marrakech (RAK)',
+    arriveCity: '',
+    departCity: '',
     multiCity: false,
-    stops: [{ city: 'Marrakech', nights: 6 }],
-    tripType: 'couple',
-    transport: 'driver-sedan',
+    stops: [],
+    tripType: '',
+    transport: '',
     vanSeats: 7,
     rentalCar: '',
+    flightBooked: '',
+    flightDetails: '',
+    daySchedule: [],
   });
 
-  useEF(() => { setData(d => ({ ...d, startDate: ctx.dates.dep })); }, [ctx.dates.dep]);
-  useEF(() => { setData(d => ({ ...d, travellers: ctx.travellers })); }, [ctx.travellers]);
-  useEF(() => { ctx.setTravellers(data.travellers); }, [data.travellers.adults, data.travellers.children, data.travellers.infants]);
+  // Form owns its own state — no two-way sync with global context.
+  // (Previous sync caused an infinite render loop because ctx.travellers
+  // was re-created on every parent render.)
 
-  // Auto-fill from logged-in user + saved profile so guests don't retype
+  // Auto-fill from logged-in user + saved profile so guests don't retype.
+  // Runs once on mount (and stays stable — guarded by the `||` chain so it
+  // never overwrites a value the user has already typed).
   useEF(() => {
     const user = window.MS_Auth_User;
     let profile = {};
@@ -366,11 +371,26 @@ function ItineraryBuilder() {
       phone:   d.phone   || profile.phone   || '',
       country: d.country || profile.country || (ctx.lang === 'no' ? 'Norge' : ''),
     }));
-  }, [window.MS_Auth_User]);
+  }, []);
 
   // Track which Smak categories are expanded ("first line" by default)
   const [smakOpen, setSmakOpen] = useSF({});
   const toggleSmak = (key) => setSmakOpen(p => ({ ...p, [key]: !p[key] }));
+
+  // Day-by-day Smak picker — current day index + per-day picks helper
+  const [activeDay, setActiveDay] = useSF(0);
+  const dayPick = (dayIdx, slot, value) => setData(p => {
+    const next = [...p.daySchedule];
+    while (next.length <= dayIdx) next.push({ activities: [], wellness: [], pool: [], restaurant: '' });
+    const cur = next[dayIdx];
+    if (slot === 'restaurant') {
+      next[dayIdx] = { ...cur, restaurant: cur.restaurant === value ? '' : value };
+    } else {
+      const list = cur[slot] || [];
+      next[dayIdx] = { ...cur, [slot]: list.includes(value) ? list.filter(x => x !== value) : [...list, value] };
+    }
+    return { ...p, daySchedule: next };
+  });
 
   // Pick up booking context from itinerary "Take as-is" / Tweak handoffs
   const [bookingCtx, setBookingCtx] = useSF(() => window.MS_BookingContext || null);
@@ -385,13 +405,8 @@ function ItineraryBuilder() {
         tripType: c.tripType || d.tripType,
         // Itinerary already defines pace/interests/stay — leave them at sensible defaults
       }));
-      // 'asis' (itinerary "Take as-is") already knows everything except dates+contact
-      // 'team' / 'wedding' should walk the user through from the start
-      if (c.mode === 'asis') {
-        setStep(s => Math.max(s, 2));
-      } else {
-        setStep(0);
-      }
+      // Always start at step 1 so the user reviews dates, travellers, style, etc.
+      setStep(0);
     };
     sync();
     window.addEventListener('ms:booking-context', sync);
@@ -412,16 +427,15 @@ function ItineraryBuilder() {
   // Smart, condensed steps. When the user picked a ready-made itinerary,
   // we already know duration/pace/interests — so we only ask for dates + contact.
   const allSteps = [
-    { id: 'when',    label: ctx.lang === 'no' ? 'Når'             : ctx.lang === 'fr' ? 'Quand'         : 'When' },
-    { id: 'who',     label: ctx.lang === 'no' ? 'Hvem reiser?'    : ctx.lang === 'fr' ? 'Qui voyage ?'  : 'Who is going?' },
-    { id: 'style',   label: ctx.lang === 'no' ? 'Stil'             : ctx.lang === 'fr' ? 'Style'         : 'Style' },
-    { id: 'taste',   label: ctx.lang === 'no' ? 'Smak'             : ctx.lang === 'fr' ? 'Goûts'         : 'Taste' },
-    { id: 'extra',   label: ctx.lang === 'no' ? 'Det lille ekstra' : ctx.lang === 'fr' ? 'Le petit plus' : 'Little extras' },
-    { id: 'contact', label: ctx.lang === 'no' ? 'Send'             : ctx.lang === 'fr' ? 'Envoyer'       : 'Send' },
+    { id: 'contact', label: ctx.lang === 'no' ? 'Kontakt'          : ctx.lang === 'fr' ? 'Contact'       : 'Contact' },
+    { id: 'when',    label: ctx.lang === 'no' ? 'Når'              : ctx.lang === 'fr' ? 'Quand'         : 'When' },
+    { id: 'who',     label: ctx.lang === 'no' ? 'Hvem reiser?'     : ctx.lang === 'fr' ? 'Qui voyage ?'  : 'Who is going?' },
+    { id: 'style',   label: ctx.lang === 'no' ? 'Stil'              : ctx.lang === 'fr' ? 'Style'         : 'Style' },
+    { id: 'taste',   label: ctx.lang === 'no' ? 'Smak'              : ctx.lang === 'fr' ? 'Goûts'         : 'Taste' },
+    { id: 'extra',   label: ctx.lang === 'no' ? 'Det lille ekstra'  : ctx.lang === 'fr' ? 'Le petit plus' : 'Little extras' },
+    { id: 'send',    label: ctx.lang === 'no' ? 'Send'              : ctx.lang === 'fr' ? 'Envoyer'       : 'Send' },
   ];
-  const steps = (bookingCtx && bookingCtx.mode === 'asis')
-    ? [allSteps[0], allSteps[1], allSteps[5]]
-    : allSteps;
+  const steps = allSteps;
 
   const next = () => setStep(s => Math.min(s + 1, steps.length - 1));
   const prev = () => setStep(s => Math.max(s - 1, 0));
@@ -637,7 +651,7 @@ function ItineraryBuilder() {
                 </div>
 
                 <div className="itin-step-body">
-                  {show('when') && !bookingCtx && (
+                  {show('when') && (
                     <div>
                       <h3 className="itin-q">
                         {ctx.lang === 'no' ? 'Velg periode' : ctx.lang === 'fr' ? 'Choisissez la période' : 'Choose your period'}
@@ -653,9 +667,6 @@ function ItineraryBuilder() {
                           if (s && e) {
                             const diff = Math.max(1, Math.round((new Date(e) - new Date(s)) / 86400000) + 1);
                             upd('duration', diff);
-                            // Reset stops total to fit new duration
-                            const nights = Math.max(0, diff - 1);
-                            setData(p => ({ ...p, stops: [{ city: 'Marrakech', nights }] }));
                           }
                         }}
                       />
@@ -746,6 +757,7 @@ function ItineraryBuilder() {
                         <div className="fld">
                           <label>{ctx.lang === 'no' ? 'Lander i' : ctx.lang === 'fr' ? 'Atterrissage à' : 'Landing in'}</label>
                           <select value={data.arriveCity} onChange={e => upd('arriveCity', e.target.value)}>
+                            <option value="">{ctx.lang === 'no' ? 'Velg…' : ctx.lang === 'fr' ? 'Choisir…' : 'Choose…'}</option>
                             <option>Marrakech (RAK)</option>
                             <option>Casablanca (CMN)</option>
                             <option>Agadir (AGA)</option>
@@ -759,6 +771,7 @@ function ItineraryBuilder() {
                         <div className="fld">
                           <label>{ctx.lang === 'no' ? 'Reiser hjem fra' : ctx.lang === 'fr' ? 'Départ de' : 'Departing from'}</label>
                           <select value={data.departCity} onChange={e => upd('departCity', e.target.value)}>
+                            <option value="">{ctx.lang === 'no' ? 'Velg…' : ctx.lang === 'fr' ? 'Choisir…' : 'Choose…'}</option>
                             <option>Marrakech (RAK)</option>
                             <option>Casablanca (CMN)</option>
                             <option>Agadir (AGA)</option>
@@ -770,6 +783,30 @@ function ItineraryBuilder() {
                           </select>
                         </div>
                       </div>
+
+                      <h3 className="itin-q" style={{ marginTop: 24 }}>
+                        {ctx.lang === 'no' ? 'Har dere bestilt fly?' : ctx.lang === 'fr' ? 'Avez-vous réservé le vol ?' : 'Have you booked your flight?'}
+                      </h3>
+                      <div className="multicity-toggle">
+                        <button type="button"
+                          className={`mc-toggle ${data.flightBooked === 'yes' ? 'active' : ''}`}
+                          onClick={() => upd('flightBooked', 'yes')}>
+                          {ctx.lang === 'no' ? 'Ja' : 'Yes'}
+                        </button>
+                        <button type="button"
+                          className={`mc-toggle ${data.flightBooked === 'no' ? 'active' : ''}`}
+                          onClick={() => upd('flightBooked', 'no')}>
+                          {ctx.lang === 'no' ? 'Nei' : 'No'}
+                        </button>
+                      </div>
+                      {data.flightBooked === 'yes' && (
+                        <div className="fld" style={{ marginTop: 10 }}>
+                          <label>{ctx.lang === 'no' ? 'Flydetaljer (selskap, flynr, tider)' : ctx.lang === 'fr' ? 'Détails du vol (compagnie, n°, horaires)' : 'Flight details (airline, number, times)'}</label>
+                          <textarea rows="2" value={data.flightDetails}
+                            onChange={e => upd('flightDetails', e.target.value)}
+                            placeholder={ctx.lang === 'no' ? 'F.eks. Royal Air Maroc AT207 · Ankomst 14:30 · Avgang 08:50' : 'e.g. Royal Air Maroc AT207 · Arrival 14:30 · Departure 08:50'} />
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -819,6 +856,30 @@ function ItineraryBuilder() {
                           </div>
                         ))}
                       </div>
+
+                      <h3 className="itin-q" style={{ marginTop: 28 }}>
+                        {ctx.lang === 'no' ? 'Har du allerede bestilt noe?' : ctx.lang === 'fr' ? 'Avez-vous déjà réservé quelque chose ?' : 'Have you already booked anything?'}
+                      </h3>
+                      <div className="already-booked-group">
+                        <label className="already-booked-check">
+                          <input type="checkbox" checked={data.bookedAccom} onChange={e => upd('bookedAccom', e.target.checked)} />
+                          <span>{ctx.lang === 'no' ? 'Overnatting allerede bestilt' : 'Accommodation already booked'}</span>
+                        </label>
+                        {data.bookedAccom && (
+                          <div className="fld" style={{ marginTop: 8 }}>
+                            <label>{ctx.lang === 'no' ? 'Hotell / riad / adresse' : 'Hotel / riad / address'}</label>
+                            <input value={data.bookedAccomAddr} onChange={e => upd('bookedAccomAddr', e.target.value)} placeholder={ctx.lang === 'no' ? 'Navn eller adresse' : 'Name or address'} />
+                          </div>
+                        )}
+                        <label className="already-booked-check" style={{ marginTop: 8 }}>
+                          <input type="checkbox" checked={data.bookedTransport} onChange={e => upd('bookedTransport', e.target.checked)} />
+                          <span>{ctx.lang === 'no' ? 'Transport / flyplassoverføring allerede bestilt' : 'Transport / airport transfer already booked'}</span>
+                        </label>
+                        <label className="already-booked-check" style={{ marginTop: 8 }}>
+                          <input type="checkbox" checked={data.bookedActivities} onChange={e => upd('bookedActivities', e.target.checked)} />
+                          <span>{ctx.lang === 'no' ? 'Aktiviteter allerede bestilt' : 'Activities already booked'}</span>
+                        </label>
+                      </div>
                     </div>
                   )}
 
@@ -833,20 +894,7 @@ function ItineraryBuilder() {
                         <OptCard field="accommodation" value="mix" ttl={t('itin_acc_mix')} ico={<If.Compass />} />
                         <OptCard field="accommodation" value="surprise" ttl={t('itin_acc_surprise')} ico={<If.Star />} />
                       </div>
-                      <div className="already-booked-row" style={{ marginTop: 20 }}>
-                        <label className="already-booked-check">
-                          <input type="checkbox" checked={data.bookedAccom} onChange={e => upd('bookedAccom', e.target.checked)} />
-                          <span>{ctx.lang === 'no' ? 'Jeg har allerede bestilt overnatting' : 'I have already booked accommodation'}</span>
-                        </label>
-                        {data.bookedAccom && (
-                          <div className="fld" style={{ marginTop: 8 }}>
-                            <label>{ctx.lang === 'no' ? 'Hotell / riad / adresse' : 'Hotel / riad / address'}</label>
-                            <input value={data.bookedAccomAddr} onChange={e => upd('bookedAccomAddr', e.target.value)} placeholder={ctx.lang === 'no' ? 'Skriv inn navn eller adresse (brukes for sjåfør-reservasjon)' : 'Enter name or address (used for driver reservation)'} />
-                          </div>
-                        )}
-                      </div>
-
-                      <h3 className="itin-q" style={{ marginTop: 32 }}>
+                      <h3 className="itin-q" style={{ marginTop: 28 }}>
                         {t('itin_budget')}
                       </h3>
                       <div className="opt-grid">
@@ -928,17 +976,38 @@ function ItineraryBuilder() {
 
                   {show('taste') && (() => {
                     const D = window.MS_DATA || {};
-                    const isOn = (v) => data.interests.includes(v);
-                    const FIRST = 6; // chips visible before "show more"
-                    const Chip = ({ v, label }) => (
+                    if (!data.duration || data.duration < 1) {
+                      return (
+                        <div>
+                          <h3 className="itin-q">{t('itin_step_int')}</h3>
+                          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>
+                            {ctx.lang === 'no'
+                              ? '← Gå tilbake til Når-steget og velg en periode først, så fyller du reisen dag for dag her.'
+                              : '← Go back to the When step and pick a date range first — then fill your trip day by day here.'}
+                          </p>
+                        </div>
+                      );
+                    }
+                    const totalDays = data.duration;
+                    const curDay = Math.min(activeDay, totalDays - 1);
+                    const day = data.daySchedule[curDay] || { activities: [], wellness: [], pool: [], restaurant: '' };
+                    const dayDate = data.startDate ? (() => {
+                      const d = new Date(data.startDate);
+                      d.setDate(d.getDate() + curDay);
+                      return d.toLocaleDateString(ctx.lang === 'no' ? 'no-NO' : ctx.lang === 'fr' ? 'fr-FR' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+                    })() : '';
+
+                    const FIRST = 6;
+                    const Chip = ({ slot, value, label, active }) => (
                       <button type="button"
-                        className={`taste-chip ${isOn(v) ? 'active' : ''}`}
-                        onClick={() => toggle('interests', v)}>
+                        className={`taste-chip ${active ? 'active' : ''}`}
+                        onClick={() => dayPick(curDay, slot, value)}>
                         {label}
                       </button>
                     );
-                    const Section = ({ id, title, meta, items }) => {
-                      const open = !!smakOpen[id];
+                    const Section = ({ id, title, meta, items, slot, picked }) => {
+                      const key = `${id}-${curDay}`;
+                      const open = !!smakOpen[key];
                       const shown = open ? items : items.slice(0, FIRST);
                       const more = items.length - FIRST;
                       return (
@@ -948,46 +1017,85 @@ function ItineraryBuilder() {
                             {meta != null && <span className="taste-section-meta">{meta}</span>}
                           </div>
                           <div className={`taste-chips ${open ? 'open' : ''}`}>
-                            {shown.map((it, i) => <Chip key={i} v={it.v} label={it.label} />)}
+                            {shown.map((it, i) => (
+                              <Chip key={i} slot={slot} value={it.v} label={it.label}
+                                active={slot === 'restaurant' ? picked === it.v : (picked || []).includes(it.v)} />
+                            ))}
                           </div>
                           {more > 0 && (
-                            <button type="button" className="taste-more" onClick={() => toggleSmak(id)}>
+                            <button type="button" className="taste-more" onClick={() => toggleSmak(key)}>
                               {open
-                                ? (ctx.lang === 'no' ? 'Vis færre' : ctx.lang === 'fr' ? 'Voir moins' : 'Show less')
-                                : (ctx.lang === 'no' ? `Vis flere (+${more})` : ctx.lang === 'fr' ? `Voir plus (+${more})` : `Show more (+${more})`)}
+                                ? (ctx.lang === 'no' ? 'Vis færre' : 'Show less')
+                                : (ctx.lang === 'no' ? `Vis flere (+${more})` : `Show more (+${more})`)}
                             </button>
                           )}
                         </div>
                       );
                     };
                     const restaurantStyles = [
-                      { v: 'r:traditional', label: ctx.lang === 'no' ? '🍲 Tradisjonell marokkansk' : '🍲 Traditional Moroccan' },
-                      { v: 'r:fine',        label: ctx.lang === 'no' ? '🍷 Fine dining'           : '🍷 Fine dining' },
-                      { v: 'r:rooftop',     label: ctx.lang === 'no' ? '🌇 Tak / terrasse'         : '🌇 Rooftop / terrasse' },
-                      { v: 'r:festive',     label: ctx.lang === 'no' ? '🎉 Festlig'                : '🎉 Festive' },
-                      { v: 'r:international',label: ctx.lang === 'no' ? '🌍 Internasjonal'        : '🌍 International' },
-                      { v: 'r:asian',       label: ctx.lang === 'no' ? '🥢 Asiatisk'               : '🥢 Asian' },
-                      { v: 'r:brunch',      label: ctx.lang === 'no' ? '🥐 Brunsj & kafé'          : '🥐 Brunch & café' },
-                      { v: 'r:bar',         label: ctx.lang === 'no' ? '🍸 Bar & lounge'           : '🍸 Bar & lounge' },
-                      { v: 'r:club',        label: ctx.lang === 'no' ? '🌙 Nattklubb'              : '🌙 Nightclub' },
+                      { v: 'r:traditional',  label: ctx.lang === 'no' ? '🍲 Tradisjonell marokkansk' : '🍲 Traditional Moroccan' },
+                      { v: 'r:fine',         label: ctx.lang === 'no' ? '🍷 Fine dining'             : '🍷 Fine dining' },
+                      { v: 'r:rooftop',      label: ctx.lang === 'no' ? '🌇 Tak / terrasse'          : '🌇 Rooftop / terrasse' },
+                      { v: 'r:festive',      label: ctx.lang === 'no' ? '🎉 Festlig'                 : '🎉 Festive' },
+                      { v: 'r:international',label: ctx.lang === 'no' ? '🌍 Internasjonal'           : '🌍 International' },
+                      { v: 'r:asian',        label: ctx.lang === 'no' ? '🥢 Asiatisk'                : '🥢 Asian' },
+                      { v: 'r:brunch',       label: ctx.lang === 'no' ? '🥐 Brunsj & kafé'           : '🥐 Brunch & café' },
+                      { v: 'r:bar',          label: ctx.lang === 'no' ? '🍸 Bar & lounge'            : '🍸 Bar & lounge' },
+                      { v: 'r:club',         label: ctx.lang === 'no' ? '🌙 Nattklubb'               : '🌙 Nightclub' },
                     ];
                     const acts  = (D.ACTIVITIES || []).map(a => ({ v: `a:${a.name}`, label: a.name }));
-                    const camps = (D.CAMPS || []).map(c => ({ v: `c:${c.name}`, label: c.name }));
-                    const pools = (D.POOLS || []).map(p => ({ v: `p:${p.name}`, label: p.name }));
-                    const spa = [{ v: 'spa-beauty', label: ctx.lang === 'no' ? '🛁 Spa & skjønnhetssalong' : ctx.lang === 'fr' ? '🛁 Spa & salon de beauté' : '🛁 Spa & beauty salon' }];
+                    const wellness = [
+                      { v: 'spa-hammam',  label: '🛁 Hammam' },
+                      { v: 'spa-massage', label: ctx.lang === 'no' ? '💆 Massasje' : '💆 Massage' },
+                      { v: 'spa-beauty',  label: ctx.lang === 'no' ? '💅 Skjønnhetssalong' : '💅 Beauty salon' },
+                      { v: 'spa-yoga',    label: ctx.lang === 'no' ? '🧘 Yoga / meditasjon' : '🧘 Yoga / meditation' },
+                    ];
+                    const agafayPool = [
+                      ...(D.CAMPS || []).map(c => ({ v: `c:${c.name}`, label: `🏜️ ${c.name}` })),
+                      ...(D.POOLS || []).map(p => ({ v: `p:${p.name}`, label: `☀️ ${p.name}` })),
+                    ];
+
                     return (
                       <div>
-                        <h3 className="itin-q">{t('itin_step_int')}</h3>
-                        <Section id="acts" items={acts} meta={acts.length}
-                          title={ctx.lang === 'no' ? '🎯 Aktiviteter' : ctx.lang === 'fr' ? '🎯 Activités' : '🎯 Activities'} />
-                        <Section id="rest" items={restaurantStyles}
-                          title={ctx.lang === 'no' ? '🍽️ Restaurant-stil' : ctx.lang === 'fr' ? '🍽️ Style de restaurant' : '🍽️ Restaurant style'} />
-                        <Section id="spa" items={spa}
-                          title={ctx.lang === 'no' ? '💆 Velvære' : ctx.lang === 'fr' ? '💆 Bien-être' : '💆 Wellness'} />
-                        <Section id="camps" items={camps} meta={camps.length}
-                          title={ctx.lang === 'no' ? '🏜️ Forslag — Agafay-leirer' : ctx.lang === 'fr' ? '🏜️ Suggestions — Camps Agafay' : '🏜️ Suggested — Agafay camps'} />
-                        <Section id="pools" items={pools} meta={pools.length}
-                          title={ctx.lang === 'no' ? '☀️ Forslag — Bassenger & dagsklubber' : ctx.lang === 'fr' ? '☀️ Suggestions — Piscines' : '☀️ Suggested — Pools & day clubs'} />
+                        <h3 className="itin-q">
+                          {ctx.lang === 'no' ? 'Fyll inn dag for dag' : ctx.lang === 'fr' ? 'Remplissez jour par jour' : 'Fill the trip day by day'}
+                        </h3>
+
+                        <div className="day-nav">
+                          <button type="button" className="day-nav-arrow"
+                            onClick={() => setActiveDay(d => Math.max(0, d - 1))}
+                            disabled={curDay === 0}>‹</button>
+                          <div className="day-nav-pills">
+                            {Array.from({ length: totalDays }, (_, i) => {
+                              const dd = data.daySchedule[i];
+                              const filled = dd && (dd.activities.length || dd.wellness.length || dd.pool.length || dd.restaurant);
+                              return (
+                                <button key={i} type="button"
+                                  className={`day-nav-pill ${i === curDay ? 'active' : ''} ${filled ? 'filled' : ''}`}
+                                  onClick={() => setActiveDay(i)}>
+                                  {ctx.lang === 'no' ? `Dag ${i + 1}` : `Day ${i + 1}`}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <button type="button" className="day-nav-arrow"
+                            onClick={() => setActiveDay(d => Math.min(totalDays - 1, d + 1))}
+                            disabled={curDay >= totalDays - 1}>›</button>
+                        </div>
+
+                        <p className="day-meta">
+                          {ctx.lang === 'no' ? `Dag ${curDay + 1} av ${totalDays}` : `Day ${curDay + 1} of ${totalDays}`}
+                          {dayDate && ` · ${dayDate}`}
+                        </p>
+
+                        <Section id="acts"     items={acts}        meta={acts.length}        slot="activities" picked={day.activities}
+                          title={ctx.lang === 'no' ? '🎯 Aktiviteter' : '🎯 Activities'} />
+                        <Section id="wellness" items={wellness}                              slot="wellness"   picked={day.wellness}
+                          title={ctx.lang === 'no' ? '💆 Velvære' : '💆 Wellness'} />
+                        <Section id="ap"       items={agafayPool}  meta={agafayPool.length}  slot="pool"       picked={day.pool}
+                          title={ctx.lang === 'no' ? '🏜️☀️ Agafay & bassenger' : '🏜️☀️ Agafay & pools'} />
+                        <Section id="rest"     items={restaurantStyles}                       slot="restaurant" picked={day.restaurant}
+                          title={ctx.lang === 'no' ? '🍽️ Middag — restaurant-stil' : '🍽️ Dinner — restaurant style'} />
                       </div>
                     );
                   })()}
@@ -995,19 +1103,6 @@ function ItineraryBuilder() {
                   {show('extra') && (
                     <div>
                       <h3 className="itin-q">{t('itin_step_extra')}</h3>
-                      <div className="already-booked-group" style={{ marginBottom: 20 }}>
-                        <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 10, fontStyle: 'italic' }}>
-                          {ctx.lang === 'no' ? 'Har du allerede bestilt noe?' : 'Have you already booked anything?'}
-                        </p>
-                        <label className="already-booked-check">
-                          <input type="checkbox" checked={data.bookedTransport} onChange={e => upd('bookedTransport', e.target.checked)} />
-                          <span>{ctx.lang === 'no' ? 'Transport / flyplassoverføring allerede bestilt' : 'Transport / airport transfer already booked'}</span>
-                        </label>
-                        <label className="already-booked-check" style={{ marginTop: 8 }}>
-                          <input type="checkbox" checked={data.bookedActivities} onChange={e => upd('bookedActivities', e.target.checked)} />
-                          <span>{ctx.lang === 'no' ? 'Aktiviteter allerede bestilt' : 'Activities already booked'}</span>
-                        </label>
-                      </div>
                       <div className="fld">
                         <label>{t('itin_special')}</label>
                         <input value={data.occasion} onChange={e => upd('occasion', e.target.value)} placeholder={t('itin_special_ph')} />
@@ -1023,9 +1118,32 @@ function ItineraryBuilder() {
                     </div>
                   )}
 
+                  {show('send') && (
+                    <div>
+                      <h3 className="itin-q">
+                        {ctx.lang === 'no' ? 'Klar til å sende' : ctx.lang === 'fr' ? 'Prêt à envoyer' : 'Ready to send'}
+                      </h3>
+                      <p style={{ fontSize: 13, color: 'var(--ink-3)', margin: '0 0 14px' }}>
+                        {ctx.lang === 'no'
+                          ? 'Sjekk reiseplanen til høyre. Vi tar kontakt innen 24 timer og foredler detaljene sammen med deg.'
+                          : ctx.lang === 'fr'
+                            ? 'Vérifiez l\'itinéraire à droite. Nous vous répondons sous 24 h pour affiner ensemble.'
+                            : 'Review your trip on the right. We reply within 24 hours and refine the details with you.'}
+                      </p>
+                      <ul style={{ fontSize: 13, color: 'var(--ink)', paddingLeft: 18, lineHeight: 1.7 }}>
+                        <li>{ctx.lang === 'no' ? '✅ Vi svarer innen 24 timer' : '✅ We reply within 24 hours'}</li>
+                        <li>{ctx.lang === 'no' ? '✅ Ingen forskudd kreves' : '✅ No prepayment required'}</li>
+                        <li>{ctx.lang === 'no' ? '✅ Du kan endre alt før bekreftelse' : '✅ You can change everything before confirming'}</li>
+                      </ul>
+                    </div>
+                  )}
+
                   {show('contact') && (
                     <div>
                       <h3 className="itin-q">{t('itin_step_contact')}</h3>
+                      <p style={{ fontSize: 12, color: 'var(--ink-3)', margin: '-8px 0 14px', fontStyle: 'italic' }}>
+                        {ctx.lang === 'no' ? 'Vi bruker dette til å sende deg reiseplanen og holde kontakt.' : ctx.lang === 'fr' ? 'Pour vous envoyer l\'itinéraire et rester en contact.' : 'So we can send you the trip and stay in touch.'}
+                      </p>
                       <div className="fld-row">
                         <div className="fld">
                           <label>{t('itin_name')}</label>
@@ -1102,88 +1220,270 @@ function ItineraryBuilder() {
               ))}
             </div>
 
-            <div className="itin-preview-head">
-              <div>
-                <div className="eyebrow" style={{ color: '#fff', opacity: .7 }}>{t('itin_preview_title')}</div>
-                <h3 className="serif" style={{ fontSize: 26, fontWeight: 500, margin: '6px 0 0', letterSpacing: '-0.01em' }}>
-                  {data.duration > 0 ? (
-                    <>
-                      {data.duration} {durLabel(data.duration, ctx.lang)} ·{' '}
-                      <em style={{ fontStyle: 'italic', color: '#ffae7c' }}>
-                        {data.travellers.adults + data.travellers.children}{' '}
-                        {ctx.lang === 'no' ? 'reisende' : ctx.lang === 'fr' ? 'voyageurs' : 'travellers'}
-                      </em>
-                    </>
-                  ) : (
-                    <em style={{ fontStyle: 'italic', color: '#ffae7c', fontSize: 20 }}>
-                      {ctx.lang === 'no' ? 'Velg varighet…' : ctx.lang === 'fr' ? 'Choisissez la durée…' : 'Choose a duration…'}
-                    </em>
-                  )}
-                </h3>
-                <p style={{ fontSize: 13, opacity: .65, margin: '6px 0 0' }}>{t('itin_preview_sub')}</p>
-              </div>
-              {data.duration > 0 && (
-                <div className="itin-preview-meta">
-                  <div>
-                    <span className="lbl">{t('itin_preview_arrival')}</span>
-                    <span className="val">{new Date(data.startDate).toLocaleDateString(ctx.lang === 'no' ? 'no-NO' : ctx.lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short' })}</span>
-                  </div>
-                  <div>
-                    <span className="lbl">{t('itin_preview_departure')}</span>
-                    <span className="val">{(() => {
-                      const d = new Date(data.startDate);
-                      d.setDate(d.getDate() + data.duration - 1);
-                      return d.toLocaleDateString(ctx.lang === 'no' ? 'no-NO' : ctx.lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short' });
-                    })()}</span>
-                  </div>
-                </div>
-              )}
-            </div>
+            {(() => {
+              const hasDates = !!(data.startDate && data.endDate);
+              const totalPax = data.travellers.adults + data.travellers.children + data.travellers.infants;
+              const hasAnyChoice = hasDates || totalPax > 0 || data.tripType || data.accommodation || data.budget || data.pace || data.transport || data.interests.length || data.multiCity || data.arriveCity || data.departCity || data.name || data.email;
+              const fmtDate = (d) => d ? new Date(d).toLocaleDateString(ctx.lang === 'no' ? 'no-NO' : ctx.lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short' }) : '';
+              const tripLabel = { solo: ctx.lang === 'no' ? 'Solo' : 'Solo', couple: ctx.lang === 'no' ? 'Par' : 'Couple', family: ctx.lang === 'no' ? 'Familie' : 'Family', group: ctx.lang === 'no' ? 'Gruppe' : 'Group', team: 'Team building', wedding: ctx.lang === 'no' ? 'Bryllup' : 'Wedding' }[data.tripType];
+              const accLabel = { riad: 'Riad', luxury: ctx.lang === 'no' ? 'Luksushotell' : 'Luxury hotel', villa: ctx.lang === 'no' ? 'Privat villa' : 'Private villa', camp: ctx.lang === 'no' ? 'Ørkenleir' : 'Desert camp', mix: ctx.lang === 'no' ? 'Bland det' : 'Mix', surprise: ctx.lang === 'no' ? 'Overrask oss' : 'Surprise' }[data.accommodation];
+              const budgetLabel = { mid: ctx.lang === 'no' ? 'Komfort' : 'Comfort', premium: 'Premium', luxury: ctx.lang === 'no' ? 'Luksus' : 'Luxury' }[data.budget];
+              const paceLabel = { slow: ctx.lang === 'no' ? 'Rolig' : 'Slow', balanced: ctx.lang === 'no' ? 'Balansert' : 'Balanced', packed: ctx.lang === 'no' ? 'Pakket' : 'Packed' }[data.pace];
+              const transportLabel = {
+                'driver-sedan': ctx.lang === 'no' ? 'Sjåfør · Sedan' : 'Driver · Sedan',
+                'driver-van':   ctx.lang === 'no' ? `Sjåfør · Van (${data.vanSeats} seter)` : `Driver · Van (${data.vanSeats} seats)`,
+                'rental':       data.rentalCar ? `${ctx.lang === 'no' ? 'Leiebil' : 'Rental'} · ${data.rentalCar}` : (ctx.lang === 'no' ? 'Leiebil' : 'Rental car'),
+              }[data.transport];
+              const hasContact = !!(data.name || data.email || data.phone || data.country);
 
-            {data.duration === 0 ? (
-              <div className="itin-empty">
-                <span className="itin-empty-icon">🗺️</span>
-                <p>{ctx.lang === 'no' ? 'Reiseplanen din vises her — velg antall dager for å starte' : ctx.lang === 'fr' ? 'Votre itinéraire apparaîtra ici — choisissez une durée' : 'Your itinerary will appear here — choose a duration to start'}</p>
-              </div>
-            ) : (
-              <div className="itin-tl">
-                {itinerary.map((d, i) => {
-                  const act = ACT_POOL[d.key] || ACT_POOL.medina;
-                  const emoji = ACT_EMOJI[d.key] || '📍';
-                  const dayDate = new Date(data.startDate);
-                  dayDate.setDate(dayDate.getDate() + i);
-                  const dateStr = dayDate.toLocaleDateString(ctx.lang === 'no' ? 'no-NO' : ctx.lang === 'fr' ? 'fr-FR' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-                  return (
-                    <div key={`${d.key}-${i}`} className="itin-tl-row" style={{ animationDelay: `${i * 60}ms` }}>
-                      <div className="itin-tl-spine">
-                        <div className="itin-tl-dot">{emoji}</div>
-                        {i < itinerary.length - 1 && <div className="itin-tl-line"></div>}
+              // Map specific lodge names → generic city/area tag for the preview
+              const genericStay = (key) => {
+                if (['atlas'].includes(key)) return ctx.lang === 'no' ? 'Lodge i Atlas' : 'Lodge in Atlas';
+                if (['agafay'].includes(key)) return ctx.lang === 'no' ? 'Leir i Agafay' : 'Camp in Agafay';
+                if (['sahara'].includes(key)) return ctx.lang === 'no' ? 'Leir i Sahara' : 'Camp in Sahara';
+                if (['imperial'].includes(key)) return ctx.lang === 'no' ? 'Riad i Fes' : 'Riad in Fes';
+                if (['essaouira'].includes(key)) return ctx.lang === 'no' ? 'Riad i Essaouira' : 'Riad in Essaouira';
+                return ctx.lang === 'no' ? 'Riad i Marrakech' : 'Riad in Marrakech';
+              };
+
+              return (
+                <>
+                  {hasContact && (
+                    <div className="itin-contact-card">
+                      <div className="itin-contact-avatar">
+                        {(data.name || data.email || '?')[0].toUpperCase()}
                       </div>
-                      <div className="itin-tl-card">
-                        <div className="itin-tl-card-top">
-                          <span className="itin-tl-day-num">
-                            {ctx.lang === 'no' ? 'Dag' : ctx.lang === 'fr' ? 'Jour' : 'Day'} {i + 1}
-                          </span>
-                          <span className="itin-tl-date">{dateStr}</span>
-                        </div>
-                        <div className="itin-tl-title">{act.title[ctx.lang]}</div>
-                        <div className="itin-tl-desc">{act.desc[ctx.lang]}</div>
-                        <div className="itin-card-chips">
-                          {act.chips[ctx.lang].map((c, j) => (
-                            <span key={j} className="itin-chip">{c}</span>
-                          ))}
-                        </div>
-                        {act.stay !== '—' && (
-                          <div className="itin-tl-stay">
-                            <If.Bed s={11} /> {act.stay}
-                          </div>
-                        )}
+                      <div className="itin-contact-meta">
+                        <strong>{data.name || (ctx.lang === 'no' ? 'Gjest' : 'Guest')}</strong>
+                        {data.email && <span>📧 {data.email}</span>}
+                        {data.phone && <span>📞 {data.phone}</span>}
+                        {data.country && <span>🌍 {data.country}</span>}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  )}
+
+                  <div className="itin-preview-head">
+                    <div>
+                      <div className="eyebrow" style={{ color: '#fff', opacity: .7 }}>{t('itin_preview_title')}</div>
+                      <h3 className="serif" style={{ fontSize: 26, fontWeight: 500, margin: '6px 0 0', letterSpacing: '-0.01em' }}>
+                        {hasDates ? (
+                          <>
+                            {data.duration} {durLabel(data.duration, ctx.lang)}
+                            {totalPax > 0 && <> · <em style={{ fontStyle: 'italic', color: '#ffae7c' }}>{totalPax} {ctx.lang === 'no' ? 'reisende' : ctx.lang === 'fr' ? 'voyageurs' : 'travellers'}</em></>}
+                          </>
+                        ) : (
+                          <em style={{ fontStyle: 'italic', color: '#ffae7c', fontSize: 20 }}>
+                            {ctx.lang === 'no' ? 'Velg dato…' : ctx.lang === 'fr' ? 'Choisir la date…' : 'Pick your dates…'}
+                          </em>
+                        )}
+                      </h3>
+                      <p style={{ fontSize: 13, opacity: .65, margin: '6px 0 0' }}>{t('itin_preview_sub')}</p>
+                    </div>
+                    {hasDates && (
+                      <div className="itin-preview-meta">
+                        <div>
+                          <span className="lbl">{t('itin_preview_arrival')}</span>
+                          <span className="val">{fmtDate(data.startDate)}</span>
+                        </div>
+                        <div>
+                          <span className="lbl">{t('itin_preview_departure')}</span>
+                          <span className="val">{fmtDate(data.endDate)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {!hasAnyChoice && (
+                    <div className="itin-empty">
+                      <span className="itin-empty-icon">🗺️</span>
+                      <p>{ctx.lang === 'no' ? 'Reiseplanen din vises her — start med å velge dato til venstre →' : ctx.lang === 'fr' ? 'Votre itinéraire apparaîtra ici — commencez par choisir une date →' : 'Your itinerary will appear here — start by picking dates on the left →'}</p>
+                    </div>
+                  )}
+
+                  {hasAnyChoice && (
+                    <div className="itin-summary">
+                      {(data.arriveCity || data.departCity) && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '✈️ Fly' : '✈️ Flights'}</span>
+                          <span className="itin-sum-v">
+                            {data.arriveCity || '—'} → {data.departCity || data.arriveCity || '—'}
+                          </span>
+                        </div>
+                      )}
+                      {tripLabel && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '👤 Type' : '👤 Trip'}</span>
+                          <span className="itin-sum-v">{tripLabel}</span>
+                        </div>
+                      )}
+                      {totalPax > 0 && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '🧳 Reisende' : '🧳 Travellers'}</span>
+                          <span className="itin-sum-v">
+                            {data.travellers.adults > 0 && `${data.travellers.adults} ${ctx.lang === 'no' ? 'voksne' : 'adults'}`}
+                            {data.travellers.children > 0 && `, ${data.travellers.children} ${ctx.lang === 'no' ? 'barn' : 'children'}`}
+                            {data.travellers.infants > 0 && `, ${data.travellers.infants} ${ctx.lang === 'no' ? 'spedbarn' : 'infants'}`}
+                          </span>
+                        </div>
+                      )}
+                      {accLabel && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '🏨 Overnatting' : '🏨 Stay'}</span>
+                          <span className="itin-sum-v">{accLabel}</span>
+                        </div>
+                      )}
+                      {budgetLabel && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '💎 Budsjett' : '💎 Budget'}</span>
+                          <span className="itin-sum-v">{budgetLabel}</span>
+                        </div>
+                      )}
+                      {transportLabel && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '🚗 Transport' : '🚗 Transport'}</span>
+                          <span className="itin-sum-v">{transportLabel}</span>
+                        </div>
+                      )}
+                      {paceLabel && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '⚡ Tempo' : '⚡ Pace'}</span>
+                          <span className="itin-sum-v">{paceLabel}</span>
+                        </div>
+                      )}
+                      {data.multiCity && data.stops.length > 0 && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '📍 Byer' : '📍 Cities'}</span>
+                          <span className="itin-sum-v">
+                            {data.stops.map(s => `${s.city} (${s.nights}n)`).join(' → ')}
+                          </span>
+                        </div>
+                      )}
+                      {data.interests.length > 0 && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '✨ Interesser' : '✨ Interests'}</span>
+                          <span className="itin-sum-v">
+                            {data.interests.length} {ctx.lang === 'no' ? 'valgt' : ctx.lang === 'fr' ? 'sélectionnés' : 'picked'}
+                          </span>
+                        </div>
+                      )}
+                      {data.occasion && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '🎉 Anledning' : '🎉 Occasion'}</span>
+                          <span className="itin-sum-v">{data.occasion}</span>
+                        </div>
+                      )}
+                      {data.notes && (
+                        <div className="itin-sum-row">
+                          <span className="itin-sum-k">{ctx.lang === 'no' ? '📝 Notater' : '📝 Notes'}</span>
+                          <span className="itin-sum-v">{data.notes}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {hasDates && (() => {
+                    const stripPrefix = (v) => v.replace(/^[a-z]+:/, '');
+                    const restLabel = (v) => ({
+                      'r:traditional': ctx.lang === 'no' ? 'Tradisjonell marokkansk' : 'Traditional Moroccan',
+                      'r:fine':        'Fine dining',
+                      'r:rooftop':     ctx.lang === 'no' ? 'Tak / terrasse' : 'Rooftop / terrasse',
+                      'r:festive':     ctx.lang === 'no' ? 'Festlig' : 'Festive',
+                      'r:international': ctx.lang === 'no' ? 'Internasjonal' : 'International',
+                      'r:asian':       ctx.lang === 'no' ? 'Asiatisk' : 'Asian',
+                      'r:brunch':      ctx.lang === 'no' ? 'Brunsj / kafé' : 'Brunch / café',
+                      'r:bar':         'Bar & lounge',
+                      'r:club':        ctx.lang === 'no' ? 'Nattklubb' : 'Nightclub',
+                    }[v] || stripPrefix(v));
+                    const wellnessLabel = (v) => ({
+                      'spa-hammam':  'Hammam',
+                      'spa-massage': ctx.lang === 'no' ? 'Massasje' : 'Massage',
+                      'spa-beauty':  ctx.lang === 'no' ? 'Skjønnhetssalong' : 'Beauty salon',
+                      'spa-yoga':    'Yoga',
+                    }[v] || stripPrefix(v));
+
+                    const hasAnyDayPick = data.daySchedule.some(d => d && (d.activities?.length || d.wellness?.length || d.pool?.length || d.restaurant));
+                    if (!hasAnyDayPick) {
+                      return (
+                        <div className="itin-empty-soft">
+                          {ctx.lang === 'no' ? '→ Gå til Smak-steget og fyll inn dagene dine' : '→ Go to the Taste step to fill in your days'}
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="itin-tl">
+                        {Array.from({ length: data.duration }, (_, i) => {
+                          const day = data.daySchedule[i] || { activities: [], wellness: [], pool: [], restaurant: '' };
+                          const isEmpty = !(day.activities.length || day.wellness.length || day.pool.length || day.restaurant);
+                          const dayDate = new Date(data.startDate);
+                          dayDate.setDate(dayDate.getDate() + i);
+                          const dateStr = dayDate.toLocaleDateString(ctx.lang === 'no' ? 'no-NO' : ctx.lang === 'fr' ? 'fr-FR' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+                          const stayKey = day.pool.find(p => p.startsWith('c:')) ? 'agafay' : 'marrakech';
+                          return (
+                            <div key={i} className="itin-tl-row" style={{ animationDelay: `${i * 60}ms` }}>
+                              <div className="itin-tl-spine">
+                                <div className="itin-tl-dot">{isEmpty ? '·' : '✦'}</div>
+                                {i < data.duration - 1 && <div className="itin-tl-line"></div>}
+                              </div>
+                              <div className="itin-tl-card">
+                                <div className="itin-tl-card-top">
+                                  <span className="itin-tl-day-num">
+                                    {ctx.lang === 'no' ? 'Dag' : 'Day'} {i + 1}
+                                  </span>
+                                  <span className="itin-tl-date">{dateStr}</span>
+                                </div>
+                                {isEmpty ? (
+                                  <div className="itin-tl-desc" style={{ fontStyle: 'italic', opacity: .6 }}>
+                                    {ctx.lang === 'no' ? 'Ingen valg ennå' : 'Nothing picked yet'}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {day.activities.length > 0 && (
+                                      <div className="itin-day-block">
+                                        <div className="itin-day-label">🎯 {ctx.lang === 'no' ? 'Aktiviteter' : 'Activities'}</div>
+                                        <div className="itin-card-chips">
+                                          {day.activities.map((v, j) => <span key={j} className="itin-chip">{stripPrefix(v)}</span>)}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {day.wellness.length > 0 && (
+                                      <div className="itin-day-block">
+                                        <div className="itin-day-label">💆 {ctx.lang === 'no' ? 'Velvære' : 'Wellness'}</div>
+                                        <div className="itin-card-chips">
+                                          {day.wellness.map((v, j) => <span key={j} className="itin-chip">{wellnessLabel(v)}</span>)}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {day.pool.length > 0 && (
+                                      <div className="itin-day-block">
+                                        <div className="itin-day-label">🏜️☀️ {ctx.lang === 'no' ? 'Agafay / Basseng' : 'Agafay / Pool'}</div>
+                                        <div className="itin-card-chips">
+                                          {day.pool.map((v, j) => <span key={j} className="itin-chip">{stripPrefix(v)}</span>)}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {day.restaurant && (
+                                      <div className="itin-day-block">
+                                        <div className="itin-day-label">🍽️ {ctx.lang === 'no' ? 'Middag' : 'Dinner'}</div>
+                                        <div className="itin-card-chips">
+                                          <span className="itin-chip">{restLabel(day.restaurant)}</span>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                                <div className="itin-tl-stay">
+                                  <If.Bed s={11} /> {genericStay(stayKey)}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
