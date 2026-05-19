@@ -73,14 +73,23 @@ function QuickBookModal({ item, tab, onClose }) {
     );
   };
 
-  const sendWhatsapp = () => {
-    if (!name.trim() || !email.trim()) return;
-    // Save the request locally so it shows up in the profile dashboard
+  const persistQuickBook = (via) => {
     try {
       const reqs = JSON.parse(localStorage.getItem('ms_requests') || '[]');
       reqs.push({ type: 'single', item: item.name, tab, date, people, name, email, phone, notes, needTransport, pickupAddr, at: Date.now() });
       localStorage.setItem('ms_requests', JSON.stringify(reqs));
     } catch {}
+    if (window.MS_submitForm) {
+      window.MS_submitForm('quickbook', {
+        item: item.name, tab, date, people, name, email, phone, notes,
+        needTransport, pickupAddr, startDate: date, endDate: date, duration: 1
+      }, { via });
+    }
+  };
+
+  const sendWhatsapp = () => {
+    if (!name.trim() || !email.trim()) return;
+    persistQuickBook('whatsapp');
     window.open(whatsappUrl(buildMessage()), '_blank', 'noopener');
     setSent(true);
   };
@@ -90,11 +99,7 @@ function QuickBookModal({ item, tab, onClose }) {
     const subject = `Booking — ${item.name}`;
     const body = buildMessage();
     window.location.href = `mailto:marrakechstory@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    try {
-      const reqs = JSON.parse(localStorage.getItem('ms_requests') || '[]');
-      reqs.push({ type: 'single', item: item.name, tab, date, people, name, email, phone, notes, needTransport, pickupAddr, at: Date.now() });
-      localStorage.setItem('ms_requests', JSON.stringify(reqs));
-    } catch {}
+    persistQuickBook('email');
     setSent(true);
   };
 
@@ -260,6 +265,13 @@ function TweakItineraryModal({ trip, onClose }) {
       reqs.push({ type: 'tweaked', baseTrip: trip.slug, days: days.length, extras: days.reduce((s, d) => s + d.extras.length, 0), name, email, at: Date.now() });
       localStorage.setItem('ms_requests', JSON.stringify(reqs));
     } catch {}
+    if (window.MS_submitForm) {
+      window.MS_submitForm('tweak', {
+        name, email, phone, notes,
+        baseTrip: trip.slug, baseTitle: trip.title, baseDuration: trip.duration,
+        startDate: date, duration: days.length, days
+      }, { via: 'whatsapp' });
+    }
     window.open(whatsappUrl(buildMessage()), '_blank', 'noopener');
     setSent(true);
   };

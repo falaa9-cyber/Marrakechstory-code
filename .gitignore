@@ -4,6 +4,11 @@ node_modules/
 .vscode/
 .idea/
 
+# Local env (commit .env.example instead)
+.env
+.env.local
+.env.*.local
+
 # Local agent skills (installed via npx skills add, not part of the site)
 .agents/
 skills-lock.json

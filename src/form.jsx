@@ -550,6 +550,10 @@ function ItineraryBuilder() {
       prev.unshift({ when: new Date().toISOString(), via: 'whatsapp', ctx: bookingCtx?.title || null, data });
       localStorage.setItem('ms_requests', JSON.stringify(prev.slice(0, 20)));
     } catch {}
+    // Fire-and-forget persistence to Supabase
+    if (window.MS_submitForm) {
+      window.MS_submitForm('itinerary', { ...data, bookingCtx }, { via: 'whatsapp' });
+    }
     window.open(`https://wa.me/212698164331?text=${msg}`, '_blank');
     setSent(true);
   };
@@ -578,6 +582,10 @@ function ItineraryBuilder() {
       `— KONTAKT —\n${data.name}\n${data.email}\n${data.phone}\n${data.country}\n\nGleder meg til å høre fra dere!\n`
     );
     const subject = encodeURIComponent(`Ny reiseforespørsel — ${data.name || 'gjest'} · ${data.duration} dager`);
+    // Fire-and-forget persistence to Supabase
+    if (window.MS_submitForm) {
+      window.MS_submitForm('itinerary', { ...data, bookingCtx }, { via: 'email' });
+    }
     window.location.href = `mailto:${COMPANY.email}?subject=${subject}&body=${body}`;
     setSent(true);
   };
