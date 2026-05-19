@@ -497,9 +497,11 @@ function ItinModal({ trip, onClose, lang, fmt }) {
                 {trip.themeTags.map((t, i) => <span key={i} className="itin-modal-tag">{t}</span>)}
               </div>
               <div className="itin-modal-price">
-                <span className="itin-modal-price-label">{tx('From', 'Fra', 'À partir de')}</span>
-                <span className="itin-modal-price-value">{fmt ? fmt(trip.priceFromEUR) : `€${Math.round(trip.priceFromEUR * 1.4)}`}</span>
-                <span className="itin-modal-price-sub">{tx('per person · private', 'per person · privat', 'par personne · privé')}</span>
+                <span className="itin-modal-price-label">{tx('Price', 'Pris', 'Prix')}</span>
+                <span className="itin-modal-price-value" style={{ fontSize: 18, fontStyle: 'italic' }}>
+                  {tx('On request', 'På forespørsel', 'Sur demande')}
+                </span>
+                <span className="itin-modal-price-sub">{tx('we tailor every quote', 'vi skreddersyr hvert tilbud', 'devis personnalisé')}</span>
               </div>
             </div>
           </div>
@@ -751,8 +753,8 @@ function Itineraries() {
                       <p className="cat-desc">{t.teaser}</p>
                       <div className="cat-foot">
                         <div className="cat-price">
-                          <span className="amount" style={{ fontSize: 14, fontWeight: 500, fontFamily: 'Fraunces, serif', color: 'var(--ink)' }}>
-                            {tx('From', 'Fra', 'Dès')} {adjustedPrice(t.priceFromEUR)}
+                          <span className="amount" style={{ fontSize: 12, fontStyle: 'italic', opacity: .7 }}>
+                            {tx('Price on request', 'Pris på forespørsel', 'Prix sur demande')}
                           </span>
                         </div>
                         <button className="cat-arrow" onClick={(e) => { e.stopPropagation(); setOpenTrip(t); }}><Iit.Arrow s={16} /></button>

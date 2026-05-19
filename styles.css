@@ -6321,8 +6321,8 @@ section.hero-v2 { display: none; }
 
 /* ─── HERO — 40% taller (was 60vh / 480px → now 84vh / 672px) ─── */
 .ms-hero.ms-hero-static {
-  height: 78vh !important;
-  min-height: 620px !important;
+  height: 62vh !important;
+  min-height: 496px !important;
 }
 
 .ms-hero-eyebrow {

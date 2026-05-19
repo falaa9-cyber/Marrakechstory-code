@@ -209,16 +209,14 @@ function CatalogModal({ item, tab, onClose, lang }) {
               </ul>
             </div>
           )}
-          {item.prices && item.prices.length > 0 && (
+          {tab === 'transport' && item.prices && item.prices.length > 0 && (
             <div className="cat-modal-offers">
-              <div className="cat-modal-offers-title">{lang === 'no' ? 'Priser' : lang === 'fr' ? 'Tarifs' : 'Prices'}</div>
+              <div className="cat-modal-offers-title">{lang === 'no' ? 'Pris' : lang === 'fr' ? 'Tarif' : 'Price'}</div>
               <div className="cat-modal-offers-list">
-                {item.prices.map((p, i) => (
-                  <div key={i} className="cat-modal-offer-row">
-                    <span>{p.label}</span>
-                    <span className="cat-modal-offer-price">{p.price}</span>
-                  </div>
-                ))}
+                <div className="cat-modal-offer-row">
+                  <span>{item.prices[0].label}</span>
+                  <span className="cat-modal-offer-price">{item.prices[0].price}</span>
+                </div>
               </div>
             </div>
           )}
@@ -230,19 +228,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
               </div>
             </div>
           )}
-          {item.offers && item.offers.length > 0 && (
-            <div className="cat-modal-offers">
-              <div className="cat-modal-offers-title">{lang === 'no' ? 'Tilbud' : lang === 'fr' ? 'Offres' : 'Offers'}</div>
-              <div className="cat-modal-offers-list">
-                {item.offers.map((o, i) => (
-                  <div key={i} className="cat-modal-offer-row">
-                    <span>{o.label}</span>
-                    <span className="cat-modal-offer-price">{o.price}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Offers section removed site-wide — cocktail / promo deals shown on request only */}
           {item.practical && item.practical.length > 0 && (
             <div className="cat-modal-practical">
               <div className="cat-modal-offers-title">{lang === 'no' ? 'Praktisk info' : lang === 'fr' ? 'Infos pratiques' : 'Good to know'}</div>
@@ -252,7 +238,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
             </div>
           )}
           <div className="cat-modal-price-row">
-            {!item.offers && (
+            {tab !== 'transport' && (
               <span className="cat-modal-pr-label" style={{ fontSize: 13, opacity: .7, fontStyle: 'italic' }}>
                 {lang === 'no' ? 'Pris på forespørsel' : lang === 'fr' ? 'Prix sur demande' : 'Price on request'}
               </span>
@@ -404,9 +390,11 @@ function Catalog() {
                   <div className="cat-foot">
                     <div className="cat-price">
                       <span className="amount" style={{ fontSize: 13, fontStyle: 'italic', opacity: .7 }}>
-                        {tab === 'restaurants' ? it.cuisine :
-                          (it.prices && it.prices[0] ? it.prices[0].price :
-                            (ctx.lang === 'no' ? 'På forespørsel' : 'On request'))}
+                        {tab === 'restaurants'
+                          ? it.cuisine
+                          : tab === 'transport'
+                            ? (it.prices && it.prices[0] ? it.prices[0].price : '')
+                            : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
                       </span>
                     </div>
                     <button className="cat-arrow" onClick={() => setModal({ item: it, tab })}><Ic.Arrow s={16} /></button>
