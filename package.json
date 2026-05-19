@@ -2,18 +2,19 @@
   "name": "marrakechstory",
   "version": "1.0.0",
   "private": true,
-  "description": "Marrakech Story — premium travel in Morocco. Pure static site (HTML + React UMD + Babel-in-browser, no build step).",
+  "type": "module",
+  "description": "Marrakech Story — premium travel in Morocco.",
   "homepage": "https://marrakechstory.com",
   "scripts": {
-    "build": "echo Static site, nothing to build && mkdir -p dist && cp -R index.html styles.css src assets dist/",
-    "start": "python3 -m http.server 8080",
-    "dev": "python3 -m http.server 8080"
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview --port 8080",
+    "start": "vite preview --port 8080"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
   },
   "engines": {
     "node": ">=18"
-  },
-  "browserslist": [
-    "defaults",
-    "not IE 11"
-  ]
+  }
 }
