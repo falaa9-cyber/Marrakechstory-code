@@ -238,16 +238,36 @@ function CatalogModal({ item, tab, onClose, lang }) {
             </div>
           )}
           <div className="cat-modal-price-row">
-            {tab !== 'transport' && (
+            {item.startingPriceEur ? (
+              <span className="cat-modal-pr-label" style={{ fontSize: 14, fontWeight: 600, color: 'var(--brand)' }}>
+                {lang === 'no' ? 'Fra' : lang === 'fr' ? 'Dès' : 'From'} €{item.startingPriceEur}
+                <span style={{ color: 'var(--ink-3)', fontWeight: 400, fontSize: 11, marginLeft: 6 }}>
+                  {lang === 'no' ? 'per person' : lang === 'fr' ? 'par personne' : 'per person'}
+                </span>
+              </span>
+            ) : tab !== 'transport' && (
               <span className="cat-modal-pr-label" style={{ fontSize: 13, opacity: .7, fontStyle: 'italic' }}>
                 {lang === 'no' ? 'Pris på forespørsel' : lang === 'fr' ? 'Prix sur demande' : 'Price on request'}
               </span>
             )}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {item.sourceUrl && (
+                <a className="cat-modal-source" href={item.sourceUrl} target="_blank" rel="noopener"
+                   style={{ fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.08em', alignSelf: 'center' }}>
+                  {lang === 'no' ? 'Kilde' : 'Source'}
+                </a>
+              )}
+              <a className="btn btn-primary cat-modal-cta"
+                 href={`https://wa.me/212698164331?text=${encodeURIComponent(lang === 'no' ? `Hei, jeg vil booke ${item.name} i Agafay-ørkenen.` : lang === 'fr' ? `Bonjour, je souhaite réserver ${item.name} dans le désert d'Agafay.` : `Hello, I'd like to book ${item.name} in the Agafay desert.`)}`}
+                 target="_blank" rel="noopener"
+                 style={{ display: item.startingPriceEur ? 'inline-flex' : 'none' }}>
+                {lang === 'no' ? 'Book på WhatsApp' : lang === 'fr' ? 'Réserver sur WhatsApp' : 'Book on WhatsApp'} →
+              </a>
               <button className="btn btn-outline cat-modal-cta" onClick={() => { onClose(); window.MS_OpenQuickBook?.(item, tab); }}>
                 ⚡ {lang === 'no' ? 'Bestill kun dette' : lang === 'fr' ? 'Réserver uniquement ceci' : 'Book just this'}
               </button>
-              <button className="btn btn-primary cat-modal-cta" onClick={addToReservation}>
+              <button className="btn btn-primary cat-modal-cta" onClick={addToReservation}
+                style={{ display: item.startingPriceEur ? 'none' : 'inline-flex' }}>
                 {lang === 'no' ? 'Legg til i reiseplan' : lang === 'fr' ? 'Ajouter à l\'itinéraire' : 'Add to trip'}
                 <Ic.Arrow s={14} />
               </button>
@@ -283,7 +303,7 @@ function Catalog() {
     { id: 'spa', label: t('cat_spa'), icon: <Ic.Sparkle s={16} />, data: D.SPAS,
       filters: ['All', 'Palace Spa', 'Boutique', 'Medina Hammam', 'Wellness House', 'Medical'], priceLabel: t('cat_per_person') },
     { id: 'camps', label: t('cat_camps'), icon: <Ic.Tent s={16} />, data: D.CAMPS,
-      filters: ['All', 'Luxury', 'Romantic', 'Dinner Show', 'Wellness', 'Family', 'Bohemian', 'Stargazing'], priceLabel: t('cat_per_person') },
+      filters: ['All', 'Day Pass', 'Overnight', 'Events'], priceLabel: t('cat_per_person') },
     { id: 'pools', label: t('cat_pools'), icon: <Ic.Sun s={16} />, data: D.POOLS,
       filters: ['All', 'Palace', 'Boutique', 'Agafay', 'Beach Club', 'Festive', 'Family', 'Women Only', 'Water Park'], priceLabel: t('cat_per_person') },
     { id: 'transport', label: t('cat_transport'), icon: <Ic.Plane s={16} />, data: D.TRANSPORT,
@@ -389,12 +409,20 @@ function Catalog() {
                   <p className="cat-desc">{it.desc}</p>
                   <div className="cat-foot">
                     <div className="cat-price">
-                      <span className="amount" style={{ fontSize: 13, fontStyle: 'italic', opacity: .7 }}>
+                      <span className="amount" style={{
+                        fontSize: 13,
+                        fontStyle: it.startingPriceEur ? 'normal' : 'italic',
+                        fontWeight: it.startingPriceEur ? 600 : 400,
+                        opacity: it.startingPriceEur ? 1 : .7,
+                        color: it.startingPriceEur ? 'var(--brand)' : 'inherit'
+                      }}>
                         {tab === 'restaurants'
                           ? it.cuisine
-                          : tab === 'transport'
-                            ? (it.prices && it.prices[0] ? it.prices[0].price : '')
-                            : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
+                          : it.startingPriceEur
+                            ? `${ctx.lang === 'no' ? 'Fra' : ctx.lang === 'fr' ? 'Dès' : 'From'} €${it.startingPriceEur}`
+                            : tab === 'transport'
+                              ? (it.prices && it.prices[0] ? it.prices[0].price : '')
+                              : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
                       </span>
                     </div>
                     <button className="cat-arrow" onClick={() => setModal({ item: it, tab })}><Ic.Arrow s={16} /></button>
