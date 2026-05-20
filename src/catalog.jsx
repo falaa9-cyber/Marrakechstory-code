@@ -106,6 +106,19 @@ function ModalGallery({ tab, item, lang }) {
   );
 }
 
+// Localization helper — accepts either a plain string or { en, no, fr } object
+function localize(value, lang) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value[lang] || value.en || value.fr || value.no || '';
+  }
+  return value;
+}
+function localizeList(arr, lang) {
+  if (!arr) return [];
+  if (Array.isArray(arr)) return arr.map((v) => localize(v, lang));
+  return localize(arr, lang) || [];
+}
+
 function CatalogModal({ item, tab, onClose, lang }) {
   useEffectC(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -130,11 +143,11 @@ function CatalogModal({ item, tab, onClose, lang }) {
             <strong>{item.rating}</strong>
             <span className="cat-modal-reviews">({(item.reviews || 0).toLocaleString()} {lang === 'no' ? 'anmeldelser' : lang === 'fr' ? 'avis' : 'reviews'})</span>
           </div>
-          <h2 className="cat-modal-title">{item.name}</h2>
-          <div className="cat-modal-area"><Ic.Pin s={13} /> {item.area}</div>
-          {item.duration && <div className="cat-modal-duration"><Ic.Clock s={13} /> {item.duration}</div>}
-          <p className="cat-modal-desc">{item.description || item.desc}</p>
-          {item.slogan && <p className="cat-modal-slogan">{item.slogan}</p>}
+          <h2 className="cat-modal-title">{localize(item.name, lang)}</h2>
+          <div className="cat-modal-area"><Ic.Pin s={13} /> {localize(item.area, lang)}</div>
+          {item.duration && <div className="cat-modal-duration"><Ic.Clock s={13} /> {localize(item.duration, lang)}</div>}
+          <p className="cat-modal-desc">{localize(item.description || item.desc, lang)}</p>
+          {item.slogan && <p className="cat-modal-slogan">{localize(item.slogan, lang)}</p>}
           {tab === 'restaurants' && item.cuisine && (
             <div className="cat-modal-meta">
               <span className="cat-modal-pill"><Ic.Utensils s={13} /> {item.cuisine}</span>
@@ -224,7 +237,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
             <div className="cat-modal-perfect">
               <div className="cat-modal-offers-title">{lang === 'no' ? 'Perfekt for' : lang === 'fr' ? 'Idéal pour' : 'Perfect for'}</div>
               <div className="cat-modal-perfect-chips">
-                {item.perfectFor.map((pf, i) => <span key={i} className="cat-modal-perfect-chip">{pf}</span>)}
+                {(Array.isArray(item.perfectFor) ? item.perfectFor : localizeList(item.perfectFor, lang)).map((pf, i) => <span key={i} className="cat-modal-perfect-chip">{localize(pf, lang)}</span>)}
               </div>
             </div>
           )}
@@ -232,7 +245,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
           {item.subPackages && item.subPackages.length > 0 && (() => {
             const groups = {};
             for (const sp of item.subPackages) {
-              const key = sp.section || 'Offres';
+              const key = localize(sp.section, lang) || 'Offres';
               if (!groups[key]) groups[key] = [];
               groups[key].push(sp);
             }
@@ -248,27 +261,20 @@ function CatalogModal({ item, tab, onClose, lang }) {
                         <div key={i} className="cat-sub-pkg-card">
                           {sp.image && (
                             <div className="cat-sub-pkg-img" style={{ backgroundImage: `url(${sp.image})` }}>
-                              {sp.badge && <span className="cat-sub-pkg-badge">{sp.badge}</span>}
+                              {sp.badge && <span className="cat-sub-pkg-badge">{localize(sp.badge, lang)}</span>}
                             </div>
                           )}
                           <div className="cat-sub-pkg-body">
-                            <div className="cat-sub-pkg-name">{sp.name}</div>
-                            {sp.duration && <div className="cat-sub-pkg-duration">{sp.duration}</div>}
-                            {sp.description && <p className="cat-sub-pkg-desc">{sp.description}</p>}
-                            {sp.includes && sp.includes.length > 0 && (
+                            <div className="cat-sub-pkg-name">{localize(sp.name, lang)}</div>
+                            {sp.duration && <div className="cat-sub-pkg-duration">{localize(sp.duration, lang)}</div>}
+                            {sp.description && <p className="cat-sub-pkg-desc">{localize(sp.description, lang)}</p>}
+                            {sp.includes && (Array.isArray(sp.includes) ? sp.includes.length > 0 : true) && (
                               <ul className="cat-sub-pkg-list">
-                                {sp.includes.map((line, j) => <li key={j}>{line}</li>)}
+                                {(Array.isArray(sp.includes) ? sp.includes : localizeList(sp.includes, lang)).map((line, j) => <li key={j}>{localize(line, lang)}</li>)}
                               </ul>
                             )}
-                            <div className="cat-sub-pkg-price-row">
-                              {sp.oldPrice && <span className="cat-sub-pkg-old">{sp.oldPrice}</span>}
-                              {sp.price && <span className="cat-sub-pkg-price">{sp.price}</span>}
-                              {sp.eur && <span className="cat-sub-pkg-eur">≈ €{sp.eur}</span>}
-                            </div>
-                            {sp.childPrice && (
-                              <div className="cat-sub-pkg-extra">{lang === 'fr' ? 'Enfant' : 'Child'} : {sp.childPrice}</div>
-                            )}
-                            {sp.note && <div className="cat-sub-pkg-note">{sp.note}</div>}
+                            {/* Prices intentionally hidden — partner offers are quoted on request */}
+                            {sp.note && <div className="cat-sub-pkg-note">{localize(sp.note, lang)}</div>}
                           </div>
                         </div>
                       ))}
@@ -282,19 +288,12 @@ function CatalogModal({ item, tab, onClose, lang }) {
             <div className="cat-modal-practical">
               <div className="cat-modal-offers-title">{lang === 'no' ? 'Praktisk info' : lang === 'fr' ? 'Infos pratiques' : 'Good to know'}</div>
               <ul className="cat-modal-practical-list">
-                {item.practical.map((p, i) => <li key={i}>{p}</li>)}
+                {(Array.isArray(item.practical) ? item.practical : localizeList(item.practical, lang)).map((p, i) => <li key={i}>{localize(p, lang)}</li>)}
               </ul>
             </div>
           )}
           <div className="cat-modal-price-row">
-            {item.startingPriceEur ? (
-              <span className="cat-modal-pr-label" style={{ fontSize: 14, fontWeight: 600, color: 'var(--brand)' }}>
-                {lang === 'no' ? 'Fra' : lang === 'fr' ? 'Dès' : 'From'} €{item.startingPriceEur}
-                <span style={{ color: 'var(--ink-3)', fontWeight: 400, fontSize: 11, marginLeft: 6 }}>
-                  {lang === 'no' ? 'per person' : lang === 'fr' ? 'par personne' : 'per person'}
-                </span>
-              </span>
-            ) : tab !== 'transport' && (
+            {tab !== 'transport' && (
               <span className="cat-modal-pr-label" style={{ fontSize: 13, opacity: .7, fontStyle: 'italic' }}>
                 {lang === 'no' ? 'Pris på forespørsel' : lang === 'fr' ? 'Prix sur demande' : 'Price on request'}
               </span>
@@ -306,17 +305,10 @@ function CatalogModal({ item, tab, onClose, lang }) {
                   {lang === 'no' ? 'Kilde' : 'Source'}
                 </a>
               )}
-              <a className="btn btn-primary cat-modal-cta"
-                 href={`https://wa.me/212698164331?text=${encodeURIComponent(lang === 'no' ? `Hei, jeg vil booke ${item.name} i Agafay-ørkenen.` : lang === 'fr' ? `Bonjour, je souhaite réserver ${item.name} dans le désert d'Agafay.` : `Hello, I'd like to book ${item.name} in the Agafay desert.`)}`}
-                 target="_blank" rel="noopener"
-                 style={{ display: item.startingPriceEur ? 'inline-flex' : 'none' }}>
-                {lang === 'no' ? 'Book på WhatsApp' : lang === 'fr' ? 'Réserver sur WhatsApp' : 'Book on WhatsApp'} →
-              </a>
               <button className="btn btn-outline cat-modal-cta" onClick={() => { onClose(); window.MS_OpenQuickBook?.(item, tab); }}>
                 ⚡ {lang === 'no' ? 'Bestill kun dette' : lang === 'fr' ? 'Réserver uniquement ceci' : 'Book just this'}
               </button>
-              <button className="btn btn-primary cat-modal-cta" onClick={addToReservation}
-                style={{ display: item.startingPriceEur ? 'none' : 'inline-flex' }}>
+              <button className="btn btn-primary cat-modal-cta" onClick={addToReservation}>
                 {lang === 'no' ? 'Legg til i reiseplan' : lang === 'fr' ? 'Ajouter à l\'itinéraire' : 'Add to trip'}
                 <Ic.Arrow s={14} />
               </button>
@@ -452,26 +444,18 @@ function Catalog() {
                     <strong>{it.rating}</strong>
                     <span style={{ color: 'var(--ink-3)' }}>({(it.reviews || 0).toLocaleString()} reviews)</span>
                   </div>
-                  <h3 className="cat-title">{it.name}</h3>
-                  <span className="cat-area"><Ic.Pin s={12} /> {it.area}</span>
-                  {it.duration && <span className="cat-duration"><Ic.Clock s={12} /> {it.duration}</span>}
-                  <p className="cat-desc">{it.desc}</p>
+                  <h3 className="cat-title">{localize(it.name, ctx.lang)}</h3>
+                  <span className="cat-area"><Ic.Pin s={12} /> {localize(it.area, ctx.lang)}</span>
+                  {it.duration && <span className="cat-duration"><Ic.Clock s={12} /> {localize(it.duration, ctx.lang)}</span>}
+                  <p className="cat-desc">{localize(it.desc, ctx.lang)}</p>
                   <div className="cat-foot">
                     <div className="cat-price">
-                      <span className="amount" style={{
-                        fontSize: 13,
-                        fontStyle: it.startingPriceEur ? 'normal' : 'italic',
-                        fontWeight: it.startingPriceEur ? 600 : 400,
-                        opacity: it.startingPriceEur ? 1 : .7,
-                        color: it.startingPriceEur ? 'var(--brand)' : 'inherit'
-                      }}>
+                      <span className="amount" style={{ fontSize: 13, fontStyle: 'italic', opacity: .7 }}>
                         {tab === 'restaurants'
                           ? it.cuisine
-                          : it.startingPriceEur
-                            ? `${ctx.lang === 'no' ? 'Fra' : ctx.lang === 'fr' ? 'Dès' : 'From'} €${it.startingPriceEur}`
-                            : tab === 'transport'
-                              ? (it.prices && it.prices[0] ? it.prices[0].price : '')
-                              : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
+                          : tab === 'transport'
+                            ? (it.prices && it.prices[0] ? it.prices[0].price : '')
+                            : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
                       </span>
                     </div>
                     <button className="cat-arrow" onClick={() => setModal({ item: it, tab })}><Ic.Arrow s={16} /></button>
