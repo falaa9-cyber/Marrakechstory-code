@@ -106,7 +106,7 @@ const ITINS = [
     duration: "3D2N", days: 3, nights: 2,
     route: "Marrakech → Merzouga → Marrakech",
     priceFromEUR: 290,
-    img: "assets/photos/marrakech-desert.jpg",
+    img: "assets/photos/agafay-valley-marrakech-93.jpg",
     badge: "MOST LOVED",
     themeTags: ["Desert", "Camel trek", "Berber camp"],
     teaser: "A two-night arc across the High Atlas to Erg Chebbi — the dunes most travellers imagine when they imagine Morocco.",
@@ -348,6 +348,7 @@ const ITINS = [
 
   // ===== Day trips (3) =====
   {
+    archived: true,
     slug: "ourika-day", chapter: "13",
     title: "A Day In The Ourika Valley",
     duration: "1D", days: 1, nights: 0,
@@ -366,6 +367,7 @@ const ITINS = [
     excluded: ["Lunch", "Tips"],
   },
   {
+    archived: true,
     slug: "essaouira-day", chapter: "14",
     title: "A Day By The Atlantic",
     duration: "1D", days: 1, nights: 0,
@@ -384,6 +386,7 @@ const ITINS = [
     excluded: ["Lunch", "Optional local guide", "Tips"],
   },
   {
+    archived: true,
     slug: "agafay-sunset", chapter: "15",
     title: "Agafay At Sunset",
     duration: "1D", days: 1, nights: 0,
@@ -428,8 +431,8 @@ const ITINS = [
   },
   {
     slug: "the-grand-discovery", chapter: "17",
-    title: "The Grand Discovery — 15 Days",
-    duration: "15D14N", days: 15, nights: 14,
+    title: "The Grand Discovery — 14 Days",
+    duration: "14D13N", days: 14, nights: 13,
     route: "Marrakech → Atlas → Sahara → Fez → Coast → Marrakech",
     priceFromEUR: 3490,
     img: "assets/photos/leonardo-2680808-marrak-11-12-22-o-343368.jpg",
@@ -452,10 +455,63 @@ const ITINS = [
       { day: 11, route: "Chefchaouen → Volubilis → Meknes", text: "Roman ruins. Meknes overnight." },
       { day: 12, route: "Meknes → Casablanca", text: "Drive west. Free afternoon." },
       { day: 13, route: "Casablanca → Essaouira", text: "Down the Atlantic. Coastal overnight." },
-      { day: 14, route: "Essaouira → Marrakech", text: "Slow return via the argan road." },
-      { day: 15, route: "Marrakech", text: "Free morning. Departure." },
+      { day: 14, route: "Essaouira → Marrakech", text: "Slow return via the argan road. Departure." },
     ],
-    included: ["Private 4×4 + driver-guide for full route", "Fourteen nights' accommodation", "All transfers", "Local guides in Fez & Marrakech", "Camp half board"],
+    included: ["Private 4×4 + driver-guide for full route", "Thirteen nights' accommodation", "All transfers", "Local guides in Fez & Marrakech", "Camp half board"],
+    excluded: ["Some meals", "Drinks", "Tips"],
+  },
+
+  // ===== 10D9N tier =====
+  {
+    slug: "atlas-sahara-coast-10d", chapter: "18",
+    title: "Atlas, Sahara & Coast",
+    duration: "10D9N", days: 10, nights: 9,
+    route: "Marrakech → Atlas → Sahara → Essaouira → Marrakech",
+    priceFromEUR: 2190,
+    img: "assets/photos/about-us-2-hq-1-scaled.jpg.webp",
+    themeTags: ["Mountains", "Desert", "Coast"],
+    teaser: "Ten days across the three signature landscapes — slow enough to let each one breathe before the next.",
+    overview: "A balanced ten-day arc for travellers who want all three textures of Morocco without the rush of a five-day version. Three days unwinding in the medina + Atlas, three days through the kasbah road and into Erg Chebbi for two consecutive desert nights, three days west to Essaouira and the Atlantic, one final riad day in Marrakech.",
+    highlights: ["Medina with local guide", "Atlas mountain lodge night", "Tichka pass & Aït Ben Haddou", "Two Sahara nights — Berber camp + luxury tent", "Visit to a nomadic family", "Essaouira ramparts & seafood", "Argan road return"],
+    itinerary: [
+      { day: 1, route: "Marrakech arrival", text: "Riad check-in. Soft medina walk. Welcome dinner." },
+      { day: 2, route: "Marrakech medina", text: "Heritage walk with local guide. Lunch at L'Mida. Free afternoon." },
+      { day: 3, route: "Marrakech → Imlil", text: "Drive into the Atlas. Lunch in Asni. Lodge overnight." },
+      { day: 4, route: "Imlil → Aït Ben Haddou", text: "Cross Tichka. Lunch at the kasbah. Overnight in Aït Ben Haddou." },
+      { day: 5, route: "Aït Ben Haddou → Dades", text: "Skoura palm grove. Up the Dades valley." },
+      { day: 6, route: "Dades → Merzouga", text: "Through Todra Gorge. Camel into the Berber camp at sunset." },
+      { day: 7, route: "Merzouga", text: "Visit a nomadic family. Lunch in oasis. Luxury tent overnight." },
+      { day: 8, route: "Merzouga → Marrakech", text: "Sunrise. Scenic drive back via Tichka." },
+      { day: 9, route: "Marrakech → Essaouira", text: "Drive west via the argan road. Coastal overnight." },
+      { day: 10, route: "Essaouira → Marrakech", text: "Slow morning. Lunch by the ramparts. Return for departure." },
+    ],
+    included: ["Private 4×4 + driver-guide", "Nine nights' accommodation", "Local guides in Marrakech & camp", "All transfers", "Two camp dinners + breakfasts"],
+    excluded: ["Some lunches", "Drinks", "Tips"],
+  },
+  {
+    slug: "imperial-cities-10d", chapter: "19",
+    title: "Imperial Cities & Sahara",
+    duration: "10D9N", days: 10, nights: 9,
+    route: "Marrakech → Fez → Sahara → Marrakech",
+    priceFromEUR: 2390,
+    img: "assets/photos/about-us-3-hq-1-scaled.jpg.webp",
+    themeTags: ["Cities", "Medinas", "Sahara"],
+    teaser: "A ten-day loop that pairs the imperial spine with two consecutive Sahara nights — heritage by day, dunes by night.",
+    overview: "Two days in Marrakech, two in Fez, one in Chefchaouen, then south to the kasbah road and into the dunes for two nights, returning slowly via Ouarzazate. Every city is paired with a local guide; every drive is private.",
+    highlights: ["Marrakech medina + Bahia", "Volubilis Roman ruins", "Fez tanneries + Bou Inania madrasa", "Chefchaouen blue-town walk", "Aït Ben Haddou kasbah", "Two Sahara overnights at Erg Chebbi", "Draa valley return"],
+    itinerary: [
+      { day: 1, route: "Marrakech arrival", text: "Riad check-in. Light medina walk. Riad dinner." },
+      { day: 2, route: "Marrakech medina", text: "Bahia, Badii, Koutoubia tour. Souk walk. Cooking class option." },
+      { day: 3, route: "Marrakech → Meknes → Fez", text: "Volubilis Roman site. Lunch in Meknes. Arrive Fez evening." },
+      { day: 4, route: "Fez", text: "Full-day medina with local guide. Tanneries. Madrasa Bou Inania." },
+      { day: 5, route: "Fez → Chefchaouen", text: "Drive north through the Rif. Blue-town afternoon." },
+      { day: 6, route: "Chefchaouen → Midelt", text: "Long but scenic drive south. Berber lunch en route." },
+      { day: 7, route: "Midelt → Merzouga", text: "Down to Erg Chebbi. Camel into Berber camp at sunset." },
+      { day: 8, route: "Merzouga", text: "Nomadic family visit. Luxury tent overnight." },
+      { day: 9, route: "Merzouga → Ouarzazate", text: "Sunrise. Drive via Draa valley. Kasbah Aït Ben Haddou." },
+      { day: 10, route: "Ouarzazate → Marrakech", text: "Cross Tichka. Late lunch. Departure." },
+    ],
+    included: ["Private 4×4 + driver-guide for full loop", "Nine nights' accommodation", "Local city guides", "All transfers", "Camp half board"],
     excluded: ["Some meals", "Drinks", "Tips"],
   },
 ];
@@ -614,28 +670,30 @@ function Itineraries() {
     if (f === '3D2N')        return tx('3 days', '3 dager', '3 jours');
     if (f === '4D3N')        return tx('4 days', '4 dager', '4 jours');
     if (f === '5D4N')        return tx('5 days', '5 dager', '5 jours');
-    if (f === 'Day trips')   return tx('Day trips', 'Dagsturer', 'Excursions');
-    if (f === '7D+')         return tx('1 week+', '1 uke+', '1 semaine+');
+    if (f === '7D6N')        return tx('7 days', '7 dager', '7 jours');
+    if (f === '10D9N')       return tx('10 days', '10 dager', '10 jours');
+    if (f === '14D13N')      return tx('14 days', '14 dager', '14 jours');
     return f;
   };
-  const filters = ['All', 'Most booked', '3D2N', '4D3N', '5D4N', 'Day trips', '7D+'];
-  const all = useMemoIt(() => [...MOST_BOOKED, ...ITINS], []);
+  const filters = ['All', 'Most booked', '3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N'];
+  // Archived trips stay in the source so we can re-enable them later
+  // without losing the data; just filter them out at the display layer.
+  const all = useMemoIt(() => [...MOST_BOOKED, ...ITINS].filter(t => !t.archived), []);
   const matches = (t) => {
     if (filter === 'All') return true;
     if (filter === 'Most booked') return t.badge === 'MOST BOOKED';
-    if (filter === 'Day trips') return t.days === 1;
-    if (filter === '7D+') return t.days >= 7;
     return t.duration === filter;
   };
-  // Sort: MOST_BOOKED first, then 3D2N → 4D3N → 5D4N → day trips → 7D+
+  // Sort: MOST_BOOKED first, then by duration (short → long)
   const tier = (t) => {
     if (t.badge === 'MOST BOOKED') return -1;
-    if (t.duration === '3D2N') return 0;
-    if (t.duration === '4D3N') return 1;
-    if (t.duration === '5D4N') return 2;
-    if (t.days === 1) return 3;
-    if (t.days >= 7) return 4;
-    return 5;
+    if (t.duration === '3D2N')   return 0;
+    if (t.duration === '4D3N')   return 1;
+    if (t.duration === '5D4N')   return 2;
+    if (t.duration === '7D6N')   return 3;
+    if (t.duration === '10D9N')  return 4;
+    if (t.duration === '14D13N') return 5;
+    return 99;
   };
   const items = useMemoIt(() =>
     all.filter(matches).sort((a, b) => tier(a) - tier(b)), [filter, all]);
@@ -661,8 +719,6 @@ function Itineraries() {
             const count = isMostBooked
               ? all.filter(t => t.badge === 'MOST BOOKED').length
               : f === 'All' ? all.length
-              : f === 'Day trips' ? all.filter(t => t.days === 1).length
-              : f === '7D+' ? all.filter(t => t.days >= 7).length
               : all.filter(t => t.duration === f).length;
             return (
               <button key={f} className={`cat-tab-v2 ${filter === f ? 'active' : ''}`}

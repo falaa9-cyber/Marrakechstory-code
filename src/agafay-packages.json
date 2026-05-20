@@ -1,0 +1,478 @@
+{
+  "_source": "https://marrakechbestof.com",
+  "_currency": "EUR",
+  "categories": [
+    { "id": "day",       "label_en": "Day passes",       "label_no": "Dagspass",                       "label_fr": "Pass journée" },
+    { "id": "overnight", "label_en": "Overnight camps",  "label_no": "Overnatting",                    "label_fr": "Nuit au camp" },
+    { "id": "events",    "label_en": "Events & combos",  "label_no": "Opplevelser & kombi",            "label_fr": "Événements & combos" }
+  ],
+  "packages": [
+    {
+      "slug": "le-bedouin",
+      "category": "day",
+      "name": "Le Bédouin",
+      "rating": 4.5,
+      "location": "Agafay Desert · 50 min from Marrakech",
+      "tagline": {
+        "en": "Authentic Moroccan camp with heated pool, lunch or dinner, and live evening animation.",
+        "no": "Autentisk marokkansk leir med oppvarmet basseng, lunsj eller middag, og levende kveldsunderholdning.",
+        "fr": "Camp marocain authentique avec piscine chauffée, déjeuner ou dîner et animation en soirée."
+      },
+      "description": {
+        "en": "Le Bédouin is a new camp located in the Agafay desert. It offers swimming pool access for lunch or dinner. The cuisine is typically Moroccan, the setting is incredible. The Agafay desert is a rocky desert located 50 minutes from Marrakech.",
+        "no": "Le Bédouin er en nyere leir i Agafay-ørkenen. Bassengtilgang med lunsj eller middag. Tradisjonell marokkansk meny, spektakulær setting. Agafay er en steinørken 50 minutter fra Marrakech.",
+        "fr": "Le Bédouin est un nouveau camp dans le désert d'Agafay. Accès piscine avec déjeuner ou dîner. Cuisine typiquement marocaine, cadre exceptionnel."
+      },
+      "info": {
+        "en": [
+          "Full payment in advance via secure link (refundable +48h ahead).",
+          "Pool + lunch access: 10:00 – 18:00.",
+          "Pool + dinner access: from 15:00.",
+          "Live music around the pool every day.",
+          "Evening animation: Gnawa, belly dancers, fire-eater and DJ."
+        ],
+        "no": [
+          "Full betaling på forhånd via sikker lenke (refunderes ved avbestilling +48t i forveien).",
+          "Basseng + lunsj: 10:00 – 18:00.",
+          "Basseng + middag: fra 15:00.",
+          "Live musikk ved bassenget hver dag.",
+          "Kveldsunderholdning: Gnawa, magedans, ildslukere og DJ."
+        ],
+        "fr": [
+          "Paiement intégral à l'avance par lien sécurisé (remboursable +48h à l'avance).",
+          "Piscine + déjeuner : 10:00 – 18:00.",
+          "Piscine + dîner : à partir de 15:00.",
+          "Musique live autour de la piscine tous les jours.",
+          "Animations en soirée : Gnawa, danseuses orientales, cracheur de feu et DJ."
+        ]
+      },
+      "tags": ["Pool access", "Heated pool", "Lunch", "Free mocktail"],
+      "starting_price_eur": 50,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2021/08/B15B94C4-563D-46CB-9B06-ED6B3C01807F-1860x1092.jpeg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2021/08/WhatsApp-Image-2025-07-28-at-12.14.02.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2021/08/3D22E5C9-B54D-4AB3-8DF5-066638C4062D.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2021/08/5DF287DF-1C86-419E-BB71-9758FDAC313F.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2021/08/A30F568D-E528-4D02-9BA2-10B25D3CE121.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2021/08/6BCE9AD8-B4E0-495E-8B6A-1BE95BCBAC31.jpeg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/le-bedouin/?lang=en"
+    },
+    {
+      "slug": "orion-dome",
+      "category": "day",
+      "name": "Orion Dome",
+      "location": "Agafay Desert · 50 min from Marrakech",
+      "tagline": {
+        "en": "Stylish dome camp with pool, Moroccan cuisine and Gnawa music nights.",
+        "no": "Stilig kuppel-leir med basseng, marokkansk kjøkken og Gnawa-musikk.",
+        "fr": "Camp en dômes avec piscine, cuisine marocaine et soirées Gnawa."
+      },
+      "description": {
+        "en": "Orion Dome is a new camp in the Agafay Desert. It offers pool access with lunch or dinner. Authentic Moroccan cuisine, breathtaking setting.",
+        "no": "Orion Dome er en nyere leir i Agafay-ørkenen. Bassengtilgang med lunsj eller middag. Autentisk marokkansk meny i en spektakulær setting.",
+        "fr": "Orion Dome est un nouveau camp dans le désert d'Agafay. Accès piscine avec déjeuner ou dîner. Cuisine marocaine authentique, cadre à couper le souffle."
+      },
+      "info": {
+        "en": [
+          "Deposit required to confirm reservation (refundable +24h ahead).",
+          "Cash only on site.",
+          "Pool + lunch: 11:00 – 17:00.",
+          "Pool + dinner: from 17:00.",
+          "Evening entertainment: Gnawa music."
+        ],
+        "no": [
+          "Depositum kreves for å bekrefte (refunderes ved avbestilling +24t i forveien).",
+          "Kun kontant betaling på stedet.",
+          "Basseng + lunsj: 11:00 – 17:00.",
+          "Basseng + middag: fra 17:00.",
+          "Kveldsunderholdning: Gnawa-musikk."
+        ],
+        "fr": [
+          "Acompte requis (remboursable +24h à l'avance).",
+          "Paiement en espèces sur place uniquement.",
+          "Piscine + déjeuner : 11:00 – 17:00.",
+          "Piscine + dîner : à partir de 17:00.",
+          "Animation en soirée : musique Gnawa."
+        ]
+      },
+      "tags": ["Pool access", "Lunch", "Free fresh juice"],
+      "starting_price_eur": 48,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.29-1-1600x1092.jpeg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.31.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.26-1.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.28-2.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.28-3.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.29.jpeg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/orion-dome/?lang=en"
+    },
+    {
+      "slug": "sunset-agafay",
+      "category": "day",
+      "name": "Sunset Agafay",
+      "location": "Agafay Desert · 50 min from Marrakech",
+      "tagline": {
+        "en": "Spectacular sunset views from a pool perched over the rocky desert.",
+        "no": "Spektakulær solnedgang fra et basseng som ruver over steinørkenen.",
+        "fr": "Vues spectaculaires sur le coucher du soleil depuis une piscine perchée."
+      },
+      "description": {
+        "en": "Sunset Agafay is a camp in the Agafay desert offering pool access for lunch or dinner. The cuisine is typically Moroccan and the view is incredible.",
+        "no": "Sunset Agafay er en leir i Agafay-ørkenen med bassengtilgang og lunsj eller middag. Tradisjonell marokkansk meny, fantastisk utsikt.",
+        "fr": "Sunset Agafay est un camp dans le désert d'Agafay avec accès piscine et déjeuner ou dîner. Cuisine marocaine, vue exceptionnelle."
+      },
+      "info": {
+        "en": [
+          "Deposit required (refundable +24h ahead).",
+          "Cash only on site.",
+          "Pool + lunch: 11:00 – 18:00.",
+          "Pool + dinner: 16:00 – 22:00.",
+          "The pool is not heated."
+        ],
+        "no": [
+          "Depositum kreves (refunderes ved avbestilling +24t i forveien).",
+          "Kun kontant betaling på stedet.",
+          "Basseng + lunsj: 11:00 – 18:00.",
+          "Basseng + middag: 16:00 – 22:00.",
+          "Bassenget er ikke oppvarmet."
+        ],
+        "fr": [
+          "Acompte requis (remboursable +24h à l'avance).",
+          "Paiement en espèces sur place uniquement.",
+          "Piscine + déjeuner : 11:00 – 18:00.",
+          "Piscine + dîner : 16:00 – 22:00.",
+          "La piscine n'est pas chauffée."
+        ]
+      },
+      "tags": ["Pool access", "Lunch", "Sunset views"],
+      "starting_price_eur": 45,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2024/10/20241207_140616_IMG_5091-1860x1092.jpg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2024/10/20241207_142749_IMG_5105.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/10/Screenshot_20260405_114533_Gallery.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/10/Screenshot_20260405_114513_Gallery.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/10/Screenshot_20260405_114500_Gallery.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/10/Screenshot_20260405_114443_Gallery.jpg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/sunset-agafay/?lang=en"
+    },
+    {
+      "slug": "be-agafay",
+      "category": "day",
+      "name": "Be Agafay",
+      "rating": 4.6,
+      "location": "Agafay Desert · 1 h drive from Marrakech",
+      "tagline": {
+        "en": "Instagrammable camp with unique-shape pool, jacuzzi and excellent cuisine.",
+        "no": "Instagrammable leir med basseng i unik form, jacuzzi og fremragende mat.",
+        "fr": "Camp Instagrammable avec piscine à la forme unique, jacuzzi et excellente cuisine."
+      },
+      "description": {
+        "en": "A sublime camp in the Agafay desert, very Instagrammable with many photo spots. Lunch and dinner with pool access. The food is different from other camps — well-prepared and excellent. Original-shape pool with jacuzzi. Limited beds — reservation required.",
+        "no": "En sublim leir i Agafay-ørkenen, svært Instagrammable med mange foto-spots. Lunsj og middag med bassengtilgang. Maten er annerledes enn andre leirer — godt tilberedt og fremragende. Originalt formet basseng med jacuzzi. Begrenset antall plasser — reservasjon kreves.",
+        "fr": "Un camp sublime dans le désert d'Agafay, très Instagrammable avec de nombreux spots photo. Déjeuner et dîner avec accès piscine. La cuisine se distingue — bien préparée et excellente. Piscine à la forme originale avec jacuzzi. Places limitées — réservation requise."
+      },
+      "info": {
+        "en": [
+          "Deposit required (refundable +24h ahead).",
+          "Pool + lunch: 11:30 – 17:30 (starter, main, dessert).",
+          "Pool + dinner: from 17:30.",
+          "Difficult access — private driver or 4×4 recommended."
+        ],
+        "no": [
+          "Depositum kreves (refunderes ved avbestilling +24t i forveien).",
+          "Basseng + lunsj: 11:30 – 17:30 (forrett, hovedrett, dessert).",
+          "Basseng + middag: fra 17:30.",
+          "Vanskelig tilgang — privat sjåfør eller 4×4 anbefales."
+        ],
+        "fr": [
+          "Acompte requis (remboursable +24h à l'avance).",
+          "Piscine + déjeuner : 11:30 – 17:30 (entrée, plat, dessert).",
+          "Piscine + dîner : à partir de 17:30.",
+          "Accès difficile — chauffeur privé ou 4×4 recommandé."
+        ]
+      },
+      "tags": ["Pool access", "Heated pool", "Jacuzzi", "Lunch", "Free mocktail"],
+      "starting_price_eur": 50,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2022/10/DSCF2641-1860x1092.jpg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2022/10/A69C3C69-7982-4D90-8BE4-1010EEA62D6F.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2022/10/PHLOW_PHOTO_20240908_2103_0001.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2022/10/PHLOW_PHOTO_20240902_0020_0001.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2022/10/PHLOW_PHOTO_20240901_2026_0001.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2022/10/image00014.jpeg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/be-agafay/?lang=en"
+    },
+    {
+      "slug": "the-white-camel",
+      "category": "day",
+      "name": "The White Camel",
+      "rating": 4.5,
+      "location": "Agafay Desert · 45 min from Marrakech",
+      "tagline": {
+        "en": "Magical camp with a pool overlooking the valley and breathtaking sunsets.",
+        "no": "Magisk leir med basseng som ser ut over dalen og fantastiske solnedganger.",
+        "fr": "Camp magique avec piscine surplombant la vallée et couchers de soleil sublimes."
+      },
+      "description": {
+        "en": "A magical place in the Agafay Desert. Relax in the pool overlooking the valley and watch a beautiful sunset. Lunch, dinner and on-site camel rides available.",
+        "no": "Et magisk sted i Agafay-ørkenen. Slapp av i bassenget med utsikt over dalen og se solnedgangen. Lunsj, middag og kamelturer på stedet.",
+        "fr": "Un endroit magique dans le désert d'Agafay. Détendez-vous dans la piscine surplombant la vallée et profitez du coucher de soleil. Déjeuner, dîner et balades à dos de chameau."
+      },
+      "info": {
+        "en": [
+          "Deposit required (refundable +24h ahead).",
+          "Arrivals from 11:00.",
+          "Hard to find — book a driver.",
+          "Pool + lunch ends at 16:00.",
+          "Pool + dinner starts at 16:00.",
+          "Full Day package: access for the entire day including lunch and dinner."
+        ],
+        "no": [
+          "Depositum kreves (refunderes ved avbestilling +24t i forveien).",
+          "Ankomst fra 11:00.",
+          "Vanskelig å finne — book en sjåfør.",
+          "Basseng + lunsj slutter 16:00.",
+          "Basseng + middag starter 16:00.",
+          "Heldagspakke: tilgang hele dagen, lunsj og middag inkludert."
+        ],
+        "fr": [
+          "Acompte requis (remboursable +24h à l'avance).",
+          "Arrivées à partir de 11:00.",
+          "Difficile à trouver — chauffeur recommandé.",
+          "Piscine + déjeuner se termine à 16:00.",
+          "Piscine + dîner commence à 16:00.",
+          "Pass journée complète : accès toute la journée, déjeuner et dîner inclus."
+        ]
+      },
+      "tags": ["Pool access", "Lunch", "Sunset views", "Camel rides"],
+      "starting_price_eur": 55,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2019/05/1E8EC2F8-E977-459A-85E4-0E8D35BE265E.jpeg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2019/05/661096EE-ED06-4966-886C-EE0D0F65B299.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2019/05/4A68FEC8-9BF9-4B43-BD38-FB07DFEE7CB1.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2019/05/DA2CE10A-2885-4EC0-88DD-F924DD731AB6.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2019/05/D840EE67-F111-4B53-8EA5-EFD6278062EF.jpeg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/the-white-camel/?lang=en"
+    },
+    {
+      "slug": "agafay-valley",
+      "category": "day",
+      "name": "Agafay Valley",
+      "rating": 4.2,
+      "location": "Agafay Desert · 45 min from Marrakech",
+      "tagline": {
+        "en": "Family-friendly pool camp with rich evening entertainment.",
+        "no": "Familievennlig leir med basseng og rik kveldsunderholdning.",
+        "fr": "Camp familial avec piscine et animation en soirée."
+      },
+      "description": {
+        "en": "Relax by the pool and enjoy a wonderful meal in the Agafay desert. Optional sunset horse ride available with lunch.",
+        "no": "Slapp av ved bassenget og nyt et godt måltid i Agafay-ørkenen. Valgfri rideturer i solnedgang sammen med lunsj.",
+        "fr": "Détendez-vous au bord de la piscine avec un repas dans le désert d'Agafay. Balade à cheval au coucher du soleil possible avec le déjeuner."
+      },
+      "info": {
+        "en": [
+          "Deposit required (refundable +24h ahead).",
+          "Cash only on site.",
+          "Pool + lunch: 11:00 – 20:00.",
+          "Pool + dinner: from 15:00.",
+          "Evening animation: Gnawa, belly dancers, fire-eater, Marrakchia Dakka, campfire."
+        ],
+        "no": [
+          "Depositum kreves (refunderes ved avbestilling +24t i forveien).",
+          "Kun kontant betaling på stedet.",
+          "Basseng + lunsj: 11:00 – 20:00.",
+          "Basseng + middag: fra 15:00.",
+          "Kveldsunderholdning: Gnawa, magedans, ildslukere, Marrakchia Dakka, bål."
+        ],
+        "fr": [
+          "Acompte requis (remboursable +24h à l'avance).",
+          "Paiement en espèces sur place uniquement.",
+          "Piscine + déjeuner : 11:00 – 20:00.",
+          "Piscine + dîner : à partir de 15:00.",
+          "Animation en soirée : Gnawa, danseuses orientales, cracheur de feu, Marrakchia Dakka, feu de camp."
+        ]
+      },
+      "tags": ["Pool access", "Lunch", "Sunset horse ride", "Free lemonade"],
+      "starting_price_eur": 45,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2024/04/IMG_4913-1170x1092.jpg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2024/04/PHOTO-2024-04-16-19-27-59-2.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/04/PHOTO-2024-04-16-19-27-59-3.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/04/IMG_4913.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/04/PHOTO-2024-04-16-19-27-37-2.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/04/PHOTO-2024-04-16-19-27-38-4.jpg",
+        "https://marrakechbestof.com/wp-content/uploads/2024/04/PHOTO-2024-04-16-19-27-38-6.jpg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/agafay-valley/?lang=en"
+    },
+    {
+      "slug": "stellar-agafay-desert-camp",
+      "category": "overnight",
+      "name": "Stellar Agafay Desert Camp",
+      "rating": 5,
+      "location": "Heart of the Agafay · 50 min from Marrakech",
+      "tagline": {
+        "en": "An escape blending nature and authenticity — pool, meals and stunning desert views.",
+        "no": "En flukt som blander natur og autentisitet — basseng, måltider og fantastisk utsikt.",
+        "fr": "Une évasion entre nature et authenticité — piscine, repas et vues spectaculaires."
+      },
+      "description": {
+        "en": "Located in the heart of the Agafay Desert, Stellar offers an escape that blends nature and authenticity. The camp welcomes guests for a relaxing pool day, lunch or dinner, with breathtaking desert views.",
+        "no": "Midt i Agafay-ørkenen tilbyr Stellar en flukt som blander natur og autentisitet. Leiren ønsker gjester velkommen til en avslappet bassengdag med lunsj eller middag, med spektakulær utsikt.",
+        "fr": "Au cœur du désert d'Agafay, Stellar offre une escapade entre nature et authenticité. Le camp accueille pour une journée piscine relaxante avec déjeuner ou dîner, avec une vue à couper le souffle."
+      },
+      "info": {
+        "en": [
+          "30% deposit to confirm reservation. Balance on site.",
+          "Pool + lunch: 10:00 – 18:00.",
+          "Pool + dinner: 14:00 – 22:00."
+        ],
+        "no": [
+          "30% depositum for å bekrefte. Resten betales på stedet.",
+          "Basseng + lunsj: 10:00 – 18:00.",
+          "Basseng + middag: 14:00 – 22:00."
+        ],
+        "fr": [
+          "Acompte de 30% pour confirmer. Solde sur place.",
+          "Piscine + déjeuner : 10:00 – 18:00.",
+          "Piscine + dîner : 14:00 – 22:00."
+        ]
+      },
+      "tags": ["Pool access", "Lunch", "Dinner under the stars", "Desert camp"],
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.42-2-1600x1092.jpeg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.42-2.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.43-1.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.41-1.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.41-2.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.41-3.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.41.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.42-1.jpeg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/stellar-agafay-desert-camp/?lang=en"
+    },
+    {
+      "slug": "the-seven-saints",
+      "category": "overnight",
+      "name": "The Seven Saints",
+      "rating": 5,
+      "location": "Heart of the Agafay · adults only",
+      "tagline": {
+        "en": "An exceptional retreat under the stars — refined Moroccan hospitality, adults only.",
+        "no": "En eksepsjonell retreat under stjernene — raffinert marokkansk gjestfrihet, kun voksne.",
+        "fr": "Une retraite exceptionnelle sous les étoiles — hospitalité marocaine raffinée, réservé aux adultes."
+      },
+      "description": {
+        "en": "An exceptional retreat in the heart of the Agafay Desert. Between golden dunes and mountain views, The Seven Saints invites you to a unique experience: breathtaking sunsets, dining under the stars and refined Moroccan hospitality.",
+        "no": "En eksepsjonell retreat i hjertet av Agafay-ørkenen. Mellom gylne dyner og fjellutsikt inviterer The Seven Saints til en unik opplevelse: spektakulære solnedganger, middag under stjernene og raffinert marokkansk gjestfrihet.",
+        "fr": "Une retraite exceptionnelle au cœur du désert d'Agafay. Entre dunes dorées et vues sur les montagnes, The Seven Saints vous invite à vivre une expérience unique : couchers de soleil sublimes, dîners sous les étoiles et hospitalité marocaine raffinée."
+      },
+      "info": {
+        "en": [
+          "Deposit required (refundable +24h ahead).",
+          "Cash only on site.",
+          "18+ only.",
+          "Pool + lunch: 11:30 – 17:30.",
+          "Pool + dinner: from 17:30.",
+          "Full Day package: full access including lunch and dinner."
+        ],
+        "no": [
+          "Depositum kreves (refunderes ved avbestilling +24t i forveien).",
+          "Kun kontant betaling på stedet.",
+          "Kun 18+.",
+          "Basseng + lunsj: 11:30 – 17:30.",
+          "Basseng + middag: fra 17:30.",
+          "Heldagspakke: full tilgang inkludert lunsj og middag."
+        ],
+        "fr": [
+          "Acompte requis (remboursable +24h à l'avance).",
+          "Paiement en espèces sur place uniquement.",
+          "Réservé aux 18+.",
+          "Piscine + déjeuner : 11:30 – 17:30.",
+          "Piscine + dîner : à partir de 17:30.",
+          "Pass journée complète : accès complet, déjeuner et dîner inclus."
+        ]
+      },
+      "tags": ["Adults only", "Pool access", "Lunch", "Dinner under the stars", "Free mocktail"],
+      "starting_price_eur": 55,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.56-2.jpeg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.57-2.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.57.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.56-1.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.56.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.57-1.jpeg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/the-seven-saints/?lang=en"
+    },
+    {
+      "slug": "dromedary-quad-bedouin-dinner-transport",
+      "category": "events",
+      "name": "Camel or Quad + Pool & Dinner at Le Bédouin + Transport",
+      "rating": 4.3,
+      "location": "Agafay Desert · 1 h drive from Marrakech",
+      "tagline": {
+        "en": "Afternoon-to-evening all-inclusive: desert ride, sunset dinner, Gnawa show & transport.",
+        "no": "Ettermiddag-til-kveld alt-inkludert: ørkentur, solnedgangs-middag, Gnawa-show og transport.",
+        "fr": "Après-midi à soirée tout-inclus : balade dans le désert, dîner au coucher du soleil, show Gnawa et transport."
+      },
+      "description": {
+        "en": "A full afternoon and evening in the Agafay desert. Camel or quad ride at sunset followed by dinner at the Bedouin camp with a Gnawa show, oriental dancer and a fire-eater. Transport included.",
+        "no": "En full ettermiddag og kveld i Agafay-ørkenen. Kamel- eller quadtur i solnedgang, deretter middag på Le Bédouin med Gnawa-show, magedans og ildsluker. Transport inkludert.",
+        "fr": "Un après-midi et une soirée complets dans le désert d'Agafay. Balade en chameau ou quad au coucher du soleil suivie d'un dîner au camp Bedouin avec show Gnawa, danseuse orientale et cracheur de feu. Transport inclus."
+      },
+      "info": {
+        "en": [
+          "14:00 — pickup from your hotel (group transport, ~1h).",
+          "Activity: 1h camel walk or 2h quad ride with guide. Tea break included.",
+          "Drop-off at Le Bédouin camp for dinner.",
+          "Dinner: starter, main, dessert (Moroccan menu, drinks excluded) + evening show.",
+          "22:00 — group transport back to Marrakech.",
+          "Deposit required to confirm activity. Balance + return transport in cash on site (EUR or MAD).",
+          "Bedouin payment in advance via secure link (refundable +48h ahead).",
+          "Minimum 2 people. Closed shoes for the quad.",
+          "Camel partner 25 EUR p.p. · Quad partner 55 EUR p.p. · Bedouin dinner + pool 55 EUR p.p. · Return transport 15 EUR p.p.",
+          "Supplement from 20 EUR if your hotel is more than 10 km outside Marrakech."
+        ],
+        "no": [
+          "14:00 — henting på hotellet (gruppe-transport, ~1t).",
+          "Aktivitet: 1t kameltur eller 2t quadtur med guide. Tepause inkludert.",
+          "Slipp av ved Le Bédouin for middag.",
+          "Middag: forrett, hovedrett, dessert (marokkansk meny, drikke ekskludert) + kveldsshow.",
+          "22:00 — gruppe-transport tilbake til Marrakech.",
+          "Depositum kreves for aktiviteten. Resterende + returtransport kontant på stedet (EUR eller MAD).",
+          "Bédouin-betaling på forhånd via sikker lenke (refunderes +48t i forveien).",
+          "Minst 2 personer. Lukkede sko for quad.",
+          "Kamelpartner 25 EUR p.p. · Quadpartner 55 EUR p.p. · Bédouin middag + basseng 55 EUR p.p. · Returtransport 15 EUR p.p.",
+          "Tillegg fra 20 EUR hvis hotellet ligger mer enn 10 km utenfor Marrakech."
+        ],
+        "fr": [
+          "14h00 — prise en charge à l'hôtel (transport groupe, ~1h).",
+          "Activité : 1h de balade à dos de chameau ou 2h de quad avec guide. Pause thé incluse.",
+          "Dépose au camp Le Bédouin pour le dîner.",
+          "Dîner : entrée, plat, dessert (menu marocain, boissons non incluses) + spectacle en soirée.",
+          "22h00 — retour groupe vers Marrakech.",
+          "Acompte requis pour l'activité. Solde + transport retour en espèces sur place (EUR ou MAD).",
+          "Paiement Bédouin par lien sécurisé à l'avance (remboursable +48h à l'avance).",
+          "Minimum 2 personnes. Chaussures fermées pour le quad.",
+          "Chameau partenaire 25 EUR p.p. · Quad partenaire 55 EUR p.p. · Dîner + piscine Bédouin 55 EUR p.p. · Transport retour 15 EUR p.p.",
+          "Supplément à partir de 20 EUR si l'hôtel est à plus de 10 km de Marrakech."
+        ]
+      },
+      "tags": ["Camel ride", "Quad ride", "Transport included", "Sunset dinner", "Gnawa show", "Free mocktail"],
+      "starting_price_eur": 95,
+      "hero": "https://marrakechbestof.com/wp-content/uploads/2023/11/2023-10-27.jpeg",
+      "gallery": [
+        "https://marrakechbestof.com/wp-content/uploads/2023/11/restaurant-marrakech-desert-agafay-300x225-1.jpeg",
+        "https://marrakechbestof.com/wp-content/uploads/2023/11/A30F568D-E528-4D02-9BA2-10B25D3CE121-768x1024-1-225x300-1.jpeg"
+      ],
+      "source_url": "https://marrakechbestof.com/bon-plan/dromadaire-ou-quad-diner-au-bedouin-transport/?lang=en"
+    }
+  ]
+}

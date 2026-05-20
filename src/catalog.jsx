@@ -343,13 +343,7 @@ function Catalog() {
 
         {tab === 'transport' && (
           <div className="cat-rental-banner reveal">
-            <div className="cat-rental-banner-eyebrow">
-              {ctx.lang === 'no' ? 'LANGTIDSRABATT' : ctx.lang === 'fr' ? 'REMISE LONGUE DURÉE' : 'LONG-RENTAL DISCOUNT'}
-            </div>
             <div className="cat-rental-banner-row">
-              <div><strong>10+ {ctx.lang === 'no' ? 'dager' : ctx.lang === 'fr' ? 'jours' : 'days'}</strong><span>−5%</span></div>
-              <div><strong>20+ {ctx.lang === 'no' ? 'dager' : ctx.lang === 'fr' ? 'jours' : 'days'}</strong><span>−10%</span></div>
-              <div><strong>30+ {ctx.lang === 'no' ? 'dager' : ctx.lang === 'fr' ? 'jours' : 'days'}</strong><span>−15%</span></div>
               <div className="cat-rental-banner-perks">
                 {ctx.lang === 'no' ? 'Ubegrenset kjørelengde · Gratis levering · Forsikring tilgjengelig'
                   : ctx.lang === 'fr' ? 'Kilométrage illimité · Livraison gratuite · Assurance disponible'
