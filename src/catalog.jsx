@@ -282,10 +282,9 @@ function Catalog() {
       filters: ['All', 'Day-trip', 'Half-day', 'Multi-day'], priceLabel: t('cat_per_person') },
     { id: 'spa', label: t('cat_spa'), icon: <Ic.Sparkle s={16} />, data: D.SPAS,
       filters: ['All', 'Palace Spa', 'Boutique', 'Medina Hammam', 'Wellness House', 'Medical'], priceLabel: t('cat_per_person') },
-    { id: 'camps', label: t('cat_camps'), icon: <Ic.Tent s={16} />, data: D.CAMPS,
-      filters: ['All', 'Luxury', 'Romantic', 'Dinner Show', 'Wellness', 'Family', 'Bohemian', 'Stargazing'], priceLabel: t('cat_per_person') },
-    { id: 'pools', label: t('cat_pools'), icon: <Ic.Sun s={16} />, data: D.POOLS,
-      filters: ['All', 'Palace', 'Boutique', 'Agafay', 'Beach Club', 'Festive', 'Family', 'Women Only', 'Water Park'], priceLabel: t('cat_per_person') },
+    // Camps tab removed — Agafay camps now live in the dedicated #agafay section.
+    { id: 'pools', label: t('cat_pools'), icon: <Ic.Sun s={16} />, data: (D.POOLS || []).filter(p => p.filter !== 'Agafay'),
+      filters: ['All', 'Palace', 'Boutique', 'Beach Club', 'Festive', 'Family', 'Women Only', 'Water Park'], priceLabel: t('cat_per_person') },
     { id: 'transport', label: t('cat_transport'), icon: <Ic.Plane s={16} />, data: D.TRANSPORT,
       filters: ['All', 'Compact', 'Compact SUV', 'Sedan', 'SUV'], priceLabel: '/ day' },
   ];
