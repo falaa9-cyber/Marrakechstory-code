@@ -228,7 +228,56 @@ function CatalogModal({ item, tab, onClose, lang }) {
               </div>
             </div>
           )}
-          {/* Offers section removed site-wide — cocktail / promo deals shown on request only */}
+          {/* Sub-packages — used for consolidated partner cards like La Bohème */}
+          {item.subPackages && item.subPackages.length > 0 && (() => {
+            const groups = {};
+            for (const sp of item.subPackages) {
+              const key = sp.section || 'Offres';
+              if (!groups[key]) groups[key] = [];
+              groups[key].push(sp);
+            }
+            const groupOrder = Object.keys(groups);
+            return (
+              <div className="cat-sub-pkg">
+                <div className="cat-modal-offers-title">{lang === 'no' ? 'Tilbud' : 'Offers'}</div>
+                {groupOrder.map((g) => (
+                  <div key={g} className="cat-sub-pkg-group">
+                    <div className="cat-sub-pkg-group-h">{g}</div>
+                    <div className="cat-sub-pkg-grid">
+                      {groups[g].map((sp, i) => (
+                        <div key={i} className="cat-sub-pkg-card">
+                          {sp.image && (
+                            <div className="cat-sub-pkg-img" style={{ backgroundImage: `url(${sp.image})` }}>
+                              {sp.badge && <span className="cat-sub-pkg-badge">{sp.badge}</span>}
+                            </div>
+                          )}
+                          <div className="cat-sub-pkg-body">
+                            <div className="cat-sub-pkg-name">{sp.name}</div>
+                            {sp.duration && <div className="cat-sub-pkg-duration">{sp.duration}</div>}
+                            {sp.description && <p className="cat-sub-pkg-desc">{sp.description}</p>}
+                            {sp.includes && sp.includes.length > 0 && (
+                              <ul className="cat-sub-pkg-list">
+                                {sp.includes.map((line, j) => <li key={j}>{line}</li>)}
+                              </ul>
+                            )}
+                            <div className="cat-sub-pkg-price-row">
+                              {sp.oldPrice && <span className="cat-sub-pkg-old">{sp.oldPrice}</span>}
+                              {sp.price && <span className="cat-sub-pkg-price">{sp.price}</span>}
+                              {sp.eur && <span className="cat-sub-pkg-eur">≈ €{sp.eur}</span>}
+                            </div>
+                            {sp.childPrice && (
+                              <div className="cat-sub-pkg-extra">{lang === 'fr' ? 'Enfant' : 'Child'} : {sp.childPrice}</div>
+                            )}
+                            {sp.note && <div className="cat-sub-pkg-note">{sp.note}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
           {item.practical && item.practical.length > 0 && (
             <div className="cat-modal-practical">
               <div className="cat-modal-offers-title">{lang === 'no' ? 'Praktisk info' : lang === 'fr' ? 'Infos pratiques' : 'Good to know'}</div>

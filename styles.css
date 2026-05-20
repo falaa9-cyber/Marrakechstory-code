@@ -6844,3 +6844,75 @@ section.hero-v2 { display: none; }
   transition: background .15s;
 }
 .ms-fav-cta:hover { background: var(--ms-clay); color: #fff; }
+
+/* ── Sub-packages inside a catalog modal (e.g. La Bohème consolidated card) ── */
+.cat-sub-pkg { margin: 18px 0 6px; }
+.cat-sub-pkg-group { margin-top: 10px; }
+.cat-sub-pkg-group-h {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--brand); margin: 14px 0 8px;
+}
+.cat-sub-pkg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.cat-sub-pkg-card {
+  background: var(--section-cream);
+  border: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.cat-sub-pkg-img {
+  aspect-ratio: 4 / 3;
+  background-size: cover; background-position: center;
+  position: relative;
+}
+.cat-sub-pkg-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: var(--brand); color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px; padding: 2px 8px;
+  letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+}
+.cat-sub-pkg-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+.cat-sub-pkg-name {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 600; font-size: 15px; color: var(--ink);
+  line-height: 1.2;
+}
+.cat-sub-pkg-duration {
+  font-family: 'Inter', sans-serif;
+  font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 500;
+}
+.cat-sub-pkg-desc {
+  font-size: 12px; color: var(--ink-2); margin: 4px 0; line-height: 1.5;
+}
+.cat-sub-pkg-list {
+  margin: 4px 0 6px; padding: 0 0 0 16px;
+  font-size: 11.5px; line-height: 1.5; color: var(--ink-2);
+}
+.cat-sub-pkg-list li { margin-bottom: 1px; }
+.cat-sub-pkg-price-row {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  margin-top: 4px;
+}
+.cat-sub-pkg-price {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600; font-size: 15px; color: var(--brand);
+}
+.cat-sub-pkg-old {
+  font-size: 11.5px; color: var(--ink-3); text-decoration: line-through;
+}
+.cat-sub-pkg-eur {
+  font-size: 10.5px; color: var(--ink-3);
+  font-family: 'JetBrains Mono', monospace;
+}
+.cat-sub-pkg-extra { font-size: 11px; color: var(--ink-3); }
+.cat-sub-pkg-note {
+  font-size: 10.5px; color: var(--ink-3); font-style: italic;
+  margin-top: 2px;
+}
