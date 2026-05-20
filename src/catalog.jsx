@@ -127,6 +127,34 @@ function CatalogModal({ item, tab, onClose, lang }) {
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, []);
 
+  // Per-car rental dates (transport tab only)
+  const _today = (offset = 0) => {
+    const d = new Date(); d.setDate(d.getDate() + offset);
+    return d.toISOString().slice(0, 10);
+  };
+  const [pickupDate, setPickupDate] = useStateC(_today(7));
+  const [returnDate, setReturnDate] = useStateC(_today(10));
+  const rentalDays = (() => {
+    const a = new Date(pickupDate), b = new Date(returnDate);
+    const d = Math.round((b - a) / 86400000);
+    return d > 0 ? d : 0;
+  })();
+  const baseRate = (() => {
+    if (tab !== 'transport') return 0;
+    const m = (item.prices && item.prices[0] && item.prices[0].price || '').match(/€(\d+(?:\.\d+)?)/);
+    return m ? parseFloat(m[1]) : 0;
+  })();
+  const rentalSubtotal = baseRate * rentalDays;
+
+  const bookRentalOnWhatsapp = () => {
+    const msg = lang === 'no'
+      ? `Hei Marrakech Story, jeg vil booke ${item.name} fra ${pickupDate} til ${returnDate} (${rentalDays} dager).`
+      : lang === 'fr'
+        ? `Bonjour Marrakech Story, je souhaite louer ${item.name} du ${pickupDate} au ${returnDate} (${rentalDays} jours).`
+        : `Hello Marrakech Story, I'd like to book ${item.name} from ${pickupDate} to ${returnDate} (${rentalDays} days).`;
+    window.open(`https://wa.me/212698164331?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+  };
+
   const addToReservation = () => {
     onClose();
     document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' });
@@ -292,11 +320,60 @@ function CatalogModal({ item, tab, onClose, lang }) {
               </ul>
             </div>
           )}
+          {tab === 'transport' && (
+            <div className="cat-rental-book">
+              <div className="cat-rental-book-h">
+                {lang === 'no' ? 'Reservér denne bilen' : lang === 'fr' ? 'Réserver cette voiture' : 'Reserve this car'}
+              </div>
+              <div className="cat-rental-book-grid">
+                <label className="cat-rental-fld">
+                  <span>{lang === 'no' ? 'Henting' : lang === 'fr' ? 'Prise en charge' : 'Pickup'}</span>
+                  <input type="date" value={pickupDate} min={_today(0)}
+                    onChange={(e) => {
+                      setPickupDate(e.target.value);
+                      if (returnDate && returnDate <= e.target.value) {
+                        const d = new Date(e.target.value); d.setDate(d.getDate() + 1);
+                        setReturnDate(d.toISOString().slice(0, 10));
+                      }
+                    }} />
+                </label>
+                <label className="cat-rental-fld">
+                  <span>{lang === 'no' ? 'Retur' : lang === 'fr' ? 'Retour' : 'Return'}</span>
+                  <input type="date" value={returnDate} min={pickupDate}
+                    onChange={(e) => setReturnDate(e.target.value)} />
+                </label>
+                <div className="cat-rental-summary">
+                  <div className="cat-rental-summary-row">
+                    <span>{rentalDays} {lang === 'no' ? (rentalDays === 1 ? 'dag' : 'dager') : lang === 'fr' ? 'jours' : (rentalDays === 1 ? 'day' : 'days')}</span>
+                    <strong>€{Math.round(rentalSubtotal)}</strong>
+                  </div>
+                  <div className="cat-rental-summary-meta">
+                    €{baseRate}/{lang === 'no' ? 'dag' : lang === 'fr' ? 'jour' : 'day'}
+                  </div>
+                </div>
+              </div>
+              <div className="cat-rental-perks">
+                <span className="cat-rental-perks-h">✓ {lang === 'no' ? 'Ingen skjulte kostnader' : lang === 'fr' ? 'Aucun frais caché' : 'No hidden costs'}</span>
+                <span>{lang === 'no' ? 'Ubegrenset kjørelengde' : lang === 'fr' ? 'Kilométrage illimité' : 'Unlimited mileage'}</span>
+                <span>·</span>
+                <span>{lang === 'no' ? 'Gratis levering på hotell / flyplass' : lang === 'fr' ? 'Livraison gratuite hôtel / aéroport' : 'Free hotel / airport delivery'}</span>
+                <span>·</span>
+                <span>{lang === 'no' ? 'Forsikring tilgjengelig' : lang === 'fr' ? 'Assurance disponible' : 'Insurance available'}</span>
+              </div>
+            </div>
+          )}
           <div className="cat-modal-price-row">
             {tab !== 'transport' && (
               <span className="cat-modal-pr-label" style={{ fontSize: 13, opacity: .7, fontStyle: 'italic' }}>
                 {lang === 'no' ? 'Pris på forespørsel' : lang === 'fr' ? 'Prix sur demande' : 'Price on request'}
               </span>
+            )}
+            {tab === 'transport' && (
+              <button className="btn btn-primary cat-modal-cta" onClick={bookRentalOnWhatsapp}
+                disabled={rentalDays < 1}
+                style={{ opacity: rentalDays < 1 ? .5 : 1 }}>
+                {lang === 'no' ? 'Reservér på WhatsApp' : lang === 'fr' ? 'Réserver sur WhatsApp' : 'Book on WhatsApp'} →
+              </button>
             )}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {item.sourceUrl && (
@@ -404,17 +481,14 @@ function Catalog() {
 
         {tab === 'transport' && (
           <div className="cat-rental-banner reveal">
-            <div className="cat-rental-banner-eyebrow">
-              {ctx.lang === 'no' ? 'LANGTIDSRABATT' : ctx.lang === 'fr' ? 'REMISE LONGUE DURÉE' : 'LONG-RENTAL DISCOUNT'}
+            <div className="cat-rental-banner-eyebrow" style={{ color: 'var(--brand)' }}>
+              ✓ {ctx.lang === 'no' ? 'INGEN SKJULTE KOSTNADER' : ctx.lang === 'fr' ? 'AUCUN FRAIS CACHÉ' : 'NO HIDDEN COSTS'}
             </div>
             <div className="cat-rental-banner-row">
-              <div><strong>10+ {ctx.lang === 'no' ? 'dager' : ctx.lang === 'fr' ? 'jours' : 'days'}</strong><span>−5%</span></div>
-              <div><strong>20+ {ctx.lang === 'no' ? 'dager' : ctx.lang === 'fr' ? 'jours' : 'days'}</strong><span>−10%</span></div>
-              <div><strong>30+ {ctx.lang === 'no' ? 'dager' : ctx.lang === 'fr' ? 'jours' : 'days'}</strong><span>−15%</span></div>
               <div className="cat-rental-banner-perks">
-                {ctx.lang === 'no' ? 'Ubegrenset kjørelengde · Gratis levering · Forsikring tilgjengelig'
-                  : ctx.lang === 'fr' ? 'Kilométrage illimité · Livraison gratuite · Assurance disponible'
-                  : 'Unlimited mileage · Free delivery · Insurance available'}
+                {ctx.lang === 'no' ? 'Ubegrenset kjørelengde · Gratis levering hotell/flyplass · Forsikring tilgjengelig · Drivstoffregel klart spesifisert ved henting'
+                  : ctx.lang === 'fr' ? 'Kilométrage illimité · Livraison gratuite hôtel/aéroport · Assurance disponible · Politique carburant claire à la prise en charge'
+                  : 'Unlimited mileage · Free hotel/airport delivery · Insurance available · Fuel policy clear at pickup'}
               </div>
             </div>
           </div>
