@@ -188,7 +188,6 @@ function AppInner() {
       <window.MS_HeroSlider />
       <window.MS_Itineraries />
       <window.MS_Catalog />
-      {window.MS_AgafayPackages && <window.MS_AgafayPackages />}
       <window.MS_Form />
       <window.MS_Contact />
       <Footer />
