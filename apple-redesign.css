@@ -966,3 +966,124 @@ textarea { border-radius: 14px; }
   }
   .ip-phone-frame { border-radius: 32px !important; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 6 · Modal hardening
+   Fix pop-ups (trips, activities, auth, quick-book, tweak) that
+   were overflowing the viewport and not scrolling internally on
+   desktop or mobile. Force a single consistent pattern:
+     • Backdrop = position fixed, full inset, scrollable.
+     • Modal   = max-height ≤ 92dvh, internal scroll, rounded.
+     • Mobile  = drop to bottom-sheet style, full-width safe area.
+   ════════════════════════════════════════════════════════════════ */
+
+/* All known modal backdrops */
+.cat-modal-backdrop,
+.ag-modal-backdrop,
+.itin-modal-backdrop,
+.auth-backdrop,
+.ms-qb-backdrop,
+.ms-tweak-backdrop,
+.ms-picker-backdrop,
+.ms-modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px 16px !important;
+  background: rgba(0,0,0,0.55) !important;
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+}
+
+/* All known modal panels — scroll internally so they always fit the screen */
+.cat-modal,
+.ag-modal,
+.itin-modal,
+.auth-modal,
+.ms-qb-modal,
+.ms-tweak-modal,
+.ms-picker-modal {
+  position: relative !important;
+  width: min(680px, 100%) !important;
+  max-height: 92dvh !important;
+  max-height: 92vh; /* fallback */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  margin: auto !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.30) !important;
+}
+
+/* Sticky close button so it stays reachable while user scrolls inside modal */
+.cat-modal-close,
+.ag-modal-close,
+.itin-modal-close,
+.auth-close,
+.ms-qb-close,
+.ms-tweak-close {
+  position: sticky !important;
+  top: 12px !important;
+  margin-left: auto !important;
+  z-index: 20 !important;
+}
+/* Some modals position the close absolute over a hero image — keep that
+   working for cat/itin which have hero images at the top. */
+.cat-modal .cat-modal-close,
+.itin-modal .itin-modal-close {
+  position: absolute !important;
+  top: 14px !important; right: 14px !important;
+  margin: 0 !important;
+}
+
+/* Lock body scroll on iOS — prevents background page from also scrolling */
+body.ms-modal-open {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Mobile — bottom-sheet style: full width, hugs bottom safe area */
+@media (max-width: 768px) {
+  .cat-modal-backdrop,
+  .ag-modal-backdrop,
+  .itin-modal-backdrop,
+  .auth-backdrop,
+  .ms-qb-backdrop,
+  .ms-tweak-backdrop {
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+  .cat-modal,
+  .ag-modal,
+  .itin-modal,
+  .auth-modal,
+  .ms-qb-modal,
+  .ms-tweak-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 94dvh !important;
+    border-radius: 22px 22px 0 0 !important;
+    margin: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0) !important;
+  }
+  /* Hero image inside cat / itin modals — kill the bottom corners,
+     keep the top ones rounded to match sheet */
+  .cat-modal-img,
+  .itin-modal-hero {
+    border-radius: 22px 22px 0 0 !important;
+  }
+}
+
+/* Make sure nothing inside a modal has its own `position: fixed` that
+   would float outside the sheet on mobile (common cause of "modal shows
+   in whole" — child elements escaping the scrollable container). */
+.cat-modal *[style*='position: fixed'],
+.itin-modal *[style*='position: fixed'],
+.ag-modal *[style*='position: fixed'] {
+  position: absolute !important;
+}
