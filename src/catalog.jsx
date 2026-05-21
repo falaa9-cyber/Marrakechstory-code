@@ -134,6 +134,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
   };
   const [pickupDate, setPickupDate] = useStateC(_today(7));
   const [returnDate, setReturnDate] = useStateC(_today(10));
+  const [needTransport, setNeedTransport] = useStateC(false);
   const rentalDays = (() => {
     const a = new Date(pickupDate), b = new Date(returnDate);
     const d = Math.round((b - a) / 86400000);
@@ -209,33 +210,60 @@ function CatalogModal({ item, tab, onClose, lang }) {
             const hasTransport = /transport|transfer|pickup|round-trip|round trip|hotel pickup|driver|4×4|4x4|shuttle|inkludert.*transport|transport.*inkludert/i.test(haystack);
             const transportTab = tab === 'transport';
             if (transportTab) return null;
-            return (
-              <div className={`cat-modal-transport ${hasTransport ? 'included' : 'not-included'}`}>
-                <div className="cat-modal-transport-icon">
-                  {hasTransport ? <Ic.Check s={16} /> : <Ic.Plane s={16} />}
+            if (hasTransport) {
+              return (
+                <div className="cat-modal-transport included">
+                  <div className="cat-modal-transport-icon"><Ic.Check s={16} /></div>
+                  <div className="cat-modal-transport-body">
+                    <strong>{lang === 'no' ? 'Transport inkludert' : lang === 'fr' ? 'Transport inclus' : 'Transport included'}</strong>
+                    <p>{lang === 'no'
+                      ? 'Vi henter deg på hotellet og kjører deg trygt hjem.'
+                      : lang === 'fr'
+                      ? 'Nous vous prenons à l\'hôtel et vous ramenons en toute sécurité.'
+                      : 'We pick you up at your hotel and drive you back safely.'}</p>
+                  </div>
                 </div>
+              );
+            }
+            // Toggle for "need transport" — handed to the booking form
+            return (
+              <div className="cat-modal-transport not-included">
+                <div className="cat-modal-transport-icon"><Ic.Plane s={16} /></div>
                 <div className="cat-modal-transport-body">
-                  <strong>
-                    {hasTransport
-                      ? (lang === 'no' ? 'Transport inkludert' : lang === 'fr' ? 'Transport inclus' : 'Transport included')
-                      : (lang === 'no' ? 'Trenger du transport?' : lang === 'fr' ? 'Besoin d\'un transport ?' : 'Need transport?')}
-                  </strong>
-                  <p>{hasTransport
-                    ? (lang === 'no'
-                       ? 'Vi henter deg på hotellet og kjører deg trygt hjem.'
-                       : lang === 'fr'
-                       ? 'Nous vous prenons à l\'hôtel et vous ramenons en toute sécurité.'
-                       : 'We pick you up at your hotel and drive you back safely.')
-                    : (lang === 'no'
-                       ? 'Transport er ikke med — vi kan ordne privat sjåfør, gi oss beskjed.'
-                       : lang === 'fr'
-                       ? 'Le transport n\'est pas inclus — nous pouvons organiser un chauffeur privé, dites-le nous.'
-                       : 'Transport not included — we can arrange a private driver, just let us know.')}
-                  </p>
-                  {!hasTransport && (
+                  <strong>{lang === 'no' ? 'Trenger du transport?' : lang === 'fr' ? 'Besoin d\'un transport ?' : 'Need transport?'}</strong>
+                  <p>{lang === 'no'
+                     ? 'Skru på, så legger vi privat sjåfør til i reservasjonen.'
+                     : lang === 'fr'
+                     ? 'Activez et nous ajoutons un chauffeur privé à la réservation.'
+                     : 'Toggle on and we\'ll add a private driver to your reservation.'}</p>
+                  <label className="cat-transport-toggle">
+                    <input
+                      type="checkbox"
+                      checked={!!needTransport}
+                      onChange={(e) => setNeedTransport(e.target.checked)}
+                    />
+                    <span className="cat-transport-switch" aria-hidden="true"></span>
+                    <span className="cat-transport-label">
+                      {needTransport
+                        ? (lang === 'no' ? 'Ja, legg til transport' : lang === 'fr' ? 'Oui, ajouter le transport' : 'Yes, add transport')
+                        : (lang === 'no' ? 'Nei, jeg ordner selv' : lang === 'fr' ? 'Non, je m\'en occupe' : 'No, I\'ll handle it')}
+                    </span>
+                  </label>
+                  {needTransport && (
                     <a className="cat-modal-transport-cta" href="#plan"
-                       onClick={(e) => { e.preventDefault(); onClose(); document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                      {lang === 'no' ? 'Be om transport →' : lang === 'fr' ? 'Demander un transport →' : 'Request transport →'}
+                       onClick={(e) => {
+                         e.preventDefault();
+                         window.MS_BookingContext = {
+                           mode: 'catalog-transport',
+                           title: item.name,
+                           needTransport: true,
+                           transportItem: item.name,
+                         };
+                         window.dispatchEvent(new CustomEvent('ms:booking-context'));
+                         onClose();
+                         setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+                       }}>
+                      {lang === 'no' ? 'Til reservasjon →' : lang === 'fr' ? 'Vers la réservation →' : 'Go to reservation →'}
                     </a>
                   )}
                 </div>

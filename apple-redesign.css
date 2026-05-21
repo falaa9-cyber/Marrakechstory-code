@@ -439,20 +439,20 @@ body, html { background: #fbfbfd !important; }
 
 /* ── Combined language + currency popover (Apple-style chip) ────── */
 .ms-lc-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 14px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: rgba(0,0,0,0.05);
   border: none;
   font-family: var(--apple-font);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: -0.005em;
+  font-size: 14px;
+  line-height: 1;
   color: #1d1d1f;
   cursor: pointer;
   transition: background 0.2s ease;
   position: relative;
 }
+.ms-lc-pill .ms-lc-flag { font-size: 15px; }
 .nav.over-hero .ms-lc-pill {
   background: rgba(255,255,255,0.12);
   color: #fff;
@@ -886,4 +886,83 @@ textarea { border-radius: 14px; }
   .modal, .modal-content, .cat-modal, .ag-modal, .itin-modal,
   .auth-modal, .ms-qb-modal, .ms-tweak-modal { border-radius: 18px; }
   .footer, footer.footer { border-top-left-radius: 22px; border-top-right-radius: 22px; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 5
+   • Catalog transport toggle (iOS-style switch)
+   • Make every widget container visibly round (not square)
+   ════════════════════════════════════════════════════════════════ */
+
+/* iOS-style toggle for "Need transport?" in catalog modal */
+.cat-transport-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.cat-transport-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.cat-transport-switch {
+  position: relative;
+  width: 44px; height: 26px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.18);
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+.cat-transport-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cat-transport-toggle input:checked + .cat-transport-switch { background: #30d158; }
+.cat-transport-toggle input:checked + .cat-transport-switch::after { transform: translateX(18px); }
+.cat-transport-label {
+  font-family: var(--apple-font);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+/* Make all widget surfaces visibly round — override any leftover square corners */
+.ms-chat-window, .ms-ai-window, .ms-chatbot, .chatbot,
+.ms-instagram-panel, .ms-weather-panel, .ms-weather-detailed,
+.ip-phone-stage, .ip-phone-frame, .ms-cookie-banner, .cookie-banner,
+.toast, .ms-toast, .nav-pill-menu, .ms-lc-menu,
+.popover, .dropdown-menu, .ms-tooltip,
+.cat-tabs-v2-wrap, .reiseplaner-section-header,
+.itin-card, .itin-day, .itin-block,
+.ms-qb-host, .ms-qb-inner {
+  border-radius: 22px !important;
+  overflow: hidden;
+}
+.ip-phone-frame { border-radius: 38px !important; }
+.ip-phone-stage { border-radius: 42px !important; overflow: visible; }
+
+/* Phone widget inner */
+.ip-phone-screen, .ms-chat-header, .ms-instagram-header, .ms-weather-header {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+/* All buttons inside widgets — round */
+.ms-chat-window button, .ms-ai-window button,
+.ms-instagram-panel button, .ms-weather-panel button {
+  border-radius: 999px !important;
+}
+
+/* Mobile — keep them generously round */
+@media (max-width: 768px) {
+  .ms-chat-window, .ms-ai-window, .ms-instagram-panel,
+  .ms-weather-panel, .ms-cookie-banner {
+    border-radius: 20px !important;
+  }
+  .ip-phone-frame { border-radius: 32px !important; }
 }

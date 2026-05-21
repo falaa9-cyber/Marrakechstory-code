@@ -34,7 +34,8 @@ function NavPill({ label, items, value, onSelect, head, align = 'right' }) {
   );
 }
 
-// Combined language + currency popover (Apple-style chip)
+// Combined language + currency popover (Apple-style chip — emoji-only, compact)
+const CURR_EMOJI = { NOK: '🇳🇴', EUR: '🇪🇺', USD: '🇺🇸', MAD: '🇲🇦', GBP: '🇬🇧' };
 function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, setCurr, langHead, currHead }) {
   const [open, setOpen] = useStateA(false);
   const ref = useRefA(null);
@@ -45,14 +46,9 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
   }, []);
   return (
     <div className="ms-lc" ref={ref} style={{ position: 'relative' }}>
-      <button className="ms-lc-pill" onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open}>
+      <button className="ms-lc-pill" onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open} aria-label={`${lang} / ${curr}`}>
         <span className="ms-lc-flag">{langItem?.flag}</span>
-        <span>{lang.toUpperCase()}</span>
-        <span className="ms-lc-sep">·</span>
-        <span>{curr}</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 2, opacity: .65 }}>
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <span className="ms-lc-flag">{CURR_EMOJI[curr] || '💰'}</span>
       </button>
       {open && (
         <div className="ms-lc-menu" role="listbox">
@@ -74,6 +70,7 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
               <button key={it.id}
                 className={`ms-lc-opt ${curr === it.id ? 'is-active' : ''}`}
                 onClick={() => { setCurr(it.id); }}>
+                <span className="flag">{CURR_EMOJI[it.id] || '💰'}</span>
                 <span>{it.label}</span>
                 {curr === it.id && <Ia.Check s={13} className="check" />}
               </button>

@@ -399,12 +399,26 @@ function ItineraryBuilder() {
       const c = window.MS_BookingContext;
       if (!c) return;
       setBookingCtx(c);
-      setData(d => ({
-        ...d,
-        duration: c.duration || d.duration,
-        tripType: c.tripType || d.tripType,
-        // Itinerary already defines pace/interests/stay — leave them at sensible defaults
-      }));
+      setData(d => {
+        // If catalog handed us a transport request, prepend it to notes
+        let nextNotes = d.notes;
+        if (c.needTransport) {
+          const line = ctx.lang === 'no'
+            ? `Trenger transport (privat sjåfør) for: ${c.transportItem || c.title || 'aktivitet'}.`
+            : ctx.lang === 'fr'
+            ? `Transport requis (chauffeur privé) pour : ${c.transportItem || c.title || 'activité'}.`
+            : `Transport needed (private driver) for: ${c.transportItem || c.title || 'activity'}.`;
+          if (!nextNotes || !nextNotes.includes(line)) {
+            nextNotes = nextNotes ? `${line}\n${nextNotes}` : line;
+          }
+        }
+        return {
+          ...d,
+          duration: c.duration || d.duration,
+          tripType: c.tripType || d.tripType,
+          notes: nextNotes,
+        };
+      });
       // Always start at step 1 so the user reviews dates, travellers, style, etc.
       setStep(0);
     };
