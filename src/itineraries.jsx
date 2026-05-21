@@ -601,11 +601,11 @@ function Itineraries() {
   const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
   const [filter, setFilter] = useStateIt('All');
   const [openTrip, setOpenTrip] = useStateIt(null);
-  const [visibleCount, setVisibleCount] = useStateIt(8);
+  const [visibleCount, setVisibleCount] = useStateIt(4);
   // +40% markup applied to every itinerary price
   const adjustedPrice = (eur) => price(eur * 1.4);
 
-  useEffectIt(() => { setVisibleCount(8); }, [filter]);
+  useEffectIt(() => { setVisibleCount(4); }, [filter]);
 
   // Simple, friendly labels (no jargon)
   const filterLabel = (f) => {
@@ -767,13 +767,13 @@ function Itineraries() {
 
         {hasMore && (
           <div className="cat-showmore-row">
-            <button className="cat-showmore" onClick={() => setVisibleCount(c => c + 8)}>
+            <button className="cat-showmore" onClick={() => setVisibleCount(c => c + 4)}>
               {tx(`Show more (${items.length - visibleCount} left)`,
                   `Vis flere (${items.length - visibleCount} igjen)`,
                   `Voir plus (${items.length - visibleCount} restants)`)}
               <Iit.Arrow s={14} />
             </button>
-            {visibleCount + 8 < items.length && (
+            {visibleCount + 4 < items.length && (
               <button className="cat-showall" onClick={() => setVisibleCount(items.length)}>
                 {tx('Show all', 'Vis alle', 'Tout voir')}
               </button>

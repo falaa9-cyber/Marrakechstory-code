@@ -407,9 +407,9 @@ function Catalog() {
   const [filter, setFilter] = useStateC('All');
   const [favs, setFavs] = useStateC({});
   const [modal, setModal] = useStateC(null);
-  const [visibleCount, setVisibleCount] = useStateC(8);
+  const [visibleCount, setVisibleCount] = useStateC(4);
 
-  useEffectC(() => { setVisibleCount(8); }, [tab, filter]);
+  useEffectC(() => { setVisibleCount(4); }, [tab, filter]);
 
   const tabs = [
     { id: 'activities', label: t('cat_activities'), icon: <Ic.Compass s={16} />, data: D.ACTIVITIES,
@@ -541,13 +541,13 @@ function Catalog() {
         </div>
         {hasMore && (
           <div className="cat-showmore-row">
-            <button className="cat-showmore" onClick={() => setVisibleCount(c => c + 8)}>
+            <button className="cat-showmore" onClick={() => setVisibleCount(c => c + 4)}>
               {ctx.lang === 'no' ? `Vis flere (${items.length - visibleCount} igjen)`
                 : ctx.lang === 'fr' ? `Voir plus (${items.length - visibleCount} restants)`
                 : `Show more (${items.length - visibleCount} remaining)`}
               <Ic.Arrow s={14} />
             </button>
-            {visibleCount + 8 < items.length && (
+            {visibleCount + 4 < items.length && (
               <button className="cat-showall" onClick={() => setVisibleCount(items.length)}>
                 {ctx.lang === 'no' ? 'Vis alle' : ctx.lang === 'fr' ? 'Tout voir' : 'Show all'}
               </button>

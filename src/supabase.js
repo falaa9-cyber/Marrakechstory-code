@@ -19,6 +19,53 @@
     { auth: { persistSession: false } }
   );
 
+  // Save (or upsert by email) a row into public.subscribers.
+  // Used by the auth modal: when a guest fills in name + email we store
+  // the contact so they can be remembered for future bookings + campaigns.
+  // Never throws — callers can fire-and-forget.
+  window.MS_saveSubscriber = async function (data, opts) {
+    opts = opts || {};
+    try {
+      if (!data || !data.email) return { ok: false, error: 'no email' };
+      const row = {
+        email: String(data.email).trim().toLowerCase().slice(0, 200),
+        name: data.name ? String(data.name).slice(0, 160) : null,
+        phone: data.phone ? String(data.phone).slice(0, 80) : null,
+        country: data.country ? String(data.country).slice(0, 80) : null,
+        source: opts.source || 'login',
+        marketing_opt_in: data.marketingOptIn !== false,
+        last_seen_at: new Date().toISOString(),
+        user_agent: navigator.userAgent ? navigator.userAgent.slice(0, 400) : null,
+        payload: data.payload || {}
+      };
+      // Try INSERT first; if the email already exists (Postgres 23505),
+      // fall back to an UPDATE keyed by email. Both INSERT and UPDATE
+      // are anon-allowed; we avoid .upsert() because its implicit
+      // return-representation SELECT is denied by RLS.
+      const ins = await window.MS_SB.from('subscribers').insert(row);
+      if (ins.error && (ins.error.code === '23505' || /duplicate key/i.test(ins.error.message || ''))) {
+        const { id: _id, created_at: _ca, visit_count: _vc, ...patch } = row;
+        const { error: upErr } = await window.MS_SB
+          .from('subscribers')
+          .update(patch)
+          .eq('email', row.email);
+        if (upErr) {
+          console.warn('[MS_SB] subscribers update failed', upErr.message);
+          return { ok: false, error: upErr.message };
+        }
+        return { ok: true, updated: true };
+      }
+      if (ins.error) {
+        console.warn('[MS_SB] subscribers insert failed', ins.error.message);
+        return { ok: false, error: ins.error.message };
+      }
+      return { ok: true };
+    } catch (e) {
+      console.warn('[MS_SB] saveSubscriber unexpected', e && e.message);
+      return { ok: false, error: String(e && e.message || e) };
+    }
+  };
+
   // Insert one row into form_submissions. Never throws — callers can
   // fire-and-forget without breaking the existing mailto/WhatsApp path.
   window.MS_submitForm = async function (kind, data, opts) {

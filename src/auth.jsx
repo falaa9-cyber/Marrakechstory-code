@@ -55,11 +55,27 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     } catch {}
   };
 
+  // Persist to Supabase subscribers (upsert by email) so we can reach
+  // the user later for bookings / campaigns. Fire-and-forget, never blocks.
+  const persistSubscriber = (user, source) => {
+    if (window.MS_saveSubscriber) {
+      window.MS_saveSubscriber({
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        country: user.country,
+        marketingOptIn: true,
+        payload: { source }
+      }, { source });
+    }
+  };
+
   const doLogin = () => {
     if (!email.trim()) { setErr('Skriv inn e-post'); return; }
     const user = { name: name || nameFromEmail(email) || email.split('@')[0], email: email.trim() };
     localStorage.setItem(AUTH_KEY, JSON.stringify(user));
     seedProfile(user);
+    persistSubscriber(user, 'login');
     onLogin(user);
     onClose(true);
   };
@@ -69,6 +85,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     const user = { name: name.trim(), email: email.trim() };
     localStorage.setItem(AUTH_KEY, JSON.stringify(user));
     seedProfile(user);
+    persistSubscriber(user, 'register');
     onLogin(user);
     onClose(true);
   };
@@ -79,6 +96,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     const user = { name: nameFromEmail(gmail) || 'Google-bruker', email: gmail, google: true };
     localStorage.setItem(AUTH_KEY, JSON.stringify(user));
     seedProfile(user);
+    persistSubscriber(user, 'google');
     onLogin(user);
     onClose(true);
   };
@@ -121,46 +139,72 @@ function AuthModal({ view: initView, onClose, onLogin }) {
 
         {view === 'login' && (
           <>
-            <button className="auth-back" onClick={() => { setErr(''); setView('home'); }}>← Tilbake</button>
+            <button type="button" className="auth-back" onClick={() => { setErr(''); setView('home'); }}>← Tilbake</button>
             <h2 className="auth-title">Logg inn</h2>
-            <div className="auth-fields">
+            <p className="auth-sub" style={{ marginBottom: 16 }}>
+              Husker deg til senere bestillinger. Du kan hoppe over.
+            </p>
+            <form className="auth-fields" name="login" method="post" autoComplete="on"
+              onSubmit={(e) => { e.preventDefault(); doLogin(); }}>
               <div className="fld">
-                <label>E-post</label>
-                <input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="du@example.com" />
+                <label htmlFor="auth-login-email">E-post</label>
+                <input id="auth-login-email" name="email" type="email" required
+                  autoComplete="email" inputMode="email"
+                  value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="du@example.com" />
               </div>
               <div className="fld">
-                <label>Passord</label>
-                <input type="password" autoComplete="current-password" value={pass} onChange={e => setPass(e.target.value)} placeholder="••••••••" />
+                <label htmlFor="auth-login-pw">Passord</label>
+                <input id="auth-login-pw" name="password" type="password"
+                  autoComplete="current-password"
+                  value={pass} onChange={e => setPass(e.target.value)}
+                  placeholder="••••••••" />
               </div>
               {err && <p className="auth-err">{err}</p>}
-              <button className="btn btn-primary" style={{ width: '100%' }} onClick={doLogin}>Logg inn</button>
-            </div>
-            <p className="auth-switch">Ingen konto? <button onClick={() => { setErr(''); setView('register'); }}>Opprett konto</button></p>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Logg inn</button>
+              <button type="button" className="auth-skip" onClick={skip}
+                style={{ marginTop: 8 }}>Hopp over for nå →</button>
+            </form>
+            <p className="auth-switch">Ingen konto? <button type="button" onClick={() => { setErr(''); setView('register'); }}>Opprett konto</button></p>
           </>
         )}
 
         {view === 'register' && (
           <>
-            <button className="auth-back" onClick={() => { setErr(''); setView('home'); }}>← Tilbake</button>
+            <button type="button" className="auth-back" onClick={() => { setErr(''); setView('home'); }}>← Tilbake</button>
             <h2 className="auth-title">Opprett konto</h2>
-            <p className="auth-sub" style={{ marginBottom: 20 }}>Se reiseplanen din, bestillinger og mer.</p>
-            <div className="auth-fields">
+            <p className="auth-sub" style={{ marginBottom: 20 }}>
+              Se reiseplanen din, bestillinger og mer. Du kan hoppe over.
+            </p>
+            <form className="auth-fields" name="register" method="post" autoComplete="on"
+              onSubmit={(e) => { e.preventDefault(); doRegister(); }}>
               <div className="fld">
-                <label>Fullt navn</label>
-                <input autoComplete="name" value={name} onChange={e => setName(e.target.value)} placeholder="Ditt navn" />
+                <label htmlFor="auth-reg-name">Fullt navn</label>
+                <input id="auth-reg-name" name="name" required
+                  autoComplete="name"
+                  value={name} onChange={e => setName(e.target.value)}
+                  placeholder="Ditt navn" />
               </div>
               <div className="fld">
-                <label>E-post</label>
-                <input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="du@example.com" />
+                <label htmlFor="auth-reg-email">E-post</label>
+                <input id="auth-reg-email" name="email" type="email" required
+                  autoComplete="email" inputMode="email"
+                  value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="du@example.com" />
               </div>
               <div className="fld">
-                <label>Passord</label>
-                <input type="password" autoComplete="new-password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Minst 8 tegn" />
+                <label htmlFor="auth-reg-pw">Passord</label>
+                <input id="auth-reg-pw" name="new-password" type="password"
+                  autoComplete="new-password"
+                  value={pass} onChange={e => setPass(e.target.value)}
+                  placeholder="Minst 8 tegn" />
               </div>
               {err && <p className="auth-err">{err}</p>}
-              <button className="btn btn-primary" style={{ width: '100%' }} onClick={doRegister}>Opprett konto</button>
-            </div>
-            <p className="auth-switch">Har du konto? <button onClick={() => { setErr(''); setView('login'); }}>Logg inn</button></p>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Opprett konto</button>
+              <button type="button" className="auth-skip" onClick={skip}
+                style={{ marginTop: 8 }}>Hopp over for nå →</button>
+            </form>
+            <p className="auth-switch">Har du konto? <button type="button" onClick={() => { setErr(''); setView('login'); }}>Logg inn</button></p>
           </>
         )}
       </div>

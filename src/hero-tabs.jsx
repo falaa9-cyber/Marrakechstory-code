@@ -1,49 +1,30 @@
 // ============================================
 // Hero shortcut tabs — sits directly under the hero.
-// Two compact side-by-side tabs that toggle which section is visible:
-// "Reiseplan" → shows #itineraries, hides #catalog (DEFAULT).
-// "Katalog"   → shows #catalog,    hides #itineraries.
+// Two side-by-side buttons that smooth-scroll to the matching
+// section. Both sections (#itineraries, #catalog) stay visible
+// at all times.
 // ============================================
-const { useState: useStateHt, useEffect: useEffectHt } = React;
-
 function HeroTabs() {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
   const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
 
-  const [active, setActive] = useStateHt('itineraries');
-
-  useEffectHt(() => {
-    const itin = document.getElementById('itineraries');
-    const cat  = document.getElementById('catalog');
-    if (itin) itin.style.display = (active === 'itineraries') ? '' : 'none';
-    if (cat)  cat.style.display  = (active === 'catalog')     ? '' : 'none';
-  }, [active]);
-
-  const onPick = (id) => {
-    setActive(id);
-    // Smooth-scroll to the active section so the content sits in view.
-    setTimeout(() => {
-      const target = document.getElementById(id === 'itineraries' ? 'itineraries' : 'catalog');
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+  const go = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const Tab = ({ id, label, sub }) => (
-    <button type="button"
-      className={`hero-tab ${active === id ? 'active' : ''}`}
-      onClick={() => onPick(id)}
-      aria-pressed={active === id}>
+    <button type="button" className="hero-tab" onClick={() => go(id)}>
       <span className="hero-tab-title">{label}</span>
       <span className="hero-tab-sub">{sub}</span>
     </button>
   );
 
   return (
-    <section className="hero-tabs-section" aria-label="Section switcher">
+    <section className="hero-tabs-section" aria-label="Quick links">
       <div className="wrap-wide">
-        <div className="hero-tabs-grid" role="tablist">
+        <div className="hero-tabs-grid">
           <Tab id="itineraries"
             label={tx('Itineraries', 'Reiseplaner', 'Itinéraires')}
             sub={tx('Curated trips',  'Skreddersydde reiser',  'Voyages sur mesure')} />
