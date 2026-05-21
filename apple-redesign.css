@@ -809,3 +809,81 @@ body, html { background: #fbfbfd !important; }
     border-radius: 16px !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 4
+   Universal rounded corners across every surface (desktop + mobile)
+   ════════════════════════════════════════════════════════════════ */
+
+/* Generic surfaces — anything that looks like a card, panel, tile, box */
+.card, .panel, .tile, .box, .surface,
+.cat-card, .ag-card, .opt-card, .dur-pkg-card, .rental-card,
+.itin-card, .itin-day, .itin-block, .itin-section, .itin-preview,
+.mc-stop, .pkg-card, .pkg-tile, .feature-card, .info-card,
+.review-card, .testimonial-card, .stat-card, .price-card,
+.chatbot, .ms-chatbot, .ms-chat-window, .ms-ai-window,
+.ms-instagram-panel, .ms-weather-panel, .ip-phone-stage,
+.cookie-banner, .ms-cookie-banner, .toast, .ms-toast,
+.dropdown, .popover, .menu, .nav-pill-menu, .ms-lc-menu,
+.tag, .badge, .pill, .chip,
+.section, section.section, .wrap, .wrap-wide {
+  border-radius: 18px;
+}
+
+/* Images / media — rounded everywhere */
+img, video, picture, .media, .thumb, .thumbnail,
+.cat-img, .ag-img, .itin-img, .hero-img, .pkg-img {
+  border-radius: 14px;
+}
+.nav-logo img, .logo-img, .avatar, .ms-avatar { border-radius: 50%; }
+
+/* Buttons — always pill */
+button, .btn, .button, .cta, a.btn, a.button, input[type=button], input[type=submit] {
+  border-radius: 999px;
+}
+
+/* Inputs / fields / selects / textareas */
+input, select, textarea, .field, .fld, .input, .form-control {
+  border-radius: 12px;
+}
+textarea { border-radius: 14px; }
+
+/* Tabs / segmented controls */
+.tabs, .tab-bar, .segmented, .cat-tabs-v2, .itin-stepper, .day-nav {
+  border-radius: 999px;
+}
+.tab, .tab-btn, .cat-tab-v2, .itin-step-pill, .day-nav-pill, .taste-chip {
+  border-radius: 999px;
+}
+
+/* Modals & overlays */
+.modal, .modal-content, .modal-body, .modal-inner,
+.cat-modal, .ag-modal, .itin-modal, .auth-modal,
+.ms-qb-modal, .ms-tweak-modal, .ms-modal {
+  border-radius: 22px;
+}
+
+/* Floating action buttons stay circular */
+.fab, .chat-fab, .ms-chat-fab, .ms-instagram-fab,
+.ms-weather-fab, .ms-ai-fab, .scroll-top, .back-to-top {
+  border-radius: 50%;
+}
+
+/* Footer + nav softeners */
+.footer, footer.footer { border-top-left-radius: 28px; border-top-right-radius: 28px; }
+.nav, nav.nav { border-radius: 0; }
+
+/* Mobile — keep things rounded, slightly tighter */
+@media (max-width: 768px) {
+  .card, .panel, .tile, .box, .surface,
+  .cat-card, .ag-card, .opt-card, .dur-pkg-card, .rental-card,
+  .itin-card, .itin-day, .itin-block, .itin-preview,
+  .mc-stop, .pkg-card, .feature-card, .info-card,
+  .review-card, .testimonial-card, .stat-card, .price-card {
+    border-radius: 16px;
+  }
+  img, video, picture, .media, .thumb { border-radius: 12px; }
+  .modal, .modal-content, .cat-modal, .ag-modal, .itin-modal,
+  .auth-modal, .ms-qb-modal, .ms-tweak-modal { border-radius: 18px; }
+  .footer, footer.footer { border-top-left-radius: 22px; border-top-right-radius: 22px; }
+}
