@@ -34,6 +34,57 @@ function NavPill({ label, items, value, onSelect, head, align = 'right' }) {
   );
 }
 
+// Combined language + currency popover (Apple-style chip)
+function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, setCurr, langHead, currHead }) {
+  const [open, setOpen] = useStateA(false);
+  const ref = useRefA(null);
+  useEffectA(() => {
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+  return (
+    <div className="ms-lc" ref={ref} style={{ position: 'relative' }}>
+      <button className="ms-lc-pill" onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open}>
+        <span className="ms-lc-flag">{langItem?.flag}</span>
+        <span>{lang.toUpperCase()}</span>
+        <span className="ms-lc-sep">·</span>
+        <span>{curr}</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 2, opacity: .65 }}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {open && (
+        <div className="ms-lc-menu" role="listbox">
+          <div className="ms-lc-col-head">{langHead}</div>
+          <div className="ms-lc-col-head">{currHead}</div>
+          <div>
+            {LANG_LIST.map(it => (
+              <button key={it.id}
+                className={`ms-lc-opt ${lang === it.id ? 'is-active' : ''}`}
+                onClick={() => { setLang(it.id); }}>
+                <span className="flag">{it.flag}</span>
+                <span>{it.label}</span>
+                {lang === it.id && <Ia.Check s={13} className="check" />}
+              </button>
+            ))}
+          </div>
+          <div>
+            {CURR_LIST.map(it => (
+              <button key={it.id}
+                className={`ms-lc-opt ${curr === it.id ? 'is-active' : ''}`}
+                onClick={() => { setCurr(it.id); }}>
+                <span>{it.label}</span>
+                {curr === it.id && <Ia.Check s={13} className="check" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Nav() {
   const { useMS, useT, LANG_LIST, CURR_LIST } = window.MS_CTX;
   const { lang, curr, setLang, setCurr } = useMS();
@@ -75,22 +126,13 @@ function Nav() {
           <a href="#contact">{t('nav_contact')}</a>
         </div>
         <div className="nav-cta">
-          <div className="nav-ctl nav-ctl-compact">
-            <NavPill
-              label={<span style={{ fontSize: 14 }}>{langItem.flag}</span>}
-              items={LANG_LIST}
-              value={lang}
-              onSelect={setLang}
-              head={t('nav_lang')}
-            />
-            <NavPill
-              label={curr}
-              items={CURR_LIST}
-              value={curr}
-              onSelect={setCurr}
-              head={t('nav_curr')}
-            />
-          </div>
+          <LangCurrPill
+            lang={lang} curr={curr}
+            langItem={langItem}
+            LANG_LIST={LANG_LIST} CURR_LIST={CURR_LIST}
+            setLang={setLang} setCurr={setCurr}
+            langHead={t('nav_lang')} currHead={t('nav_curr')}
+          />
           {window.MS_AuthSystem && <window.MS_AuthSystem />}
         </div>
       </div>
