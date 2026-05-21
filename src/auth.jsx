@@ -2,7 +2,7 @@
 // Auth — login / account modal
 // Appears on page load (first visit). Mock auth via localStorage.
 // ============================================
-const { useState: useSA, useEffect: useEA } = React;
+const { useState: useSA, useEffect: useEA, useRef: useRA } = React;
 const Ia = window.MS_I;
 
 const AUTH_KEY = 'ms_user';
@@ -101,8 +101,27 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     onClose(true);
   };
 
+  // Only treat a backdrop tap as "close" if the pointer truly started AND
+  // ended on the backdrop itself — not a scroll-drag inside the modal or
+  // a stray finger movement around the inputs. Prevents the modal from
+  // closing mid-typing on mobile.
+  const backdropDownTarget = useRA(null);
+  const onBackdropPointerDown = (e) => { if (e.target === e.currentTarget) backdropDownTarget.current = e.target; };
+  const onBackdropClick = (e) => {
+    if (e.target === e.currentTarget && backdropDownTarget.current === e.target) skip();
+    backdropDownTarget.current = null;
+  };
+  // Push the focused input above the on-screen keyboard.
+  const onInputFocus = (e) => {
+    setTimeout(() => {
+      try { e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch {}
+    }, 280);
+  };
+
   return (
-    <div className="auth-backdrop" onClick={() => skip()}>
+    <div className="auth-backdrop"
+      onPointerDown={onBackdropPointerDown}
+      onClick={onBackdropClick}>
       <div className="auth-modal" onClick={e => e.stopPropagation()}>
         <button className="auth-close" onClick={() => skip()}>✕</button>
 
@@ -148,14 +167,14 @@ function AuthModal({ view: initView, onClose, onLogin }) {
               onSubmit={(e) => { e.preventDefault(); doLogin(); }}>
               <div className="fld">
                 <label htmlFor="auth-login-email">E-post</label>
-                <input id="auth-login-email" name="email" type="email" required
+                <input id="auth-login-email" name="email" type="email" required onFocus={onInputFocus}
                   autoComplete="email" inputMode="email"
                   value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="du@example.com" />
               </div>
               <div className="fld">
                 <label htmlFor="auth-login-pw">Passord</label>
-                <input id="auth-login-pw" name="password" type="password"
+                <input id="auth-login-pw" name="password" type="password" onFocus={onInputFocus}
                   autoComplete="current-password"
                   value={pass} onChange={e => setPass(e.target.value)}
                   placeholder="••••••••" />
@@ -180,21 +199,21 @@ function AuthModal({ view: initView, onClose, onLogin }) {
               onSubmit={(e) => { e.preventDefault(); doRegister(); }}>
               <div className="fld">
                 <label htmlFor="auth-reg-name">Fullt navn</label>
-                <input id="auth-reg-name" name="name" required
+                <input id="auth-reg-name" name="name" required onFocus={onInputFocus}
                   autoComplete="name"
                   value={name} onChange={e => setName(e.target.value)}
                   placeholder="Ditt navn" />
               </div>
               <div className="fld">
                 <label htmlFor="auth-reg-email">E-post</label>
-                <input id="auth-reg-email" name="email" type="email" required
+                <input id="auth-reg-email" name="email" type="email" required onFocus={onInputFocus}
                   autoComplete="email" inputMode="email"
                   value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="du@example.com" />
               </div>
               <div className="fld">
                 <label htmlFor="auth-reg-pw">Passord</label>
-                <input id="auth-reg-pw" name="new-password" type="password"
+                <input id="auth-reg-pw" name="new-password" type="password" onFocus={onInputFocus}
                   autoComplete="new-password"
                   value={pass} onChange={e => setPass(e.target.value)}
                   placeholder="Minst 8 tegn" />
