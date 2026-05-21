@@ -1,48 +1,57 @@
 // ============================================
 // Hero shortcut tabs — sits directly under the hero.
-// Two large side-by-side cards: Itineraries + Catalog.
+// Two compact side-by-side tabs that toggle which section is visible:
+// "Reiseplan" → shows #itineraries, hides #catalog (DEFAULT).
+// "Katalog"   → shows #catalog,    hides #itineraries.
 // ============================================
+const { useState: useStateHt, useEffect: useEffectHt } = React;
+
 function HeroTabs() {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
   const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
 
-  const go = (id) => {
-    const target = document.getElementById(id);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const [active, setActive] = useStateHt('itineraries');
+
+  useEffectHt(() => {
+    const itin = document.getElementById('itineraries');
+    const cat  = document.getElementById('catalog');
+    if (itin) itin.style.display = (active === 'itineraries') ? '' : 'none';
+    if (cat)  cat.style.display  = (active === 'catalog')     ? '' : 'none';
+  }, [active]);
+
+  const onPick = (id) => {
+    setActive(id);
+    // Smooth-scroll to the active section so the content sits in view.
+    setTimeout(() => {
+      const target = document.getElementById(id === 'itineraries' ? 'itineraries' : 'catalog');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
   };
 
+  const Tab = ({ id, label, sub }) => (
+    <button type="button"
+      className={`hero-tab ${active === id ? 'active' : ''}`}
+      onClick={() => onPick(id)}
+      aria-pressed={active === id}>
+      <span className="hero-tab-title">{label}</span>
+      <span className="hero-tab-sub">{sub}</span>
+    </button>
+  );
+
   return (
-    <section className="hero-tabs-section" aria-label="Quick navigation">
+    <section className="hero-tabs-section" aria-label="Section switcher">
       <div className="wrap-wide">
-        <div className="hero-tabs-grid">
-          <button type="button" className="hero-tab hero-tab-itineraries"
-            onClick={() => go('itineraries')}>
-            <span className="hero-tab-eyebrow">— 01</span>
-            <span className="hero-tab-title">
-              {tx('Itineraries', 'Reiseplaner', 'Itinéraires')}
-            </span>
-            <span className="hero-tab-sub">
-              {tx('Curated trips from 3 days to 14',
-                  'Skreddersydde reiser fra 3 til 14 dager',
-                  'Voyages sur mesure de 3 à 14 jours')}
-            </span>
-            <span className="hero-tab-arrow" aria-hidden="true">→</span>
-          </button>
-          <button type="button" className="hero-tab hero-tab-catalog"
-            onClick={() => go('catalog')}>
-            <span className="hero-tab-eyebrow">— 02</span>
-            <span className="hero-tab-title">
-              {tx('Catalogue', 'Katalog', 'Catalogue')}
-            </span>
-            <span className="hero-tab-sub">
-              {tx('Activities · restaurants · spa · pools · rentals',
-                  'Aktiviteter · restauranter · spa · basseng · bilutleie',
-                  'Activités · restaurants · spa · piscines · location')}
-            </span>
-            <span className="hero-tab-arrow" aria-hidden="true">→</span>
-          </button>
+        <div className="hero-tabs-grid" role="tablist">
+          <Tab id="itineraries"
+            label={tx('Itineraries', 'Reiseplaner', 'Itinéraires')}
+            sub={tx('Curated trips',  'Skreddersydde reiser',  'Voyages sur mesure')} />
+          <Tab id="catalog"
+            label={tx('Catalogue', 'Katalog', 'Catalogue')}
+            sub={tx('Activities · stays · rentals',
+                    'Aktiviteter · opphold · utleie',
+                    'Activités · séjours · location')} />
         </div>
       </div>
     </section>
