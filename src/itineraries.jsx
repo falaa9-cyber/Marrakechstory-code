@@ -458,6 +458,119 @@ const ITINS = [
     included: ["Private 4×4 + driver-guide for full route", "Fourteen nights' accommodation", "All transfers", "Local guides in Fez & Marrakech", "Camp half board"],
     excluded: ["Some meals", "Drinks", "Tips"],
   },
+
+  // ===== Surf camp partner experience =====
+  {
+    slug: "the-happy-surfers-tamraght", chapter: "18",
+    title: "The Happy Surfers — Surf, Yoga & Sunshine",
+    duration: "7D6N", days: 7, nights: 6,
+    route: "Tamraght · Taghazout coast",
+    priceFromEUR: 544,
+    img: "https://thehappysurfers.com/wp-content/uploads/2025/11/The-Happy-Surfers-Group-1.jpg",
+    badge: "SURF CAMP",
+    themeTags: ["Surf", "Yoga", "Ocean", "Coast", "Slow"],
+    teaser: "Ocean-view house in a Tamraght fishing village — surf lessons, sunrise yoga, homemade Moroccan food, and a slow rhythm you can fall into. One week, fully flexible start day.",
+    overview: "An all-in-one surf-camp week with our partner The Happy Surfers, fifteen minutes from Taghazout and twenty-five from Agadir. You wake up unhurried, surf with small-group coaching, eat fresh local food around the table, stretch on the rooftop at sunset and go to bed early. Pick the formula that suits you — Beginner & Intermediate (5 lessons + free surf), Surf & Yoga (lessons + 5 yoga classes), or Surf Guiding for experienced surfers chasing the best swell. A flexible 'build your own' formula and a calm Bed & Breakfast option are also available. Stays can start on any day of the week.",
+    highlights: [
+      "Small-group surf coaching with ISA-certified instructors",
+      "Sunrise or sunset yoga on the rooftop",
+      "Transfers to Banana Point, Devil's Rock & Anchor Point",
+      "Homemade Moroccan breakfast & dinner shared at the table",
+      "Softboard + wetsuit included for the whole stay",
+      "Surfskate session + surf theory evenings",
+      "Optional Paradise Valley, Imsouane & sandboarding, hammam, cooking class",
+      "Flexible arrival day — start any day of the week",
+    ],
+    itinerary: [
+      { day: 1, route: "Arrival · Tamraght", text: "Pickup arranged from Agadir. Welcome dinner, house tour, gear sizing for tomorrow's session." },
+      { day: 2, route: "First surf lesson", text: "Breakfast with the group. Morning surf lesson at the right break for your level. Snacks at the beach, chill + free surf. Sunset rooftop. Dinner + surf theory." },
+      { day: 3, route: "Yoga + surf", text: "Optional sunrise yoga on the rooftop. Surf lesson #2. Afternoon swim or surfskate session. Movie night or rooftop hangout." },
+      { day: 4, route: "Best-spot day", text: "Coach reads the conditions and picks the best break of the day. Long beach lunch. Optional hammam in the afternoon." },
+      { day: 5, route: "Optional excursion", text: "Free or add a day-trip: Paradise Valley pools or Imsouane + Timlaline sandboarding. Evening yoga." },
+      { day: 6, route: "Surf + sunset", text: "Final surf lesson and a long free session. Sunset rooftop apéro. Last group dinner." },
+      { day: 7, route: "Departure", text: "Slow breakfast. Transfer to Agadir airport or onward to Marrakech." },
+    ],
+    included: [
+      "6 nights at the Happy Surfers ocean-view house (room of your choice)",
+      "5 surf lessons + 5 free surf sessions (lesson formulas)",
+      "5 yoga classes (Surf & Yoga formula)",
+      "Softboard + wetsuit for the full stay",
+      "Daily breakfast & dinner — fresh, local, homemade",
+      "Transfers to surf spots around Tamraght / Taghazout",
+      "Surf theory + surfskate session",
+      "WiFi, daily cleaning, towels & linen",
+    ],
+    excluded: [
+      "Flights to Agadir (AGA)",
+      "Airport transfer (can be arranged on request)",
+      "Lunches",
+      "Optional excursions (Paradise Valley, Imsouane, hammam, cooking class)",
+      "Personal drinks & tips",
+    ],
+    // Sub-formulas — surfaced inside the booking flow / modal
+    formulas: [
+      {
+        id: "beginner-intermediate",
+        name: { en: "Beginner & Intermediate", no: "Nybegynner & viderekommen", fr: "Débutant & Intermédiaire" },
+        tagline: { en: "Learn safely, progress fast, enjoy every wave.", no: "Lær trygt, utvikle deg raskt, nyt hver bølge.", fr: "Apprenez en sécurité, progressez vite, savourez chaque vague." },
+        prices: { triple: 544, twin: 593, double_shared: 645, double_private: 869 },
+      },
+      {
+        id: "surf-yoga",
+        name: { en: "Surf & Yoga", no: "Surf & Yoga", fr: "Surf & Yoga" },
+        tagline: { en: "Find your flow on the mat and in the waves.", no: "Finn flyten på matten og i bølgene.", fr: "Trouvez votre flow, sur le tapis et dans les vagues." },
+        prices: { triple: 594, twin: 643, double_shared: 695, double_private: 919 },
+      },
+      {
+        id: "surf-guiding",
+        name: { en: "Surf Guiding", no: "Surfguiding", fr: "Surf Guiding" },
+        tagline: { en: "Chase the best waves with local knowledge.", no: "Jakt på de beste bølgene med lokal kunnskap.", fr: "Suivez les meilleures vagues avec un savoir local." },
+        prices: { triple: 599, twin: 648, double_shared: 700, double_private: 924 },
+      },
+      {
+        id: "customize",
+        name: { en: "Build your own", no: "Sett sammen selv", fr: "Sur mesure" },
+        tagline: { en: "Pick your room, meals, surf days and yoga — skip what you don't need.", no: "Velg rom, måltider, surfdager og yoga — hopp over det du ikke trenger.", fr: "Choisissez chambre, repas, surf et yoga — passez ce qui ne vous intéresse pas." },
+        prices: null,
+      },
+      {
+        id: "bed-breakfast",
+        name: { en: "Bed & Breakfast", no: "Bed & Breakfast", fr: "Chambre & Petit-déjeuner" },
+        tagline: { en: "Calm sleep and fresh Moroccan breakfast — explore the coast your own way.", no: "Rolig søvn og frisk marokkansk frokost — utforsk kysten i ditt eget tempo.", fr: "Sommeil calme et petit-déjeuner marocain — explorez la côte à votre rythme." },
+        prices: { triple: 29 * 7, twin: 36 * 7, double_shared: 37 * 7, double_private: 52 * 7 },
+      },
+    ],
+    partner: {
+      name: "The Happy Surfers",
+      tagline: "Happy Wave, Happy Life",
+      slogan: "Your Place For Surf, Yoga And Sunshine",
+      location: "Tamraght fishing village, Morocco",
+      website: "https://thehappysurfers.com/",
+      phone: "+212 605 77 23 01",
+      whatsapp: "+45 52 22 33 98",
+      email: "contactus@thehappysurfers.com",
+      instagram: "@thehappysurfersinmorocco",
+      gallery: [
+        "https://thehappysurfers.com/wp-content/uploads/2025/12/DSC00134.jpg",
+        "https://thehappysurfers.com/wp-content/uploads/2025/12/DSC07065.jpg",
+        "https://thehappysurfers.com/wp-content/uploads/2025/12/DSC09895.jpg",
+        "https://thehappysurfers.com/wp-content/uploads/2025/11/morning-yoga.jpg",
+        "https://thehappysurfers.com/wp-content/uploads/2025/11/Happy-Surfer-1.jpg",
+        "https://thehappysurfers.com/wp-content/uploads/2025/11/Happy-Stretching.jpg",
+        "https://thehappysurfers.com/wp-content/uploads/2025/11/Moe-and-Happy-surfers.jpg",
+        "https://thehappysurfers.com/wp-content/uploads/2025/11/Moe-Gliding.jpg",
+      ],
+    },
+    extras: [
+      { id: "paradise-valley", name: { en: "Paradise Valley", no: "Paradise Valley", fr: "Paradise Valley" }, desc: { en: "Quiet valley with palm trees, pools and warm rocks — light hike and swim.", no: "Stille dal med palmer, bassenger og varme steiner — lett tur og bading.", fr: "Vallée tranquille, palmiers, bassins et roches chaudes — randonnée légère et baignade." } },
+      { id: "imsouane", name: { en: "Imsouane + Sandboarding", no: "Imsouane + Sandboarding", fr: "Imsouane + Sandboard" }, desc: { en: "Full day to Morocco's most mellow surf village + sandboarding on the Timlaline dunes.", no: "Heldagstur til Marokkos roligste surfelandsby + sandboarding på Timlaline-dynene.", fr: "Journée complète vers le village de surf le plus zen + sandboard sur les dunes de Timlaline." } },
+      { id: "hammam", name: { en: "Hammam & Spa", no: "Hammam & Spa", fr: "Hammam & Spa" }, desc: { en: "Traditional Moroccan steam bath, natural scrub and a gentle massage.", no: "Tradisjonelt marokkansk dampbad, naturlig skrubb og mild massasje.", fr: "Bain de vapeur marocain, gommage naturel et massage doux." } },
+      { id: "cooking", name: { en: "Moroccan Cooking Class", no: "Marokkansk matlagingskurs", fr: "Cours de cuisine marocaine" }, desc: { en: "Market shopping, hands-on tagine prep, then sharing the meal together.", no: "Markedsbesøk, tagine fra bunnen av, så deler vi måltidet.", fr: "Marché, préparation du tagine, puis on partage le repas." } },
+      { id: "surfskate", name: { en: "Surf Skate Session", no: "Surf skate-økt", fr: "Session Surf Skate" }, desc: { en: "Land-based session to improve turns, balance and timing.", no: "Landbasert økt for å forbedre svinger, balanse og timing.", fr: "Session terrestre pour progresser sur les virages, l'équilibre et le timing." } },
+      { id: "extra-surf", name: { en: "Extra Surf Session", no: "Ekstra surføkt", fr: "Session de surf supplémentaire" }, desc: { en: "Peaceful sunset surf in soft golden light.", no: "Rolig solnedgangs-surf i mykt gyllent lys.", fr: "Surf au coucher du soleil, lumière douce et dorée." } },
+      { id: "extra-yoga", name: { en: "Extra Yoga Session", no: "Ekstra yoga-økt", fr: "Session de yoga supplémentaire" }, desc: { en: "Calming stretching, breathing and grounding.", no: "Beroligende tøying, pust og jording.", fr: "Étirements calmes, respiration et ancrage." } },
+    ],
+  },
 ];
 
 // ── DETAIL MODAL — now with T&Cs section ────────────────────────
@@ -483,6 +596,64 @@ function ItinModal({ trip, onClose, lang, fmt }) {
         </div>
         <div className="itin-modal-body">
           <p className="itin-modal-overview">{trip.overview}</p>
+
+          {trip.partner && (
+            <div className="itin-partner-strip">
+              <div className="itin-partner-head">
+                <div>
+                  <div className="itin-partner-eyebrow">{tx('In partnership with', 'I samarbeid med', 'En partenariat avec')}</div>
+                  <div className="itin-partner-name">{trip.partner.name}</div>
+                  <div className="itin-partner-tag">{trip.partner.tagline} · {trip.partner.location}</div>
+                </div>
+                <a className="itin-partner-link" href={trip.partner.website} target="_blank" rel="noopener">
+                  {tx('Visit site →', 'Besøk siden →', 'Voir le site →')}
+                </a>
+              </div>
+              {trip.partner.gallery && trip.partner.gallery.length > 0 && (
+                <div className="itin-partner-gallery">
+                  {trip.partner.gallery.map((src, i) => (
+                    <div key={i} className="itin-partner-thumb" style={{ backgroundImage: `url(${src})` }} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {trip.formulas && trip.formulas.length > 0 && (
+            <div className="itin-formulas">
+              <h3 className="itin-modal-h3">{tx('Choose your formula', 'Velg din formel', 'Choisissez votre formule')}</h3>
+              <div className="itin-formula-grid">
+                {trip.formulas.map((f) => {
+                  const name = f.name[lang] || f.name.en;
+                  const tagline = f.tagline[lang] || f.tagline.en;
+                  const fromEUR = f.prices ? Math.min(...Object.values(f.prices)) : null;
+                  return (
+                    <div key={f.id} className="itin-formula-card">
+                      <div className="itin-formula-name">{name}</div>
+                      <div className="itin-formula-tag">{tagline}</div>
+                      {fromEUR
+                        ? <div className="itin-formula-price">{tx('From', 'Fra', 'À partir de')} {fmt ? fmt(fromEUR) : `€${fromEUR}`} <span>/ {tx('week / person', 'uke / person', 'semaine / pers.')}</span></div>
+                        : <div className="itin-formula-price">{tx('Custom quote', 'Skreddersydd', 'Sur mesure')}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {trip.extras && trip.extras.length > 0 && (
+            <div className="itin-extras">
+              <h3 className="itin-modal-h3">{tx('Optional extras', 'Valgfrie tillegg', 'Extras optionnels')}</h3>
+              <div className="itin-extra-grid">
+                {trip.extras.map((x) => (
+                  <div key={x.id} className="itin-extra-card">
+                    <div className="itin-extra-name">{x.name[lang] || x.name.en}</div>
+                    <div className="itin-extra-desc">{x.desc[lang] || x.desc.en}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="itin-modal-grid">
             <div>

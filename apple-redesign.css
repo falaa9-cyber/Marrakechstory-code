@@ -1087,3 +1087,141 @@ body.ms-modal-open {
 .ag-modal *[style*='position: fixed'] {
   position: absolute !important;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 7 · Partner trip (Happy Surfers)
+   Partner strip, formulas grid, optional extras
+   ════════════════════════════════════════════════════════════════ */
+
+.itin-partner-strip {
+  background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin: 20px 0 28px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+}
+.itin-partner-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.itin-partner-eyebrow {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #6e6e73;
+  font-weight: 600;
+}
+.itin-partner-name {
+  font-family: var(--apple-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1d1d1f;
+  margin-top: 2px;
+}
+.itin-partner-tag {
+  font-size: 13px;
+  color: #6e6e73;
+  margin-top: 2px;
+}
+.itin-partner-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+  text-decoration: none;
+  white-space: nowrap;
+  align-self: center;
+}
+.itin-partner-link:hover { opacity: 0.7; }
+
+.itin-partner-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.itin-partner-thumb {
+  aspect-ratio: 1;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  transition: transform 0.4s ease;
+}
+.itin-partner-thumb:hover { transform: scale(1.03); }
+
+.itin-formulas { margin-top: 28px; }
+.itin-formula-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.itin-formula-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: border-color 0.2s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.itin-formula-card:hover {
+  border-color: #1d1d1f;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.itin-formula-name {
+  font-family: var(--apple-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+}
+.itin-formula-tag {
+  font-size: 13px;
+  color: #6e6e73;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.itin-formula-price {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand);
+}
+.itin-formula-price span {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6e6e73;
+  letter-spacing: 0;
+}
+
+.itin-extras { margin-top: 28px; }
+.itin-extra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.itin-extra-card {
+  background: rgba(0,0,0,0.03);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.itin-extra-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1d1d1f;
+  letter-spacing: -0.005em;
+}
+.itin-extra-desc {
+  font-size: 12.5px;
+  color: #6e6e73;
+  line-height: 1.45;
+  margin-top: 3px;
+}
+
+@media (max-width: 768px) {
+  .itin-partner-head { flex-direction: column; gap: 8px; }
+  .itin-partner-gallery { grid-template-columns: repeat(3, 1fr); }
+  .itin-partner-thumb { border-radius: 10px; }
+}
