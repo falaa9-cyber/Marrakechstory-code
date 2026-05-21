@@ -977,9 +977,10 @@ textarea { border-radius: 14px; }
      • Mobile  = drop to bottom-sheet style, full-width safe area.
    ════════════════════════════════════════════════════════════════ */
 
-/* All modal backdrops scroll naturally — the WHOLE backdrop scrolls
-   from top to bottom, and the modal sits at the top of it with
-   breathing room, so the page never feels frozen. */
+/* Backdrop is a SCROLLABLE container — NOT a flexbox.
+   With display:block + overflow-y:auto the backdrop grows its
+   scrollHeight to fit the modal at full height, so the user can
+   scroll all the way through every section of the popup. */
 .cat-modal-backdrop,
 .ag-modal-backdrop,
 .itin-modal-backdrop,
@@ -991,21 +992,21 @@ textarea { border-radius: 14px; }
   position: fixed !important;
   inset: 0 !important;
   z-index: 9000 !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: center !important;
+  display: block !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding: 48px 16px !important;
+  padding: 0 !important;
   background: rgba(0,0,0,0.55) !important;
   backdrop-filter: saturate(180%) blur(8px);
   -webkit-backdrop-filter: saturate(180%) blur(8px);
+  text-align: center;  /* centers inline-block modal horizontally */
 }
 
-/* Modal panel flows naturally — NO max-height, NO internal scroll.
-   The backdrop scrolls. The modal can be as tall as its content. */
+/* Modal panel is the document inside the scrollable backdrop.
+   margin pushes it down from the top and adds bottom breathing
+   room so the last section is fully visible when scrolled to end. */
 .cat-modal,
 .ag-modal,
 .itin-modal,
@@ -1014,10 +1015,14 @@ textarea { border-radius: 14px; }
 .ms-tweak-modal,
 .ms-picker-modal {
   position: relative !important;
-  width: min(680px, 100%) !important;
+  display: inline-block !important;
+  text-align: left;
+  vertical-align: top;
+  width: min(680px, calc(100% - 32px)) !important;
   max-height: none !important;
+  height: auto !important;
   overflow: visible !important;
-  margin: 0 auto !important;
+  margin: 48px auto 64px !important;
   box-shadow: 0 32px 80px rgba(0,0,0,0.30) !important;
 }
 
@@ -1040,27 +1045,18 @@ textarea { border-radius: 14px; }
   z-index: 20 !important;
 }
 
-/* Mobile — full-width sheet that scrolls within the backdrop */
+/* Mobile — full-width sheet inside the scrollable backdrop */
 @media (max-width: 768px) {
-  .cat-modal-backdrop,
-  .ag-modal-backdrop,
-  .itin-modal-backdrop,
-  .auth-backdrop,
-  .ms-qb-backdrop,
-  .ms-tweak-backdrop {
-    padding: 16px 12px 32px !important;
-    align-items: flex-start !important;
-  }
   .cat-modal,
   .ag-modal,
   .itin-modal,
   .auth-modal,
   .ms-qb-modal,
   .ms-tweak-modal {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+    margin: 16px auto calc(48px + env(safe-area-inset-bottom, 0)) !important;
     border-radius: 18px !important;
-    padding-bottom: env(safe-area-inset-bottom, 0) !important;
   }
 }
 
