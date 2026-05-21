@@ -202,7 +202,8 @@ function InstagramPhoneMockup() {
         <span>Follow us on Instagram <strong>@{IP_USERNAME}</strong></span>
       </a>
 
-      {/* Phone */}
+      {/* Phone (wrapped in a 3D perspective stage so the float looks like depth) */}
+      <div className="ip-phone-stage">
       <div className="ip-phone">
         <span className="ip-phone-button ip-phone-button-1" aria-hidden="true" />
         <span className="ip-phone-button ip-phone-button-2" aria-hidden="true" />
@@ -214,6 +215,7 @@ function InstagramPhoneMockup() {
 
           <div className="ip-top">
             <span className="ip-top-user">
+              <img className="ip-top-avatar" src={IP_AVATAR} alt="" aria-hidden="true" />
               <strong>{IP_USERNAME}</strong>
               <span className="ip-top-verified" aria-label="Verified">{Ig.verified(13)}</span>
               <span className="ip-top-chev" aria-hidden="true">{Ig.chevronDown(14)}</span>
@@ -237,6 +239,7 @@ function InstagramPhoneMockup() {
 
           <span className="ip-home-indicator" aria-hidden="true" />
         </div>
+      </div>
       </div>
     </div>
   );

@@ -6999,7 +6999,16 @@ section.hero-v2 { display: none; }
   border-radius: 50%;
 }
 
-/* Floating animation on the phone */
+/* 3D floating animation on the phone — combines translateY with
+   a gentle pitch/yaw/roll tilt for a parallax depth feel. */
+@keyframes ipFloat3D {
+  0%   { transform: translate3d(0, 0,    0) rotateX( 4deg) rotateY(-6deg) rotateZ(-1deg); }
+  25%  { transform: translate3d(0, -10px,0) rotateX( 2deg) rotateY( 2deg) rotateZ( 0.5deg); }
+  50%  { transform: translate3d(0, -14px,0) rotateX(-2deg) rotateY( 8deg) rotateZ( 1.2deg); }
+  75%  { transform: translate3d(0, -10px,0) rotateX( 0deg) rotateY( 2deg) rotateZ( 0.5deg); }
+  100% { transform: translate3d(0, 0,    0) rotateX( 4deg) rotateY(-6deg) rotateZ(-1deg); }
+}
+/* Legacy name kept as alias in case anything else references it */
 @keyframes ipFloat {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-8px); }
@@ -7034,7 +7043,11 @@ section.hero-v2 { display: none; }
 .ip-follow-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .ip-follow-btn strong { font-weight: 700; }
 
-/* Phone frame */
+/* Phone frame — sits inside a 3D perspective wrapper */
+.ip-phone-stage {
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
 .ip-phone {
   position: relative; z-index: 1;
   width: 300px; height: 620px;
@@ -7045,7 +7058,14 @@ section.hero-v2 { display: none; }
     inset 0 0 0 2px #2a2725,
     0 30px 60px rgba(20,17,15,.35),
     0 10px 25px rgba(20,17,15,.25);
-  animation: ipFloat 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  animation: ipFloat3D 9s ease-in-out infinite;
+  will-change: transform;
+}
+.ip-phone:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .ip-phone { animation: none; transform: none; }
 }
 @media (max-width: 1080px) {
   .ip-phone { width: 240px; height: 496px; padding: 9px; border-radius: 40px !important; }
@@ -7099,6 +7119,14 @@ section.hero-v2 { display: none; }
   font-size: 15px; font-weight: 700; color: #1a1310;
 }
 .ip-top-user strong { font-weight: 700; }
+.ip-top-avatar {
+  width: 22px; height: 22px;
+  border-radius: 50% !important;
+  object-fit: cover;
+  background: var(--brand);
+  padding: 1px;
+  box-shadow: 0 0 0 1.5px var(--brand);
+}
 .ip-top-verified { display: inline-flex; }
 .ip-top-chev { display: inline-flex; color: #1a1310; }
 .ip-top-camera { display: inline-flex; color: #1a1310; }
@@ -7255,4 +7283,82 @@ section.hero-v2 { display: none; }
 /* Reduce motion preference */
 @media (prefers-reduced-motion: reduce) {
   .ip-phone, .ip-feed-track, .ip-follow-btn { animation: none !important; }
+}
+
+/* ── Hero shortcut tabs (right under the hero, two side-by-side cards) ── */
+.hero-tabs-section {
+  background: var(--section-cream);
+  padding: 36px 0;
+  border-bottom: 1px solid var(--line);
+}
+.hero-tabs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* always two columns side-by-side */
+  gap: 18px;
+}
+.hero-tab {
+  position: relative;
+  display: flex; flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 26px 28px 30px;
+  background: #fff;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  text-align: left;
+  transition: transform .35s cubic-bezier(.16,1,.3,1),
+              border-color .25s ease, box-shadow .25s ease;
+  font-family: inherit;
+}
+.hero-tab:hover {
+  transform: translateY(-4px);
+  border-color: var(--brand);
+  box-shadow: 0 18px 38px rgba(20,17,15,.10);
+}
+.hero-tab:focus-visible {
+  outline: 2px solid var(--brand); outline-offset: 4px;
+}
+.hero-tab-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.hero-tab-title {
+  font-family: 'Playfair Display', serif !important;
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.05;
+  letter-spacing: -.01em;
+  margin-top: 4px;
+}
+.hero-tab-sub {
+  font-size: 13.5px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  margin-top: 2px;
+  max-width: 36ch;
+}
+.hero-tab-arrow {
+  position: absolute;
+  top: 26px; right: 26px;
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  border-radius: 50% !important;
+  background: var(--brand);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px; font-weight: 600;
+  transition: transform .3s ease;
+}
+.hero-tab:hover .hero-tab-arrow { transform: translateX(4px); }
+
+/* Always 2-up: even on small screens the user wants them side by side */
+@media (max-width: 640px) {
+  .hero-tabs-section { padding: 24px 0; }
+  .hero-tab { padding: 18px 18px 22px; }
+  .hero-tab-title { font-size: clamp(20px, 6.5vw, 26px); }
+  .hero-tab-sub { font-size: 12px; }
+  .hero-tab-arrow { width: 30px; height: 30px; top: 18px; right: 18px; font-size: 14px; }
 }
