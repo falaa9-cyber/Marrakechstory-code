@@ -5,11 +5,11 @@
 // ============================================
 const { useState: useStateIp, useEffect: useEffectIp, useMemo: useMemoIp } = React;
 
-const IG_USERNAME = 'marrakechstory';
-const IG_URL      = 'https://www.instagram.com/marrakechstory/';
-const IG_AVATAR   = 'assets/logo.png';
+const IP_USERNAME = 'marrakechstory';
+const IP_URL      = 'https://www.instagram.com/marrakechstory/';
+const IP_AVATAR   = 'assets/logo.png';
 
-const IG_POSTS = [
+const IP_POSTS = [
   { id: 1,  type: 'image', caption: 'REISE TIL MAROKKO? Vi hjelper deg ✈️🇲🇦',                                                                  link: 'https://www.instagram.com/marrakechstory/p/DRZgst6jZIC/',     thumb: 'assets/instagram/post-1.jpg' },
   { id: 2,  type: 'image', caption: 'How We Plan Your Moroccan Trip – step by step guide ✨',                                                  link: 'https://www.instagram.com/marrakechstory/p/DGAnb0pN8NO/',     thumb: 'assets/instagram/post-2.jpg' },
   { id: 3,  type: 'image', caption: 'Dette sier kundene våre ❤️ Real reviews from real travelers',                                              link: 'https://www.instagram.com/marrakechstory/p/DRepQ2ZjO_Y/',     thumb: 'assets/instagram/post-3.jpg' },
@@ -23,7 +23,7 @@ const IG_POSTS = [
 ];
 
 // Fallback chain — if a thumbnail file isn't on disk yet, use a brand-coloured local photo
-const IG_FALLBACKS = [
+const IP_FALLBACKS = [
   'assets/photos/agafay-valley-marrakech-93.jpg',
   'assets/photos/hammam-mamounia-marrakech-morocco.jpg.avif',
   'assets/photos/agafay-valley-marrakech-70.jpg',
@@ -121,7 +121,7 @@ function PostImg({ thumb, fallbackIdx }) {
   const [src, setSrc] = useStateIp(thumb);
   const [stage, setStage] = useStateIp('primary');
   const onError = () => {
-    if (stage === 'primary') { setSrc(IG_FALLBACKS[fallbackIdx % IG_FALLBACKS.length]); setStage('fallback'); }
+    if (stage === 'primary') { setSrc(IP_FALLBACKS[fallbackIdx % IP_FALLBACKS.length]); setStage('fallback'); }
     else if (stage === 'fallback') {
       setSrc('');
       setStage('placeholder');
@@ -146,10 +146,10 @@ function PostCard({ post, idx }) {
       aria-label={`Open Instagram ${post.type}: ${post.caption}`}>
       <div className="ip-post-head">
         <span className="ip-post-avatar" aria-hidden="true">
-          <img src={IG_AVATAR} alt="" />
+          <img src={IP_AVATAR} alt="" />
         </span>
         <span className="ip-post-user">
-          <strong>{IG_USERNAME}</strong>
+          <strong>{IP_USERNAME}</strong>
           <span className="ip-post-dot"> · </span>
           <span className="ip-post-follow">Follow</span>
         </span>
@@ -171,7 +171,7 @@ function PostCard({ post, idx }) {
         <span className="ip-post-bookmark">{Ig.bookmark(22)}</span>
       </div>
       <div className="ip-post-caption">
-        <strong>{IG_USERNAME}</strong> {post.caption} <span className="ip-post-more">… more</span>
+        <strong>{IP_USERNAME}</strong> {post.caption} <span className="ip-post-more">… more</span>
       </div>
       <div className="ip-post-time">2 days ago</div>
     </a>
@@ -179,7 +179,7 @@ function PostCard({ post, idx }) {
 }
 
 function InstagramPhoneMockup() {
-  const items = useMemoIp(() => IG_POSTS.concat(IG_POSTS), []);
+  const items = useMemoIp(() => IP_POSTS.concat(IP_POSTS), []);
 
   return (
     <div className="ip-wrap" aria-label="Instagram feed preview for marrakechstory">
@@ -187,10 +187,10 @@ function InstagramPhoneMockup() {
       <span className="ip-glow" aria-hidden="true" />
 
       {/* CTA pill above the phone */}
-      <a className="ip-follow-btn" href={IG_URL} target="_blank" rel="noopener"
+      <a className="ip-follow-btn" href={IP_URL} target="_blank" rel="noopener"
         aria-label="Follow Marrakech Story on Instagram">
         <span aria-hidden="true">📸</span>
-        <span>Follow us on Instagram <strong>@{IG_USERNAME}</strong></span>
+        <span>Follow us on Instagram <strong>@{IP_USERNAME}</strong></span>
       </a>
 
       {/* Phone */}
@@ -205,7 +205,7 @@ function InstagramPhoneMockup() {
 
           <div className="ip-top">
             <span className="ip-top-user">
-              <strong>{IG_USERNAME}</strong>
+              <strong>{IP_USERNAME}</strong>
               <span className="ip-top-verified" aria-label="Verified">{Ig.verified(13)}</span>
               <span className="ip-top-chev" aria-hidden="true">{Ig.chevronDown(14)}</span>
             </span>
