@@ -186,7 +186,6 @@ function AppInner() {
     <>
       <Nav />
       <window.MS_HeroSlider />
-      {window.MS_HeroTabs && <window.MS_HeroTabs />}
       <window.MS_Itineraries />
       <window.MS_Catalog />
       <window.MS_Form />
