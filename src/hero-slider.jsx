@@ -43,7 +43,10 @@ function HeroSlider() {
         </span>
         <h1 className="ms-hero-h1 ms-hero-brand">
           <span className="ms-hero-h1-line">
-            {tx('Hello & Welcome to', 'Hei & velkommen til', 'Bonjour & bienvenue chez')}
+            {tx('Hello &', 'Hei &', 'Bonjour &')}
+          </span>
+          <span className="ms-hero-h1-line">
+            {tx('Welcome to', 'Velkommen til', 'Bienvenue chez')}
           </span>
           <span className="ms-hero-h1-line ms-hero-brandmark">
             Marrakech<em>Story</em>

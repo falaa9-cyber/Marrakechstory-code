@@ -7181,6 +7181,21 @@ section.hero-v2 { display: none; }
   color: #1a1310;
 }
 .ip-post-actions .ip-post-bookmark { margin-left: auto; }
+.ip-post-act {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.ip-post-act em {
+  font-style: normal;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 12px; font-weight: 600; color: #1a1310;
+  letter-spacing: -.01em;
+}
+.ip-post-likes {
+  padding: 2px 12px 4px;
+  font-size: 12.5px; color: #1a1310;
+  font-family: 'Source Sans 3', sans-serif;
+}
+.ip-post-likes strong { font-weight: 700; }
 
 .ip-post-caption {
   padding: 0 12px;

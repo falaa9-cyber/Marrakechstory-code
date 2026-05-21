@@ -10,17 +10,25 @@ const IP_URL      = 'https://www.instagram.com/marrakechstory/';
 const IP_AVATAR   = 'assets/logo.png';
 
 const IP_POSTS = [
-  { id: 1,  type: 'image', caption: 'REISE TIL MAROKKO? Vi hjelper deg ✈️🇲🇦',                                                                  link: 'https://www.instagram.com/marrakechstory/p/DRZgst6jZIC/',     thumb: 'assets/instagram/post-1.jpg' },
-  { id: 2,  type: 'image', caption: 'How We Plan Your Moroccan Trip – step by step guide ✨',                                                  link: 'https://www.instagram.com/marrakechstory/p/DGAnb0pN8NO/',     thumb: 'assets/instagram/post-2.jpg' },
-  { id: 3,  type: 'image', caption: 'Dette sier kundene våre ❤️ Real reviews from real travelers',                                              link: 'https://www.instagram.com/marrakechstory/p/DRepQ2ZjO_Y/',     thumb: 'assets/instagram/post-3.jpg' },
-  { id: 4,  type: 'reel',  caption: 'You booked with MarrakechStory… and suddenly you’re watching the most beautiful Sahara sunset 🌅', link: 'https://www.instagram.com/marrakechstory/reel/DXX00FEDEVm/',  thumb: 'assets/instagram/post-4.jpg' },
-  { id: 5,  type: 'reel',  caption: 'Marrakech – where tradition and energy meet ✨ souks, medina, riads',                                      link: 'https://www.instagram.com/marrakechstory/reel/DXUbSnBjWWb/',  thumb: 'assets/instagram/post-5.jpg' },
-  { id: 6,  type: 'reel',  caption: 'Me & you, together in Morocco 🇲🇦 from desert vibes to city lights ❤️',                                  link: 'https://www.instagram.com/marrakechstory/reel/DXSTo2HjfR5/',  thumb: 'assets/instagram/post-6.jpg' },
-  { id: 7,  type: 'reel',  caption: 'Lost in the iconic Majorelle Garden 💙 where nature meets art',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXRDHJEjeY4/',  thumb: 'assets/instagram/post-7.jpg' },
-  { id: 8,  type: 'reel',  caption: 'Atlas Mountains 🏔️ snow-capped peaks & hidden Berber villages',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXM5hiojc-z/',  thumb: 'assets/instagram/post-8.jpg' },
-  { id: 9,  type: 'reel',  caption: 'Rabat hits different… history meets the ocean 🌊✨',                                                        link: 'https://www.instagram.com/marrakechstory/reel/DXKwDqyDUPk/',  thumb: 'assets/instagram/post-9.jpg' },
-  { id: 10, type: 'reel',  caption: 'Essaouira – if Marrakech is the heart, Essaouira is the soul 🌊💨',                                        link: 'https://www.instagram.com/marrakechstory/reel/DWejJXajYl1/',  thumb: 'assets/instagram/post-10.jpg' },
+  { id: 1,  type: 'image', caption: 'REISE TIL MAROKKO? Vi hjelper deg ✈️🇲🇦',                                                                  link: 'https://www.instagram.com/marrakechstory/p/DRZgst6jZIC/',     thumb: 'assets/instagram/post-1.jpg',  likes: 2148, comments: 87,  shares: 312 },
+  { id: 2,  type: 'image', caption: 'How We Plan Your Moroccan Trip – step by step guide ✨',                                                  link: 'https://www.instagram.com/marrakechstory/p/DGAnb0pN8NO/',     thumb: 'assets/instagram/post-2.jpg',  likes: 1542, comments: 64,  shares: 198 },
+  { id: 3,  type: 'image', caption: 'Dette sier kundene våre ❤️ Real reviews from real travelers',                                              link: 'https://www.instagram.com/marrakechstory/p/DRepQ2ZjO_Y/',     thumb: 'assets/instagram/post-3.jpg',  likes: 3074, comments: 152, shares: 421 },
+  { id: 4,  type: 'reel',  caption: 'You booked with MarrakechStory… and suddenly you’re watching the most beautiful Sahara sunset 🌅', link: 'https://www.instagram.com/marrakechstory/reel/DXX00FEDEVm/',  thumb: 'assets/instagram/post-4.jpg',  likes: 8930, comments: 412, shares: 1240 },
+  { id: 5,  type: 'reel',  caption: 'Marrakech – where tradition and energy meet ✨ souks, medina, riads',                                      link: 'https://www.instagram.com/marrakechstory/reel/DXUbSnBjWWb/',  thumb: 'assets/instagram/post-5.jpg',  likes: 6210, comments: 248, shares: 873 },
+  { id: 6,  type: 'reel',  caption: 'Me & you, together in Morocco 🇲🇦 from desert vibes to city lights ❤️',                                  link: 'https://www.instagram.com/marrakechstory/reel/DXSTo2HjfR5/',  thumb: 'assets/instagram/post-6.jpg',  likes: 5483, comments: 197, shares: 612 },
+  { id: 7,  type: 'reel',  caption: 'Lost in the iconic Majorelle Garden 💙 where nature meets art',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXRDHJEjeY4/',  thumb: 'assets/instagram/post-7.jpg',  likes: 4127, comments: 134, shares: 506 },
+  { id: 8,  type: 'reel',  caption: 'Atlas Mountains 🏔️ snow-capped peaks & hidden Berber villages',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXM5hiojc-z/',  thumb: 'assets/instagram/post-8.jpg',  likes: 7340, comments: 286, shares: 982 },
+  { id: 9,  type: 'reel',  caption: 'Rabat hits different… history meets the ocean 🌊✨',                                                        link: 'https://www.instagram.com/marrakechstory/reel/DXKwDqyDUPk/',  thumb: 'assets/instagram/post-9.jpg',  likes: 2870, comments: 104, shares: 358 },
+  { id: 10, type: 'reel',  caption: 'Essaouira – if Marrakech is the heart, Essaouira is the soul 🌊💨',                                        link: 'https://www.instagram.com/marrakechstory/reel/DWejJXajYl1/',  thumb: 'assets/instagram/post-10.jpg', likes: 4685, comments: 168, shares: 597 },
 ];
+
+// Compact short-form formatter — 9876 → "9.9k"
+function fmtCount(n) {
+  if (n == null) return '';
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1000)    return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(n);
+}
 
 // Fallback chain — if a thumbnail file isn't on disk yet, use a brand-coloured local photo
 const IP_FALLBACKS = [
@@ -165,15 +173,16 @@ function PostCard({ post, idx }) {
         )}
       </div>
       <div className="ip-post-actions">
-        <span>{Ig.heart(22)}</span>
-        <span>{Ig.comment(22)}</span>
-        <span>{Ig.share(22)}</span>
+        <span className="ip-post-act">{Ig.heart(22)}<em>{fmtCount(post.likes)}</em></span>
+        <span className="ip-post-act">{Ig.comment(22)}<em>{fmtCount(post.comments)}</em></span>
+        <span className="ip-post-act">{Ig.share(22)}<em>{fmtCount(post.shares)}</em></span>
         <span className="ip-post-bookmark">{Ig.bookmark(22)}</span>
       </div>
+      <div className="ip-post-likes"><strong>{fmtCount(post.likes)}</strong> likes</div>
       <div className="ip-post-caption">
         <strong>{IP_USERNAME}</strong> {post.caption} <span className="ip-post-more">… more</span>
       </div>
-      <div className="ip-post-time">2 days ago</div>
+      <div className="ip-post-time">View all {fmtCount(post.comments)} comments · 2 days ago</div>
     </a>
   );
 }
