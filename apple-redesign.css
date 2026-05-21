@@ -1,0 +1,258 @@
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — phase 1
+   Loaded AFTER styles.css so every rule wins. Adds:
+   • SF-Pro inspired typography ramp + bigger headlines.
+   • Translucent sticky nav with frosted-glass on scroll.
+   • Generous section vertical rhythm (Apple-style breathing room).
+   • Scroll-reveal entrance animation hook (.fx-reveal).
+   • 3D mouse-tilt hook (.fx-tilt) on cards / images.
+   • Parallax on hero background (.fx-parallax).
+   • Card depth shadows + smooth float on hover.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Typography ramp ── */
+:root {
+  --apple-font: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, sans-serif;
+  --apple-display: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
+}
+html, body {
+  font-family: var(--apple-font) !important;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+/* Heading scale — display weights, very tight tracking, Apple-style */
+h1, .ms-hero-h1, .ms-hero-brandmark {
+  font-family: var(--apple-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.02 !important;
+}
+h2 {
+  font-family: var(--apple-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+  font-size: clamp(38px, 5.5vw, 80px) !important;
+  line-height: 1.05 !important;
+}
+h3 {
+  font-family: var(--apple-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  font-size: clamp(22px, 2.6vw, 32px) !important;
+  line-height: 1.15 !important;
+}
+em, h1 em, h2 em, h3 em {
+  font-style: normal !important; /* Apple uses weight, not italic */
+  color: var(--brand) !important;
+  font-weight: inherit !important;
+}
+
+/* Brand wordmark in the hero — bigger but constrained so it never
+   overflows the viewport. Apple uses ~clamp(56,8vw,96) for product
+   titles; we go slightly larger because "MarrakechStory" is the name. */
+.ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark {
+  font-size: clamp(48px, 8.5vw, 112px) !important;
+  letter-spacing: -0.04em !important;
+  font-weight: 700 !important;
+  line-height: 1.0 !important;
+  white-space: nowrap;
+}
+.ms-hero-content-centered .ms-hero-h1 {
+  font-size: clamp(22px, 3vw, 36px) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em !important;
+  color: #fff !important;
+}
+.ms-hero-content-centered { max-width: 92vw !important; }
+
+/* Eyebrow / kicker label — small caps, terracotta, tracked wide */
+.eyebrow, .ms-hero-eyebrow,
+[class*='eyebrow'] {
+  font-family: var(--apple-font) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: var(--brand) !important;
+  opacity: 0.95 !important;
+}
+.ms-hero-eyebrow {
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  color: #fff !important;
+  backdrop-filter: saturate(180%) blur(8px) !important;
+}
+
+/* Lead / body copy — slightly larger, looser leading */
+.ms-hero-lead, .lead, p.lead {
+  font-size: clamp(17px, 1.5vw, 21px) !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+  color: rgba(255,255,255,0.85);
+}
+
+/* ── Sticky translucent nav · Apple frosted-glass on scroll ── */
+.nav {
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              backdrop-filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s ease, padding 0.3s ease !important;
+}
+.nav.scrolled {
+  background: rgba(255,255,255,0.72) !important;
+  backdrop-filter: saturate(180%) blur(22px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(22px) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.08) !important;
+}
+.nav.over-hero {
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,0.35) 0%,
+    rgba(0,0,0,0.18) 50%,
+    transparent 100%) !important;
+  backdrop-filter: none !important;
+}
+.nav .nav-links a {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.005em !important;
+  transition: opacity 0.2s ease, color 0.2s ease !important;
+}
+.nav .nav-links a:hover { opacity: 0.65; }
+
+/* ── Section rhythm — Apple-grade breathing room ── */
+.section,
+section.section,
+.itin-section,
+.reiseplaner-section,
+.catalog,
+#contact {
+  padding-top: clamp(80px, 10vh, 160px) !important;
+  padding-bottom: clamp(80px, 10vh, 160px) !important;
+}
+
+/* ── Big section headlines centred Apple-style ── */
+.section-head, .catalog .section-head, .itin-section .section-head {
+  margin-bottom: clamp(48px, 7vh, 96px) !important;
+}
+
+/* ── Card depth — Apple uses very soft, large shadows ── */
+.cat-card,
+.itin-form,
+.ag-card,
+.dur-pkg-card,
+.opt-card,
+.rental-card {
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.04) !important;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.5s ease !important;
+}
+.cat-card:hover {
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.06),
+    0 24px 64px rgba(0,0,0,0.10) !important;
+  transform: translateY(-6px) !important;
+}
+
+/* ── 3D mouse-tilt hook (.fx-tilt) ──
+   JS sets --tx and --ty in degrees on mouse-move. */
+.fx-tilt {
+  transform-style: preserve-3d;
+  transform: perspective(1000px)
+             rotateX(var(--ty, 0deg))
+             rotateY(var(--tx, 0deg))
+             translateZ(0);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fx-tilt:hover { transition: transform 0.1s linear; }
+.fx-tilt > * { transform: translateZ(20px); }
+
+/* ── Parallax hook (.fx-parallax) ──
+   JS sets --py in px on scroll. */
+.fx-parallax {
+  transform: translate3d(0, var(--py, 0px), 0);
+  will-change: transform;
+}
+
+/* ── Scroll-reveal entrance (.fx-reveal) ──
+   JS adds .is-in when the element enters the viewport. */
+.fx-reveal {
+  opacity: 0;
+  transform: translate3d(0, 40px, 0) scale(0.985);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fx-reveal.is-in { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+
+/* Staggered children when the container has .fx-reveal-stagger */
+.fx-reveal-stagger > * {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fx-reveal-stagger.is-in > * { opacity: 1; transform: translate3d(0, 0, 0); }
+.fx-reveal-stagger.is-in > *:nth-child(1)  { transition-delay: 0.00s; }
+.fx-reveal-stagger.is-in > *:nth-child(2)  { transition-delay: 0.05s; }
+.fx-reveal-stagger.is-in > *:nth-child(3)  { transition-delay: 0.10s; }
+.fx-reveal-stagger.is-in > *:nth-child(4)  { transition-delay: 0.15s; }
+.fx-reveal-stagger.is-in > *:nth-child(5)  { transition-delay: 0.20s; }
+.fx-reveal-stagger.is-in > *:nth-child(6)  { transition-delay: 0.25s; }
+.fx-reveal-stagger.is-in > *:nth-child(7)  { transition-delay: 0.30s; }
+.fx-reveal-stagger.is-in > *:nth-child(8)  { transition-delay: 0.35s; }
+
+/* ── Hero overlay — slightly stronger so the typography pops ── */
+.ms-slide-grad-1 { background: linear-gradient(to right, rgba(0,0,0,0.55), rgba(0,0,0,0.20)) !important; }
+.ms-slide-grad-2 { background: linear-gradient(to bottom, rgba(0,0,0,0.20), rgba(0,0,0,0.45)) !important; }
+.ms-slide-vignette { background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.30)) !important; }
+
+/* Hero CTA — Apple "Buy" / "Learn more" pattern */
+.ms-hero-cta {
+  font-size: 15px !important;
+  padding: 13px 26px !important;
+  border-radius: 980px !important;
+  letter-spacing: -0.005em !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease !important;
+}
+.ms-hero-cta.btn-primary {
+  background: var(--brand) !important;
+  color: #fff !important;
+  border-color: var(--brand) !important;
+}
+.ms-hero-cta.btn-primary:hover { background: var(--brand-deep) !important; transform: scale(1.02); }
+.ms-hero-cta-alt {
+  border: 1px solid rgba(255,255,255,0.4) !important;
+  color: #fff !important;
+  background: rgba(255,255,255,0.08) !important;
+}
+.ms-hero-cta-alt:hover { background: rgba(255,255,255,0.18) !important; transform: scale(1.02); }
+
+/* ── Page background — slightly warm off-white ── */
+body, html { background: #fbfbfd !important; }
+.section:nth-of-type(odd), .catalog, .reiseplaner-section { background: #fbfbfd !important; }
+.section:nth-of-type(even), .itin-section { background: #f5f5f7 !important; }
+
+/* Sharp Apple-style buttons with soft hover */
+.btn, .btn-primary, .btn-outline, .btn-ink {
+  border-radius: 980px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: -0.005em !important;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease !important;
+}
+.btn-primary:hover { transform: scale(1.025); }
+.btn-outline:hover { transform: scale(1.025); }
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .fx-tilt, .fx-parallax, .fx-reveal, .fx-reveal-stagger > * {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+}
