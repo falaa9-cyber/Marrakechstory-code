@@ -505,3 +505,307 @@ body, html { background: #fbfbfd !important; }
 .ms-lc-opt.is-active { background: rgba(225, 67, 42, 0.10); color: var(--brand); }
 .ms-lc-opt .flag { font-size: 14px; }
 .ms-lc-opt .check { margin-left: auto; opacity: 0.7; }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 3
+   Deep application across every interactive element:
+     • Form fields, steppers, calendar, day nav, taste chips
+     • Auth / quick-book / tweak modals
+     • Floating action buttons (chat, instagram, weather, AI)
+     • Mobile compaction — widgets become small circles
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Form panels (itinerary builder) ── */
+.itin-form, .itin-preview {
+  border-radius: 22px !important;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 16px 40px rgba(0,0,0,0.06) !important;
+}
+.itin-preview { background: linear-gradient(160deg, #1d1d1f 0%, #2a1410 70%, #b8331e 220%) !important; }
+
+/* ── Step navigator pills — Apple segmented control ── */
+.itin-stepper {
+  background: rgba(0,0,0,0.04);
+  border-radius: 999px;
+  padding: 6px;
+  border: none !important;
+  gap: 4px !important;
+  flex-wrap: wrap;
+}
+.itin-step-pill {
+  border-radius: 999px !important;
+  padding: 8px 14px !important;
+  background: transparent !important;
+  border: none !important;
+  font-family: var(--apple-font) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.005em !important;
+  color: #424245 !important;
+  text-transform: none !important;
+  transition: background 0.22s ease, color 0.22s ease !important;
+}
+.itin-step-pill:hover { background: rgba(0,0,0,0.05) !important; color: #1d1d1f !important; }
+.itin-step-pill.active {
+  background: #1d1d1f !important;
+  color: #fff !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18) !important;
+}
+.itin-step-pill.active .n { background: var(--brand) !important; color: #fff !important; border: none !important; }
+.itin-step-pill.done { color: var(--brand) !important; }
+.itin-step-pill.done .n { background: var(--brand) !important; color: #fff !important; border: none !important; }
+.itin-step-pill .n { background: rgba(0,0,0,0.06) !important; border: none !important; }
+
+/* ── Form inputs — Apple field style ── */
+.fld input, .fld select, .fld textarea,
+.ms-qb-field input, .ms-qb-field select, .ms-qb-field textarea,
+.cat-rental-fld input,
+.auth-fields .fld input {
+  border-radius: 12px !important;
+  border: 1px solid rgba(0,0,0,0.12) !important;
+  background: #fff !important;
+  padding: 12px 14px !important;
+  font-size: 14px !important;
+  font-family: var(--apple-font) !important;
+  color: #1d1d1f !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.fld input:focus, .fld select:focus, .fld textarea:focus,
+.ms-qb-field input:focus, .ms-qb-field textarea:focus,
+.cat-rental-fld input:focus,
+.auth-fields .fld input:focus {
+  border-color: var(--brand) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(225, 67, 42, 0.15) !important;
+}
+.fld label { font-size: 12px !important; letter-spacing: -0.005em !important; color: #6e6e73 !important; font-weight: 500 !important; }
+
+/* ── Option cards (trip type, accommodation, transport, etc.) ── */
+.opt-card {
+  border-radius: 14px !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  background: #fff !important;
+  padding: 14px !important;
+  transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease !important;
+}
+.opt-card:hover { border-color: rgba(0,0,0,0.18) !important; transform: translateY(-2px); }
+.opt-card.active {
+  border-color: #1d1d1f !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 1px #1d1d1f, 0 8px 20px rgba(0,0,0,0.08) !important;
+}
+.opt-card.active::after {
+  content: "✓";
+  position: absolute; top: 8px; right: 10px;
+  color: var(--brand); font-weight: 700; font-size: 14px;
+}
+.opt-card .ttl { font-size: 13.5px !important; font-weight: 600 !important; color: #1d1d1f !important; letter-spacing: -0.01em !important; }
+.opt-card .sub { font-size: 11.5px !important; color: #6e6e73 !important; }
+
+/* ── Counter / stepper +/− buttons ── */
+.counter-btns button,
+.mc-night-ctrl button,
+.ms-qb-stepper button {
+  width: 32px; height: 32px;
+  border-radius: 50% !important;
+  background: rgba(0,0,0,0.05) !important;
+  border: none !important;
+  color: #1d1d1f !important;
+  font-size: 16px;
+  transition: background 0.2s ease, transform 0.15s ease !important;
+}
+.counter-btns button:hover,
+.mc-night-ctrl button:hover,
+.ms-qb-stepper button:hover { background: rgba(0,0,0,0.10) !important; transform: scale(1.06); }
+.form-counter { background: #f5f5f7 !important; border-radius: 14px !important; border: none !important; padding: 14px 16px !important; }
+.form-counter .name { font-weight: 600 !important; color: #1d1d1f !important; letter-spacing: -0.005em !important; }
+
+/* ── Date-range calendar (Apple visual) ── */
+.rcal { border-radius: 16px !important; border: 1px solid rgba(0,0,0,0.08) !important; background: #fff !important; }
+.rcal-nav { border-radius: 50% !important; background: rgba(0,0,0,0.05) !important; border: none !important; }
+.rcal-nav:hover { background: rgba(0,0,0,0.10) !important; border-color: transparent !important; }
+.rcal-cell { border-radius: 10px !important; }
+.rcal-cell:not(:disabled):hover { background: rgba(225,67,42,0.10) !important; color: var(--brand) !important; }
+.rcal-cell.start, .rcal-cell.end { background: #1d1d1f !important; color: #fff !important; font-weight: 600 !important; }
+.rcal-cell.in, .rcal-cell.in-hover { background: rgba(29,29,31,0.06) !important; color: #1d1d1f !important; }
+
+/* ── Day-by-day navigator pills (Smak step) ── */
+.day-nav {
+  background: rgba(0,0,0,0.04);
+  border-radius: 999px;
+  padding: 6px;
+  border: none !important;
+  gap: 4px;
+}
+.day-nav-pill {
+  border-radius: 999px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 8px 14px !important;
+  font-family: var(--apple-font) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #424245 !important;
+}
+.day-nav-pill:hover { background: rgba(0,0,0,0.05) !important; color: #1d1d1f !important; }
+.day-nav-pill.active { background: #1d1d1f !important; color: #fff !important; }
+.day-nav-pill.filled:not(.active) { background: rgba(225,67,42,0.10) !important; color: var(--brand) !important; }
+.day-nav-arrow {
+  width: 32px; height: 32px;
+  border-radius: 50% !important;
+  background: rgba(0,0,0,0.05) !important;
+  border: none !important;
+}
+.day-nav-arrow:hover:not(:disabled) { background: rgba(0,0,0,0.12) !important; }
+
+/* ── Taste chips ── */
+.taste-chip {
+  border-radius: 999px !important;
+  background: #fff !important;
+  border: 1px solid rgba(0,0,0,0.10) !important;
+  padding: 8px 14px !important;
+  font-family: var(--apple-font) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #1d1d1f !important;
+  letter-spacing: -0.005em !important;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease !important;
+}
+.taste-chip:hover { border-color: #1d1d1f !important; }
+.taste-chip.active { background: #1d1d1f !important; border-color: #1d1d1f !important; color: #fff !important; }
+.taste-more { color: var(--brand) !important; font-weight: 600 !important; font-family: var(--apple-font) !important; }
+
+/* ── Multi-city stops UI ── */
+.mc-stop { border-radius: 14px !important; background: #fff !important; border: 1px solid rgba(0,0,0,0.08) !important; }
+.mc-toggle { border-radius: 12px !important; border: 1px solid rgba(0,0,0,0.10) !important; }
+.mc-toggle.active { background: #1d1d1f !important; border-color: #1d1d1f !important; }
+.mc-add { border-radius: 999px !important; border-style: dashed !important; }
+.mc-remove { border-radius: 50% !important; }
+
+/* ── Rental cars + booking widget ── */
+.rental-card { border-radius: 16px !important; border: 1px solid rgba(0,0,0,0.08) !important; }
+.rental-card.active { box-shadow: 0 0 0 2px #1d1d1f !important; border-color: transparent !important; }
+.cat-rental-book { border-radius: 16px !important; background: #f5f5f7 !important; border: none !important; }
+
+/* ── Smak section card ── */
+.taste-section-h { font-family: var(--apple-font) !important; font-weight: 600 !important; color: #1d1d1f !important; letter-spacing: -0.005em !important; }
+.taste-section-meta { background: rgba(0,0,0,0.05) !important; color: #6e6e73 !important; border-radius: 999px !important; }
+
+/* ── Auth modal · Apple sheet ── */
+.auth-modal {
+  border-radius: 22px !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.25) !important;
+  border: none !important;
+}
+.auth-close { border-radius: 50% !important; background: rgba(0,0,0,0.06) !important; color: #1d1d1f !important; }
+.auth-google-btn { border-radius: 12px !important; border: 1px solid rgba(0,0,0,0.12) !important; transition: background 0.2s ease, border-color 0.2s ease !important; }
+.auth-google-btn:hover { background: #f5f5f7 !important; }
+.auth-skip { color: var(--brand) !important; font-weight: 600 !important; font-family: var(--apple-font) !important; }
+.auth-alt-btn { border-radius: 12px !important; padding: 12px 18px !important; font-weight: 500 !important; }
+.auth-title { font-family: var(--apple-display) !important; font-weight: 600 !important; letter-spacing: -0.02em !important; }
+
+/* ── QuickBook + Tweak modals ── */
+.ms-qb-modal, .ms-tweak-modal {
+  border-radius: 22px !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.25) !important;
+}
+.ms-qb-close, .ms-tweak-close { border-radius: 50% !important; background: rgba(255,255,255,0.92) !important; }
+.ms-qb-transport { border-radius: 14px !important; border: 1px solid rgba(225,67,42,0.30) !important; }
+.ms-qb-transport-addr { border-radius: 10px !important; }
+
+/* Itinerary modal */
+.itin-modal { border-radius: 22px !important; box-shadow: 0 32px 80px rgba(0,0,0,0.30) !important; }
+
+/* ── Floating action buttons — circular Apple-style ── */
+.ms-chat-fab,
+.ms-instagram-fab,
+.ms-weather-fab,
+.ms-ai-fab,
+.fab, .chat-fab {
+  border-radius: 50% !important;
+  width: 52px !important;
+  height: 52px !important;
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.15),
+    0 1px 3px rgba(0,0,0,0.10) !important;
+  border: none !important;
+  transition: transform 0.25s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.25s ease, background 0.25s ease !important;
+}
+.ms-chat-fab:hover,
+.ms-instagram-fab:hover,
+.ms-weather-fab:hover,
+.ms-ai-fab:hover {
+  transform: scale(1.10) !important;
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.20),
+    0 2px 6px rgba(0,0,0,0.10) !important;
+}
+
+/* Weather + chat FABs default-sized pills become smaller circles */
+.ms-weather-fab {
+  padding: 0 !important;
+  background: rgba(255,255,255,0.95) !important;
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  color: #1d1d1f !important;
+  display: inline-flex !important;
+  align-items: center; justify-content: center;
+  gap: 4px;
+}
+.ms-weather-fab .ms-weather-icon { font-size: 18px !important; }
+.ms-weather-fab .ms-weather-temp { font-size: 13px !important; font-weight: 600 !important; }
+.ms-weather-fab .ms-weather-city { display: none !important; }
+/* Default width loosens to fit "26° + icon" — let it auto */
+@media (min-width: 1024px) {
+  .ms-weather-fab { width: auto !important; min-width: 70px; padding: 0 14px !important; border-radius: 999px !important; }
+  .ms-weather-fab .ms-weather-city { display: inline-block !important; font-size: 10px !important; letter-spacing: 0.06em !important; }
+}
+
+/* AI / "+" / Instagram FABs */
+.ms-ai-fab { background: var(--brand) !important; color: #fff !important; }
+.ms-chat-fab { background: #25D366 !important; color: #fff !important; }
+.ms-chat-fab.open { background: #1d1d1f !important; }
+.ms-instagram-fab {
+  background: linear-gradient(45deg, #feda75 0%, #fa7e1e 25%, #d62976 50%, #962fbf 75%, #4f5bd5 100%) !important;
+  color: #fff !important;
+}
+
+/* ── Mobile compaction — widgets become small circles ── */
+@media (max-width: 768px) {
+  .ms-chat-fab,
+  .ms-instagram-fab,
+  .ms-weather-fab,
+  .ms-ai-fab,
+  .fab, .chat-fab {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+  }
+  .ms-weather-fab {
+    padding: 0 !important;
+    min-width: 0 !important;
+    width: 44px !important;
+  }
+  .ms-weather-fab .ms-weather-city,
+  .ms-weather-fab .ms-weather-temp { display: none !important; }
+  .ms-weather-fab .ms-weather-icon { font-size: 20px !important; }
+
+  /* Step pills get a touch smaller on mobile */
+  .itin-stepper { padding: 4px !important; }
+  .itin-step-pill { padding: 6px 10px !important; font-size: 11.5px !important; }
+  .itin-step-pill .n { width: 18px !important; height: 18px !important; }
+
+  /* Auth modal sticks to top with breathing room */
+  .auth-modal { border-radius: 18px !important; }
+
+  /* Tab bars and counter buttons compact */
+  .form-counter { padding: 10px 12px !important; }
+  .counter-btns button { width: 28px !important; height: 28px !important; }
+
+  /* Catalog modal radius slightly smaller */
+  .cat-modal, .ag-modal, .itin-modal, .ms-qb-modal, .ms-tweak-modal {
+    border-radius: 16px !important;
+  }
+}
