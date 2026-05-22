@@ -968,15 +968,16 @@ textarea { border-radius: 14px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
-   POP-UP — final, single, bulletproof pattern
+   POP-UP — single bulletproof pattern (after audit & reset)
    ────────────────────────────────────────────────────────────────
-   • Backdrop = fixed full-screen blurred glass. DOES NOT scroll.
-   • Modal    = centered, fits the viewport, scrolls INSIDE itself.
-   • Hero image is fixed at the top, body below it scrolls.
-   • Same exact behaviour on desktop and mobile.
+   Simplest possible model that works on every browser:
+     • Backdrop = fixed, blurred, flex-center. No scroll.
+     • Modal   = block element with max-height ≤ viewport,
+                 overflow-y:auto on itself. Everything inside it
+                 scrolls together — hero image included.
    ════════════════════════════════════════════════════════════════ */
 
-/* Backdrop — locked to viewport, dimmed + heavily blurred */
+/* Backdrop */
 .cat-modal-backdrop,
 .ag-modal-backdrop,
 .itin-modal-backdrop,
@@ -991,7 +992,6 @@ textarea { border-radius: 14px; }
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  overflow: hidden !important;
   padding: 16px !important;
   background: rgba(20, 16, 14, 0.55) !important;
   backdrop-filter: saturate(180%) blur(24px) !important;
@@ -999,7 +999,7 @@ textarea { border-radius: 14px; }
   animation: fadeIn 0.2s ease !important;
 }
 
-/* Modal panel — wide, capped by viewport, internal scroll */
+/* Modal — block layout, scrolls itself */
 .cat-modal,
 .ag-modal,
 .itin-modal,
@@ -1008,15 +1008,16 @@ textarea { border-radius: 14px; }
 .ms-tweak-modal,
 .ms-picker-modal {
   position: relative !important;
+  display: block !important;
   width: min(1080px, 100%) !important;
   max-width: min(1080px, 100%) !important;
-  height: auto !important;
   max-height: calc(100dvh - 32px) !important;
-  max-height: calc(100vh - 32px); /* fallback */
+  max-height: calc(100vh - 32px);
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   margin: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;        /* outer container clips */
   border-radius: 22px !important;
   background: #fff !important;
   box-shadow:
@@ -1025,62 +1026,43 @@ textarea { border-radius: 14px; }
   animation: slideUp 0.25s ease !important;
 }
 
-/* Small forms */
+/* Small forms (auth, date picker) stay narrow */
 .auth-modal,
 .ms-picker-modal {
   width: min(520px, 100%) !important;
   max-width: min(520px, 100%) !important;
 }
 
-/* Hero image inside trip / catalog modals — sticks at the top,
-   never shrinks, never scrolls. */
+/* Hero images scroll with content but feel cinematic */
 .cat-modal-img,
 .itin-modal-hero,
 .ag-modal-img {
-  flex: 0 0 auto !important;
-  height: clamp(180px, 28vh, 320px) !important;
+  height: clamp(200px, 32vh, 360px) !important;
   border-radius: 22px 22px 0 0 !important;
 }
 
-/* THE scrollable region: every modal body. */
+/* Body padding scales with width */
 .cat-modal-body,
 .itin-modal-body,
 .ag-modal-body,
-.auth-modal-body,
 .ms-qb-body,
-.ms-tweak-body,
-.ms-picker-body {
-  flex: 1 1 auto !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: clamp(20px, 3vw, 36px) !important;
+.ms-tweak-body {
+  padding: clamp(24px, 3vw, 40px) !important;
 }
 
-/* Auth and date-picker modals don't have a body wrapper — the modal
-   itself is the scroll container. Switch them from flex to block. */
-.auth-modal,
-.ms-picker-modal {
-  display: block !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: 28px !important;
-}
-
-/* Close button — sits absolute on top-right of the modal panel,
-   above the hero image and above the scrolling body. */
+/* Close button — fixed to the viewport of the modal, always visible
+   even when scrolling. position:fixed within the scroll container
+   anchors it to the top-right corner of the visible modal area. */
 .cat-modal-close,
 .itin-modal-close,
 .ag-modal-close,
 .auth-close,
 .ms-qb-close,
-.ms-tweak-close {
+.ms-tweak-close,
+.ms-picker-close {
   position: absolute !important;
-  top: 12px !important;
-  right: 12px !important;
+  top: 14px !important;
+  right: 14px !important;
   z-index: 30 !important;
   width: 36px !important;
   height: 36px !important;
@@ -1093,13 +1075,17 @@ textarea { border-radius: 14px; }
   border: none !important;
   cursor: pointer;
   backdrop-filter: blur(8px);
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
 }
 .cat-modal-close:hover,
 .itin-modal-close:hover,
 .ag-modal-close:hover,
 .auth-close:hover,
 .ms-qb-close:hover,
-.ms-tweak-close:hover { background: rgba(0,0,0,0.78) !important; }
+.ms-tweak-close:hover,
+.ms-picker-close:hover { background: rgba(0,0,0,0.78) !important; }
 
 /* Two-column day grid on wide screens */
 @media (min-width: 960px) {
@@ -1111,7 +1097,7 @@ textarea { border-radius: 14px; }
   .itin-modal-day { padding-bottom: 0 !important; border-bottom: 0 !important; }
 }
 
-/* Mobile — backdrop has no padding so the modal hugs the screen */
+/* Mobile */
 @media (max-width: 768px) {
   .cat-modal-backdrop,
   .ag-modal-backdrop,
@@ -1134,8 +1120,15 @@ textarea { border-radius: 14px; }
   .cat-modal-img,
   .itin-modal-hero,
   .ag-modal-img {
-    height: 200px !important;
+    height: 220px !important;
     border-radius: 18px 18px 0 0 !important;
+  }
+  .cat-modal-body,
+  .itin-modal-body,
+  .ag-modal-body,
+  .ms-qb-body,
+  .ms-tweak-body {
+    padding: 22px 18px !important;
   }
 }
 
