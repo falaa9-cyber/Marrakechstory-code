@@ -62,12 +62,6 @@ function HeroSlider() {
         </div>
       </div>
 
-      {window.MS_InstagramPhone && (
-        <div className="ip-wrap-host">
-          <window.MS_InstagramPhone />
-        </div>
-      )}
-
       <div className="ms-hero-credibility">
         <div className="ms-cred-item">
           <span className="ms-cred-icon">★★★★★</span>

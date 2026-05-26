@@ -428,15 +428,15 @@ const ITINS = [
   },
   {
     slug: "the-grand-discovery", chapter: "17",
-    title: "The Grand Discovery — 15 Days",
-    duration: "15D14N", days: 15, nights: 14,
+    title: "The Grand Discovery — 14 Days",
+    duration: "14D13N", days: 14, nights: 13,
     route: "Marrakech → Atlas → Sahara → Fez → Coast → Marrakech",
-    priceFromEUR: 3490,
+    priceFromEUR: 3290,
     img: "assets/photos/leonardo-2680808-marrak-11-12-22-o-343368.jpg",
     badge: "MOST LOVED",
     themeTags: ["Grand tour", "Slow travel", "Everything"],
-    teaser: "Fifteen days to actually see the country — desert, mountains, imperial cities, Atlantic coast. Our most thorough itinerary.",
-    overview: "Built from the Marrakechstory 15-day sample. Designed to be slow enough that each region gets its own rhythm. Two days at the dunes (not one). Two days in Fez (not half). A coastal night at Essaouira before returning. Private driver-guide throughout; we adapt the daily plan to the weather and your energy.",
+    teaser: "Two weeks to actually see the country — desert, mountains, imperial cities, Atlantic coast. Our most thorough itinerary.",
+    overview: "Designed to be slow enough that each region gets its own rhythm. Two days at the dunes (not one). Two days in Fez (not half). A coastal night at Essaouira before returning. Private driver-guide throughout; we adapt the daily plan to the weather and your energy.",
     highlights: ["Tichka pass", "Aït Ben Haddou & kasbah road", "Dades & Todra gorges", "Two-night Sahara overnight", "Fez medina (two days)", "Chefchaouen", "Volubilis", "Essaouira coast"],
     itinerary: [
       { day: 1, route: "Marrakech arrival", text: "Riad check-in. Light medina walk. Welcome dinner." },
@@ -450,12 +450,40 @@ const ITINS = [
       { day: 9, route: "Fez", text: "Full medina day with guide." },
       { day: 10, route: "Fez → Chefchaouen", text: "Drive north. Blue-town afternoon." },
       { day: 11, route: "Chefchaouen → Volubilis → Meknes", text: "Roman ruins. Meknes overnight." },
-      { day: 12, route: "Meknes → Casablanca", text: "Drive west. Free afternoon." },
-      { day: 13, route: "Casablanca → Essaouira", text: "Down the Atlantic. Coastal overnight." },
-      { day: 14, route: "Essaouira → Marrakech", text: "Slow return via the argan road." },
-      { day: 15, route: "Marrakech", text: "Free morning. Departure." },
+      { day: 12, route: "Meknes → Casablanca → Essaouira", text: "Hassan II mosque. Drive to the coast." },
+      { day: 13, route: "Essaouira → Marrakech", text: "Slow return via the argan road." },
+      { day: 14, route: "Marrakech", text: "Free morning. Departure." },
     ],
-    included: ["Private 4×4 + driver-guide for full route", "Fourteen nights' accommodation", "All transfers", "Local guides in Fez & Marrakech", "Camp half board"],
+    included: ["Private 4×4 + driver-guide for full route", "Thirteen nights' accommodation", "All transfers", "Local guides in Fez & Marrakech", "Camp half board"],
+    excluded: ["Some meals", "Drinks", "Tips"],
+  },
+
+  // ===== 10D9N tier =====
+  {
+    slug: "atlas-sahara-coast-10", chapter: "19",
+    title: "Atlas, Sahara & Atlantic — 10 Days",
+    duration: "10D9N", days: 10, nights: 9,
+    route: "Marrakech → Atlas → Sahara → Essaouira → Marrakech",
+    priceFromEUR: 2190,
+    img: "assets/photos/lodge-atlas-3-1-scaled.jpg.webp",
+    badge: "BALANCED",
+    themeTags: ["Atlas", "Sahara", "Coast", "Slow travel"],
+    teaser: "Ten days that touch every Morocco — the red city, the high mountains, the dunes at sunrise, and the Atlantic at sunset.",
+    overview: "The most balanced itinerary in our catalog. Two days in Marrakech to land softly, a full Atlas crossing with kasbah and Berber nights, two nights at the Sahara dunes, Skoura palm grove, and a coastal finish in Essaouira before returning. Private driver-guide and locally curated overnights throughout.",
+    highlights: ["Medina + Palmeraie day", "Tichka pass", "Aït Ben Haddou kasbah", "Dades & Todra gorges", "Two nights at Erg Chebbi", "Skoura palmeraie", "Essaouira ramparts", "Argan road back"],
+    itinerary: [
+      { day: 1, route: "Marrakech arrival", text: "Riad check-in. Welcome dinner. Slow evening." },
+      { day: 2, route: "Marrakech medina", text: "Heritage walk + souks. Hammam in the afternoon." },
+      { day: 3, route: "Marrakech → Aït Ben Haddou", text: "Tichka pass. Kasbah overnight." },
+      { day: 4, route: "Aït Ben Haddou → Dades", text: "Skoura palm grove. Up the Dades valley." },
+      { day: 5, route: "Dades → Todra → Merzouga", text: "Through Todra. Camel into the dunes." },
+      { day: 6, route: "Merzouga", text: "Sunrise on the dunes. Nomadic family visit. Camp overnight." },
+      { day: 7, route: "Merzouga → Ouarzazate", text: "Drive back via the Draa valley. Studio visit on request." },
+      { day: 8, route: "Ouarzazate → Essaouira", text: "Long drive across the south. Coastal overnight." },
+      { day: 9, route: "Essaouira", text: "Medina morning. Seafood lunch by the port. Ramparts at sunset." },
+      { day: 10, route: "Essaouira → Marrakech", text: "Argan road back. Late lunch in Marrakech. Departure." },
+    ],
+    included: ["Private 4×4 + driver-guide", "Nine nights' accommodation", "Local guides where useful", "Camp half board"],
     excluded: ["Some meals", "Drinks", "Tips"],
   },
 
@@ -785,28 +813,29 @@ function Itineraries() {
     if (f === '3D2N')        return tx('3 days', '3 dager', '3 jours');
     if (f === '4D3N')        return tx('4 days', '4 dager', '4 jours');
     if (f === '5D4N')        return tx('5 days', '5 dager', '5 jours');
-    if (f === 'Day trips')   return tx('Day trips', 'Dagsturer', 'Excursions');
-    if (f === '7D+')         return tx('1 week+', '1 uke+', '1 semaine+');
+    if (f === '7D6N')        return tx('7 days', '7 dager', '7 jours');
+    if (f === '10D9N')       return tx('10 days', '10 dager', '10 jours');
+    if (f === '14D13N')      return tx('14 days', '14 dager', '14 jours');
     return f;
   };
-  const filters = ['All', 'Most booked', '3D2N', '4D3N', '5D4N', 'Day trips', '7D+'];
-  const all = useMemoIt(() => [...MOST_BOOKED, ...ITINS], []);
+  const filters = ['All', 'Most booked', '3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N'];
+  // Only ship trips with the allowed durations
+  const ALLOWED_DURATIONS = new Set(['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N']);
+  const all = useMemoIt(() => [...MOST_BOOKED, ...ITINS].filter(t => ALLOWED_DURATIONS.has(t.duration)), []);
   const matches = (t) => {
     if (filter === 'All') return true;
-    if (filter === 'Most booked') return t.badge === 'MOST BOOKED';
-    if (filter === 'Day trips') return t.days === 1;
-    if (filter === '7D+') return t.days >= 7;
+    if (filter === 'Most booked') return t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED';
     return t.duration === filter;
   };
-  // Sort: MOST_BOOKED first, then 3D2N → 4D3N → 5D4N → day trips → 7D+
   const tier = (t) => {
-    if (t.badge === 'MOST BOOKED') return -1;
-    if (t.duration === '3D2N') return 0;
-    if (t.duration === '4D3N') return 1;
-    if (t.duration === '5D4N') return 2;
-    if (t.days === 1) return 3;
-    if (t.days >= 7) return 4;
-    return 5;
+    if (t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED') return -1;
+    if (t.duration === '3D2N')   return 0;
+    if (t.duration === '4D3N')   return 1;
+    if (t.duration === '5D4N')   return 2;
+    if (t.duration === '7D6N')   return 3;
+    if (t.duration === '10D9N')  return 4;
+    if (t.duration === '14D13N') return 5;
+    return 6;
   };
   const items = useMemoIt(() =>
     all.filter(matches).sort((a, b) => tier(a) - tier(b)), [filter, all]);
@@ -825,6 +854,111 @@ function Itineraries() {
             'Choisissez le voyage qui vous plaît — nous écrivons le reste avec vous.'
           )}</p>
         </div>
+
+        {/* ─── Theme strip: click a theme → opens the planner with preset ─── */}
+        {(() => {
+          const THEMES = [
+            {
+              id: 'culinary', emoji: '🍯',
+              name:  tx('Culinary trip', 'Mat & smaker', 'Voyage culinaire'),
+              brief: tx('Markets, tagine masterclasses, rooftop dinners and a Moroccan cooking-class week.',
+                        'Markeder, tagine-kurs, takdinerer og en uke med marokkansk matlaging.',
+                        'Marchés, masterclass de tajine, dîners sur les toits et une semaine autour de la cuisine.'),
+              img: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=900&q=72',
+              duration: 5, tripType: 'culinary',
+            },
+            {
+              id: 'romantic', emoji: '💞',
+              name:  tx('Romantic trip', 'Romantisk reise', 'Voyage romantique'),
+              brief: tx('Riad hammam, candle-lit Agafay dinner, sunset camel ride and slow palmeraie mornings.',
+                        'Riad-hammam, stearinlysmiddag i Agafay, kameltur i solnedgang og rolige palmeraie-morgener.',
+                        'Hammam au riad, dîner aux chandelles à l\'Agafay, balade à dos de chameau et matins doux à la palmeraie.'),
+              img: 'https://images.unsplash.com/photo-1505739679850-7adf6c1654ba?w=900&q=72',
+              duration: 5, tripType: 'romantic',
+            },
+            {
+              id: 'cultural', emoji: '🕌',
+              name:  tx('Cultural trip', 'Kulturreise', 'Voyage culturel'),
+              brief: tx('Medinas, palaces, museums and the imperial cities — Marrakech, Fez and Chefchaouen.',
+                        'Medinaer, palasser, museer og keiserbyer — Marrakech, Fez og Chefchaouen.',
+                        'Médinas, palais, musées et villes impériales — Marrakech, Fès et Chefchaouen.'),
+              img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=900&q=72',
+              duration: 7, tripType: 'cultural',
+            },
+            {
+              id: 'mountain', emoji: '🏔️',
+              name:  tx('Mountain trek & nature', 'Fjelltur & natur', 'Trek & nature'),
+              brief: tx('High Atlas valleys, Toubkal base camp, walnut groves and Berber lodges.',
+                        'Høye Atlas-daler, Toubkal-base-camp, valnøttlunder og berber-losjier.',
+                        'Vallées du Haut Atlas, camp de base du Toubkal, noyers et lodges berbères.'),
+              img: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=900&q=72',
+              duration: 5, tripType: 'mountain',
+            },
+            {
+              id: 'desert-marathon', emoji: '🏃',
+              name:  tx('Desert marathon trip', 'Ørken-maraton', 'Marathon du désert'),
+              brief: tx('Train and recover around Marathon des Sables — Agafay long runs, Sahara taper and recovery riad.',
+                        'Tren og restituer rundt Marathon des Sables — lange løp i Agafay, taper i Sahara og restitusjons-riad.',
+                        'Préparation autour du Marathon des Sables — sorties longues à l\'Agafay, taper au Sahara et riad récup.'),
+              img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=72',
+              duration: 7, tripType: 'desert-marathon',
+            },
+            {
+              id: 'sport', emoji: '🏄',
+              name:  tx('Sport trip', 'Sportsreise', 'Voyage sportif'),
+              brief: tx('Surf in Taghazout, mountain biking in the Atlas, paragliding, padel and golf — handled by the team.',
+                        'Surf i Taghazout, terrengsykling i Atlas, paragliding, padel og golf — vi tar oss av alt.',
+                        'Surf à Taghazout, VTT dans l\'Atlas, parapente, padel et golf — l\'équipe s\'occupe de tout.'),
+              img: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=900&q=72',
+              duration: 7, tripType: 'sport',
+            },
+            {
+              id: 'festival', emoji: '🎶',
+              name:  tx('Festival trip', 'Festivalreise', 'Voyage festival'),
+              brief: tx('Built around Marrakech festivals — Gnaoua Essaouira, Marrakech du Rire, FIFM and the Sahara music nights.',
+                        'Bygd rundt festivaler — Gnaoua i Essaouira, Marrakech du Rire, FIFM og musikknetter i Sahara.',
+                        'Calé sur les festivals — Gnaoua d\'Essaouira, Marrakech du Rire, FIFM et nuits musicales au Sahara.'),
+              img: 'https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=900&q=72',
+              duration: 5, tripType: 'festival',
+            },
+          ];
+          const openTheme = (t) => {
+            window.MS_BookingContext = {
+              mode: 'theme',
+              title: t.name,
+              duration: t.duration,
+              tripType: t.tripType,
+              themeId: t.id,
+              themeBrief: t.brief,
+            };
+            window.dispatchEvent(new CustomEvent('ms:booking-context'));
+            setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+          };
+          return (
+            <div className="theme-strip reveal">
+              <div className="theme-strip-head">
+                <span className="eyebrow">— {tx('Themes', 'Temaer', 'Thèmes')}</span>
+                <h3 className="theme-strip-h">{tx('Pick a theme — we plan around it',
+                                                  'Velg et tema — vi planlegger rundt det',
+                                                  'Choisissez un thème — nous bâtissons autour')}</h3>
+              </div>
+              <div className="theme-grid">
+                {THEMES.map(t => (
+                  <button key={t.id} className="theme-card" onClick={() => openTheme(t)}>
+                    <div className="theme-card-img" style={{ backgroundImage: `url(${t.img})` }}>
+                      <span className="theme-card-emoji">{t.emoji}</span>
+                    </div>
+                    <div className="theme-card-body">
+                      <div className="theme-card-name">{t.name}</div>
+                      <p className="theme-card-brief">{t.brief}</p>
+                      <span className="theme-card-cta">{tx('Plan this →', 'Planlegg →', 'Planifier →')}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="cat-tabs-v2 reveal">
           {filters.map(f => {

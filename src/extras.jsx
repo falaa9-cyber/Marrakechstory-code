@@ -100,22 +100,8 @@ function ContactSection() {
             </div>
           </div>
 
-          <div className="contact-map">
-            {/* embedded map */}
-            <iframe
-              title="Marrakech Story · La Kasbah"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-7.991%2C31.612%2C-7.971%2C31.624&amp;layer=mapnik&amp;marker=31.618%2C-7.981"
-              style={{ border: 0 }}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
-            <div className="contact-map-pin">
-              <div className="pin-dot"></div>
-              <div className="pin-label">
-                <strong>Marrakech Story</strong><br />
-                La Kasbah, 40000
-              </div>
-            </div>
+          <div className="contact-phone-wrap">
+            {window.MS_InstagramPhone && <window.MS_InstagramPhone />}
           </div>
         </div>
       </div>
