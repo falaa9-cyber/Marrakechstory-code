@@ -410,8 +410,8 @@ const ACTIVITIES = [
     desc: "Guided 1 or 2-hour quad ride through the dramatic Agafay stone desert. Off-road quads, safety briefing, professional guide and Berber tea break. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2021/07/quad-300x220-1.jpg",
     prices: [
-      { label: "1 Hour Quad", price: "from €44/person" },
-      { label: "2 Hours Quad", price: "from €77/person" },
+      { label: "1 Hour Quad", price: "from €48/person" },
+      { label: "2 Hours Quad", price: "from €85/person" },
     ] },
   { name: "Hot Air Balloon",
     area: "Marrakech outskirts · 30min",
@@ -422,8 +422,8 @@ const ACTIVITIES = [
     desc: "40–55 minute flight at sunrise over the Atlas foothills and Berber villages. Round-trip 4×4 transport, Berber breakfast on landing, flight certificate.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/10/WhatsApp-Image-2026-03-24-at-13.45.15-700x700.jpeg",
     prices: [
-      { label: "Shared Balloon", price: "from €105/person" },
-      { label: "Private Royal Flight", price: "from €550/person" },
+      { label: "Shared Balloon", price: "from €116/person" },
+      { label: "Private Royal Flight", price: "from €605/person" },
     ] },
   { name: "Camel Ride in Agafay",
     area: "Agafay Desert · 45min",
@@ -434,7 +434,7 @@ const ACTIVITIES = [
     desc: "1-hour sunset camel ride through the Agafay stone desert. Meeting with camels, tea break, round-trip transport from your accommodation.",
     img: "https://marrakechbestof.com/wp-content/uploads/2022/11/inara-camp-13-web01-700x700.webp",
     prices: [
-      { label: "1h Camel Ride", price: "from €28/person" },
+      { label: "1h Camel Ride", price: "from €31/person" },
     ] },
   { name: "Paragliding over the Atlas",
     area: "High Atlas · 45km",
@@ -445,7 +445,7 @@ const ACTIVITIES = [
     desc: "Tandem paragliding flight over the Atlas Mountains with a certified pilot. Round-trip transport, GoPro footage, tea break.",
     img: "https://marrakechbestof.com/wp-content/uploads/2024/02/WhatsApp-Image-2024-02-02-at-11.14.00-2-1024x768-1-700x700.jpeg",
     prices: [
-      { label: "Tandem Flight", price: "from €77/person" },
+      { label: "Tandem Flight", price: "from €85/person" },
     ] },
   { name: "Quad Ride in the Palmeraie",
     area: "Palmeraie · 15min",
@@ -456,8 +456,8 @@ const ACTIVITIES = [
     desc: "1h30 to 2h guided quad ride through the palm groves of the Palmeraie. Professional guide, safety briefing, tea break. Round-trip transport.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/09/FACTURE-baan-thai-1-700x700.jpg",
     prices: [
-      { label: "1h30 Quad Ride", price: "from €39/person" },
-      { label: "2h Quad Ride", price: "from €61/person" },
+      { label: "1h30 Quad Ride", price: "from €43/person" },
+      { label: "2h Quad Ride", price: "from €67/person" },
     ] },
   { name: "Horseback Riding in the Palmeraie",
     area: "Palmeraie · 15min",
@@ -468,7 +468,7 @@ const ACTIVITIES = [
     desc: "1-hour private horseback ride through the Palmeraie with an experienced guide. Suitable for beginners. Round-trip transport.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/09/CA-Maroc-chevauchee-desert-cheval-aventure-20-web01-700x700.webp",
     prices: [
-      { label: "1h Private Ride", price: "€44/person" },
+      { label: "1h Private Ride", price: "€48/person" },
     ] },
   { name: "Scooter Tour of the Medina",
     area: "Medina · Marrakech",
@@ -479,7 +479,7 @@ const ACTIVITIES = [
     desc: "2-hour guided scooter tour through the medina. A fresh way to see the old city — the small streets, the hidden corners, the souks. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2024/11/WhatsAppImage20241122at163856jpeg-web01-700x700.webp",
     prices: [
-      { label: "2h Scooter Tour", price: "€50/person" },
+      { label: "2h Scooter Tour", price: "€55/person" },
     ] },
   { name: "Quad + Camel Combo in Agafay",
     area: "Agafay Desert · 45min",
@@ -490,7 +490,7 @@ const ACTIVITIES = [
     desc: "Classic Agafay combo — 1h quad ride for adrenaline, then 1h camel ride for contrast. Tea break in between. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/02/quad-desert-marrakech-1024x512-1-700x512.jpg",
     prices: [
-      { label: "1h Quad + 1h Camel", price: "from €50/person" },
+      { label: "1h Quad + 1h Camel", price: "from €55/person" },
     ] },
   { name: "Jeep Tour",
     area: "Marrakech outskirts · 30min",
@@ -501,8 +501,8 @@ const ACTIVITIES = [
     desc: "3-hour or 6-hour Jeep tour of the Marrakech outskirts and Atlas foothills. Transport from your accommodation, lunch included on the long version.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/01/WhatsApp-Image-2025-02-12-at-10.54.17-700x700.jpeg",
     prices: [
-      { label: "3h Jeep Tour", price: "from €105/person" },
-      { label: "6h Jeep Tour + Lunch", price: "from €160/person" },
+      { label: "3h Jeep Tour", price: "from €116/person" },
+      { label: "6h Jeep Tour + Lunch", price: "from €176/person" },
     ] },
   { name: "Scooter Tour of the Palmeraie",
     area: "Palmeraie · 15min",
@@ -513,7 +513,7 @@ const ACTIVITIES = [
     desc: "2-hour scooter tour through the palm groves of the Palmeraie. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2024/11/WhatsAppImage20241122at163856jpeg-web01-700x700.webp",
     prices: [
-      { label: "2h Scooter Tour", price: "€50/person" },
+      { label: "2h Scooter Tour", price: "€55/person" },
     ] },
   { name: "Jeep Tour in Agafay",
     area: "Agafay Desert · 45min",
@@ -524,7 +524,7 @@ const ACTIVITIES = [
     desc: "2-hour Jeep tour across the Agafay stone desert. Transport from your accommodation included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/01/WhatsApp-Image-2025-01-25-at-11.50.31-700x700.jpeg",
     prices: [
-      { label: "2h Jeep Tour", price: "€94/person" },
+      { label: "2h Jeep Tour", price: "€103/person" },
     ] },
   { name: "Quad + Lunch & Pool at The White Camel",
     area: "Agafay Desert · 45min",
@@ -535,7 +535,7 @@ const ACTIVITIES = [
     desc: "Morning quad ride in the Agafay, then lunch and pool access at The White Camel — the calmest of the Agafay camps. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2023/04/WhatsApp-Image-2023-04-10-at-13.46.56-700x634.jpeg",
     prices: [
-      { label: "Quad + Lunch + Pool", price: "from €138/person" },
+      { label: "Quad + Lunch + Pool", price: "from €152/person" },
     ] },
   { name: "Hot Air Balloon with In-Flight Breakfast",
     area: "Marrakech outskirts · 30min",
@@ -546,7 +546,7 @@ const ACTIVITIES = [
     desc: "Private balloon flight with breakfast served in the air — pastries, fruit, coffee with the Atlas panorama beneath you. The version for a proposal or milestone.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/02/DJI_20260126154024_0546_D-700x700.jpg",
     prices: [
-      { label: "Private Balloon + Breakfast", price: "from €550/person" },
+      { label: "Private Balloon + Breakfast", price: "from €605/person" },
     ] },
   { name: "Quad + Camel + Dinner at Agafay",
     area: "Agafay Desert · 45min",
@@ -557,7 +557,7 @@ const ACTIVITIES = [
     desc: "Quad ride, then camel ride at sunset, then dinner in a desert camp. The full Agafay evening, all in one package.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/02/excursion-agafay-dejeuner-et-balade-dromadaire-1-700x667.jpg",
     prices: [
-      { label: "Quad + Camel + Dinner", price: "from €72/person" },
+      { label: "Quad + Camel + Dinner", price: "from €79/person" },
     ] },
   { name: "Vintage 2CV Tour",
     area: "Marrakech",
@@ -568,9 +568,9 @@ const ACTIVITIES = [
     desc: "1h, 2h or 3h tour in a restored Citroën 2CV. Custom routes — lake, Agafay, Ourika. Driver-guided.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/09/MBO_Couverture_compress-700x700.jpg",
     prices: [
-      { label: "1h Tour", price: "from €77/car" },
-      { label: "2h Tour", price: "from €143/car" },
-      { label: "3h Tour", price: "€231/car" },
+      { label: "1h Tour", price: "from €85/car" },
+      { label: "2h Tour", price: "from €157/car" },
+      { label: "3h Tour", price: "€254/car" },
     ] },
   { name: "Quad + Lunch & Pool at Agafay Valley",
     area: "Agafay Desert · 45min",
@@ -581,7 +581,7 @@ const ACTIVITIES = [
     desc: "Morning quad ride, lunch and pool at Agafay Valley camp. Round-trip transport from your accommodation.",
     img: "https://marrakechbestof.com/wp-content/uploads/2024/04/IMG_4913-700x700.jpg",
     prices: [
-      { label: "Quad + Lunch + Pool", price: "from €127/person" },
+      { label: "Quad + Lunch + Pool", price: "from €140/person" },
     ] },
   { name: "Pottery Workshop",
     area: "Sidi Ghanem · Marrakech",
@@ -592,7 +592,7 @@ const ACTIVITIES = [
     desc: "2-hour pottery workshop with a Marrakech ceramicist family. Learn the wheel, make a piece, take it home.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/09/ccccccccccccccccc-700x468.jpg",
     prices: [
-      { label: "2h Pottery Workshop", price: "€33/person" },
+      { label: "2h Pottery Workshop", price: "€36/person" },
     ] },
   { name: "Buggy in Agafay",
     area: "Agafay Desert · 45min",
@@ -603,8 +603,8 @@ const ACTIVITIES = [
     desc: "1 or 2-hour buggy ride through the Agafay Desert. Two-seater 500cc or 1000cc buggies. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2021/07/PISTE_WEB_lg-700x620.jpg",
     prices: [
-      { label: "1h Buggy 500cc", price: "from €46/person" },
-      { label: "2h Buggy 1000cc", price: "from €94/buggy" },
+      { label: "1h Buggy 500cc", price: "from €51/person" },
+      { label: "2h Buggy 1000cc", price: "from €103/buggy" },
     ] },
   { name: "Perfume Creation Workshop",
     area: "Guéliz · Marrakech",
@@ -615,7 +615,7 @@ const ACTIVITIES = [
     desc: "2-hour guided perfumer's workshop in Guéliz. Take home a 50ml custom perfume + recipe card. 10% off for Marrakech Story guests.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/01/CWB06129-700x700.jpeg",
     prices: [
-      { label: "Perfume Workshop", price: "from €54/person" },
+      { label: "Perfume Workshop", price: "from €59/person" },
     ] },
   { name: "4x4 Tour",
     area: "Marrakech outskirts · 30min",
@@ -626,7 +626,7 @@ const ACTIVITIES = [
     desc: "4-hour 4x4 tour with transport and breakfast. Explore the Atlas foothills and Marrakech outskirts.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/04/WhatsApp-Image-2026-04-11-at-09.00.22-700x700.jpeg",
     prices: [
-      { label: "4h 4x4 Tour", price: "€98/person" },
+      { label: "4h 4x4 Tour", price: "€108/person" },
     ] },
   { name: "The Secret Family Farm",
     area: "Targa Road · Marrakech",
@@ -637,7 +637,7 @@ const ACTIVITIES = [
     desc: "Educational farm visit — animals, gardens, traditional tea. Family-friendly, just outside Marrakech.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/02/PHOTO-2026-02-09-13-18-17-13-700x700.jpg",
     prices: [
-      { label: "Family Farm Visit", price: "from €35/person" },
+      { label: "Family Farm Visit", price: "from €39/person" },
     ] },
   { name: "Horseback Riding in Agafay",
     area: "Agafay Desert · 45min",
@@ -648,7 +648,7 @@ const ACTIVITIES = [
     desc: "1-hour private horseback ride across the Agafay Desert. Sunrise or sunset slots recommended.",
     img: "https://marrakechbestof.com/wp-content/uploads/2024/04/IMG_4917-700x622.jpg",
     prices: [
-      { label: "1h Private Ride", price: "from €72/person" },
+      { label: "1h Private Ride", price: "from €79/person" },
     ] },
   { name: "Gravity Park",
     area: "Route d'Amizmiz · Marrakech",
@@ -659,7 +659,7 @@ const ACTIVITIES = [
     desc: "Family-friendly adventure park with full activities included. All ages welcome.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/01/DSC08339-700x700.jpg",
     prices: [
-      { label: "Full-day Pass", price: "€61/person" },
+      { label: "Full-day Pass", price: "€67/person" },
     ] },
   { name: "Off-road in a Porsche Cayenne",
     area: "Atlas Mountains",
@@ -670,7 +670,7 @@ const ACTIVITIES = [
     desc: "Discover the Atlas in an off-road-prepared Porsche Cayenne. The driving sensations only a Porsche delivers, applied to Agafay / Lalla Takerkoust / Atlas foothills routes.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/10/097A5318-copie-700x700.jpg",
     prices: [
-      { label: "Half-day Cayenne", price: "from €417/car" },
+      { label: "Half-day Cayenne", price: "from €459/car" },
     ] },
   { name: "Camel Ride in the Palmeraie",
     area: "Palmeraie · 15min",
@@ -681,7 +681,7 @@ const ACTIVITIES = [
     desc: "1-hour private camel ride through the palm groves. Round-trip transport.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/09/cha-700x700.jpg",
     prices: [
-      { label: "1h Private Camel Ride", price: "from €28/person" },
+      { label: "1h Private Camel Ride", price: "from €31/person" },
     ] },
   { name: "Painting Workshop",
     area: "Guéliz · Marrakech",
@@ -692,7 +692,7 @@ const ACTIVITIES = [
     desc: "1-hour painting workshop in Guéliz. Family-friendly, paint your own piece to take home.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/01/PHOTO-2026-01-09-16-56-14-700x700.jpg",
     prices: [
-      { label: "1h Painting", price: "from €28/person" },
+      { label: "1h Painting", price: "from €31/person" },
     ] },
   { name: "Souks & Jamaa el Fna Guided Tour",
     area: "Medina · Marrakech",
@@ -703,7 +703,7 @@ const ACTIVITIES = [
     desc: "4-hour private guided tour through the souks and Jamaa el Fna square. Discover the medina with someone who knows it — copper smiths, dyers, spice merchants.",
     img: "https://marrakechbestof.com/wp-content/uploads/2022/01/04097B4D-07B7-4463-B958-753098C0114E-700x480.jpeg",
     prices: [
-      { label: "4h Private Guided Tour", price: "€28/person" },
+      { label: "4h Private Guided Tour", price: "€31/person" },
     ] },
   { name: "Horseback Riding at Lake Lalla Takerkoust",
     area: "Lake Lalla Takerkoust · 45min",
@@ -714,8 +714,8 @@ const ACTIVITIES = [
     desc: "1 or 1h30 horseback ride along Lake Lalla Takerkoust — pine forest, lake edge, Atlas backdrop. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2022/07/WhatsApp-Image-2025-02-22-at-18.36.24-700x700.jpeg",
     prices: [
-      { label: "1h Ride + Transport", price: "from €87/person" },
-      { label: "1h30 Ride + Transport", price: "from €95/person" },
+      { label: "1h Ride + Transport", price: "from €96/person" },
+      { label: "1h30 Ride + Transport", price: "from €105/person" },
     ] },
   { name: "Surf — Artificial Wave",
     area: "Route d'Amizmiz",
@@ -726,7 +726,7 @@ const ACTIVITIES = [
     desc: "Surf on Marrakech's first standing-wave surf park. All levels welcome. Welcome cocktail included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/07/image00010-700x700.jpeg",
     prices: [
-      { label: "Surf Session", price: "from €20/person" },
+      { label: "Surf Session", price: "from €22/person" },
     ] },
   { name: "Bahia & Badii Palaces + Koutoubia Tour",
     area: "Medina · Marrakech",
@@ -737,7 +737,7 @@ const ACTIVITIES = [
     desc: "4-hour private guided tour of Marrakech's main monuments: Bahia Palace, Badii Palace, Koutoubia.",
     img: "https://marrakechbestof.com/wp-content/uploads/2021/11/5968E559-2C22-468F-8C6F-8A0351F57C80-700x675.jpeg",
     prices: [
-      { label: "4h Heritage Tour", price: "€28/person" },
+      { label: "4h Heritage Tour", price: "€31/person" },
     ] },
   { name: "Berber Carpet Weaving Workshop",
     area: "Guéliz · Marrakech",
@@ -748,7 +748,7 @@ const ACTIVITIES = [
     desc: "4-hour carpet weaving workshop in Guéliz. Take home a coin purse you wove yourself.",
     img: "https://marrakechbestof.com/wp-content/uploads/2024/11/IMG_9776-700x700.jpeg",
     prices: [
-      { label: "4h Carpet Workshop", price: "€64/person" },
+      { label: "4h Carpet Workshop", price: "€70/person" },
     ] },
   { name: "Sculpture Park Visit",
     area: "Bab Atlas · Marrakech",
@@ -759,7 +759,7 @@ const ACTIVITIES = [
     desc: "Visit the contemporary sculpture park at Bab Atlas. A different side of Marrakech.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/02/Maison-tombee-du-ciel-1536x1024-1-700x700.jpg",
     prices: [
-      { label: "Sculpture Park Tour", price: "from €55/person" },
+      { label: "Sculpture Park Tour", price: "from €61/person" },
     ] },
   { name: "Jump Park",
     area: "Route d'Amizmiz",
@@ -770,7 +770,7 @@ const ACTIVITIES = [
     desc: "Family-friendly jump park. Kids love it. 10% off for Marrakech Story guests.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-06-28-at-19.42.58-2-700x700.jpeg",
     prices: [
-      { label: "Day Pass", price: "from €10/person" },
+      { label: "Day Pass", price: "from €11/person" },
     ] },
   { name: "Ocre Garden — Educational Farm",
     area: "Route d'Amizmiz",
@@ -781,7 +781,7 @@ const ACTIVITIES = [
     desc: "Educational farm visit. Animals, gardens, traditional Moroccan meal option.",
     img: "https://marrakechbestof.com/wp-content/uploads/2026/02/DSCF1479-700x700.jpg",
     prices: [
-      { label: "Farm Visit", price: "€15/person" },
+      { label: "Farm Visit", price: "€17/person" },
     ] },
   { name: "Buggy in the Palmeraie",
     area: "Palmeraie · 15min",
@@ -792,7 +792,7 @@ const ACTIVITIES = [
     desc: "2-hour buggy ride through the palm groves. Transport included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/09/buggypalmeraie-700x700.jpg",
     prices: [
-      { label: "2h Buggy", price: "from €55/person" },
+      { label: "2h Buggy", price: "from €61/person" },
     ] },
   { name: "Romantic Pottery Photoshoot",
     area: "Sidi Ghanem · Marrakech",
@@ -803,7 +803,7 @@ const ACTIVITIES = [
     desc: "2-hour photoshoot at a Sidi Ghanem pottery — terracotta light, romantic editorial framing. Images delivered a few days later.",
     img: "https://marrakechbestof.com/wp-content/uploads/2024/02/WhatsApp-Image-2024-02-12-at-15.03.42-2-700x700.jpeg",
     prices: [
-      { label: "Photoshoot for Two", price: "from €605/couple" },
+      { label: "Photoshoot for Two", price: "from €666/couple" },
     ] },
   { name: "The Bunker — Immersive Adventure",
     area: "Route d'Amizmiz",
@@ -814,7 +814,7 @@ const ACTIVITIES = [
     desc: "Immersive escape-room adventure experience. 10% off for Marrakech Story guests.",
     img: "https://marrakechbestof.com/wp-content/uploads/2025/07/image00014-1-700x700.jpeg",
     prices: [
-      { label: "The Bunker Experience", price: "from €15/person" },
+      { label: "The Bunker Experience", price: "from €17/person" },
     ] },
   { name: "Cooking Class in a Riad",
     area: "Medina · Marrakech",
@@ -825,7 +825,7 @@ const ACTIVITIES = [
     desc: "4-hour cooking class in a traditional medina riad. Market visit, prepare starter / main / dessert under a chef's guidance, eat what you made.",
     img: "https://marrakechbestof.com/wp-content/uploads/2022/06/A777A691-D193-46A7-A1AF-73D3116E5423-700x700.jpeg",
     prices: [
-      { label: "4h Cooking Class", price: "€50/person" },
+      { label: "4h Cooking Class", price: "€55/person" },
     ] },
   { name: "Golf Initiation",
     area: "Al Maaden · Marrakech",
@@ -836,7 +836,7 @@ const ACTIVITIES = [
     desc: "1-hour golf initiation lesson with a pro at Al Maaden golf course.",
     img: "https://marrakechbestof.com/wp-content/uploads/2019/02/Tarifs-700x700.jpg",
     prices: [
-      { label: "1h Initiation", price: "from €33/person" },
+      { label: "1h Initiation", price: "from €36/person" },
     ] },
   { name: "Wake Board at Waky",
     area: "Route de l'Ourika",
@@ -847,8 +847,8 @@ const ACTIVITIES = [
     desc: "1 or 2 hours of wakeboarding on the Waky artificial lake. Equipment and instruction included.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/09/waky-marrakech-1-700x700.jpg",
     prices: [
-      { label: "1h Wake Board", price: "from €22/person" },
-      { label: "2h Wake Board", price: "from €39/person" },
+      { label: "1h Wake Board", price: "from €24/person" },
+      { label: "2h Wake Board", price: "from €43/person" },
     ] },
   { name: "Sidecar Tour",
     area: "Guéliz · Marrakech",
@@ -859,7 +859,7 @@ const ACTIVITIES = [
     desc: "Discover Marrakech in a vintage-style sidecar with a driver-guide. Custom routes — medina, Palmeraie, Agafay.",
     img: "https://marrakechbestof.com/wp-content/uploads/2018/12/F499007C-FB44-4198-AE5C-BF87F259372A-700x700.jpeg",
     prices: [
-      { label: "Sidecar Tour", price: "from €242/sidecar" },
+      { label: "Sidecar Tour", price: "from €266/sidecar" },
     ] },
   { name: "Embroidery Workshop — Custom Basket",
     area: "Medina · Marrakech",
@@ -870,7 +870,7 @@ const ACTIVITIES = [
     desc: "2-hour embroidery workshop — embroider a straw basket with a name or word of your choice. Take home what you made + a complimentary keyring.",
     img: "https://marrakechbestof.com/wp-content/uploads/2023/11/954326E6-5CFC-4808-874D-3755C237522A-700x700.jpeg",
     prices: [
-      { label: "2h Embroidery", price: "€42/person" },
+      { label: "2h Embroidery", price: "€46/person" },
     ] },
   { name: "Koutoubia + Secret Garden + Ben Youssef Tour",
     area: "Medina · Marrakech",
@@ -881,7 +881,7 @@ const ACTIVITIES = [
     desc: "4-hour private guided tour: Koutoubia, the Secret Garden, the Medersa Ben Youssef.",
     img: "https://marrakechbestof.com/wp-content/uploads/2023/11/WhatsApp-Image-2023-11-15-at-16.34.39-1-700x561.jpeg",
     prices: [
-      { label: "4h Heritage Tour", price: "€28/person" },
+      { label: "4h Heritage Tour", price: "€31/person" },
     ] },
   { name: "Cactus Thiemann Garden Visit",
     area: "Route de Casablanca · 30min",
@@ -892,7 +892,7 @@ const ACTIVITIES = [
     desc: "30-minute drive to the Cactus Thiemann garden — one of Morocco's largest cactus collections.",
     img: "https://marrakechbestof.com/wp-content/uploads/2021/07/8B004EB4-EF9B-4577-9E31-26327F963927-700x601.png",
     prices: [
-      { label: "Garden Visit", price: "from €23/person" },
+      { label: "Garden Visit", price: "from €25/person" },
     ] },
 ];
 
@@ -3714,7 +3714,7 @@ const TRANSPORT = [
     name: "Renault Clio 5",
     area: "Marrakech · Dune Fleet",
     cuisine: "Diesel · Manual · 5 passengers · 3 bags",
-    price: "€30/day",
+    price: "€33/day",
     rating: 4.85, reviews: 720,
     tag: "POPULAR",
     filter: "Compact",
@@ -3729,10 +3729,10 @@ const TRANSPORT = [
     atmosphere: "Easy city car · diesel · manual · 5 pax · 3 bags · unlimited mileage.",
     perfectFor: ["POPULAR", "ECONOMIC", "UNLIMITED MILEAGE"],
     prices: [
-      { label: "1–9 days", price: "€30/day" },
-      { label: "10–19 days (−5%)", price: "€28/day" },
-      { label: "20–29 days (−10%)", price: "€27/day" },
-      { label: "30+ days (−15%)", price: "€25/day" },
+      { label: "1–9 days", price: "€33/day" },
+      { label: "10–19 days (−5%)", price: "€31/day" },
+      { label: "20–29 days (−10%)", price: "€30/day" },
+      { label: "30+ days (−15%)", price: "€28/day" },
     ],
     practical: [
       "Unlimited mileage on every rental.",
@@ -3746,7 +3746,7 @@ const TRANSPORT = [
     name: "Dacia Logan",
     area: "Marrakech · Dune Fleet",
     cuisine: "Diesel · Manual · 5 passengers · 4 bags",
-    price: "€30/day",
+    price: "€33/day",
     rating: 4.7, reviews: 620,
     tag: "ECONOMIC",
     filter: "Sedan",
@@ -3758,10 +3758,10 @@ const TRANSPORT = [
     atmosphere: "Practical family sedan · diesel · manual · 4-bag boot.",
     perfectFor: ["ECONOMIC", "FAMILIES", "UNLIMITED MILEAGE"],
     prices: [
-      { label: "1–9 days", price: "€30/day" },
-      { label: "10–19 days (−5%)", price: "€28/day" },
-      { label: "20–29 days (−10%)", price: "€27/day" },
-      { label: "30+ days (−15%)", price: "€25/day" },
+      { label: "1–9 days", price: "€33/day" },
+      { label: "10–19 days (−5%)", price: "€31/day" },
+      { label: "20–29 days (−10%)", price: "€30/day" },
+      { label: "30+ days (−15%)", price: "€28/day" },
     ],
     practical: [
       "Unlimited mileage.",
@@ -3775,7 +3775,7 @@ const TRANSPORT = [
     name: "Renault Kardian",
     area: "Marrakech · Dune Fleet",
     cuisine: "Petrol · Automatic · 5 passengers · 3 bags",
-    price: "€37/day",
+    price: "€41/day",
     rating: 4.88, reviews: 380,
     tag: "AUTOMATIC",
     filter: "Compact SUV",
@@ -3790,10 +3790,10 @@ const TRANSPORT = [
     atmosphere: "Premium compact SUV · petrol · automatic · easy to drive.",
     perfectFor: ["PREMIUM SUV", "AUTOMATIC", "UNLIMITED MILEAGE"],
     prices: [
-      { label: "1–9 days", price: "€37/day" },
-      { label: "10–19 days (−5%)", price: "€35/day" },
-      { label: "20–29 days (−10%)", price: "€33/day" },
-      { label: "30+ days (−15%)", price: "€30/day" },
+      { label: "1–9 days", price: "€41/day" },
+      { label: "10–19 days (−5%)", price: "€39/day" },
+      { label: "20–29 days (−10%)", price: "€36/day" },
+      { label: "30+ days (−15%)", price: "€33/day" },
     ],
     practical: [
       "Unlimited mileage.",
@@ -3807,7 +3807,7 @@ const TRANSPORT = [
     name: "Hyundai Tucson",
     area: "Marrakech · Dune Fleet",
     cuisine: "Diesel · Automatic · 5 passengers · 4 bags",
-    price: "€72/day",
+    price: "€79/day",
     rating: 4.9, reviews: 280,
     tag: "PREMIUM SUV",
     filter: "SUV",
@@ -3819,10 +3819,10 @@ const TRANSPORT = [
     atmosphere: "Full-size SUV · diesel · automatic · comfort for long routes.",
     perfectFor: ["PREMIUM SUV", "AUTOMATIC", "LONG TRIPS"],
     prices: [
-      { label: "1–9 days", price: "€72/day" },
-      { label: "10–19 days (−5%)", price: "€69/day" },
-      { label: "20–29 days (−10%)", price: "€65/day" },
-      { label: "30+ days (−15%)", price: "€62/day" },
+      { label: "1–9 days", price: "€79/day" },
+      { label: "10–19 days (−5%)", price: "€76/day" },
+      { label: "20–29 days (−10%)", price: "€72/day" },
+      { label: "30+ days (−15%)", price: "€68/day" },
     ],
     practical: [
       "Unlimited mileage.",
@@ -3836,7 +3836,7 @@ const TRANSPORT = [
     name: "Volkswagen T-Roc",
     area: "Marrakech · Dune Fleet",
     cuisine: "Diesel · Automatic · 5 passengers · 3 bags",
-    price: "€85/day",
+    price: "€94/day",
     rating: 4.92, reviews: 160,
     tag: "PREMIUM SUV",
     filter: "Compact SUV",
@@ -3848,10 +3848,10 @@ const TRANSPORT = [
     atmosphere: "European compact SUV · diesel · automatic · refined drive.",
     perfectFor: ["PREMIUM SUV", "AUTOMATIC", "EUROPEAN BUILD"],
     prices: [
-      { label: "1–9 days", price: "€85/day" },
-      { label: "10–19 days (−5%)", price: "€80/day" },
-      { label: "20–29 days (−10%)", price: "€76/day" },
-      { label: "30+ days (−15%)", price: "€71/day" },
+      { label: "1–9 days", price: "€94/day" },
+      { label: "10–19 days (−5%)", price: "€88/day" },
+      { label: "20–29 days (−10%)", price: "€84/day" },
+      { label: "30+ days (−15%)", price: "€78/day" },
     ],
     practical: [
       "Unlimited mileage.",

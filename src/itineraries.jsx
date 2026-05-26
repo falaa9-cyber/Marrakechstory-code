@@ -809,6 +809,7 @@ function Itineraries() {
   // Simple, friendly labels (no jargon)
   const filterLabel = (f) => {
     if (f === 'All')         return tx('All', 'Alle', 'Tout');
+    if (f === 'Themes')      return tx('Themes', 'Temaer', 'Thèmes');
     if (f === 'Most booked') return tx('Most booked', 'Mest bestilt', 'Plus réservé');
     if (f === '3D2N')        return tx('3 days', '3 dager', '3 jours');
     if (f === '4D3N')        return tx('4 days', '4 dager', '4 jours');
@@ -818,16 +819,132 @@ function Itineraries() {
     if (f === '14D13N')      return tx('14 days', '14 dager', '14 jours');
     return f;
   };
-  const filters = ['All', 'Most booked', '3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N'];
+  const filters = ['All', 'Themes', 'Most booked', '3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N'];
   // Only ship trips with the allowed durations
   const ALLOWED_DURATIONS = new Set(['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N']);
-  const all = useMemoIt(() => [...MOST_BOOKED, ...ITINS].filter(t => ALLOWED_DURATIONS.has(t.duration)), []);
+
+  // ─── THEME cards: mixed straight into the trips grid. Clicking one
+  // routes to the planner form (no detail modal).
+  const THEMES = useMemoIt(() => [
+    {
+      __theme: true, slug: 'theme-culinary', id: 'culinary', emoji: '🍯', tripType: 'culinary',
+      title: tx('Culinary trip', 'Mat & smaker', 'Voyage culinaire'),
+      teaser: tx('Markets, tagine masterclasses, rooftop dinners and a Moroccan cooking-class week.',
+                 'Markeder, tagine-kurs, takdinerer og en uke med marokkansk matlaging.',
+                 'Marchés, masterclass de tajine, dîners sur les toits et une semaine autour de la cuisine.'),
+      duration: '5D4N', days: 5,
+      route: 'Marrakech · Atlas foothills',
+      themeTags: ['Culinary', 'Tagine', 'Markets'],
+      badge: 'THEME',
+      img: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=1100&q=72',
+      chapter: 'CULINARY',
+    },
+    {
+      __theme: true, slug: 'theme-romantic', id: 'romantic', emoji: '💞', tripType: 'romantic',
+      title: tx('Romantic trip', 'Romantisk reise', 'Voyage romantique'),
+      teaser: tx('Riad hammam, candle-lit Agafay dinner, sunset camel ride and slow palmeraie mornings.',
+                 'Riad-hammam, stearinlysmiddag i Agafay, kameltur i solnedgang og rolige palmeraie-morgener.',
+                 'Hammam au riad, dîner aux chandelles à l\'Agafay, balade à dos de chameau et matins doux à la palmeraie.'),
+      duration: '5D4N', days: 5,
+      route: 'Riad · Agafay · Palmeraie',
+      themeTags: ['Romantic', 'Spa', 'Slow'],
+      badge: 'THEME',
+      img: 'https://images.unsplash.com/photo-1505739679850-7adf6c1654ba?w=1100&q=72',
+      chapter: 'ROMANTIC',
+    },
+    {
+      __theme: true, slug: 'theme-cultural', id: 'cultural', emoji: '🕌', tripType: 'cultural',
+      title: tx('Cultural trip', 'Kulturreise', 'Voyage culturel'),
+      teaser: tx('Medinas, palaces, museums and the imperial cities — Marrakech, Fez and Chefchaouen.',
+                 'Medinaer, palasser, museer og keiserbyer — Marrakech, Fez og Chefchaouen.',
+                 'Médinas, palais, musées et villes impériales — Marrakech, Fès et Chefchaouen.'),
+      duration: '7D6N', days: 7,
+      route: 'Marrakech · Fez · Chefchaouen',
+      themeTags: ['Culture', 'Heritage', 'Medina'],
+      badge: 'THEME',
+      img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1100&q=72',
+      chapter: 'CULTURAL',
+    },
+    {
+      __theme: true, slug: 'theme-mountain', id: 'mountain', emoji: '🏔️', tripType: 'mountain',
+      title: tx('Mountain trek & nature', 'Fjelltur & natur', 'Trek & nature'),
+      teaser: tx('High Atlas valleys, Toubkal base camp, walnut groves and Berber lodges.',
+                 'Høye Atlas-daler, Toubkal-base-camp, valnøttlunder og berber-losjier.',
+                 'Vallées du Haut Atlas, camp de base du Toubkal, noyers et lodges berbères.'),
+      duration: '5D4N', days: 5,
+      route: 'Imlil · Toubkal · Berber villages',
+      themeTags: ['Mountain', 'Trek', 'Nature'],
+      badge: 'THEME',
+      img: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=1100&q=72',
+      chapter: 'MOUNTAIN',
+    },
+    {
+      __theme: true, slug: 'theme-desert-marathon', id: 'desert-marathon', emoji: '🏃', tripType: 'desert-marathon',
+      title: tx('Desert marathon trip', 'Ørken-maraton', 'Marathon du désert'),
+      teaser: tx('Train and recover around Marathon des Sables — Agafay long runs, Sahara taper and recovery riad.',
+                 'Tren og restituer rundt Marathon des Sables — lange løp i Agafay, taper i Sahara og restitusjons-riad.',
+                 'Préparation autour du Marathon des Sables — sorties longues à l\'Agafay, taper au Sahara et riad récup.'),
+      duration: '7D6N', days: 7,
+      route: 'Agafay · Sahara · recovery riad',
+      themeTags: ['Endurance', 'Sahara', 'Training'],
+      badge: 'THEME',
+      img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1100&q=72',
+      chapter: 'MARATHON',
+    },
+    {
+      __theme: true, slug: 'theme-sport', id: 'sport', emoji: '🏄', tripType: 'sport',
+      title: tx('Sport trip', 'Sportsreise', 'Voyage sportif'),
+      teaser: tx('Surf in Taghazout, mountain biking in the Atlas, paragliding, padel and golf — handled by the team.',
+                 'Surf i Taghazout, terrengsykling i Atlas, paragliding, padel og golf — vi tar oss av alt.',
+                 'Surf à Taghazout, VTT dans l\'Atlas, parapente, padel et golf — l\'équipe s\'occupe de tout.'),
+      duration: '7D6N', days: 7,
+      route: 'Taghazout · Atlas · Palmeraie',
+      themeTags: ['Surf', 'Bike', 'Padel'],
+      badge: 'THEME',
+      img: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=1100&q=72',
+      chapter: 'SPORT',
+    },
+    {
+      __theme: true, slug: 'theme-festival', id: 'festival', emoji: '🎶', tripType: 'festival',
+      title: tx('Festival trip', 'Festivalreise', 'Voyage festival'),
+      teaser: tx('Built around Marrakech festivals — Gnaoua Essaouira, Marrakech du Rire, FIFM and the Sahara music nights.',
+                 'Bygd rundt festivaler — Gnaoua i Essaouira, Marrakech du Rire, FIFM og musikknetter i Sahara.',
+                 'Calé sur les festivals — Gnaoua d\'Essaouira, Marrakech du Rire, FIFM et nuits musicales au Sahara.'),
+      duration: '5D4N', days: 5,
+      route: 'Marrakech · Essaouira',
+      themeTags: ['Music', 'Festival', 'Culture'],
+      badge: 'THEME',
+      img: 'https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=1100&q=72',
+      chapter: 'FESTIVAL',
+    },
+  ], [lang]);
+
+  const openTheme = (t) => {
+    window.MS_BookingContext = {
+      mode: 'theme',
+      title: t.title,
+      duration: t.days,
+      tripType: t.tripType,
+      themeId: t.id,
+      themeBrief: t.teaser,
+    };
+    window.dispatchEvent(new CustomEvent('ms:booking-context'));
+    setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+  };
+
+  const all = useMemoIt(() => [
+    ...THEMES,
+    ...MOST_BOOKED,
+    ...ITINS,
+  ].filter(t => t.__theme || ALLOWED_DURATIONS.has(t.duration)), [THEMES]);
   const matches = (t) => {
     if (filter === 'All') return true;
+    if (filter === 'Themes') return !!t.__theme;
     if (filter === 'Most booked') return t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED';
     return t.duration === filter;
   };
   const tier = (t) => {
+    if (t.__theme) return -2;
     if (t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED') return -1;
     if (t.duration === '3D2N')   return 0;
     if (t.duration === '4D3N')   return 1;
@@ -855,119 +972,11 @@ function Itineraries() {
           )}</p>
         </div>
 
-        {/* ─── Theme strip: click a theme → opens the planner with preset ─── */}
-        {(() => {
-          const THEMES = [
-            {
-              id: 'culinary', emoji: '🍯',
-              name:  tx('Culinary trip', 'Mat & smaker', 'Voyage culinaire'),
-              brief: tx('Markets, tagine masterclasses, rooftop dinners and a Moroccan cooking-class week.',
-                        'Markeder, tagine-kurs, takdinerer og en uke med marokkansk matlaging.',
-                        'Marchés, masterclass de tajine, dîners sur les toits et une semaine autour de la cuisine.'),
-              img: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=900&q=72',
-              duration: 5, tripType: 'culinary',
-            },
-            {
-              id: 'romantic', emoji: '💞',
-              name:  tx('Romantic trip', 'Romantisk reise', 'Voyage romantique'),
-              brief: tx('Riad hammam, candle-lit Agafay dinner, sunset camel ride and slow palmeraie mornings.',
-                        'Riad-hammam, stearinlysmiddag i Agafay, kameltur i solnedgang og rolige palmeraie-morgener.',
-                        'Hammam au riad, dîner aux chandelles à l\'Agafay, balade à dos de chameau et matins doux à la palmeraie.'),
-              img: 'https://images.unsplash.com/photo-1505739679850-7adf6c1654ba?w=900&q=72',
-              duration: 5, tripType: 'romantic',
-            },
-            {
-              id: 'cultural', emoji: '🕌',
-              name:  tx('Cultural trip', 'Kulturreise', 'Voyage culturel'),
-              brief: tx('Medinas, palaces, museums and the imperial cities — Marrakech, Fez and Chefchaouen.',
-                        'Medinaer, palasser, museer og keiserbyer — Marrakech, Fez og Chefchaouen.',
-                        'Médinas, palais, musées et villes impériales — Marrakech, Fès et Chefchaouen.'),
-              img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=900&q=72',
-              duration: 7, tripType: 'cultural',
-            },
-            {
-              id: 'mountain', emoji: '🏔️',
-              name:  tx('Mountain trek & nature', 'Fjelltur & natur', 'Trek & nature'),
-              brief: tx('High Atlas valleys, Toubkal base camp, walnut groves and Berber lodges.',
-                        'Høye Atlas-daler, Toubkal-base-camp, valnøttlunder og berber-losjier.',
-                        'Vallées du Haut Atlas, camp de base du Toubkal, noyers et lodges berbères.'),
-              img: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=900&q=72',
-              duration: 5, tripType: 'mountain',
-            },
-            {
-              id: 'desert-marathon', emoji: '🏃',
-              name:  tx('Desert marathon trip', 'Ørken-maraton', 'Marathon du désert'),
-              brief: tx('Train and recover around Marathon des Sables — Agafay long runs, Sahara taper and recovery riad.',
-                        'Tren og restituer rundt Marathon des Sables — lange løp i Agafay, taper i Sahara og restitusjons-riad.',
-                        'Préparation autour du Marathon des Sables — sorties longues à l\'Agafay, taper au Sahara et riad récup.'),
-              img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=72',
-              duration: 7, tripType: 'desert-marathon',
-            },
-            {
-              id: 'sport', emoji: '🏄',
-              name:  tx('Sport trip', 'Sportsreise', 'Voyage sportif'),
-              brief: tx('Surf in Taghazout, mountain biking in the Atlas, paragliding, padel and golf — handled by the team.',
-                        'Surf i Taghazout, terrengsykling i Atlas, paragliding, padel og golf — vi tar oss av alt.',
-                        'Surf à Taghazout, VTT dans l\'Atlas, parapente, padel et golf — l\'équipe s\'occupe de tout.'),
-              img: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=900&q=72',
-              duration: 7, tripType: 'sport',
-            },
-            {
-              id: 'festival', emoji: '🎶',
-              name:  tx('Festival trip', 'Festivalreise', 'Voyage festival'),
-              brief: tx('Built around Marrakech festivals — Gnaoua Essaouira, Marrakech du Rire, FIFM and the Sahara music nights.',
-                        'Bygd rundt festivaler — Gnaoua i Essaouira, Marrakech du Rire, FIFM og musikknetter i Sahara.',
-                        'Calé sur les festivals — Gnaoua d\'Essaouira, Marrakech du Rire, FIFM et nuits musicales au Sahara.'),
-              img: 'https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=900&q=72',
-              duration: 5, tripType: 'festival',
-            },
-          ];
-          const openTheme = (t) => {
-            window.MS_BookingContext = {
-              mode: 'theme',
-              title: t.name,
-              duration: t.duration,
-              tripType: t.tripType,
-              themeId: t.id,
-              themeBrief: t.brief,
-            };
-            window.dispatchEvent(new CustomEvent('ms:booking-context'));
-            setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-          };
-          return (
-            <div className="theme-strip reveal">
-              <div className="theme-strip-head">
-                <span className="eyebrow">— {tx('Themes', 'Temaer', 'Thèmes')}</span>
-                <h3 className="theme-strip-h">{tx('Pick a theme — we plan around it',
-                                                  'Velg et tema — vi planlegger rundt det',
-                                                  'Choisissez un thème — nous bâtissons autour')}</h3>
-              </div>
-              <div className="theme-grid">
-                {THEMES.map(t => (
-                  <button key={t.id} className="theme-card" onClick={() => openTheme(t)}>
-                    <div className="theme-card-img" style={{ backgroundImage: `url(${t.img})` }}>
-                      <span className="theme-card-emoji">{t.emoji}</span>
-                    </div>
-                    <div className="theme-card-body">
-                      <div className="theme-card-name">{t.name}</div>
-                      <p className="theme-card-brief">{t.brief}</p>
-                      <span className="theme-card-cta">{tx('Plan this →', 'Planlegg →', 'Planifier →')}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-
         <div className="cat-tabs-v2 reveal">
           {filters.map(f => {
-            const isMostBooked = f === 'Most booked';
-            const count = isMostBooked
-              ? all.filter(t => t.badge === 'MOST BOOKED').length
-              : f === 'All' ? all.length
-              : f === 'Day trips' ? all.filter(t => t.days === 1).length
-              : f === '7D+' ? all.filter(t => t.days >= 7).length
+            const count = f === 'All' ? all.length
+              : f === 'Themes' ? all.filter(t => t.__theme).length
+              : f === 'Most booked' ? all.filter(t => t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED').length
               : all.filter(t => t.duration === f).length;
             return (
               <button key={f} className={`cat-tab-v2 ${filter === f ? 'active' : ''}`}
@@ -1020,13 +1029,15 @@ function Itineraries() {
                 const rating = (4.7 + ((seed % 30) / 100)).toFixed(2);  // 4.70 – 4.99
                 const reviews = 180 + (seed * 7) % 1620;                  // 180 – 1800
                 const key = `itin-${t.slug}`;
+                const isTheme = !!t.__theme;
+                const handleOpen = () => isTheme ? openTheme(t) : setOpenTrip(t);
                 return (
-                  <div key={t.slug} className="cat-card reveal" style={{ transitionDelay: `${(i % 6) * 50}ms` }}
-                    onClick={() => setOpenTrip(t)} role="button" tabIndex={0}
-                    onKeyDown={e => e.key === 'Enter' && setOpenTrip(t)}>
+                  <div key={t.slug} className={`cat-card reveal ${isTheme ? 'cat-card-theme' : ''}`} style={{ transitionDelay: `${(i % 6) * 50}ms` }}
+                    onClick={handleOpen} role="button" tabIndex={0}
+                    onKeyDown={e => e.key === 'Enter' && handleOpen()}>
                     <div className="cat-img" style={{ backgroundImage: `url(${t.img})`, cursor: 'pointer' }}>
                       <div className="cat-img-content">
-                        <span className="cat-tag brand">{t.duration}</span>
+                        <span className="cat-tag brand">{isTheme ? `${t.emoji} ${tx('Theme','Tema','Thème')}` : t.duration}</span>
                       </div>
                       {t.badge && <span className="reiseplan-badge">{t.badge}</span>}
                       <button className={`cat-fav ${(JSON.parse(localStorage.getItem('ms_user_favs') || '[]').includes(t.slug)) ? 'active' : ''}`}
@@ -1062,7 +1073,7 @@ function Itineraries() {
                             {tx('Price on request', 'Pris på forespørsel', 'Prix sur demande')}
                           </span>
                         </div>
-                        <button className="cat-arrow" onClick={(e) => { e.stopPropagation(); setOpenTrip(t); }}><Iit.Arrow s={16} /></button>
+                        <button className="cat-arrow" onClick={(e) => { e.stopPropagation(); handleOpen(); }}><Iit.Arrow s={16} /></button>
                       </div>
                     </div>
                   </div>

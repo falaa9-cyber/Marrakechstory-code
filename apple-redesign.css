@@ -1519,3 +1519,37 @@ textarea { border-radius: 14px; }
 @media (max-width: 768px) {
   .contact-phone-wrap { min-height: 0; margin-top: 24px; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 11
+   • Themes mixed into trip grid (no separate strip)
+   • Catalog cards show price from €N
+   ════════════════════════════════════════════════════════════════ */
+
+/* Theme cards inside the trip grid — same layout, just a visual cue */
+.cat-card-theme .cat-tag.brand {
+  background: rgba(29,29,31,0.85) !important;
+  color: #fff !important;
+  letter-spacing: 0.08em;
+}
+.cat-card-theme .reiseplan-badge {
+  background: var(--brand) !important;
+  color: #fff !important;
+}
+
+/* Catalog card price */
+.cat-price-from {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6e6e73;
+  font-weight: 600;
+  margin-right: 6px;
+}
+.cat-price-amount {
+  font-family: var(--apple-font) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #1d1d1f !important;
+  letter-spacing: -0.01em;
+}

@@ -552,13 +552,31 @@ function Catalog() {
                   <p className="cat-desc">{localize(it.desc, ctx.lang)}</p>
                   <div className="cat-foot">
                     <div className="cat-price">
-                      <span className="amount" style={{ fontSize: 13, fontStyle: 'italic', opacity: .7 }}>
-                        {tab === 'restaurants'
-                          ? it.cuisine
-                          : tab === 'transport'
-                            ? (it.prices && it.prices[0] ? it.prices[0].price : '')
-                            : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
-                      </span>
+                      {(() => {
+                        // Resolve a visible price for any tab. Order of preference:
+                        //   item.price → item.prices[0].price → cuisine/area fallback.
+                        const directPrice = it.price && /€|MAD|kr|\$/i.test(it.price) ? it.price : null;
+                        const tieredPrice = it.prices && it.prices[0] && it.prices[0].price;
+                        // Strip a leading "from " / "From " / "à partir de" — we render our own "From" label.
+                        const shown = (directPrice || tieredPrice || '').replace(/^\s*(from|From|à partir de|fra)\s+/i, '');
+                        if (shown) {
+                          return (
+                            <>
+                              <span className="cat-price-from">
+                                {ctx.lang === 'no' ? 'Fra' : ctx.lang === 'fr' ? 'À partir de' : 'From'}
+                              </span>
+                              <span className="amount cat-price-amount">{shown}</span>
+                            </>
+                          );
+                        }
+                        return (
+                          <span className="amount" style={{ fontSize: 13, fontStyle: 'italic', opacity: .7 }}>
+                            {tab === 'restaurants'
+                              ? it.cuisine
+                              : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
+                          </span>
+                        );
+                      })()}
                     </div>
                     <button className="cat-arrow" onClick={() => setModal({ item: it, tab })}><Ic.Arrow s={16} /></button>
                   </div>
