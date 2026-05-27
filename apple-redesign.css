@@ -1995,3 +1995,31 @@ textarea { border-radius: 14px; }
   letter-spacing: 0.10em !important;
 }
 
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 15
+   Itinerary modal: pure white surface throughout
+   ════════════════════════════════════════════════════════════════ */
+.itin-modal,
+.itin-modal-body,
+.itin-modal-overview,
+.itin-modal-grid,
+.itin-modal-day,
+.itin-modal-price,
+.itin-modal-tags,
+.itin-modal-ul,
+.itin-modal-ul.itin-included,
+.itin-modal-ul.itin-excluded {
+  background: #fff !important;
+}
+.itin-modal-day {
+  border: 1px solid rgba(0,0,0,0.06) !important;
+}
+.itin-modal-price {
+  border: 1px solid rgba(0,0,0,0.06) !important;
+}
+.itin-modal-tag {
+  background: #f5f5f7 !important;
+  color: #1d1d1f !important;
+  border: none !important;
+}
