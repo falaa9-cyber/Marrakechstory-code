@@ -72,7 +72,10 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       emptyOutDir: true,
       rollupOptions: {
-        input: resolve(process.cwd(), 'index.html')
+        input: {
+          main: resolve(process.cwd(), 'index.html'),
+          fitness: resolve(process.cwd(), 'fitness.html')
+        }
       }
     },
     plugins: [
