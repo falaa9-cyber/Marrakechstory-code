@@ -2023,3 +2023,31 @@ textarea { border-radius: 14px; }
   color: #1d1d1f !important;
   border: none !important;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 16
+   Trip modal: hero text in white over the photo
+   ════════════════════════════════════════════════════════════════ */
+.itin-modal-hero {
+  position: relative;
+}
+.itin-modal-hero-overlay {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.18) 30%, rgba(0,0,0,0.78) 100%) !important;
+}
+.itin-modal-hero-overlay .itin-modal-eyebrow,
+.itin-modal-hero-overlay .itin-modal-title,
+.itin-modal-hero-overlay .itin-modal-route,
+.itin-modal .itin-modal-title,
+h2.itin-modal-title {
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35), 0 4px 18px rgba(0,0,0,0.45);
+}
+.itin-modal-hero-overlay .itin-modal-eyebrow {
+  color: rgba(255,255,255,0.85) !important;
+  letter-spacing: 0.18em !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+}
+.itin-modal-hero-overlay .itin-modal-route {
+  color: rgba(255,255,255,0.82) !important;
+}
