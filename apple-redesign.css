@@ -1553,3 +1553,175 @@ textarea { border-radius: 14px; }
   color: #1d1d1f !important;
   letter-spacing: -0.01em;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 12
+   Tight one-line trip filter bar + cleaner trip cards
+   ════════════════════════════════════════════════════════════════ */
+
+/* Single-line filter bar — segmented control style with horizontal
+   scroll on small screens so it never wraps to two lines. */
+.trip-filter-bar {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 16px;
+}
+.trip-filter-scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 999px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.trip-filter-scroll::-webkit-scrollbar { display: none; }
+
+.trip-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--apple-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1f;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.trip-filter-chip:hover { background: rgba(0,0,0,0.05); }
+.trip-filter-chip.active {
+  background: #1d1d1f;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.trip-filter-count {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.55;
+  font-feature-settings: 'tnum';
+}
+.trip-filter-chip.active .trip-filter-count { opacity: 0.7; }
+
+/* CTA row under the filter bar */
+.trip-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 32px;
+}
+.trip-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: rgba(0,0,0,0.05);
+  color: #1d1d1f;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--apple-font);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+.trip-cta:hover { background: rgba(0,0,0,0.10); }
+.trip-cta-primary {
+  background: var(--brand);
+  color: #fff;
+}
+.trip-cta-primary:hover { background: #c43a23; }
+.trip-chapter-count {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+/* Improved trip card layout */
+.trip-card-body { padding: 18px 18px 16px !important; }
+.trip-card-title {
+  font-family: var(--apple-display) !important;
+  font-size: 19px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em !important;
+  color: #1d1d1f !important;
+  line-height: 1.25 !important;
+  margin: 6px 0 4px !important;
+}
+.trip-card-route {
+  font-size: 12.5px !important;
+  color: #6e6e73 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px !important;
+}
+.trip-card-desc {
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+  color: #424245 !important;
+  margin: 0 0 12px !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.trip-card-meta-sep { color: #d2d2d7; margin: 0 4px; }
+.trip-card-meta-dim {
+  color: #6e6e73;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.trip-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+.trip-card-tag {
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #1d1d1f;
+  letter-spacing: 0.005em;
+}
+.cat-card-theme .trip-card-tag {
+  background: rgba(225,67,42,0.10);
+  color: var(--brand);
+}
+.trip-card-foot {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.trip-card-cta-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+}
+.cat-card-theme .trip-card-cta-label { color: #1d1d1f; }
+
+@media (max-width: 768px) {
+  .trip-cta-row { gap: 8px; }
+  .trip-cta { padding: 8px 14px; font-size: 12.5px; }
+  .trip-chapter-count { width: 100%; text-align: center; margin: 4px 0 0; }
+  .trip-card-title { font-size: 17px !important; }
+}

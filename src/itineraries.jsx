@@ -972,54 +972,52 @@ function Itineraries() {
           )}</p>
         </div>
 
-        <div className="cat-tabs-v2 reveal">
-          {filters.map(f => {
-            const count = f === 'All' ? all.length
-              : f === 'Themes' ? all.filter(t => t.__theme).length
-              : f === 'Most booked' ? all.filter(t => t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED').length
-              : all.filter(t => t.duration === f).length;
-            return (
-              <button key={f} className={`cat-tab-v2 ${filter === f ? 'active' : ''}`}
-                onClick={() => setFilter(f)}>
-                <span>{filterLabel(f)}</span>
-                <span className="count">{count}</span>
-              </button>
-            );
-          })}
-          {/* Special-occasion shortcuts — open the form with a preset tripType */}
-          <button className="cat-tab-v2 reiseplaner-special-tab"
-            onClick={() => {
-              window.MS_BookingContext = { mode: 'team', title: tx('Team building', 'Team building', 'Team building'), duration: 5, tripType: 'team' };
-              window.dispatchEvent(new CustomEvent('ms:booking-context'));
-              setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-            }}>
-            <span>🤝 {tx('Team building', 'Team building', 'Team building')}</span>
-          </button>
-          <button className="cat-tab-v2 reiseplaner-special-tab"
-            onClick={() => {
-              window.MS_BookingContext = { mode: 'wedding', title: tx('Wedding planner', 'Bryllup', 'Mariage'), duration: 7, tripType: 'wedding' };
-              window.dispatchEvent(new CustomEvent('ms:booking-context'));
-              setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-            }}>
-            <span>💍 {tx('Wedding', 'Bryllup', 'Mariage')}</span>
-          </button>
+        {/* Filter chips — one tight row, horizontally scrollable on overflow */}
+        <div className="trip-filter-bar reveal">
+          <div className="trip-filter-scroll">
+            {filters.map(f => {
+              const count = f === 'All' ? all.length
+                : f === 'Themes' ? all.filter(t => t.__theme).length
+                : f === 'Most booked' ? all.filter(t => t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED').length
+                : all.filter(t => t.duration === f).length;
+              return (
+                <button key={f} className={`trip-filter-chip ${filter === f ? 'active' : ''}`}
+                  onClick={() => setFilter(f)}>
+                  <span>{filterLabel(f)}</span>
+                  <span className="trip-filter-count">{count}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* "Lag din reise" — full-width primary CTA bar under the tab row */}
-        <div className="reiseplaner-cta-bar reveal">
-          <button className="reiseplaner-cta-tab-full"
+        {/* Special-occasion + custom-trip shortcuts — single row of pill CTAs */}
+        <div className="trip-cta-row reveal">
+          <button className="trip-cta trip-cta-primary"
             onClick={() => {
               window.MS_BookingContext = null;
               window.dispatchEvent(new CustomEvent('ms:booking-context'));
               setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 30);
             }}>
-            <span>✨ {tx('Make your trip', 'Lag din reise', 'Créer mon voyage')} →</span>
+            ✨ {tx('Make your trip', 'Lag din reise', 'Créer mon voyage')} →
           </button>
-        </div>
-        <div className="cat-filters reveal" style={{ marginTop: 14, justifyContent: 'flex-end' }}>
-          <div style={{ fontSize: 12, color: 'var(--ink-3)', fontFamily: 'JetBrains Mono, monospace' }}>
-            {items.length} {tx('chapters', 'kapitler', 'chapitres')}
-          </div>
+          <button className="trip-cta"
+            onClick={() => {
+              window.MS_BookingContext = { mode: 'team', title: tx('Team building', 'Team building', 'Team building'), duration: 5, tripType: 'team' };
+              window.dispatchEvent(new CustomEvent('ms:booking-context'));
+              setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+            }}>
+            🤝 {tx('Team building', 'Team building', 'Team building')}
+          </button>
+          <button className="trip-cta"
+            onClick={() => {
+              window.MS_BookingContext = { mode: 'wedding', title: tx('Wedding planner', 'Bryllup', 'Mariage'), duration: 7, tripType: 'wedding' };
+              window.dispatchEvent(new CustomEvent('ms:booking-context'));
+              setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+            }}>
+            💍 {tx('Wedding', 'Bryllup', 'Mariage')}
+          </button>
+          <span className="trip-chapter-count">{items.length} {tx('chapters', 'kapitler', 'chapitres')}</span>
         </div>
 
             <div className="cat-grid reiseplaner-grid">
@@ -1057,22 +1055,32 @@ function Itineraries() {
                         <span className="ms-fav-plus">+1</span>
                       </button>
                     </div>
-                    <div className="cat-body">
-                      <div className="cat-rating">
-                        <span className="stars"><Iit.Star /></span>
-                        <strong>{rating}</strong>
-                        <span style={{ color: 'var(--ink-3)' }}>({reviews.toLocaleString()} {tx('reviews', 'anmeldelser', 'avis')})</span>
-                      </div>
-                      <h3 className="cat-title">{t.title}</h3>
-                      <span className="cat-area"><Iit.Pin s={12} /> {t.route.split(' → ').slice(-1)[0] || 'Marrakech'}</span>
-                      {t.duration && <span className="cat-duration"><Iit.Clock s={12} /> CHAPTER {t.chapter} · {t.duration}</span>}
-                      <p className="cat-desc">{t.teaser}</p>
-                      <div className="cat-foot">
-                        <div className="cat-price">
-                          <span className="amount" style={{ fontSize: 12, fontStyle: 'italic', opacity: .7 }}>
-                            {tx('Price on request', 'Pris på forespørsel', 'Prix sur demande')}
-                          </span>
+                    <div className="cat-body trip-card-body">
+                      {!isTheme && (
+                        <div className="cat-rating">
+                          <span className="stars"><Iit.Star /></span>
+                          <strong>{rating}</strong>
+                          <span style={{ color: 'var(--ink-3)' }}>({reviews.toLocaleString()})</span>
+                          <span className="trip-card-meta-sep">·</span>
+                          <span className="trip-card-meta-dim">{t.duration}</span>
                         </div>
+                      )}
+                      <h3 className="cat-title trip-card-title">{t.title}</h3>
+                      <span className="cat-area trip-card-route"><Iit.Pin s={12} /> {t.route}</span>
+                      <p className="cat-desc trip-card-desc">{t.teaser}</p>
+                      {Array.isArray(t.themeTags) && t.themeTags.length > 0 && (
+                        <div className="trip-card-tags">
+                          {t.themeTags.slice(0, 3).map((tag, ti) => (
+                            <span key={ti} className="trip-card-tag">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="cat-foot trip-card-foot">
+                        <span className="trip-card-cta-label">
+                          {isTheme
+                            ? tx('Plan this →', 'Planlegg →', 'Planifier →')
+                            : tx('See details →', 'Se detaljer →', 'Voir →')}
+                        </span>
                         <button className="cat-arrow" onClick={(e) => { e.stopPropagation(); handleOpen(); }}><Iit.Arrow s={16} /></button>
                       </div>
                     </div>
