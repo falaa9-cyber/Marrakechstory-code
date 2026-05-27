@@ -594,6 +594,7 @@ function Itineraries() {
   const THEMES = useMemoIt(() => [
     {
       __theme: true, slug: 'theme-culinary', id: 'culinary', emoji: '🍯', tripType: 'culinary',
+      priceFromEUR: 890,
       title: tx('Culinary trip', 'Mat & smaker', 'Voyage culinaire'),
       teaser: tx('Markets, tagine masterclasses, rooftop dinners and a Moroccan cooking-class week.',
                  'Markeder, tagine-kurs, takdinerer og en uke med marokkansk matlaging.',
@@ -607,6 +608,7 @@ function Itineraries() {
     },
     {
       __theme: true, slug: 'theme-romantic', id: 'romantic', emoji: '💞', tripType: 'romantic',
+      priceFromEUR: 1090,
       title: tx('Romantic trip', 'Romantisk reise', 'Voyage romantique'),
       teaser: tx('Riad hammam, candle-lit Agafay dinner, sunset camel ride and slow palmeraie mornings.',
                  'Riad-hammam, stearinlysmiddag i Agafay, kameltur i solnedgang og rolige palmeraie-morgener.',
@@ -620,6 +622,7 @@ function Itineraries() {
     },
     {
       __theme: true, slug: 'theme-cultural', id: 'cultural', emoji: '🕌', tripType: 'cultural',
+      priceFromEUR: 1390,
       title: tx('Cultural trip', 'Kulturreise', 'Voyage culturel'),
       teaser: tx('Medinas, palaces, museums and the imperial cities — Marrakech, Fez and Chefchaouen.',
                  'Medinaer, palasser, museer og keiserbyer — Marrakech, Fez og Chefchaouen.',
@@ -633,6 +636,7 @@ function Itineraries() {
     },
     {
       __theme: true, slug: 'theme-mountain', id: 'mountain', emoji: '🏔️', tripType: 'mountain',
+      priceFromEUR: 890,
       title: tx('Mountain trek & nature', 'Fjelltur & natur', 'Trek & nature'),
       teaser: tx('High Atlas valleys, Toubkal base camp, walnut groves and Berber lodges.',
                  'Høye Atlas-daler, Toubkal-base-camp, valnøttlunder og berber-losjier.',
@@ -646,6 +650,7 @@ function Itineraries() {
     },
     {
       __theme: true, slug: 'theme-desert-marathon', id: 'desert-marathon', emoji: '🏃', tripType: 'desert-marathon',
+      priceFromEUR: 1490,
       title: tx('Desert marathon trip', 'Ørken-maraton', 'Marathon du désert'),
       teaser: tx('Train and recover around Marathon des Sables — Agafay long runs, Sahara taper and recovery riad.',
                  'Tren og restituer rundt Marathon des Sables — lange løp i Agafay, taper i Sahara og restitusjons-riad.',
@@ -659,6 +664,7 @@ function Itineraries() {
     },
     {
       __theme: true, slug: 'theme-sport', id: 'sport', emoji: '🏄', tripType: 'sport',
+      priceFromEUR: 1290,
       title: tx('Sport trip', 'Sportsreise', 'Voyage sportif'),
       teaser: tx('Surf in Taghazout, mountain biking in the Atlas, paragliding, padel and golf — handled by the team.',
                  'Surf i Taghazout, terrengsykling i Atlas, paragliding, padel og golf — vi tar oss av alt.',
@@ -672,6 +678,7 @@ function Itineraries() {
     },
     {
       __theme: true, slug: 'theme-festival', id: 'festival', emoji: '🎶', tripType: 'festival',
+      priceFromEUR: 990,
       title: tx('Festival trip', 'Festivalreise', 'Voyage festival'),
       teaser: tx('Built around Marrakech festivals — Gnaoua Essaouira, Marrakech du Rire, FIFM and the Sahara music nights.',
                  'Bygd rundt festivaler — Gnaoua i Essaouira, Marrakech du Rire, FIFM og musikknetter i Sahara.',
@@ -704,7 +711,8 @@ function Itineraries() {
   ].filter(t => t.__theme || ALLOWED_DURATIONS.has(t.duration)), [THEMES]);
   const matches = (t) => {
     if (filter === 'Themes') return !!t.__theme;
-    return t.duration === filter;
+    // Duration tabs only show real itineraries — themes live in Temaer.
+    return !t.__theme && t.duration === filter;
   };
   const tier = (t) => {
     if (t.__theme) return -2;
@@ -779,7 +787,7 @@ function Itineraries() {
           </div>
         </div>
 
-            <div className="cat-grid reiseplaner-grid">
+            <div className={`cat-grid reiseplaner-grid ${filter !== 'Themes' ? 'reiseplaner-grid-feature' : ''}`}>
               {visibleItems.map((t, i) => {
                 // Derive rating + reviews deterministically — Marrakechstory's actually booked these
                 const seed = t.slug.split('').reduce((s, c) => s + c.charCodeAt(0), 0);
@@ -787,7 +795,53 @@ function Itineraries() {
                 const reviews = 180 + (seed * 7) % 1620;                  // 180 – 1800
                 const key = `itin-${t.slug}`;
                 const isTheme = !!t.__theme;
+                const isFeature = filter !== 'Themes' && !isTheme;
                 const handleOpen = () => isTheme ? openTheme(t) : setOpenTrip(t);
+                const priceTxt = t.priceFromEUR ? adjustedPrice(t.priceFromEUR) : null;
+                if (isFeature) {
+                  return (
+                    <div key={t.slug} className="trip-feature reveal"
+                      onClick={handleOpen} role="button" tabIndex={0}
+                      onKeyDown={e => e.key === 'Enter' && handleOpen()}>
+                      <div className="trip-feature-img" style={{ backgroundImage: `url(${t.img})` }}>
+                        <span className="trip-feature-badge">
+                          {t.badge || tx('Best pick', 'Best i klassen', 'Notre coup de cœur')}
+                        </span>
+                        <span className="trip-feature-duration">{t.duration}</span>
+                      </div>
+                      <div className="trip-feature-body">
+                        <div className="trip-feature-eyebrow">
+                          {tx('Chapter', 'Kapittel', 'Chapitre')} {t.chapter} · {t.duration}
+                        </div>
+                        <h3 className="trip-feature-title">{t.title}</h3>
+                        <p className="trip-feature-teaser">{t.teaser}</p>
+                        {t.idealFor && (
+                          <div className="trip-feature-ideal">
+                            <span className="trip-feature-ideal-label">{tx('Ideal for', 'Perfekt for', 'Idéal pour')}</span>
+                            <span>{t.idealFor}</span>
+                          </div>
+                        )}
+                        {Array.isArray(t.highlights) && t.highlights.length > 0 && (
+                          <ul className="trip-feature-highlights">
+                            {t.highlights.slice(0, 5).map((h, hi) => (
+                              <li key={hi}>{h}</li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="trip-feature-foot">
+                          <div>
+                            <span className="trip-feature-from">{tx('From', 'Fra', 'À partir de')}</span>
+                            <span className="trip-feature-price">{priceTxt || '—'}</span>
+                            <span className="trip-feature-per">{tx('/ person', '/ person', '/ personne')}</span>
+                          </div>
+                          <button className="trip-feature-cta" onClick={(e) => { e.stopPropagation(); handleOpen(); }}>
+                            {tx('See full itinerary', 'Se hele reisen', 'Voir l\'itinéraire')} →
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
                 return (
                   <div key={t.slug} className={`cat-card reveal ${isTheme ? 'cat-card-theme' : ''}`} style={{ transitionDelay: `${(i % 6) * 50}ms` }}
                     onClick={handleOpen} role="button" tabIndex={0}
@@ -797,33 +851,8 @@ function Itineraries() {
                         <span className="cat-tag brand">{isTheme ? `${t.emoji} ${tx('Theme','Tema','Thème')}` : t.duration}</span>
                       </div>
                       {t.badge && <span className="reiseplan-badge">{t.badge}</span>}
-                      <button className={`cat-fav ${(JSON.parse(localStorage.getItem('ms_user_favs') || '[]').includes(t.slug)) ? 'active' : ''}`}
-                        onClick={e => {
-                          e.stopPropagation();
-                          const btn = e.currentTarget;
-                          const favs = JSON.parse(localStorage.getItem('ms_user_favs') || '[]');
-                          const adding = !favs.includes(t.slug);
-                          const next = adding ? [...favs, t.slug] : favs.filter(s => s !== t.slug);
-                          localStorage.setItem('ms_user_favs', JSON.stringify(next));
-                          // Restart bloom animation on every click (not just on first toggle)
-                          btn.classList.remove('active');
-                          void btn.offsetWidth;
-                          if (adding) btn.classList.add('active');
-                        }}>
-                        <Iit.Heart s={16} />
-                        <span className="ms-fav-plus">+1</span>
-                      </button>
                     </div>
                     <div className="cat-body trip-card-body">
-                      {!isTheme && (
-                        <div className="cat-rating">
-                          <span className="stars"><Iit.Star /></span>
-                          <strong>{rating}</strong>
-                          <span style={{ color: 'var(--ink-3)' }}>({reviews.toLocaleString()})</span>
-                          <span className="trip-card-meta-sep">·</span>
-                          <span className="trip-card-meta-dim">{t.duration}</span>
-                        </div>
-                      )}
                       <h3 className="cat-title trip-card-title">{t.title}</h3>
                       <span className="cat-area trip-card-route"><Iit.Pin s={12} /> {t.route}</span>
                       <p className="cat-desc trip-card-desc">{t.teaser}</p>
@@ -835,12 +864,17 @@ function Itineraries() {
                         </div>
                       )}
                       <div className="cat-foot trip-card-foot">
+                        {priceTxt && (
+                          <span className="trip-card-price">
+                            <span className="trip-card-price-from">{tx('From', 'Fra', 'À partir de')}</span>
+                            <span className="trip-card-price-amount">{priceTxt}</span>
+                          </span>
+                        )}
                         <span className="trip-card-cta-label">
                           {isTheme
                             ? tx('Plan this →', 'Planlegg →', 'Planifier →')
                             : tx('See details →', 'Se detaljer →', 'Voir →')}
                         </span>
-                        <button className="cat-arrow" onClick={(e) => { e.stopPropagation(); handleOpen(); }}><Iit.Arrow s={16} /></button>
                       </div>
                     </div>
                   </div>

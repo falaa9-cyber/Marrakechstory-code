@@ -1751,3 +1751,247 @@ textarea { border-radius: 14px; }
   color: #fff !important;
 }
 .trip-filter-cta-primary:hover { background: #c43a23 !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 14
+   Featured promo trip card + brand-color discipline
+   • Brand color used ONLY for prices, CTAs, accents.
+   • Backgrounds: white + light grey.
+   • Text: near-black for headlines, mid-grey for body.
+   ════════════════════════════════════════════════════════════════ */
+
+/* When a single duration is filtered, the grid collapses to one row
+   and the single trip becomes a wide promo hero card. */
+.reiseplaner-grid-feature {
+  display: block !important;
+}
+
+.trip-feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 0;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 22px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 18px 48px rgba(0,0,0,0.08);
+  transition: transform 0.4s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.4s ease;
+}
+.trip-feature:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 32px 80px rgba(0,0,0,0.14);
+}
+
+.trip-feature-img {
+  position: relative;
+  min-height: 420px;
+  background-size: cover;
+  background-position: center;
+  background-color: #f5f5f7;
+}
+.trip-feature-badge {
+  position: absolute;
+  top: 16px; left: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-family: var(--apple-font);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(225,67,42,0.40);
+}
+.trip-feature-duration {
+  position: absolute;
+  top: 16px; right: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.92);
+  color: #1d1d1f;
+  font-family: var(--apple-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  backdrop-filter: blur(8px);
+}
+
+.trip-feature-body {
+  padding: 32px 36px 28px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+.trip-feature-eyebrow {
+  font-family: var(--apple-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 10px;
+}
+.trip-feature-title {
+  font-family: var(--apple-display) !important;
+  font-weight: 700 !important;
+  font-size: clamp(24px, 2.4vw, 34px) !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.1 !important;
+  color: #1d1d1f !important;
+  margin: 0 0 12px !important;
+}
+.trip-feature-teaser {
+  font-size: 15px;
+  line-height: 1.55;
+  color: #424245;
+  margin: 0 0 16px;
+}
+.trip-feature-ideal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #f5f5f7;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #1d1d1f;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+.trip-feature-ideal-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6e6e73;
+}
+.trip-feature-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.trip-feature-highlights li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #1d1d1f;
+}
+.trip-feature-highlights li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 7px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+.trip-feature-foot {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.trip-feature-from {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6e6e73;
+  margin-right: 6px;
+}
+.trip-feature-price {
+  font-family: var(--apple-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--brand);
+  letter-spacing: -0.02em;
+}
+.trip-feature-per {
+  font-size: 13px;
+  color: #6e6e73;
+  margin-left: 2px;
+}
+.trip-feature-cta {
+  padding: 12px 22px;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--apple-font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 6px 18px rgba(225,67,42,0.30);
+}
+.trip-feature-cta:hover { background: #c43a23; transform: translateY(-1px); }
+
+@media (max-width: 900px) {
+  .trip-feature { grid-template-columns: 1fr; }
+  .trip-feature-img { min-height: 260px; }
+  .trip-feature-body { padding: 24px 22px 22px; }
+  .trip-feature-price { font-size: 26px; }
+}
+
+/* ── Theme/normal cards: price line in brand color, no orange tags ─── */
+.trip-card-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.trip-card-price-from {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #6e6e73;
+}
+.trip-card-price-amount {
+  font-family: var(--apple-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--brand);
+  letter-spacing: -0.01em;
+}
+
+/* Theme tag chips — light grey instead of brand-tinted */
+.cat-card-theme .trip-card-tag {
+  background: #f5f5f7 !important;
+  color: #1d1d1f !important;
+}
+
+/* "Plan this / See details" CTA label always in brand color */
+.trip-card-cta-label,
+.cat-card-theme .trip-card-cta-label {
+  color: var(--brand) !important;
+}
+
+/* Cards with the duration tag overlay: black pill instead of orange */
+.cat-card .cat-tag.brand {
+  background: rgba(0,0,0,0.78) !important;
+  color: #fff !important;
+}
+.cat-card-theme .cat-tag.brand {
+  background: rgba(255,255,255,0.92) !important;
+  color: #1d1d1f !important;
+}
+
+/* Top-right "THEME" / "MOST BOOKED" badge — brand color only */
+.reiseplan-badge {
+  background: var(--brand) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.10em !important;
+}
+
