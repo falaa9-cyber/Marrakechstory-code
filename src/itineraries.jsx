@@ -798,7 +798,7 @@ function Itineraries() {
   const price = usePrice();
   const lang = ctx.lang || 'en';
   const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
-  const [filter, setFilter] = useStateIt('All');
+  const [filter, setFilter] = useStateIt('Themes');
   const [openTrip, setOpenTrip] = useStateIt(null);
   const [visibleCount, setVisibleCount] = useStateIt(4);
   // +40% markup applied to every itinerary price
@@ -819,7 +819,7 @@ function Itineraries() {
     if (f === '14D13N')      return tx('14 days', '14 dager', '14 jours');
     return f;
   };
-  const filters = ['All', 'Themes', 'Most booked', '3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N'];
+  const filters = ['Themes', '3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N'];
   // Only ship trips with the allowed durations
   const ALLOWED_DURATIONS = new Set(['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N']);
 
@@ -849,7 +849,7 @@ function Itineraries() {
       route: 'Riad · Agafay · Palmeraie',
       themeTags: ['Romantic', 'Spa', 'Slow'],
       badge: 'THEME',
-      img: 'https://images.unsplash.com/photo-1505739679850-7adf6c1654ba?w=1100&q=72',
+      img: 'assets/photos/sunset-riding.jpg',
       chapter: 'ROMANTIC',
     },
     {
@@ -875,7 +875,7 @@ function Itineraries() {
       route: 'Imlil · Toubkal · Berber villages',
       themeTags: ['Mountain', 'Trek', 'Nature'],
       badge: 'THEME',
-      img: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=1100&q=72',
+      img: 'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=1100&q=72',
       chapter: 'MOUNTAIN',
     },
     {
@@ -888,7 +888,7 @@ function Itineraries() {
       route: 'Agafay · Sahara · recovery riad',
       themeTags: ['Endurance', 'Sahara', 'Training'],
       badge: 'THEME',
-      img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1100&q=72',
+      img: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=1100&q=72',
       chapter: 'MARATHON',
     },
     {
@@ -901,7 +901,7 @@ function Itineraries() {
       route: 'Taghazout · Atlas · Palmeraie',
       themeTags: ['Surf', 'Bike', 'Padel'],
       badge: 'THEME',
-      img: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=1100&q=72',
+      img: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1100&q=72',
       chapter: 'SPORT',
     },
     {
@@ -914,7 +914,7 @@ function Itineraries() {
       route: 'Marrakech · Essaouira',
       themeTags: ['Music', 'Festival', 'Culture'],
       badge: 'THEME',
-      img: 'https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=1100&q=72',
+      img: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1100&q=72',
       chapter: 'FESTIVAL',
     },
   ], [lang]);
@@ -938,9 +938,7 @@ function Itineraries() {
     ...ITINS,
   ].filter(t => t.__theme || ALLOWED_DURATIONS.has(t.duration)), [THEMES]);
   const matches = (t) => {
-    if (filter === 'All') return true;
     if (filter === 'Themes') return !!t.__theme;
-    if (filter === 'Most booked') return t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED';
     return t.duration === filter;
   };
   const tier = (t) => {
@@ -972,13 +970,13 @@ function Itineraries() {
           )}</p>
         </div>
 
-        {/* Filter chips — one tight row, horizontally scrollable on overflow */}
+        {/* Single one-line tab bar — duration filters, Themes, then the
+            three booking CTAs (Team building, Bryllup, Lag din reise last). */}
         <div className="trip-filter-bar reveal">
           <div className="trip-filter-scroll">
             {filters.map(f => {
-              const count = f === 'All' ? all.length
-                : f === 'Themes' ? all.filter(t => t.__theme).length
-                : f === 'Most booked' ? all.filter(t => t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED').length
+              const count = f === 'Themes'
+                ? all.filter(t => t.__theme).length
                 : all.filter(t => t.duration === f).length;
               return (
                 <button key={f} className={`trip-filter-chip ${filter === f ? 'active' : ''}`}
@@ -988,36 +986,32 @@ function Itineraries() {
                 </button>
               );
             })}
+            <span className="trip-filter-sep" aria-hidden="true" />
+            <button className="trip-filter-chip trip-filter-cta"
+              onClick={() => {
+                window.MS_BookingContext = { mode: 'team', title: tx('Team building', 'Team building', 'Team building'), duration: 5, tripType: 'team' };
+                window.dispatchEvent(new CustomEvent('ms:booking-context'));
+                setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+              }}>
+              🤝 {tx('Team building', 'Team building', 'Team building')}
+            </button>
+            <button className="trip-filter-chip trip-filter-cta"
+              onClick={() => {
+                window.MS_BookingContext = { mode: 'wedding', title: tx('Wedding planner', 'Bryllup', 'Mariage'), duration: 7, tripType: 'wedding' };
+                window.dispatchEvent(new CustomEvent('ms:booking-context'));
+                setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+              }}>
+              💍 {tx('Wedding', 'Bryllup', 'Mariage')}
+            </button>
+            <button className="trip-filter-chip trip-filter-cta trip-filter-cta-primary"
+              onClick={() => {
+                window.MS_BookingContext = null;
+                window.dispatchEvent(new CustomEvent('ms:booking-context'));
+                setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 30);
+              }}>
+              ✨ {tx('Make your trip', 'Lag din reise', 'Créer mon voyage')} →
+            </button>
           </div>
-        </div>
-
-        {/* Special-occasion + custom-trip shortcuts — single row of pill CTAs */}
-        <div className="trip-cta-row reveal">
-          <button className="trip-cta trip-cta-primary"
-            onClick={() => {
-              window.MS_BookingContext = null;
-              window.dispatchEvent(new CustomEvent('ms:booking-context'));
-              setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 30);
-            }}>
-            ✨ {tx('Make your trip', 'Lag din reise', 'Créer mon voyage')} →
-          </button>
-          <button className="trip-cta"
-            onClick={() => {
-              window.MS_BookingContext = { mode: 'team', title: tx('Team building', 'Team building', 'Team building'), duration: 5, tripType: 'team' };
-              window.dispatchEvent(new CustomEvent('ms:booking-context'));
-              setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-            }}>
-            🤝 {tx('Team building', 'Team building', 'Team building')}
-          </button>
-          <button className="trip-cta"
-            onClick={() => {
-              window.MS_BookingContext = { mode: 'wedding', title: tx('Wedding planner', 'Bryllup', 'Mariage'), duration: 7, tripType: 'wedding' };
-              window.dispatchEvent(new CustomEvent('ms:booking-context'));
-              setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-            }}>
-            💍 {tx('Wedding', 'Bryllup', 'Mariage')}
-          </button>
-          <span className="trip-chapter-count">{items.length} {tx('chapters', 'kapitler', 'chapitres')}</span>
         </div>
 
             <div className="cat-grid reiseplaner-grid">

@@ -1725,3 +1725,29 @@ textarea { border-radius: 14px; }
   .trip-chapter-count { width: 100%; text-align: center; margin: 4px 0 0; }
   .trip-card-title { font-size: 17px !important; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 13
+   Everything in one tab bar: filters + Themes + Team / Wedding / Lag din reise
+   ════════════════════════════════════════════════════════════════ */
+
+.trip-filter-sep {
+  display: inline-block;
+  width: 1px;
+  height: 22px;
+  background: rgba(0,0,0,0.10);
+  margin: 0 4px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.trip-filter-cta {
+  background: rgba(0,0,0,0.04) !important;
+  color: #1d1d1f !important;
+}
+.trip-filter-cta:hover { background: rgba(0,0,0,0.10) !important; }
+.trip-filter-cta-primary {
+  background: var(--brand) !important;
+  color: #fff !important;
+}
+.trip-filter-cta-primary:hover { background: #c43a23 !important; }
