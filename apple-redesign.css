@@ -2051,3 +2051,88 @@ h2.itin-modal-title {
 .itin-modal-hero-overlay .itin-modal-route {
   color: rgba(255,255,255,0.82) !important;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 17
+   Trip slider — horizontal scroll with floating arrow controls
+   (Themes view only; duration tabs already render one wide promo)
+   ════════════════════════════════════════════════════════════════ */
+
+.trip-slider {
+  position: relative;
+}
+
+/* Track behaves as a single-row carousel on Themes view */
+.trip-slider:not(.trip-slider-feature) .trip-slider-track {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  padding: 4px 60px 12px;          /* leave room for the arrow buttons */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.trip-slider:not(.trip-slider-feature) .trip-slider-track::-webkit-scrollbar { display: none; }
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card {
+  flex: 0 0 calc((100% - 124px - 18px * 2) / 3);   /* 3 visible at desktop */
+  min-width: 240px;
+  scroll-snap-align: start;
+}
+@media (max-width: 1100px) {
+  .trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card {
+    flex: 0 0 calc((100% - 124px - 18px) / 2);     /* 2 visible at tablet */
+  }
+}
+@media (max-width: 700px) {
+  .trip-slider:not(.trip-slider-feature) .trip-slider-track {
+    padding: 4px 16px 12px;
+  }
+  .trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card {
+    flex: 0 0 80%;                                  /* 1 visible at mobile */
+    min-width: 0;
+  }
+}
+
+/* Arrow buttons — floating brand-color circles */
+.trip-slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  color: #1d1d1f;
+  cursor: pointer;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.10),
+    0 8px 24px rgba(0,0,0,0.14);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.trip-slider-arrow:hover {
+  background: var(--brand);
+  color: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+.trip-slider-arrow.prev { left: 8px; }
+.trip-slider-arrow.next { right: 8px; }
+.trip-slider-arrow.prev svg { transform: rotate(180deg); }
+
+@media (max-width: 700px) {
+  .trip-slider-arrow { width: 38px; height: 38px; }
+  .trip-slider-arrow.prev { left: 4px; }
+  .trip-slider-arrow.next { right: 4px; }
+}
+
+/* Feature view leaves the wide promo card unchanged */
+.trip-slider-feature .trip-slider-track {
+  display: block !important;
+}

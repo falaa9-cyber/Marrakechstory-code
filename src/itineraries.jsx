@@ -564,7 +564,7 @@ function Itineraries() {
   const price = usePrice();
   const lang = ctx.lang || 'en';
   const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
-  const [filter, setFilter] = useStateIt('Themes');
+  const [filter, setFilter] = useStateIt('3D2N');
   const [openTrip, setOpenTrip] = useStateIt(null);
   const [visibleCount, setVisibleCount] = useStateIt(4);
   // +40% markup applied to every itinerary price
@@ -585,7 +585,7 @@ function Itineraries() {
     if (f === '14D13N')      return tx('14 days', '14 dager', '14 jours');
     return f;
   };
-  const filters = ['Themes', '3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N'];
+  const filters = ['3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N', 'Themes'];
   // Only ship trips with the allowed durations
   const ALLOWED_DURATIONS = new Set(['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N']);
 
@@ -750,7 +750,7 @@ function Itineraries() {
             {filters.map(f => {
               const count = f === 'Themes'
                 ? all.filter(t => t.__theme).length
-                : all.filter(t => t.duration === f).length;
+                : all.filter(t => !t.__theme && t.duration === f).length;
               return (
                 <button key={f} className={`trip-filter-chip ${filter === f ? 'active' : ''}`}
                   onClick={() => setFilter(f)}>
@@ -787,7 +787,20 @@ function Itineraries() {
           </div>
         </div>
 
-            <div className={`cat-grid reiseplaner-grid ${filter !== 'Themes' ? 'reiseplaner-grid-feature' : ''}`}>
+            <div className={`trip-slider ${filter !== 'Themes' ? 'trip-slider-feature' : ''}`}>
+              {filter === 'Themes' && (
+                <>
+                  <button className="trip-slider-arrow prev" aria-label="Previous"
+                    onClick={(e) => { const sc = e.currentTarget.parentElement.querySelector('.trip-slider-track'); sc?.scrollBy({ left: -(sc.clientWidth * 0.85), behavior: 'smooth' }); }}>
+                    <Iit.Arrow s={18} />
+                  </button>
+                  <button className="trip-slider-arrow next" aria-label="Next"
+                    onClick={(e) => { const sc = e.currentTarget.parentElement.querySelector('.trip-slider-track'); sc?.scrollBy({ left: sc.clientWidth * 0.85, behavior: 'smooth' }); }}>
+                    <Iit.Arrow s={18} />
+                  </button>
+                </>
+              )}
+              <div className={`trip-slider-track cat-grid reiseplaner-grid ${filter !== 'Themes' ? 'reiseplaner-grid-feature' : ''}`}>
               {visibleItems.map((t, i) => {
                 // Derive rating + reviews deterministically — Marrakechstory's actually booked these
                 const seed = t.slug.split('').reduce((s, c) => s + c.charCodeAt(0), 0);
@@ -880,6 +893,7 @@ function Itineraries() {
                   </div>
                 );
               })}
+              </div>
             </div>
 
         {hasMore && (
