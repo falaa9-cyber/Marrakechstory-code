@@ -36,6 +36,7 @@ function NavPill({ label, items, value, onSelect, head, align = 'right' }) {
 
 // Combined language + currency popover (Apple-style chip — emoji-only, compact)
 const CURR_EMOJI = { NOK: '🇳🇴', SEK: '🇸🇪', EUR: '🇪🇺', USD: '🇺🇸', MAD: '🇲🇦', GBP: '🇬🇧' };
+const CURR_SYMBOL = { NOK: 'kr', SEK: 'kr', EUR: '€', USD: '$', MAD: 'د.م', GBP: '£' };
 function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, setCurr, langHead, currHead }) {
   const [open, setOpen] = useStateA(false);
   const ref = useRefA(null);
@@ -48,7 +49,7 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
     <div className="ms-lc" ref={ref} style={{ position: 'relative' }}>
       <button className="ms-lc-pill" onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open} aria-label={`${lang} / ${curr}`}>
         <span className="ms-lc-flag">{langItem?.flag}</span>
-        <span className="ms-lc-flag">{CURR_EMOJI[curr] || '💰'}</span>
+        <span className="ms-lc-sym">{CURR_SYMBOL[curr] || '€'}</span>
       </button>
       {open && (
         <div className="ms-lc-menu" role="listbox">

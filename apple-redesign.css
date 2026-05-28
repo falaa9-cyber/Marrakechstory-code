@@ -3355,3 +3355,222 @@ h2.itin-modal-title {
   .ms-hero-search-icon-cell { width: 32px; height: 32px; font-size: 16px; }
   .ms-hero-search-result-tag { padding: 3px 8px; font-size: 10px; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 29
+   Mobile = native-app feel · minimalist · roomy · smooth touch
+   ════════════════════════════════════════════════════════════════ */
+
+/* Tiny symbol pill — flag emoji + currency symbol only */
+.ms-lc-pill {
+  padding: 4px 9px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  gap: 6px !important;
+}
+.ms-lc-flag  { font-size: 14px !important; }
+.ms-lc-sym   { font-family: var(--apple-font); font-weight: 600; font-size: 12.5px; color: inherit; }
+
+/* ── iOS rendering basics ─────────────────────────────────────── */
+html, body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+input, textarea, select, button { font-size: 16px !important; }   /* avoid Safari zoom */
+button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+@media (hover: none) {
+  /* On touch devices, kill the hover-lift transforms that cause "stuck hover" */
+  .cat-card:hover, .theme-card:hover, .trip-feature:hover { transform: none !important; }
+}
+
+/* Active-state spring for buttons + cards (Apple-style press) */
+@media (hover: none) and (pointer: coarse) {
+  button:active, .btn:active, .cat-card:active, .theme-card:active,
+  .trip-feature:active, .trip-filter-chip:active, .ms-lc-pill:active,
+  .nav-pill-btn:active, .trip-feature-cta:active, .auth-alt-btn:active,
+  .auth-google-btn:active, .auth-provider-btn:active {
+    transform: scale(0.97) !important;
+    transition: transform 0.10s ease-out !important;
+  }
+}
+
+/* ── Phone (≤640) — full app shell ────────────────────────────── */
+@media (max-width: 640px) {
+
+  /* Roomier, gentler section rhythm */
+  .section, section.section, .itin-section, .reiseplaner-section,
+  .catalog, #contact, #plan, .ms-form-section {
+    padding-top: 56px !important;
+    padding-bottom: 56px !important;
+  }
+  .wrap, .wrap-wide { padding-left: 16px; padding-right: 16px; }
+
+  /* Section heads breathe more, type calmer */
+  .section-head { margin-bottom: 28px !important; }
+  h1, .hero-h1 { font-size: clamp(32px, 9vw, 48px) !important; line-height: 1.04 !important; }
+  h2 { font-size: clamp(28px, 7vw, 38px) !important; line-height: 1.08 !important; }
+  h3 { font-size: clamp(18px, 4.6vw, 22px) !important; }
+  p, li, .lead { font-size: 14.5px !important; line-height: 1.55 !important; }
+
+  /* Nav: clean app top bar with safe area + slimmer height */
+  .nav { padding-top: env(safe-area-inset-top, 0) !important; }
+  .nav .nav-links { display: none !important; }    /* nav links → hidden, use search/scroll */
+  .nav-inner { padding: 8px 14px !important; }
+  .nav-logo { font-size: 15px !important; gap: 6px !important; }
+  .logo-img { width: 30px !important; height: 30px !important; border-radius: 9px !important; }
+
+  /* Hero: tighter padding so it never feels squeezed and never overflows */
+  .ms-hero,
+  .ms-hero.ms-hero-static {
+    min-height: calc(100dvh - 64px) !important;
+    height: auto !important;
+  }
+  .ms-hero-content-centered { padding: 16px !important; gap: 14px !important; }
+  .ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark {
+    font-size: clamp(56px, 18vw, 88px) !important;
+    line-height: 1.02 !important;
+  }
+  .ms-hero-content-centered .ms-hero-h1 {
+    font-size: clamp(18px, 4.5vw, 24px) !important;
+  }
+  .ms-hero-eyebrow { font-size: 10.5px !important; padding: 6px 14px !important; }
+  .ms-hero-cta-row { flex-wrap: wrap !important; gap: 10px !important; justify-content: center !important; }
+  .ms-hero-cta { padding: 12px 20px !important; font-size: 14.5px !important; }
+  .ms-hero-credibility {
+    bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    gap: 8px 18px !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding-left: 16px; padding-right: 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .ms-hero-credibility::-webkit-scrollbar { display: none; }
+  .ms-cred-item { flex-shrink: 0 !important; min-width: 0 !important; }
+
+  /* Hero search: full pill, comfortable height, transparent */
+  .ms-hero-search-wrap { width: 100% !important; max-width: 100% !important; }
+  .ms-hero-search { padding: 5px 5px 5px 12px !important; }
+  .ms-hero-search input { font-size: 15px !important; padding: 9px 4px !important; }
+  .ms-hero-search-btn { padding: 9px 16px !important; font-size: 13px !important; }
+  .ms-hero-search-dropdown { left: 4px; right: 4px; max-height: 56vh; }
+
+  /* Trip section: roomy single-column */
+  .trip-feature { border-radius: 22px !important; }
+  .trip-feature-img { min-height: 240px !important; }
+  .trip-feature-body { padding: 22px 18px 20px !important; }
+  .trip-feature-title { font-size: 22px !important; }
+  .trip-feature-teaser { font-size: 14.5px !important; }
+  .trip-feature-highlights li { font-size: 13.5px !important; }
+  .trip-feature-cta { width: 100%; padding: 14px 18px !important; }
+  .trip-slider-feature .trip-slider-arrow.prev { left: -6px !important; }
+  .trip-slider-feature .trip-slider-arrow.next { right: -6px !important; }
+  .trip-slider-arrow { width: 38px !important; height: 38px !important; }
+
+  /* Trip filter bar: scroll horizontal, padding for fingers */
+  .trip-filter-scroll { padding: 5px !important; }
+  .trip-filter-chip { padding: 9px 14px !important; font-size: 13px !important; min-height: 40px; }
+
+  /* Catalog cards: full-width, big tap area */
+  .cat-grid, .reiseplaner-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .cat-card { border-radius: 20px !important; }
+  .cat-img { aspect-ratio: 16/10 !important; }
+  .cat-body { padding: 16px 18px 18px !important; }
+  .cat-title { font-size: 17px !important; }
+  .cat-arrow { width: 40px !important; height: 40px !important; }
+
+  /* Catalog tabs: become a clean scrollable segmented control */
+  .cat-tabs-v2, .cat-tabs {
+    display: flex !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding: 4px !important;
+    background: rgba(0,0,0,0.05) !important;
+    border-radius: 999px !important;
+    scrollbar-width: none;
+  }
+  .cat-tabs-v2::-webkit-scrollbar { display: none; }
+  .cat-tab-v2, .cat-tab {
+    padding: 8px 12px !important;
+    font-size: 12.5px !important;
+    border-radius: 999px !important;
+    white-space: nowrap !important;
+    background: transparent !important;
+    flex-shrink: 0 !important;
+  }
+  .cat-tab-v2.active, .cat-tab.active {
+    background: #1d1d1f !important;
+    color: #fff !important;
+  }
+
+  /* Themes carousel: cards 80% width, snap */
+  .trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card {
+    flex: 0 0 78% !important;
+    min-width: 0 !important;
+  }
+  .trip-slider:not(.trip-slider-feature) .trip-slider-track { padding: 4px 12px 12px !important; }
+
+  /* Form sections: roomy inputs */
+  .fld input, .fld textarea, .fld select, input, textarea, select {
+    padding: 14px 14px !important;
+    border-radius: 14px !important;
+    min-height: 48px;
+  }
+  textarea { min-height: 110px; }
+  .btn { padding: 14px 22px !important; font-size: 15px !important; min-height: 48px; border-radius: 999px !important; }
+  .btn-primary, .btn.btn-primary { box-shadow: 0 6px 18px rgba(225,67,42,0.32) !important; }
+
+  /* Itinerary modal hero crops less aggressively */
+  .itin-modal-hero { height: 240px !important; }
+  .itin-modal-title { font-size: 26px !important; }
+  .itin-modal-route { font-size: 12.5px !important; }
+  .itin-modal-v2 .itin-tabs { padding: 0 10px !important; }
+  .itin-modal-v2 .itin-tab { padding: 14px 10px !important; font-size: 13px !important; }
+  .itin-timeline-list::before { left: 14px !important; }
+  .itin-timeline-item { grid-template-columns: 32px 1fr !important; gap: 12px !important; }
+
+  /* Auth modal: full-width sheet from the bottom feel */
+  .auth-modal { padding: 28px 22px 22px !important; }
+  .auth-modal .auth-title { font-size: 22px !important; }
+
+  /* Contact section: phone widget + copy stack with breathing room */
+  .contact-phone-wrap { min-height: 0 !important; margin-top: 16px !important; }
+  .footer { padding: 40px 14px env(safe-area-inset-bottom, 20px) !important; }
+  .footer-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .footer-bottom { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
+
+  /* Floating widgets push a little further from edge to avoid home indicator */
+  .wa-widget, .ig-scroll-widget {
+    bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
+  }
+}
+
+/* (Bottom safe-area is handled per-element on .wa-widget, .ig-scroll-widget,
+   .footer and modal sheets — no global body padding to avoid stray
+   whitespace below the footer.) */
+
+/* ── Tiny phone tweaks (≤420px) so brandmark always fits inside ── */
+@media (max-width: 420px) {
+  .ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark {
+    font-size: clamp(40px, 13.5vw, 64px) !important;
+    white-space: normal !important;
+  }
+  .ms-hero-eyebrow {
+    white-space: normal !important;
+    text-align: center;
+    line-height: 1.35;
+  }
+}
+
+/* Even smaller phones — make the brandmark word break to fit */
+@media (max-width: 420px) {
+  .ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark {
+    font-size: clamp(34px, 11vw, 54px) !important;
+    letter-spacing: -0.025em !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100% !important;
+  }
+}
