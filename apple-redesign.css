@@ -2489,3 +2489,43 @@ h2.itin-modal-title {
 
 /* Theme cards: no price block in the foot row even if data exists */
 .cat-card-theme .trip-card-price { display: none !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 23
+   Trip pop-up modal: brand color on headlines and features
+   ════════════════════════════════════════════════════════════════ */
+
+/* Section headings inside the modal (HØYDEPUNKTER, TEMA, DAG FOR DAG,
+   INKLUDERT, IKKE INKLUDERT, T&Cs etc.) */
+.itin-modal-h3 {
+  color: var(--brand) !important;
+  font-weight: 700 !important;
+}
+
+/* Day-card eyebrow ("DAG 1", "DAY 1", "JOUR 1") */
+.itin-modal-day-num {
+  color: var(--brand) !important;
+  font-weight: 700 !important;
+}
+
+/* Day route (the trip line under the day number) — keep ink, but for
+   visual hierarchy let the route remain dark. We only brand the headlines. */
+.itin-modal-day-route {
+  color: #1d1d1f !important;
+}
+
+/* "From / On request" price block in the side meta column */
+.itin-modal-price-label { color: #6e6e73 !important; }
+.itin-modal-price-value { color: var(--brand) !important; }
+.itin-modal-price-sub   { color: #6e6e73 !important; }
+
+/* Feature bullets in the highlights list (the dashes turn brand,
+   but the included ✓ stays green, excluded ✕ stays orange — those
+   are semantic and shouldn't be re-coloured). */
+.itin-modal-ul li::before { color: var(--brand) !important; }
+.itin-modal-ul.itin-included li::before { color: #2a7c5a !important; }
+.itin-modal-ul.itin-excluded li::before { color: #c2552a !important; }
+
+/* "Idéal pour / Perfekt for" label inside the feature trip card
+   already lives outside the modal — these are the modal-side accents
+   only. */
