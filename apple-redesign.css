@@ -2209,3 +2209,92 @@ h2.itin-modal-title {
   .trip-slider-feature .trip-slider-arrow.prev { left: 8px; }
   .trip-slider-feature .trip-slider-arrow.next { right: 8px; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 19
+   • Restore old serif italic "Story" for the hero brandmark
+   • Centre hero text + search bar
+   • Make the hero search bar fully transparent (line only)
+   • Sliding animation when stepping between trips
+   ════════════════════════════════════════════════════════════════ */
+
+/* Re-enable Fraunces serif + italic for the hero brand wordmark only —
+   the Apple sans rule earlier in this file killed italics everywhere. */
+.ms-hero-content-centered .ms-hero-h1,
+.ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark,
+.ms-hero-content-centered .ms-hero-h1 em,
+.ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark em {
+  font-family: 'Fraunces', 'Playfair Display', serif !important;
+}
+.ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark {
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  font-size: clamp(78px, 11.2vw, 134px) !important;
+}
+.ms-hero-content-centered .ms-hero-h1.ms-hero-brand .ms-hero-brandmark em {
+  color: var(--brand) !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+}
+.ms-hero-content-centered .ms-hero-h1 em {
+  font-style: italic !important;
+  color: var(--ms-sand, #C9B99A) !important;
+  font-weight: 400 !important;
+}
+
+/* Centre the whole hero content stack */
+.ms-hero-content-centered {
+  text-align: center !important;
+}
+.ms-hero-content-centered .ms-hero-eyebrow,
+.ms-hero-content-centered .ms-hero-h1,
+.ms-hero-content-centered .ms-hero-cta-row {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  justify-content: center;
+}
+
+/* Search bar — fully transparent except for a hairline border */
+.ms-hero-search {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.45) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ms-hero-search input {
+  color: #fff !important;
+}
+.ms-hero-search input::placeholder {
+  color: rgba(255,255,255,0.75) !important;
+}
+
+/* ── Sliding animation for the feature promo trip card ── */
+@keyframes tripSlideIn {
+  from { opacity: 0; transform: translateX(40px) scale(0.985); }
+  to   { opacity: 1; transform: translateX(0)    scale(1); }
+}
+@keyframes tripSlideInRev {
+  from { opacity: 0; transform: translateX(-40px) scale(0.985); }
+  to   { opacity: 1; transform: translateX(0)     scale(1); }
+}
+.trip-feature {
+  animation: tripSlideIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.trip-slider-feature[data-dir="prev"] .trip-feature {
+  animation-name: tripSlideInRev;
+}
+
+/* Theme card carousel: gentle fade-in on tab activation */
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card {
+  animation: tripSlideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(1) { animation-delay: 0.00s; }
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(2) { animation-delay: 0.05s; }
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(3) { animation-delay: 0.10s; }
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(4) { animation-delay: 0.15s; }
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(5) { animation-delay: 0.20s; }
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(6) { animation-delay: 0.25s; }
+.trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(7) { animation-delay: 0.30s; }

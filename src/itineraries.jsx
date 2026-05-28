@@ -107,7 +107,7 @@ const ITINS = [
     duration: "3D2N", days: 3, nights: 2,
     route: "Marrakech",
     priceFromEUR: 590,
-    img: "assets/photos/jemaa-el-fna-18.jpg",
+    img: "assets/photos/le-jardin-lotus16-marrakechstory.jpg",
     badge: "MOST LOVED",
     themeTags: ["Medina", "Riad", "Hammam"],
     teaser: "A long weekend in the red city — medina, garden, hammam.",
@@ -565,6 +565,7 @@ function Itineraries() {
   const lang = ctx.lang || 'en';
   const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
   const [filter, setFilter] = useStateIt('3D2N');
+  const [sliderDir, setSliderDir] = useStateIt('next');
   const [openTrip, setOpenTrip] = useStateIt(null);
   const [visibleCount, setVisibleCount] = useStateIt(4);
   // +40% markup applied to every itinerary price
@@ -787,7 +788,7 @@ function Itineraries() {
           </div>
         </div>
 
-            <div className={`trip-slider ${filter !== 'Themes' ? 'trip-slider-feature' : ''}`}>
+            <div className={`trip-slider ${filter !== 'Themes' ? 'trip-slider-feature' : ''}`} data-dir={sliderDir}>
               {filter === 'Themes' ? (
                 <>
                   <button className="trip-slider-arrow prev" aria-label="Previous"
@@ -806,6 +807,7 @@ function Itineraries() {
                     onClick={() => {
                       const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N'];
                       const idx = Math.max(0, order.indexOf(filter));
+                      setSliderDir('prev');
                       setFilter(order[(idx - 1 + order.length) % order.length]);
                     }}>
                     <Iit.Arrow s={18} />
@@ -814,6 +816,7 @@ function Itineraries() {
                     onClick={() => {
                       const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N'];
                       const idx = Math.max(0, order.indexOf(filter));
+                      setSliderDir('next');
                       setFilter(order[(idx + 1) % order.length]);
                     }}>
                     <Iit.Arrow s={18} />
