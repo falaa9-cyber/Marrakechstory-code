@@ -805,7 +805,7 @@ function Itineraries() {
                   {/* Feature mode: arrows step through the 6 duration buckets */}
                   <button className="trip-slider-arrow prev" aria-label={tx('Shorter trip', 'Kortere reise', 'Plus court')}
                     onClick={() => {
-                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N'];
+                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N','Themes'];
                       const idx = Math.max(0, order.indexOf(filter));
                       setSliderDir('prev');
                       setFilter(order[(idx - 1 + order.length) % order.length]);
@@ -814,7 +814,7 @@ function Itineraries() {
                   </button>
                   <button className="trip-slider-arrow next" aria-label={tx('Longer trip', 'Lengre reise', 'Plus long')}
                     onClick={() => {
-                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N'];
+                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N','Themes'];
                       const idx = Math.max(0, order.indexOf(filter));
                       setSliderDir('next');
                       setFilter(order[(idx + 1) % order.length]);
@@ -900,7 +900,7 @@ function Itineraries() {
                         </div>
                       )}
                       <div className="cat-foot trip-card-foot">
-                        {priceTxt && (
+                        {!isTheme && priceTxt && (
                           <span className="trip-card-price">
                             <span className="trip-card-price-from">{tx('From', 'Fra', 'À partir de')}</span>
                             <span className="trip-card-price-amount">{priceTxt}</span>

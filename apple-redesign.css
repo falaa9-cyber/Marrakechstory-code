@@ -2452,3 +2452,40 @@ h2.itin-modal-title {
   left: 16px !important;
   right: 16px !important;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 22
+   • Trip feature card +30% taller, more breathing room.
+   • Catalog prices in brand color.
+   • Theme cards: no price chips.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Feature card: image min-height +30%, body padding +30% */
+.trip-feature-img { min-height: 546px !important; }
+.trip-feature-body { padding: 42px 46px 36px !important; }
+.trip-feature-title { font-size: clamp(28px, 2.6vw, 40px) !important; }
+.trip-feature-teaser { font-size: 16px !important; line-height: 1.6 !important; }
+.trip-feature-highlights { gap: 10px !important; margin: 0 0 26px !important; }
+.trip-feature-highlights li { font-size: 14.5px !important; }
+
+@media (max-width: 900px) {
+  .trip-feature-img { min-height: 338px !important; }
+  .trip-feature-body { padding: 30px 26px 28px !important; }
+}
+
+/* Catalog price amount in brand color (we already had it on trip
+   cards — apply the same rule to the catalog grid). */
+.cat-price-amount,
+#catalog .cat-price-amount {
+  color: var(--brand) !important;
+  font-family: var(--apple-display);
+  font-weight: 700;
+}
+.cat-price-from,
+#catalog .cat-price-from {
+  color: #6e6e73 !important;
+  letter-spacing: 0.10em;
+}
+
+/* Theme cards: no price block in the foot row even if data exists */
+.cat-card-theme .trip-card-price { display: none !important; }

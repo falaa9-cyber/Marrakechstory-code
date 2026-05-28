@@ -201,13 +201,14 @@ function CatalogModal({ item, tab, onClose, lang }) {
             </div>
           )}
           {(() => {
-            // Detect if transport is already included
-            const haystack = [
-              ...(item.included || []),
-              ...(item.practical || []),
-              item.desc || '', item.description || '',
-            ].join(' ').toLowerCase();
-            const hasTransport = /transport|transfer|pickup|round-trip|round trip|hotel pickup|driver|4×4|4x4|shuttle|inkludert.*transport|transport.*inkludert/i.test(haystack);
+            // Marrakech Story policy: transport is NEVER included in catalog
+            // bookings except for two activities — hot-air balloons and
+            // paragliding — where the operator round-trips you from your
+            // riad as part of the safety / weather window.
+            const nameStr = (typeof item.name === 'string' ? item.name : (item.name?.en || item.name?.no || '')).toLowerCase();
+            const slugStr = (item.slug || '').toLowerCase();
+            const isAirActivity = /balloon|paragl|montgolfi[èe]re|para.?pente|luftbal/.test(nameStr + ' ' + slugStr);
+            const hasTransport = isAirActivity;
             const transportTab = tab === 'transport';
             if (transportTab) return null;
             if (hasTransport) {
