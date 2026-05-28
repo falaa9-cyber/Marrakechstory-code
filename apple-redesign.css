@@ -2298,3 +2298,53 @@ h2.itin-modal-title {
 .trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(5) { animation-delay: 0.20s; }
 .trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(6) { animation-delay: 0.25s; }
 .trip-slider:not(.trip-slider-feature) .trip-slider-track > .cat-card:nth-child(7) { animation-delay: 0.30s; }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 20
+   • Search bar: input itself transparent (was inheriting white)
+   • Hero: every text node centred including sub-lines
+   ════════════════════════════════════════════════════════════════ */
+
+/* Kill the white input background inside the search pill */
+.ms-hero-search input,
+.ms-hero-search input:focus,
+.ms-hero-search input:active,
+.ms-hero-search input:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: center !important;
+  color: #fff !important;
+}
+.ms-hero-search input::-webkit-search-cancel-button,
+.ms-hero-search input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Autofill rule: Chrome paints inputs yellow/white on autofill —
+   force it transparent on this one. */
+.ms-hero-search input:-webkit-autofill,
+.ms-hero-search input:-webkit-autofill:hover,
+.ms-hero-search input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: #fff;
+}
+
+/* Centre every text node in the hero (including line-broken spans
+   and the eyebrow pill). */
+.ms-hero-content-centered,
+.ms-hero-content-centered .ms-hero-h1,
+.ms-hero-content-centered .ms-hero-h1-line,
+.ms-hero-content-centered .ms-hero-eyebrow,
+.ms-hero-content-centered .ms-hero-cta-row,
+.ms-hero-content-centered .ms-hero-search {
+  text-align: center !important;
+  justify-content: center;
+  align-items: center;
+}
+.ms-hero-content-centered .ms-hero-h1-line { display: block !important; }
