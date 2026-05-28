@@ -2348,3 +2348,107 @@ h2.itin-modal-title {
   align-items: center;
 }
 .ms-hero-content-centered .ms-hero-h1-line { display: block !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 21
+   Hero — vertically and horizontally centred as a single stack.
+   Brings the credibility row inside the centred column.
+   ════════════════════════════════════════════════════════════════ */
+
+.ms-hero {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Re-flow the absolute-positioned content into normal flex flow so
+   it can be centred together with the credibility row. */
+.ms-hero-content-centered {
+  position: static !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100%;
+  max-width: 92vw !important;
+  margin: 0 auto !important;
+  padding: 24px !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 18px;
+}
+.ms-hero-content-centered > * {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Credibility row — drop the absolute bottom positioning, let it sit
+   under the CTAs as part of the centred stack. */
+.ms-hero-credibility {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 24px auto 0 !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center !important;
+  gap: 12px 28px;
+  max-width: 92vw;
+}
+
+/* Mount the credibility row right after the .ms-hero-content via grid
+   reorder is not possible across siblings, so keep them as siblings
+   under .ms-hero flexbox and centre both. */
+.ms-hero > .ms-hero-bg { position: absolute !important; inset: 0; z-index: 0; }
+.ms-hero > .ms-hero-content-centered { z-index: 5; }
+.ms-hero > .ms-hero-credibility { z-index: 5; position: absolute !important; bottom: 20px; left: 0; right: 0; }
+@media (min-width: 901px) {
+  .ms-hero > .ms-hero-credibility { bottom: 28px; }
+}
+
+/* Phase 21 follow-up: kill the legacy msSlideIn animation that finished
+   on translateY(-50%) — it was pushing the content above viewport
+   centre even after we switched to flex centring. */
+.ms-hero-content-centered {
+  animation: none !important;
+}
+
+/* Phase 21 follow-up #2 — the .ms-hero-content (NOT -centered) class
+   in styles.css applies transform: translateY(-50%). Overriding it. */
+.ms-hero-content,
+.ms-hero-content.ms-hero-content-centered {
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  position: static !important;
+}
+
+/* Phase 21 follow-up #3 — styles.css has a desktop media-query rule with
+   3-class specificity that pulls the hero content back to the LEFT and
+   re-applies translateY(-50%). Override with matching specificity. */
+@media (min-width: 1024px) {
+  .ms-hero.ms-hero-static .ms-hero-content.ms-hero-content-centered {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    max-width: 92vw !important;
+  }
+  .ms-hero.ms-hero-static .ms-hero-cta-row { justify-content: center !important; }
+}
+
+/* Phase 21 follow-up #4 — credibility bar got top:433 from a more
+   specific desktop rule; force it back to the bottom of the hero. */
+.ms-hero > .ms-hero-credibility,
+.ms-hero.ms-hero-static .ms-hero-credibility {
+  top: auto !important;
+  bottom: 24px !important;
+  left: 16px !important;
+  right: 16px !important;
+}
