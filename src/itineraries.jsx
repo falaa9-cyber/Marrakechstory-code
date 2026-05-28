@@ -929,11 +929,6 @@ function Itineraries() {
                           </ul>
                         )}
                         <div className="trip-feature-foot">
-                          <div>
-                            <span className="trip-feature-from">{tx('From', 'Fra', 'À partir de')}</span>
-                            <span className="trip-feature-price">{priceTxt || '—'}</span>
-                            <span className="trip-feature-per">{tx('/ person', '/ person', '/ personne')}</span>
-                          </div>
                           <button className="trip-feature-cta" onClick={(e) => { e.stopPropagation(); handleOpen(); }}>
                             {tx('See full itinerary', 'Se hele reisen', 'Voir l\'itinéraire')} →
                           </button>
@@ -964,12 +959,6 @@ function Itineraries() {
                         </div>
                       )}
                       <div className="cat-foot trip-card-foot">
-                        {!isTheme && priceTxt && (
-                          <span className="trip-card-price">
-                            <span className="trip-card-price-from">{tx('From', 'Fra', 'À partir de')}</span>
-                            <span className="trip-card-price-amount">{priceTxt}</span>
-                          </span>
-                        )}
                         <span className="trip-card-cta-label">
                           {isTheme
                             ? tx('Plan this →', 'Planlegg →', 'Planifier →')

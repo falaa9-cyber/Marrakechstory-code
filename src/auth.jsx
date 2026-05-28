@@ -154,21 +154,43 @@ function AuthModal({ view: initView, onClose, onLogin }) {
 
   const doGoogle = async () => {
     setErr('');
+    setBusy(true);
     try {
       if (window.MS_SB?.auth?.signInWithOAuth) {
         const { error } = await window.MS_SB.auth.signInWithOAuth({
           provider: 'google',
           options: { redirectTo: window.location.origin },
         });
-        if (error) throw error;
-        // Redirect happens; nothing else to do here.
+        if (error) {
+          // Common cause: Google provider not yet enabled in Supabase
+          // dashboard. Fall back to the email-form view so the visitor
+          // can still finish registration.
+          const msg = String(error.message || '');
+          if (/provider|disabled|not enabled|missing/i.test(msg)) {
+            setView('register');
+            setErr(T(
+              'Google sign-in is being set up — please use email for now.',
+              'Google-innlogging settes opp — bruk e-post inntil videre.',
+              'Connexion Google en cours de configuration — utilisez l\'e-mail.'
+            ));
+            return;
+          }
+          throw error;
+        }
+        // OAuth redirect launches; nothing else to do.
       } else {
-        const gmail = window.MS_Auth_Google_Email || 'google@example.com';
-        const user = { name: nameFromEmail(gmail) || 'Google user', email: gmail, google: true };
-        finishAuth(user, 'google-local');
+        // Supabase isn't loaded → switch to the email form, don't pretend.
+        setView('register');
+        setErr(T(
+          'Sign-in unavailable right now — register with email.',
+          'Innlogging er ikke tilgjengelig — registrer med e-post.',
+          'Connexion indisponible — inscrivez-vous par e-mail.'
+        ));
       }
     } catch (e) {
       setErr(e?.message || T('Google sign-in failed', 'Google-innlogging feilet', 'Connexion Google échouée'));
+    } finally {
+      setBusy(false);
     }
   };
 
