@@ -377,180 +377,244 @@ function ItinModal({ trip, onClose, lang, fmt }) {
   }, []);
   const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
   const terms = STANDARD_TERMS[lang === 'no' ? 'no' : lang === 'fr' ? 'fr' : 'en'];
+
+  // Internal tab navigation. Each tab is a discrete view, keeping the
+  // modal scannable instead of a single 1500px scroll.
+  const tabs = [
+    { id: 'overview',  label: tx('Overview',  'Oversikt',     'Aperçu') },
+    { id: 'itinerary', label: tx('Itinerary', 'Reiseplan',    'Itinéraire') },
+    { id: 'includes',  label: tx('Includes',  'Inkluderer',   'Inclus') },
+    { id: 'booking',   label: tx('Booking',   'Booking',      'Réservation') },
+  ];
+  const [tab, setTab] = useStateIt('overview');
+
+  const goPlan = (mode) => {
+    window.MS_BookingContext = {
+      mode: mode || 'asis',
+      trip,
+      duration: trip.days || trip.nights + 1,
+      title: trip.title,
+      priceEur: trip.priceFromEUR,
+    };
+    window.dispatchEvent(new CustomEvent('ms:booking-context'));
+    onClose();
+    setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 80);
+  };
+
+  const priceTxt = trip.priceFromEUR ? (fmt ? fmt(trip.priceFromEUR) : `€${trip.priceFromEUR}`) : null;
+
   return (
     <div className="itin-modal-backdrop" onClick={onClose}>
-      <div className="itin-modal" onClick={e => e.stopPropagation()}>
+      <div className="itin-modal itin-modal-v2" onClick={e => e.stopPropagation()}>
         <button className="itin-modal-close" onClick={onClose} aria-label="Close">✕</button>
         <div className="itin-modal-hero" style={{ backgroundImage: `url(${trip.img})` }}>
           <div className="itin-modal-hero-overlay">
-            <div className="itin-modal-eyebrow">— CHAPTER {trip.chapter} · {trip.duration}</div>
+            <div className="itin-modal-eyebrow">— {tx('Chapter','Kapittel','Chapitre')} {trip.chapter} · {trip.duration}</div>
             <h2 className="itin-modal-title">{trip.title}</h2>
             <div className="itin-modal-route">{trip.route}</div>
+            {trip.idealFor && (
+              <span className="itin-modal-hero-pill">
+                <span className="itin-modal-hero-pill-label">{tx('Ideal for','Perfekt for','Idéal pour')}</span>
+                {trip.idealFor}
+              </span>
+            )}
           </div>
         </div>
-        <div className="itin-modal-body">
-          <p className="itin-modal-overview">{trip.overview}</p>
 
-          {trip.partner && (
-            <div className="itin-partner-strip">
-              <div className="itin-partner-head">
-                <div>
-                  <div className="itin-partner-eyebrow">{tx('In partnership with', 'I samarbeid med', 'En partenariat avec')}</div>
-                  <div className="itin-partner-name">{trip.partner.name}</div>
-                  <div className="itin-partner-tag">{trip.partner.tagline} · {trip.partner.location}</div>
+        {/* Tab bar */}
+        <div className="itin-tabs" role="tablist">
+          {tabs.map(t => (
+            <button key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              className={`itin-tab ${tab === t.id ? 'is-active' : ''}`}
+              onClick={() => setTab(t.id)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="itin-modal-body">
+
+          {tab === 'overview' && (
+            <>
+              <p className="itin-modal-overview">{trip.overview}</p>
+
+              <div className="itin-stat-row">
+                <div className="itin-stat">
+                  <span className="itin-stat-label">{tx('Duration','Varighet','Durée')}</span>
+                  <span className="itin-stat-value">{trip.duration}</span>
                 </div>
-                <a className="itin-partner-link" href={trip.partner.website} target="_blank" rel="noopener">
-                  {tx('Visit site →', 'Besøk siden →', 'Voir le site →')}
-                </a>
+                <div className="itin-stat">
+                  <span className="itin-stat-label">{tx('From','Fra','À partir de')}</span>
+                  <span className="itin-stat-value itin-stat-price">{priceTxt || tx('On request','På forespørsel','Sur demande')}</span>
+                </div>
+                <div className="itin-stat">
+                  <span className="itin-stat-label">{tx('Route','Rute','Itinéraire')}</span>
+                  <span className="itin-stat-value itin-stat-route">{trip.route}</span>
+                </div>
               </div>
-              {trip.partner.gallery && trip.partner.gallery.length > 0 && (
-                <div className="itin-partner-gallery">
-                  {trip.partner.gallery.map((src, i) => (
-                    <div key={i} className="itin-partner-thumb" style={{ backgroundImage: `url(${src})` }} />
-                  ))}
+
+              {trip.partner && (
+                <div className="itin-partner-strip">
+                  <div className="itin-partner-head">
+                    <div>
+                      <div className="itin-partner-eyebrow">{tx('In partnership with','I samarbeid med','En partenariat avec')}</div>
+                      <div className="itin-partner-name">{trip.partner.name}</div>
+                      <div className="itin-partner-tag">{trip.partner.tagline} · {trip.partner.location}</div>
+                    </div>
+                    <a className="itin-partner-link" href={trip.partner.website} target="_blank" rel="noopener">
+                      {tx('Visit site →','Besøk siden →','Voir le site →')}
+                    </a>
+                  </div>
+                  {trip.partner.gallery && trip.partner.gallery.length > 0 && (
+                    <div className="itin-partner-gallery">
+                      {trip.partner.gallery.map((src, i) => (
+                        <div key={i} className="itin-partner-thumb" style={{ backgroundImage: `url(${src})` }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="itin-modal-grid">
+                <div>
+                  <h3 className="itin-modal-h3">{tx('Highlights','Høydepunkter','Temps forts')}</h3>
+                  <ul className="itin-modal-ul">
+                    {trip.highlights.map((h, i) => <li key={i}>{h}</li>)}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="itin-modal-h3">{tx('Theme','Tema','Thèmes')}</h3>
+                  <div className="itin-modal-tags">
+                    {trip.themeTags.map((t, i) => <span key={i} className="itin-modal-tag">{t}</span>)}
+                  </div>
+                </div>
+              </div>
+
+              {trip.formulas && trip.formulas.length > 0 && (
+                <div className="itin-formulas">
+                  <h3 className="itin-modal-h3">{tx('Choose your formula','Velg din formel','Choisissez votre formule')}</h3>
+                  <div className="itin-formula-grid">
+                    {trip.formulas.map((f) => {
+                      const name = f.name[lang] || f.name.en;
+                      const tagline = f.tagline[lang] || f.tagline.en;
+                      const fromEUR = f.prices ? Math.min(...Object.values(f.prices)) : null;
+                      return (
+                        <div key={f.id} className="itin-formula-card">
+                          <div className="itin-formula-name">{name}</div>
+                          <div className="itin-formula-tag">{tagline}</div>
+                          {fromEUR
+                            ? <div className="itin-formula-price">{tx('From','Fra','À partir de')} {fmt ? fmt(fromEUR) : `€${fromEUR}`} <span>/ {tx('week / person','uke / person','semaine / pers.')}</span></div>
+                            : <div className="itin-formula-price">{tx('Custom quote','Skreddersydd','Sur mesure')}</div>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {trip.extras && trip.extras.length > 0 && (
+                <div className="itin-extras">
+                  <h3 className="itin-modal-h3">{tx('Optional extras','Valgfrie tillegg','Extras optionnels')}</h3>
+                  <div className="itin-extra-grid">
+                    {trip.extras.map((x) => (
+                      <div key={x.id} className="itin-extra-card">
+                        <div className="itin-extra-name">{x.name[lang] || x.name.en}</div>
+                        <div className="itin-extra-desc">{x.desc[lang] || x.desc.en}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'itinerary' && (
+            <div className="itin-timeline">
+              <h3 className="itin-modal-h3 itin-timeline-h">{tx('Day by day','Dag for dag','Jour par jour')}</h3>
+              <ol className="itin-timeline-list">
+                {trip.itinerary.map((d, i) => (
+                  <li key={i} className="itin-timeline-item">
+                    <div className="itin-timeline-marker">
+                      <span className="itin-timeline-dot" aria-hidden="true" />
+                      <span className="itin-timeline-day">{d.day}</span>
+                    </div>
+                    <div className="itin-timeline-card">
+                      <div className="itin-timeline-eyebrow">{tx('Day','Dag','Jour')} {d.day}</div>
+                      <div className="itin-timeline-route">{d.route}</div>
+                      <p className="itin-timeline-text">{d.text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {tab === 'includes' && (
+            <div className="itin-modal-grid itin-includes-grid">
+              {trip.included && trip.included.length > 0 && (
+                <div className="itin-includes-col itin-includes-col-yes">
+                  <h3 className="itin-modal-h3">{tx('Included','Inkludert','Inclus')}</h3>
+                  <ul className="itin-modal-ul itin-included">
+                    {trip.included.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                </div>
+              )}
+              {trip.excluded && trip.excluded.length > 0 && (
+                <div className="itin-includes-col itin-includes-col-no">
+                  <h3 className="itin-modal-h3">{tx('Not included','Ikke inkludert','Non inclus')}</h3>
+                  <ul className="itin-modal-ul itin-excluded">
+                    {trip.excluded.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
                 </div>
               )}
             </div>
           )}
 
-          {trip.formulas && trip.formulas.length > 0 && (
-            <div className="itin-formulas">
-              <h3 className="itin-modal-h3">{tx('Choose your formula', 'Velg din formel', 'Choisissez votre formule')}</h3>
-              <div className="itin-formula-grid">
-                {trip.formulas.map((f) => {
-                  const name = f.name[lang] || f.name.en;
-                  const tagline = f.tagline[lang] || f.tagline.en;
-                  const fromEUR = f.prices ? Math.min(...Object.values(f.prices)) : null;
-                  return (
-                    <div key={f.id} className="itin-formula-card">
-                      <div className="itin-formula-name">{name}</div>
-                      <div className="itin-formula-tag">{tagline}</div>
-                      {fromEUR
-                        ? <div className="itin-formula-price">{tx('From', 'Fra', 'À partir de')} {fmt ? fmt(fromEUR) : `€${fromEUR}`} <span>/ {tx('week / person', 'uke / person', 'semaine / pers.')}</span></div>
-                        : <div className="itin-formula-price">{tx('Custom quote', 'Skreddersydd', 'Sur mesure')}</div>}
-                    </div>
-                  );
-                })}
+          {tab === 'booking' && (
+            <div className="itin-booking">
+              <div className="itin-booking-price-card">
+                <span className="itin-booking-from">{tx('From','Fra','À partir de')}</span>
+                <span className="itin-booking-amount">{priceTxt || tx('On request','På forespørsel','Sur demande')}</span>
+                <span className="itin-booking-per">{tx('/ person — tailored to your dates','/ person — tilpasset dine datoer','/ personne — sur mesure')}</span>
+              </div>
+
+              <div className="itin-booking-cta-row">
+                <button className="btn btn-primary itin-booking-btn-primary"
+                  onClick={() => {
+                    onClose();
+                    setTimeout(() => {
+                      if (window.MS_TweakItineraryModal) {
+                        const div = document.createElement('div');
+                        div.className = 'ms-tweak-root';
+                        document.body.appendChild(div);
+                        const root = ReactDOM.createRoot(div);
+                        const TweakModal = window.MS_TweakItineraryModal;
+                        const close = () => { root.unmount(); div.remove(); };
+                        root.render(React.createElement(window.MS_CTX.MSProvider, null,
+                          React.createElement(TweakModal, { trip, onClose: close })));
+                      }
+                    }, 60);
+                  }}>
+                  ✏️ {tx('Tweak this trip','Tilpass denne reisen','Personnaliser ce voyage')}
+                </button>
+                <button className="btn btn-outline" onClick={() => goPlan('asis')}>
+                  {tx('Take as-is →','Ta som den er →','Prendre tel quel →')}
+                </button>
+                <a className="btn btn-outline" href="https://wa.me/212698164331" target="_blank" rel="noopener">
+                  {tx('WhatsApp us','WhatsApp oss','WhatsApp')}
+                </a>
+              </div>
+
+              <div className="itin-modal-terms">
+                <h3 className="itin-modal-h3">{tx('Rules & conditions','Regler og vilkår','Règles et conditions')}</h3>
+                <ul className="itin-modal-terms-list">
+                  {terms.map((t, i) => <li key={i}>{t}</li>)}
+                </ul>
               </div>
             </div>
           )}
-
-          {trip.extras && trip.extras.length > 0 && (
-            <div className="itin-extras">
-              <h3 className="itin-modal-h3">{tx('Optional extras', 'Valgfrie tillegg', 'Extras optionnels')}</h3>
-              <div className="itin-extra-grid">
-                {trip.extras.map((x) => (
-                  <div key={x.id} className="itin-extra-card">
-                    <div className="itin-extra-name">{x.name[lang] || x.name.en}</div>
-                    <div className="itin-extra-desc">{x.desc[lang] || x.desc.en}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="itin-modal-grid">
-            <div>
-              <h3 className="itin-modal-h3">{tx('Highlights', 'Høydepunkter', 'Temps forts')}</h3>
-              <ul className="itin-modal-ul">
-                {trip.highlights.map((h, i) => <li key={i}>{h}</li>)}
-              </ul>
-            </div>
-            <div>
-              <h3 className="itin-modal-h3">{tx('Theme', 'Tema', 'Thèmes')}</h3>
-              <div className="itin-modal-tags">
-                {trip.themeTags.map((t, i) => <span key={i} className="itin-modal-tag">{t}</span>)}
-              </div>
-              <div className="itin-modal-price">
-                <span className="itin-modal-price-label">{tx('Price', 'Pris', 'Prix')}</span>
-                <span className="itin-modal-price-value" style={{ fontSize: 18, fontStyle: 'italic' }}>
-                  {tx('On request', 'På forespørsel', 'Sur demande')}
-                </span>
-                <span className="itin-modal-price-sub">{tx('we tailor every quote', 'vi skreddersyr hvert tilbud', 'devis personnalisé')}</span>
-              </div>
-            </div>
-          </div>
-
-          <h3 className="itin-modal-h3">{tx('Day by day', 'Dag for dag', 'Jour par jour')}</h3>
-          <ol className="itin-modal-days">
-            {trip.itinerary.map((d, i) => (
-              <li key={i} className="itin-modal-day">
-                <div className="itin-modal-day-num">{tx('Day', 'Dag', 'Jour')} {d.day}</div>
-                <div className="itin-modal-day-route">{d.route}</div>
-                <div className="itin-modal-day-text">{d.text}</div>
-              </li>
-            ))}
-          </ol>
-
-          <div className="itin-modal-grid">
-            {trip.included && trip.included.length > 0 && (
-              <div>
-                <h3 className="itin-modal-h3">{tx('Included', 'Inkludert', 'Inclus')}</h3>
-                <ul className="itin-modal-ul itin-included">
-                  {trip.included.map((s, i) => <li key={i}>{s}</li>)}
-                </ul>
-              </div>
-            )}
-            {trip.excluded && trip.excluded.length > 0 && (
-              <div>
-                <h3 className="itin-modal-h3">{tx('Not included', 'Ikke inkludert', 'Non inclus')}</h3>
-                <ul className="itin-modal-ul itin-excluded">
-                  {trip.excluded.map((s, i) => <li key={i}>{s}</li>)}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Rules & conditions */}
-          <div className="itin-modal-terms">
-            <h3 className="itin-modal-h3">{tx('Rules & conditions', 'Regler og vilkår', 'Règles et conditions')}</h3>
-            <ul className="itin-modal-terms-list">
-              {terms.map((t, i) => <li key={i}>{t}</li>)}
-            </ul>
-          </div>
-
-          <div className="itin-modal-cta-row">
-            <button className="btn btn-primary" onClick={() => {
-              onClose();
-              // Tiny delay so the close transition finishes before opening tweaker
-              setTimeout(() => {
-                if (window.MS_TweakItineraryModal) {
-                  // Mount a one-off React root for the tweak modal at body
-                  const div = document.createElement('div');
-                  div.className = 'ms-tweak-root';
-                  document.body.appendChild(div);
-                  const root = ReactDOM.createRoot(div);
-                  const TweakModal = window.MS_TweakItineraryModal;
-                  const close = () => { root.unmount(); div.remove(); };
-                  root.render(React.createElement(window.MS_CTX.MSProvider, null,
-                    React.createElement(TweakModal, { trip, onClose: close })));
-                }
-              }, 60);
-            }}>
-              ✏️ {tx('Tweak this trip', 'Tilpass denne reisen', 'Personnaliser ce voyage')}
-            </button>
-            <a className="btn btn-outline" href="#plan"
-               onClick={() => {
-                 window.MS_BookingContext = {
-                   mode: 'asis',
-                   trip,
-                   duration: trip.days || trip.nights + 1,
-                   title: trip.title,
-                   priceEur: trip.priceEur,
-                   tag: trip.tag,
-                 };
-                 window.dispatchEvent(new CustomEvent('ms:booking-context'));
-                 onClose();
-                 setTimeout(() => {
-                   document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' });
-                 }, 80);
-               }}>
-              {tx('Take as-is →', 'Ta som den er →', 'Prendre tel quel →')}
-            </a>
-            <a className="btn btn-outline" href="https://wa.me/212698164331" target="_blank" rel="noopener">
-              {tx('WhatsApp us', 'WhatsApp oss', 'WhatsApp')}
-            </a>
-          </div>
         </div>
       </div>
     </div>

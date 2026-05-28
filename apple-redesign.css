@@ -2529,3 +2529,293 @@ h2.itin-modal-title {
 /* "Idéal pour / Perfekt for" label inside the feature trip card
    already lives outside the modal — these are the modal-side accents
    only. */
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 24
+   Trip pop-up modal v2 — tabbed layout + nicer itinerary timeline
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Tab bar sitting between the hero and the body ─────────────── */
+.itin-modal-v2 .itin-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+.itin-modal-v2 .itin-tabs::-webkit-scrollbar { display: none; }
+.itin-modal-v2 .itin-tab {
+  position: relative;
+  padding: 16px 16px;
+  background: transparent;
+  border: none;
+  font-family: var(--apple-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: #6e6e73;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.itin-modal-v2 .itin-tab:hover { color: #1d1d1f; }
+.itin-modal-v2 .itin-tab.is-active {
+  color: var(--brand);
+  font-weight: 600;
+}
+.itin-modal-v2 .itin-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 12px; right: 12px; bottom: 0;
+  height: 2px;
+  background: var(--brand);
+  border-radius: 2px 2px 0 0;
+}
+
+/* ── Hero "Ideal for" pill ───────────────────────────────────── */
+.itin-modal-hero-pill {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: #fff;
+  font-size: 13px;
+  align-self: flex-start;
+}
+.itin-modal-hero-pill-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.78);
+}
+
+/* ── Overview stat row (Duration · From · Route) ──────────────── */
+.itin-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 20px 0 28px;
+  padding: 16px 18px;
+  background: #f5f5f7;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.itin-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.itin-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #6e6e73;
+}
+.itin-stat-value {
+  font-family: var(--apple-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+}
+.itin-stat-price { color: var(--brand) !important; }
+.itin-stat-route { font-size: 14px; font-weight: 500; line-height: 1.35; }
+
+/* ── Itinerary tab: vertical timeline ─────────────────────────── */
+.itin-timeline-h {
+  font-size: 12px !important;
+  margin-bottom: 18px !important;
+}
+.itin-timeline-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+.itin-timeline-list::before {
+  content: '';
+  position: absolute;
+  left: 22px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(224,67,42,0.30), rgba(224,67,42,0.10));
+}
+.itin-timeline-item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 14px;
+}
+.itin-timeline-marker {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10px;
+}
+.itin-timeline-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--brand);
+  box-shadow: 0 0 0 4px #fff, 0 0 0 5px rgba(224,67,42,0.20);
+}
+.itin-timeline-day {
+  position: absolute;
+  top: 32px;
+  font-family: var(--apple-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand);
+}
+.itin-timeline-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 14px 18px 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.25s ease;
+}
+.itin-timeline-card:hover {
+  border-color: rgba(0,0,0,0.14);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transform: translateX(2px);
+}
+.itin-timeline-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 4px;
+}
+.itin-timeline-route {
+  font-family: var(--apple-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.itin-timeline-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #424245;
+}
+
+/* ── Includes tab: two distinct columns with subtle backgrounds ── */
+.itin-includes-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.itin-includes-col {
+  padding: 18px 20px 20px;
+  border-radius: 16px;
+  background: #f5f5f7;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.itin-includes-col-yes { background: rgba(42,124,90,0.06); border-color: rgba(42,124,90,0.18); }
+.itin-includes-col-no  { background: rgba(194,85,42,0.06); border-color: rgba(194,85,42,0.18); }
+@media (max-width: 700px) {
+  .itin-includes-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Booking tab: price hero card + CTA row + terms ──────────── */
+.itin-booking-price-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 28px 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #f5f5f7 0%, #fff 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 22px;
+  text-align: center;
+}
+.itin-booking-from {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6e6e73;
+}
+.itin-booking-amount {
+  font-family: var(--apple-display);
+  font-size: clamp(36px, 5vw, 52px);
+  font-weight: 700;
+  color: var(--brand);
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+.itin-booking-per {
+  font-size: 12.5px;
+  color: #6e6e73;
+}
+.itin-booking-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+  justify-content: center;
+}
+.itin-booking-cta-row .btn { border-radius: 999px !important; padding: 12px 22px !important; }
+.itin-booking-btn-primary {
+  background: var(--brand) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 6px 18px rgba(225,67,42,0.30);
+}
+
+/* Terms list refined */
+.itin-modal-terms {
+  background: #f5f5f7;
+  border-radius: 16px;
+  padding: 20px 22px;
+}
+.itin-modal-terms .itin-modal-h3 { margin-top: 0 !important; }
+.itin-modal-terms-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.itin-modal-terms-list li {
+  padding-left: 18px;
+  position: relative;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #424245;
+}
+.itin-modal-terms-list li::before {
+  content: '·';
+  position: absolute;
+  left: 6px; top: -2px;
+  color: var(--brand);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Tweaks to body padding so the tabbar lines up nicely */
+.itin-modal-v2 .itin-modal-body { padding: 24px 28px 28px !important; }
+@media (max-width: 700px) {
+  .itin-modal-v2 .itin-modal-body { padding: 20px 18px 24px !important; }
+  .itin-modal-v2 .itin-tabs { padding: 0 14px; }
+  .itin-modal-v2 .itin-tab { padding: 14px 12px; font-size: 13px; }
+}
