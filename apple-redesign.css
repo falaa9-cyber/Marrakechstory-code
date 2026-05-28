@@ -3574,3 +3574,194 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
     max-width: 100% !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 30
+   Deep mobile QA pass:
+   • Tab bars no longer crash (flex-shrink:0 → real horizontal scroll)
+   • Contact section fits inside the viewport
+   • Instagram + WhatsApp widgets / panels constrained
+   • Brand-color accents reinforced site-wide
+   ════════════════════════════════════════════════════════════════ */
+
+/* ─── TAB BARS — universal, smooth horizontal scroll ─────────── */
+.cat-tabs-v2, .cat-tabs, .trip-filter-scroll, .itin-tabs,
+.cat-filters, .reiseplaner-section-header {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.cat-tabs-v2::-webkit-scrollbar,
+.cat-tabs::-webkit-scrollbar,
+.trip-filter-scroll::-webkit-scrollbar,
+.itin-tabs::-webkit-scrollbar,
+.cat-filters::-webkit-scrollbar { display: none; }
+
+.cat-tab-v2, .cat-tab, .trip-filter-chip, .itin-tab, .cat-filter,
+#itineraries .cat-tabs-v2 .cat-tab-v2,
+#catalog .cat-tabs-v2 .cat-tab-v2 {
+  flex: 0 0 auto !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  flex-basis: auto !important;
+  min-width: 0 !important;
+  scroll-snap-align: start;
+  white-space: nowrap !important;
+}
+
+/* Active tab — uses brand red instead of black so the system feels
+   tied to the rest of the site */
+.cat-tab-v2.active, .cat-tab.active {
+  background: var(--brand) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(225,67,42,0.30) !important;
+}
+.trip-filter-chip.active {
+  background: var(--brand) !important;
+  color: #fff !important;
+}
+
+/* ─── INSTAGRAM + WHATSAPP — contain to screen ─────────────── */
+.ig-scroll-popup,
+.wa-panel {
+  max-width: calc(100vw - 28px) !important;
+  width: min(320px, calc(100vw - 28px)) !important;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+.wa-widget, .ig-scroll-widget {
+  max-width: 100vw;
+  z-index: 200 !important;
+}
+
+/* Phone widget inside contact area — clip to viewport */
+.contact-phone-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 30 · MOBILE (≤640) — fix every overflow + nicer look
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* Contact section: drop the side-by-side, full-width column,
+     reset wild paddings, brand-tinted card */
+  .contact-card {
+    grid-template-columns: 1fr !important;
+    min-height: 0 !important;
+    border-radius: 22px !important;
+    margin: 0 6px;
+  }
+  .contact-info { padding: 28px 22px !important; }
+  .contact-rows { gap: 8px !important; margin-bottom: 22px !important; }
+  .contact-row {
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    background: rgba(255,255,255,0.06) !important;
+  }
+  .contact-row strong, .contact-row span { font-size: 13px !important; word-break: break-word; }
+
+  /* Section heads + body inside contact — keep inside the viewport */
+  #contact h2 { font-size: 26px !important; }
+  #contact p { font-size: 14px !important; }
+
+  /* Itinerary form step pills — fold to clean grid so they don't
+     overflow on a 375px screen */
+  .itin-stepper {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    background: rgba(0,0,0,0.04) !important;
+    padding: 6px !important;
+    border-radius: 18px !important;
+  }
+  .itin-step-pill {
+    border-radius: 14px !important;
+    padding: 10px 8px !important;
+    font-size: 11.5px !important;
+    text-align: center;
+    justify-content: center;
+    line-height: 1.2;
+  }
+  .itin-step-pill .n {
+    width: 18px !important; height: 18px !important;
+    font-size: 10.5px !important;
+    background: rgba(0,0,0,0.10);
+  }
+  .itin-step-pill.active { background: var(--brand) !important; color: #fff !important; }
+  .itin-step-pill.active .n { background: #fff !important; color: var(--brand) !important; }
+
+  /* IG + WA buttons stay round + don't overlap weather widget */
+  .wa-widget { right: 14px !important; bottom: 18px !important; }
+  .ig-scroll-widget { right: 14px !important; bottom: 84px !important; }
+  .ms-weather-fab, .ms-weather { left: 14px !important; bottom: 18px !important; }
+  .wa-btn, .ig-scroll-btn { width: 50px !important; height: 50px !important; }
+
+  /* WhatsApp panel sits comfortably */
+  .wa-panel {
+    right: 0 !important;
+    left: auto !important;
+    width: min(310px, calc(100vw - 28px)) !important;
+    padding: 16px !important;
+  }
+  .wa-bubble { font-size: 13px !important; }
+  .wa-cta { font-size: 13.5px !important; padding: 11px 14px !important; }
+  .wa-hint { font-size: 12px !important; padding: 8px 12px !important; }
+
+  /* Instagram popup follows the same rule */
+  .ig-scroll-popup {
+    right: 0 !important;
+    left: auto !important;
+    width: min(290px, calc(100vw - 28px)) !important;
+    padding: 14px !important;
+  }
+  .ig-scroll-desc { font-size: 12.5px !important; }
+
+  /* Catalog modal — already responsive; just polish */
+  .cat-modal-title { font-size: 22px !important; line-height: 1.2 !important; }
+  .cat-modal-body  { padding: 22px 18px !important; }
+
+  /* Filter sub-row (ALL · DISCOVER · IN THE AIR · NAUTICAL …) */
+  .cat-filters { gap: 6px !important; padding-bottom: 6px; }
+  .cat-filter, .cat-filter-pill {
+    padding: 7px 12px !important;
+    font-size: 11.5px !important;
+    border-radius: 999px !important;
+    flex-shrink: 0;
+  }
+
+  /* No element is allowed to overflow the page horizontally */
+  html, body { overflow-x: hidden !important; }
+
+  /* Footer credibility row — tighter */
+  .footer-grid { gap: 22px !important; }
+  .footer-grid h4 { font-size: 13px !important; }
+  .footer-grid a, .footer-grid span { font-size: 13px !important; }
+
+  /* Apple-style segmented control accent inside the trip modal tabs */
+  .itin-modal-v2 .itin-tab.is-active {
+    color: var(--brand) !important;
+  }
+  .itin-modal-v2 .itin-tab.is-active::after {
+    background: var(--brand) !important;
+  }
+
+  /* Auth modal OAuth provider grid — make sure 6 cells fit */
+  .auth-providers-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
+  .auth-provider-btn { padding: 10px 4px !important; font-size: 10.5px !important; border-radius: 12px !important; }
+}
+
+/* Very small phones (≤380) — keep WhatsApp panel inside */
+@media (max-width: 380px) {
+  .wa-panel { width: calc(100vw - 28px) !important; }
+  .ig-scroll-popup { width: calc(100vw - 28px) !important; }
+}
