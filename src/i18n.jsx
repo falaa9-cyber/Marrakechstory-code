@@ -593,6 +593,7 @@ const TRANSLATIONS = {
 // ----- currency -----
 const CURRENCIES = {
   NOK: { rate: 11.5, format: (n) => `kr ${Math.round(n).toLocaleString('no-NO')}` },
+  SEK: { rate: 11.3, format: (n) => `${Math.round(n).toLocaleString('sv-SE')} kr` },
   EUR: { rate: 1, format: (n) => `€${Math.round(n).toLocaleString('en-GB')}` },
   USD: { rate: 1.08, format: (n) => `$${Math.round(n).toLocaleString('en-US')}` },
   MAD: { rate: 11, format: (n) => `${Math.round(n).toLocaleString('fr-MA')} MAD` },
@@ -600,26 +601,97 @@ const CURRENCIES = {
 };
 
 const LANG_LIST = [
-  { id: 'no', label: 'Norsk', flag: '🇳🇴' },
-  { id: 'en', label: 'English', flag: '🇬🇧' },
+  { id: 'no', label: 'Norsk',    flag: '🇳🇴' },
+  { id: 'sv', label: 'Svenska',  flag: '🇸🇪' },
+  { id: 'en', label: 'English',  flag: '🇬🇧' },
   { id: 'fr', label: 'Français', flag: '🇫🇷' },
 ];
 
 const CURR_LIST = [
   { id: 'NOK', label: 'kr · Norske kroner' },
+  { id: 'SEK', label: 'kr · Svenska kronor' },
   { id: 'EUR', label: '€ · Euro' },
   { id: 'USD', label: '$ · US Dollar' },
   { id: 'MAD', label: 'MAD · Dirham' },
   { id: 'GBP', label: '£ · British Pound' },
 ];
 
+// Auto-pick the most natural currency for a chosen language
+const LANG_TO_CURR = {
+  no: 'NOK',
+  sv: 'SEK',
+  en: 'GBP',
+  fr: 'EUR',
+};
+
+// Swedish — same shape as the Norwegian dictionary so the page stays
+// translated for the visible UI. Anything missing falls back to English
+// via useT(). Keeping it focused on nav + hero + common buttons.
+TRANSLATIONS.sv = {
+  ...(TRANSLATIONS.no || {}),
+  // nav
+  nav_packages: "Resor",
+  nav_catalog: "Katalog",
+  nav_plan: "Skräddarsy",
+  nav_contact: "Kontakt",
+  nav_cta: "Börja planera",
+  nav_lang: "Språk",
+  nav_curr: "Valuta",
+  // hero
+  hero_eyebrow: "Exklusiv resa · sedan 2022",
+  hero_hello: "Hej, och välkommen till",
+  hero_brand: "Marrakech Story",
+  hero_sub: "Handplockade riader, Atlasbergen, Sahara och Agafay — resor skräddarsydda av människor som faktiskt bor här.",
+  hero_cta_trips: "Utforska resor",
+  hero_cta_plan: "Skapa din egen resa",
+  stat_years: "År i Marrakech",
+  stat_travellers: "Resenärer",
+  stat_review: "Snittbetyg",
+  stat_concierge: "Concierge under resan",
+  // packages
+  pkg_eyebrow: "Våra mest bokade resor",
+  pkg_title_a: "Fem längder,",
+  pkg_title_b: "en berättelse",
+  pkg_title_c: "för var och en.",
+  pkg_request: "Be om denna resa",
+  // common
+  contact_email_btn: "Skicka e-post",
+  contact_wa_btn: "WhatsApp",
+  foot_plan: "Planera",
+  foot_discover: "Upptäck",
+  foot_contact: "Kontakt",
+  foot_rights: "Alla rättigheter förbehållna",
+};
+
 // Shared state context — language, currency, AND shared flight dates
 const MSCtx = React.createContext(null);
 
 function MSProvider({ children }) {
-  const [lang, setLang] = React.useState('no');
-  const [curr, setCurr] = React.useState('NOK');
-  // shared dates between flight search and itinerary form
+  const [lang, _setLang] = React.useState('no');
+  const [curr, setCurr]  = React.useState('NOK');
+  // Track whether the user has explicitly picked a currency. If they
+  // haven't, switching language also switches currency to the natural
+  // pairing (no→NOK, sv→SEK, en→GBP, fr→EUR). Once they pick a
+  // currency manually, we respect their choice and stop auto-switching.
+  const userPickedCurr = React.useRef(false);
+
+  const setLang = (next) => {
+    _setLang(next);
+    if (!userPickedCurr.current) {
+      const nextCurr = LANG_TO_CURR[next];
+      if (nextCurr) setCurr(nextCurr);
+    }
+  };
+  const setCurrManually = (next) => {
+    userPickedCurr.current = true;
+    setCurr(next);
+  };
+
+  // Keep <html lang> in sync for accessibility, SEO and Google autotranslate
+  React.useEffect(() => {
+    try { document.documentElement.lang = lang; } catch {}
+  }, [lang]);
+
   const [dates, setDates] = React.useState({ dep: '2026-06-12', ret: '2026-06-19' });
   const [travellers, setTravellers] = React.useState({ adults: 2, children: 0, infants: 0 });
   const [from, setFrom] = React.useState({ city: 'Oslo', code: 'OSL' });
@@ -627,7 +699,7 @@ function MSProvider({ children }) {
   return (
     <MSCtx.Provider value={{
       lang, curr, dates, travellers, from,
-      setLang, setCurr, setDates, setTravellers, setFrom,
+      setLang, setCurr: setCurrManually, setDates, setTravellers, setFrom,
     }}>
       {children}
     </MSCtx.Provider>

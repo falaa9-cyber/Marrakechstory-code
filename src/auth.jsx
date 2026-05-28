@@ -152,34 +152,29 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     }
   };
 
-  const doGoogle = async () => {
+  const doOAuth = async (provider) => {
     setErr('');
     setBusy(true);
     try {
       if (window.MS_SB?.auth?.signInWithOAuth) {
         const { error } = await window.MS_SB.auth.signInWithOAuth({
-          provider: 'google',
+          provider,
           options: { redirectTo: window.location.origin },
         });
         if (error) {
-          // Common cause: Google provider not yet enabled in Supabase
-          // dashboard. Fall back to the email-form view so the visitor
-          // can still finish registration.
           const msg = String(error.message || '');
           if (/provider|disabled|not enabled|missing/i.test(msg)) {
             setView('register');
             setErr(T(
-              'Google sign-in is being set up — please use email for now.',
-              'Google-innlogging settes opp — bruk e-post inntil videre.',
-              'Connexion Google en cours de configuration — utilisez l\'e-mail.'
+              `${provider} sign-in is being set up — please use email for now.`,
+              `Innlogging med ${provider} settes opp — bruk e-post inntil videre.`,
+              `Connexion ${provider} en cours de configuration — utilisez l'e-mail.`
             ));
             return;
           }
           throw error;
         }
-        // OAuth redirect launches; nothing else to do.
       } else {
-        // Supabase isn't loaded → switch to the email form, don't pretend.
         setView('register');
         setErr(T(
           'Sign-in unavailable right now — register with email.',
@@ -188,11 +183,12 @@ function AuthModal({ view: initView, onClose, onLogin }) {
         ));
       }
     } catch (e) {
-      setErr(e?.message || T('Google sign-in failed', 'Google-innlogging feilet', 'Connexion Google échouée'));
+      setErr(e?.message || T('Sign-in failed', 'Innlogging feilet', 'Connexion échouée'));
     } finally {
       setBusy(false);
     }
   };
+  const doGoogle = () => doOAuth('google');
 
   // Only treat a backdrop tap as "close" if the pointer truly started AND
   // ended on the backdrop itself — not a scroll-drag inside the modal or
@@ -244,7 +240,36 @@ function AuthModal({ view: initView, onClose, onLogin }) {
               </svg>
               {T('Continue with Google', 'Fortsett med Google', 'Continuer avec Google')}
             </button>
-            <div className="auth-divider"><span>{T('or', 'eller', 'ou')}</span></div>
+
+            {/* Other OAuth providers — Apple, Facebook, GitHub, Microsoft, Twitter, LinkedIn */}
+            <div className="auth-providers-grid">
+              <button className="auth-provider-btn" onClick={() => doOAuth('apple')} disabled={busy} aria-label="Apple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1d1d1f"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.36-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.36C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                Apple
+              </button>
+              <button className="auth-provider-btn" onClick={() => doOAuth('facebook')} disabled={busy} aria-label="Facebook">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07c0 6.02 4.39 11 10.13 11.93v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.23 2.68.23v2.97h-1.51c-1.49 0-1.96.93-1.96 1.88v2.26h3.32l-.53 3.49h-2.79V24c5.73-.93 10.13-5.91 10.13-11.93z"/></svg>
+                Facebook
+              </button>
+              <button className="auth-provider-btn" onClick={() => doOAuth('github')} disabled={busy} aria-label="GitHub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1d1d1f"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.1 0 4.6-2.8 5.6-5.5 5.9.5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+                GitHub
+              </button>
+              <button className="auth-provider-btn" onClick={() => doOAuth('azure')} disabled={busy} aria-label="Microsoft">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#F25022" d="M0 0h11.4v11.4H0z"/><path fill="#7FBA00" d="M12.6 0H24v11.4H12.6z"/><path fill="#00A4EF" d="M0 12.6h11.4V24H0z"/><path fill="#FFB900" d="M12.6 12.6H24V24H12.6z"/></svg>
+                Microsoft
+              </button>
+              <button className="auth-provider-btn" onClick={() => doOAuth('twitter')} disabled={busy} aria-label="X">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1d1d1f"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                X
+              </button>
+              <button className="auth-provider-btn" onClick={() => doOAuth('linkedin_oidc')} disabled={busy} aria-label="LinkedIn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.78C.8 0 0 .77 0 1.73v20.54C0 23.23.8 24 1.78 24h20.44c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+                LinkedIn
+              </button>
+            </div>
+
+            <div className="auth-divider"><span>{T('or with email', 'eller med e-post', 'ou par e-mail')}</span></div>
             <div className="auth-row">
               <button className="auth-alt-btn auth-alt-btn-secondary" onClick={() => setView('login')}>
                 {T('Sign in', 'Logg inn', 'Se connecter')}

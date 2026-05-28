@@ -3048,3 +3048,195 @@ h2.itin-modal-title {
 }
 .auth-modal .auth-close:hover,
 .auth-backdrop .auth-close:hover { background: rgba(0,0,0,0.12) !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 26
+   • Floating Instagram + WhatsApp widgets guaranteed circular
+   • WhatsApp button now carries the official-style logo + pulse
+   ════════════════════════════════════════════════════════════════ */
+
+/* Force the social FABs to a perfect circle. The earlier universal
+   pill rule made buttons 999px which IS a circle on a square box —
+   but extras.jsx wraps them with .ig-scroll-widget / .wa-widget
+   containers that picked up the universal 18px-radius from Phase 4.
+   Reset radii on the wrapper, then enforce 50% on the buttons. */
+.wa-widget,
+.ig-scroll-widget,
+.ig-scroll-widget.expanded,
+.wa-widget.open {
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.wa-btn,
+.ig-scroll-btn {
+  border-radius: 50% !important;
+  width: 56px !important;
+  height: 56px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+}
+
+/* WhatsApp button — proper green + softer shadow */
+.wa-btn {
+  background: #25D366 !important;
+  color: #fff !important;
+  box-shadow:
+    0 6px 22px rgba(37,211,102,0.45),
+    0 2px 8px rgba(37,211,102,0.30) !important;
+  transition: transform 0.25s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.25s ease !important;
+}
+.wa-btn:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 10px 30px rgba(37,211,102,0.55),
+    0 3px 10px rgba(37,211,102,0.32) !important;
+}
+.wa-btn svg { width: 28px !important; height: 28px !important; }
+
+/* Pulse ring around WhatsApp button — calm + brand-green */
+.wa-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% !important;
+  border: 2px solid #25D366;
+  opacity: 0;
+  animation: msWaPulse 2.4s cubic-bezier(0.2,0.8,0.2,1) infinite;
+  pointer-events: none;
+}
+@keyframes msWaPulse {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+/* Instagram button — keep the brand gradient, ensure circular */
+.ig-scroll-btn {
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 22px rgba(220,39,67,0.42), 0 2px 8px rgba(220,39,67,0.28) !important;
+  transition: transform 0.25s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.25s ease !important;
+}
+.ig-scroll-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 30px rgba(220,39,67,0.50), 0 3px 10px rgba(220,39,67,0.30) !important;
+}
+
+/* WhatsApp open panel — round corners, white surface, no glass */
+.wa-panel {
+  border-radius: 22px !important;
+  background: #fff !important;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18), 0 4px 14px rgba(0,0,0,0.08) !important;
+  padding: 18px !important;
+  width: 320px !important;
+  max-width: calc(100vw - 32px) !important;
+  overflow: hidden !important;
+}
+.wa-panel-head {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+  margin-bottom: 12px !important;
+}
+.wa-avatar {
+  width: 40px !important; height: 40px !important;
+  border-radius: 50% !important;
+  background: #25D366 !important;
+  display: inline-flex !important;
+  align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.wa-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.wa-panel-info strong { color: #1d1d1f !important; font-size: 14px !important; }
+.wa-panel-info span { color: #6e6e73 !important; font-size: 11px !important; }
+.wa-online {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #25D366;
+  box-shadow: 0 0 0 2px #fff, 0 0 6px rgba(37,211,102,0.55);
+}
+.wa-bubble {
+  background: #f5f5f7 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  font-size: 13.5px !important;
+  line-height: 1.5;
+  color: #1d1d1f !important;
+  margin-bottom: 12px !important;
+}
+.wa-cta {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 18px !important;
+  border-radius: 999px !important;
+  background: #25D366 !important;
+  color: #fff !important;
+  font-family: var(--apple-font);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 6px 18px rgba(37,211,102,0.35);
+}
+.wa-cta:hover { background: #1cb455 !important; transform: translateY(-1px); }
+
+/* WhatsApp hint label that pops out next to the button */
+.wa-hint {
+  background: #fff !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  padding: 10px 14px !important;
+  color: #1d1d1f !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+}
+.wa-hint strong { color: #25D366 !important; }
+.wa-hint span { color: #6e6e73 !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 27 · Auth-modal OAuth provider grid
+   ════════════════════════════════════════════════════════════════ */
+
+.auth-providers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.auth-provider-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 6px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 14px;
+  font-family: var(--apple-font);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.auth-provider-btn:hover {
+  background: #f5f5f7;
+  border-color: rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+}
+.auth-provider-btn:disabled { opacity: 0.55; cursor: wait; }
+.auth-provider-btn svg { display: block; }
+
+@media (max-width: 380px) {
+  .auth-providers-grid { grid-template-columns: repeat(2, 1fr); }
+}

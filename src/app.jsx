@@ -35,7 +35,7 @@ function NavPill({ label, items, value, onSelect, head, align = 'right' }) {
 }
 
 // Combined language + currency popover (Apple-style chip — emoji-only, compact)
-const CURR_EMOJI = { NOK: '🇳🇴', EUR: '🇪🇺', USD: '🇺🇸', MAD: '🇲🇦', GBP: '🇬🇧' };
+const CURR_EMOJI = { NOK: '🇳🇴', SEK: '🇸🇪', EUR: '🇪🇺', USD: '🇺🇸', MAD: '🇲🇦', GBP: '🇬🇧' };
 function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, setCurr, langHead, currHead }) {
   const [open, setOpen] = useStateA(false);
   const ref = useRefA(null);
