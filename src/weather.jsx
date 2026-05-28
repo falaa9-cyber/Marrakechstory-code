@@ -60,7 +60,7 @@ function WeatherWidget() {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const [data, setData] = useStateW(null);
   const [err, setErr] = useStateW(false);
   const [open, setOpen] = useStateW(false);

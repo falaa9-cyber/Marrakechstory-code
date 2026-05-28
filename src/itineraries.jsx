@@ -375,7 +375,7 @@ function ItinModal({ trip, onClose, lang, fmt }) {
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, []);
-  const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const terms = STANDARD_TERMS[lang === 'no' ? 'no' : lang === 'fr' ? 'fr' : 'en'];
 
   // Internal tab navigation. Each tab is a discrete view, keeping the
@@ -627,7 +627,7 @@ function Itineraries() {
   const ctx = useMS();
   const price = usePrice();
   const lang = ctx.lang || 'en';
-  const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const [filter, setFilter] = useStateIt('3D2N');
   const [sliderDir, setSliderDir] = useStateIt('next');
   const [openTrip, setOpenTrip] = useStateIt(null);

@@ -13,7 +13,7 @@ function CookieBanner() {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const [open, setOpen] = useStateE2(false);
   useEffectE2(() => {
     if (!localStorage.getItem(COOKIE_KEY)) {
@@ -98,7 +98,7 @@ function Chatbot() {
   const { useMS, COMPANY } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const [open, setOpen] = useStateE2(false);
   const [messages, setMessages] = useStateE2([
     { from: 'bot', text: tx(
@@ -210,7 +210,7 @@ function ProfilePanel({ user, onClose, onLogout }) {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const [profile, setProfile] = useStateE2(() => ({
     name: user?.name || '',
     email: user?.email || '',

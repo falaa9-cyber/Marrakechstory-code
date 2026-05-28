@@ -130,15 +130,15 @@ function HeroSearch({ lang, tx }) {
 
   const groupLabel = (kind) => {
     const map = {
-      trip:       tx('Trips','Reiser','Voyages'),
-      activities: tx('Activities','Aktiviteter','Activités'),
-      restaurants:tx('Restaurants','Restauranter','Restaurants'),
-      spas:       tx('Spa & Hammam','Spa & Hammam','Spa & Hammam'),
-      camps:      tx('Camps','Leirer','Campements'),
-      pools:      tx('Pools','Basseng','Piscines'),
-      transport:  tx('Car rental','Bilutleie','Location'),
-      excursions: tx('Excursions','Utflukter','Excursions'),
-      section:    tx('Section','Seksjon','Section'),
+      trip:       tx('Trips','Reiser','Voyages','Resor'),
+      activities: tx('Activities','Aktiviteter','Activités','Aktiviteter'),
+      restaurants:tx('Restaurants','Restauranter','Restaurants','Restauranger'),
+      spas:       tx('Spa & Hammam','Spa & Hammam','Spa & Hammam','Spa & Hammam'),
+      camps:      tx('Camps','Leirer','Campements','Läger'),
+      pools:      tx('Pools','Basseng','Piscines','Pooler'),
+      transport:  tx('Car rental','Bilutleie','Location','Biluthyrning'),
+      excursions: tx('Excursions','Utflukter','Excursions','Utflykter'),
+      section:    tx('Section','Seksjon','Section','Sektion'),
     };
     return map[kind] || kind;
   };
@@ -177,12 +177,13 @@ function HeroSearch({ lang, tx }) {
           placeholder={tx(
             'Search trips, themes, activities…',
             'Søk etter reiser, temaer, opplevelser…',
-            'Recherchez voyages, thèmes, activités…'
+            'Recherchez voyages, thèmes, activités…',
+            'Sök resor, teman, aktiviteter…'
           )}
-          aria-label={tx('Search', 'Søk', 'Rechercher')}
+          aria-label={tx('Search', 'Søk', 'Rechercher', 'Sök')}
         />
         <button type="submit" className="ms-hero-search-btn">
-          {tx('Search', 'Søk', 'Rechercher')}
+          {tx('Search', 'Søk', 'Rechercher', 'Sök')}
         </button>
       </form>
       {open && q.trim() && (
@@ -237,7 +238,7 @@ function HeroSlider() {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const bg = useResolvedHeroImage(HERO_IMG, HERO_FALLBACK);
 
   return (
@@ -250,14 +251,17 @@ function HeroSlider() {
 
       <div className="ms-hero-content ms-hero-content-centered">
         <span className="ms-hero-eyebrow">
-          {tx('Boutique travel · Marrakech, Morocco', 'Skreddersydde reiser · Marrakech, Marokko', 'Voyages sur mesure · Marrakech, Maroc')}
+          {tx('Boutique travel · Marrakech, Morocco',
+              'Skreddersydde reiser · Marrakech, Marokko',
+              'Voyages sur mesure · Marrakech, Maroc',
+              'Skräddarsydda resor · Marrakech, Marocko')}
         </span>
         <h1 className="ms-hero-h1 ms-hero-brand">
           <span className="ms-hero-h1-line">
-            {tx('Hello &', 'Hei &', 'Bonjour &')}
+            {tx('Hello &', 'Hei &', 'Bonjour &', 'Hej &')}
           </span>
           <span className="ms-hero-h1-line">
-            {tx('Welcome to', 'Velkommen til', 'Bienvenue chez')}
+            {tx('Welcome to', 'Velkommen til', 'Bienvenue chez', 'Välkommen till')}
           </span>
           <span className="ms-hero-h1-line ms-hero-brandmark">
             Marrakech<em>Story</em>
@@ -267,10 +271,10 @@ function HeroSlider() {
 
         <div className="ms-hero-cta-row">
           <a href="#plan" className="btn btn-primary ms-hero-cta">
-            {tx('Plan my trip', 'Planlegg min reise', 'Planifier mon voyage')} →
+            {tx('Plan my trip', 'Planlegg min reise', 'Planifier mon voyage', 'Planera min resa')} →
           </a>
           <a href="https://wa.me/212698164331" target="_blank" rel="noopener" className="btn btn-outline ms-hero-cta ms-hero-cta-alt">
-            {tx('Chat on WhatsApp', 'Chat på WhatsApp', 'WhatsApp')}
+            {tx('Chat on WhatsApp', 'Chat på WhatsApp', 'WhatsApp', 'Chatta på WhatsApp')}
           </a>
         </div>
       </div>
@@ -280,35 +284,35 @@ function HeroSlider() {
           <span className="ms-cred-icon">★★★★★</span>
           <div>
             <strong>4.9 / 5</strong>
-            <span>1,800+ {tx('reviews', 'anmeldelser', 'avis')}</span>
+            <span>1,800+ {tx('reviews', 'anmeldelser', 'avis', 'recensioner')}</span>
           </div>
         </div>
         <div className="ms-cred-item">
           <span className="ms-cred-num">2022</span>
           <div>
-            <strong>{tx('Since 2022', 'Siden 2022', 'Depuis 2022')}</strong>
-            <span>{tx('Marrakech & beyond', 'Marrakech & utenfor', 'Marrakech et au-delà')}</span>
+            <strong>{tx('Since 2022', 'Siden 2022', 'Depuis 2022', 'Sedan 2022')}</strong>
+            <span>{tx('Marrakech & beyond', 'Marrakech & utenfor', 'Marrakech et au-delà', 'Marrakech & runt om')}</span>
           </div>
         </div>
         <div className="ms-cred-item">
           <span className="ms-cred-icon">🛡️</span>
           <div>
-            <strong>{tx('Licensed agency', 'Lisensiert byrå', 'Agence licenciée')}</strong>
-            <span>{tx('Moroccan tourism authority', 'Marokkos turistmyndighet', 'Office du tourisme du Maroc')}</span>
+            <strong>{tx('Licensed agency', 'Lisensiert byrå', 'Agence licenciée', 'Licensierad byrå')}</strong>
+            <span>{tx('Moroccan tourism authority', 'Marokkos turistmyndighet', 'Office du tourisme du Maroc', 'Marockos turistmyndighet')}</span>
           </div>
         </div>
         <div className="ms-cred-item">
           <span className="ms-cred-icon">📞</span>
           <div>
             <strong>24 / 7</strong>
-            <span>{tx('Concierge on the ground', 'Concierge på bakken', 'Conciergerie sur place')}</span>
+            <span>{tx('Concierge on the ground', 'Concierge på bakken', 'Conciergerie sur place', 'Concierge på plats')}</span>
           </div>
         </div>
         <div className="ms-cred-item">
           <span className="ms-cred-icon">✨</span>
           <div>
-            <strong>{tx('100% tailor-made', '100% skreddersydd', '100% sur mesure')}</strong>
-            <span>{tx('Built around you', 'Bygget rundt deg', 'Conçu pour vous')}</span>
+            <strong>{tx('100% tailor-made', '100% skreddersydd', '100% sur mesure', '100 % skräddarsydd')}</strong>
+            <span>{tx('Built around you', 'Bygget rundt deg', 'Conçu pour vous', 'Byggd kring dig')}</span>
           </div>
         </div>
       </div>
