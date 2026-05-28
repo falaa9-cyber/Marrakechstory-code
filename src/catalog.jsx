@@ -440,6 +440,35 @@ function Catalog() {
 
   useEffectC(() => { setVisibleCount(4); }, [tab, filter]);
 
+  // Open a catalog item directly from the hero search dropdown.
+  useEffectC(() => {
+    const onOpen = (e) => {
+      const targetTab = e.detail?.tab;
+      const slug = e.detail?.slug;
+      const name = e.detail?.name;
+      if (!targetTab) return;
+      const map = {
+        activities: 'activities', restaurants: 'restaurants', spas: 'spa',
+        camps: 'camps', pools: 'pools', transport: 'transport', excursions: 'excursions',
+      };
+      const localTab = map[targetTab] || targetTab;
+      setTab(localTab);
+      const D = window.MS_DATA || {};
+      const arrays = {
+        activities: D.ACTIVITIES, restaurants: D.RESTAURANTS, spa: D.SPAS,
+        camps: D.CAMPS, pools: D.POOLS, transport: D.TRANSPORT, excursions: D.EXCURSIONS,
+      };
+      const list = arrays[localTab] || [];
+      const item = list.find(x => x.slug === slug) || list.find(x => (typeof x.name === 'string' ? x.name : x.name?.en) === name);
+      if (item) {
+        // Defer one frame so the tab swap settles first.
+        setTimeout(() => setModal({ item, tab: localTab }), 30);
+      }
+    };
+    window.addEventListener('ms:open-catalog', onOpen);
+    return () => window.removeEventListener('ms:open-catalog', onOpen);
+  }, []);
+
   const tabs = [
     { id: 'activities', label: t('cat_activities'), icon: <Ic.Compass s={16} />, data: D.ACTIVITIES,
       filters: ['All', 'Discover', 'In the Air', 'Nautical', 'Outdoor'], priceLabel: t('cat_per_person') },

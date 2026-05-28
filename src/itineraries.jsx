@@ -637,6 +637,21 @@ function Itineraries() {
 
   useEffectIt(() => { setVisibleCount(4); }, [filter]);
 
+  // Open a trip modal from the hero search dropdown.
+  useEffectIt(() => {
+    const onOpen = (e) => {
+      const slug = e.detail?.slug;
+      if (!slug) return;
+      // Real itineraries
+      const trip = (window.MS_ITINERARIES || []).find(t => t.slug === slug);
+      if (trip) { setOpenTrip(trip); return; }
+      // Theme cards — switch filter to Themes and scroll (themes go straight to form when clicked)
+      setFilter('Themes');
+    };
+    window.addEventListener('ms:open-trip', onOpen);
+    return () => window.removeEventListener('ms:open-trip', onOpen);
+  }, []);
+
   // Simple, friendly labels (no jargon)
   const filterLabel = (f) => {
     if (f === 'All')         return tx('All', 'Alle', 'Tout');
