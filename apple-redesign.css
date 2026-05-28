@@ -2136,3 +2136,76 @@ h2.itin-modal-title {
 .trip-slider-feature .trip-slider-track {
   display: block !important;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 18
+   Hero search bar + slider arrows for the feature-mode trip card
+   ════════════════════════════════════════════════════════════════ */
+
+/* Hero search bar — Apple-grade glass pill */
+.ms-hero-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(560px, 90vw);
+  margin: 24px auto 0;
+  padding: 6px 6px 6px 18px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid rgba(255,255,255,0.30);
+  border-radius: 999px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+}
+.ms-hero-search-icon {
+  color: #fff;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+.ms-hero-search input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: var(--apple-font);
+  font-size: 15px;
+  padding: 8px 4px;
+  outline: none;
+}
+.ms-hero-search input::placeholder {
+  color: rgba(255,255,255,0.78);
+  font-weight: 400;
+}
+.ms-hero-search-btn {
+  flex-shrink: 0;
+  padding: 10px 22px;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--apple-font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 14px rgba(225,67,42,0.32);
+}
+.ms-hero-search-btn:hover { background: #c43a23; transform: translateY(-1px); }
+
+@media (max-width: 600px) {
+  .ms-hero-search { padding: 4px 4px 4px 14px; }
+  .ms-hero-search input { font-size: 14px; }
+  .ms-hero-search-btn { padding: 9px 16px; font-size: 13px; }
+}
+
+/* Slider arrows in feature mode — anchor them to the promo card itself */
+.trip-slider-feature {
+  position: relative;
+}
+.trip-slider-feature .trip-slider-arrow.prev { left: -22px; }
+.trip-slider-feature .trip-slider-arrow.next { right: -22px; }
+@media (max-width: 900px) {
+  .trip-slider-feature .trip-slider-arrow.prev { left: 8px; }
+  .trip-slider-feature .trip-slider-arrow.next { right: 8px; }
+}

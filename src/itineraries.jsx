@@ -788,7 +788,7 @@ function Itineraries() {
         </div>
 
             <div className={`trip-slider ${filter !== 'Themes' ? 'trip-slider-feature' : ''}`}>
-              {filter === 'Themes' && (
+              {filter === 'Themes' ? (
                 <>
                   <button className="trip-slider-arrow prev" aria-label="Previous"
                     onClick={(e) => { const sc = e.currentTarget.parentElement.querySelector('.trip-slider-track'); sc?.scrollBy({ left: -(sc.clientWidth * 0.85), behavior: 'smooth' }); }}>
@@ -796,6 +796,26 @@ function Itineraries() {
                   </button>
                   <button className="trip-slider-arrow next" aria-label="Next"
                     onClick={(e) => { const sc = e.currentTarget.parentElement.querySelector('.trip-slider-track'); sc?.scrollBy({ left: sc.clientWidth * 0.85, behavior: 'smooth' }); }}>
+                    <Iit.Arrow s={18} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Feature mode: arrows step through the 6 duration buckets */}
+                  <button className="trip-slider-arrow prev" aria-label={tx('Shorter trip', 'Kortere reise', 'Plus court')}
+                    onClick={() => {
+                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N'];
+                      const idx = Math.max(0, order.indexOf(filter));
+                      setFilter(order[(idx - 1 + order.length) % order.length]);
+                    }}>
+                    <Iit.Arrow s={18} />
+                  </button>
+                  <button className="trip-slider-arrow next" aria-label={tx('Longer trip', 'Lengre reise', 'Plus long')}
+                    onClick={() => {
+                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N'];
+                      const idx = Math.max(0, order.indexOf(filter));
+                      setFilter(order[(idx + 1) % order.length]);
+                    }}>
                     <Iit.Arrow s={18} />
                   </button>
                 </>

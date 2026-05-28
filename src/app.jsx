@@ -112,14 +112,6 @@ function Nav() {
           <a href="#itineraries">{t('nav_packages')}</a>
           <a href="#catalog">{t('nav_catalog')}</a>
           <a href="#plan">{t('nav_plan')}</a>
-          <a href="#plan" onClick={() => {
-            window.MS_BookingContext = { mode: 'team', title: lang === 'no' ? 'Team building' : 'Team building', duration: 5, tripType: 'team' };
-            window.dispatchEvent(new CustomEvent('ms:booking-context'));
-          }}>{lang === 'no' ? 'Team building' : lang === 'fr' ? 'Team building' : 'Team building'}</a>
-          <a href="#plan" onClick={() => {
-            window.MS_BookingContext = { mode: 'wedding', title: lang === 'no' ? 'Bryllup' : lang === 'fr' ? 'Mariage' : 'Wedding', duration: 7, tripType: 'wedding' };
-            window.dispatchEvent(new CustomEvent('ms:booking-context'));
-          }}>{lang === 'no' ? 'Bryllup' : lang === 'fr' ? 'Mariage' : 'Wedding'}</a>
           <a href="#contact">{t('nav_contact')}</a>
         </div>
         <div className="nav-cta">
