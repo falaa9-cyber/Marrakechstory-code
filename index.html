@@ -11,37 +11,107 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=85" />
-  <link rel="stylesheet" href="apple-redesign.css?v=149" />
+  <link rel="stylesheet" href="styles.css?v=150" />
+  <link rel="stylesheet" href="apple-redesign.css?v=150" />
+
+  <!--
+    Inline guard: if React / Babel fail to load (CDN outage, blocked
+    extension, integrity-hash mismatch in strict browsers), we show a
+    visible error and a reload button instead of a blank white page.
+  -->
+  <style>
+    .ms-boot-error {
+      position: fixed; inset: 0;
+      display: none;
+      align-items: center; justify-content: center;
+      background: #fbfbfd; color: #1d1d1f; z-index: 9999;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 24px; text-align: center;
+    }
+    .ms-boot-error.is-visible { display: flex; }
+    .ms-boot-error-box { max-width: 380px; }
+    .ms-boot-error h2 { font-size: 22px; margin: 0 0 8px; letter-spacing: -0.02em; }
+    .ms-boot-error p  { font-size: 14px; color: #6e6e73; line-height: 1.55; margin: 0 0 18px; }
+    .ms-boot-error button {
+      padding: 12px 22px; border-radius: 999px;
+      background: #e1432a; color: #fff; border: none;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <div id="root"></div>
 
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <!-- Boot-error fallback shown by the guard below if React never paints -->
+  <div id="ms-boot-error" class="ms-boot-error" role="alert">
+    <div class="ms-boot-error-box">
+      <h2>Loading Marrakech Story…</h2>
+      <p>Your browser couldn't finish loading the page. This is usually a network issue or a strict browser extension. Try a hard refresh.</p>
+      <button type="button" onclick="location.reload(true)">Reload</button>
+    </div>
+  </div>
+
+  <!--
+    Core libraries.
+    • Production builds — faster, no debug warnings, more browser-friendly.
+    • NO subresource-integrity hashes: a single CDN content tweak made
+      Chrome refuse the script silently, blanking the page. Without SRI,
+      the worst case is the same dependency from the same pinned version.
+  -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous"></script>
 
-  <script src="src/env.js?v=85"></script>
-  <script src="src/supabase.js?v=85"></script>
-  <script src="src/data.js?v=85"></script>
-  <script type="text/babel" src="src/i18n.jsx?v=85"></script>
-  <script type="text/babel" src="src/icons.jsx?v=85"></script>
-  <script type="text/babel" src="src/motion.jsx?v=85"></script>
-  <script type="text/babel" src="src/hero.jsx?v=85"></script>
-  <script type="text/babel" src="src/insta-phone.jsx?v=149"></script>
-  <script type="text/babel" src="src/hero-tabs.jsx?v=149"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=149"></script>
-  <script type="text/babel" src="src/itineraries.jsx?v=85"></script>
-  <script type="text/babel" src="src/booking.jsx?v=85"></script>
-  <script type="text/babel" src="src/catalog.jsx?v=85"></script>
-  <script type="text/babel" src="src/form.jsx?v=85"></script>
-  <script type="text/babel" src="src/extras.jsx?v=85"></script>
-  <script type="text/babel" src="src/extras2.jsx?v=85"></script>
-  <script type="text/babel" src="src/weather.jsx?v=85"></script>
-  <script type="text/babel" src="src/auth.jsx?v=85"></script>
-  <script type="text/babel" src="src/app.jsx?v=85"></script>
-  <script type="text/babel" src="src/apple-fx.jsx?v=149"></script>
+  <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
+  <script src="src/env.js?v=150"></script>
+  <script src="src/supabase.js?v=150"></script>
+  <script src="src/data.js?v=150"></script>
+
+  <!--
+    JSX modules. All bumped to the same cache version on every release
+    so a stale CDN copy never co-exists with a fresh one.
+  -->
+  <script type="text/babel" src="src/i18n.jsx?v=150"></script>
+  <script type="text/babel" src="src/icons.jsx?v=150"></script>
+  <script type="text/babel" src="src/motion.jsx?v=150"></script>
+  <script type="text/babel" src="src/hero.jsx?v=150"></script>
+  <script type="text/babel" src="src/insta-phone.jsx?v=150"></script>
+  <script type="text/babel" src="src/hero-tabs.jsx?v=150"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=150"></script>
+  <script type="text/babel" src="src/itineraries.jsx?v=150"></script>
+  <script type="text/babel" src="src/booking.jsx?v=150"></script>
+  <script type="text/babel" src="src/catalog.jsx?v=150"></script>
+  <script type="text/babel" src="src/form.jsx?v=150"></script>
+  <script type="text/babel" src="src/extras.jsx?v=150"></script>
+  <script type="text/babel" src="src/extras2.jsx?v=150"></script>
+  <script type="text/babel" src="src/weather.jsx?v=150"></script>
+  <script type="text/babel" src="src/auth.jsx?v=150"></script>
+  <script type="text/babel" src="src/app.jsx?v=150"></script>
+  <script type="text/babel" src="src/apple-fx.jsx?v=150"></script>
+
+  <!--
+    Boot-watchdog: gives the app 6 seconds to paint anything inside #root.
+    If it's still empty (CDN blocked, JSX failed to transform, syntax error),
+    show the boot-error overlay instead of a permanently blank page.
+  -->
+  <script>
+    (function () {
+      var ROOT = document.getElementById('root');
+      var ERR  = document.getElementById('ms-boot-error');
+      // Surface any uncaught script error to the console so we can diagnose
+      // remotely if a real user reports a blank page.
+      window.addEventListener('error', function (e) {
+        try { console.error('[MS_BOOT] script error:', e.message, e.filename, e.lineno); } catch {}
+      });
+      setTimeout(function check() {
+        if (!ROOT) return;
+        if (ROOT.children.length === 0 || ROOT.textContent.trim() === '') {
+          ERR && ERR.classList.add('is-visible');
+        }
+      }, 6000);
+    })();
+  </script>
 </body>
 </html>
