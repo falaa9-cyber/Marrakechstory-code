@@ -607,12 +607,17 @@ function ItinModal({ trip, onClose, lang, fmt }) {
                 </a>
               </div>
 
-              <div className="itin-modal-terms">
-                <h3 className="itin-modal-h3">{tx('Rules & conditions','Regler og vilkår','Règles et conditions')}</h3>
+              <details className="itin-modal-terms itin-terms-collapsible">
+                <summary>
+                  <span className="itin-terms-eyebrow">{tx('Rules & conditions','Regler og vilkår','Règles et conditions','Regler & villkor')}</span>
+                  <span className="itin-terms-chev" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
+                </summary>
                 <ul className="itin-modal-terms-list">
                   {terms.map((t, i) => <li key={i}>{t}</li>)}
                 </ul>
-              </div>
+              </details>
             </div>
           )}
         </div>
