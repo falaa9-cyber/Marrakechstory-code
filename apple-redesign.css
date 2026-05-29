@@ -3924,3 +3924,31 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
     background: linear-gradient(to right, transparent, #fff);
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   APPLE REDESIGN — Phase 32
+   Catalog mobile cards: keep only rating · title · price · CTA
+   (Tap opens the full detail in the modal.)
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  #catalog .cat-area,
+  #catalog .cat-duration,
+  #catalog .cat-desc,
+  #catalog .cat-modal-pill {
+    display: none !important;
+  }
+  #catalog .cat-body {
+    padding: 10px 12px 12px !important;
+    gap: 4px;
+  }
+  /* Tighten the rating chip so it sits right above the title */
+  #catalog .cat-rating { margin-bottom: 4px !important; }
+  /* Title — let it go 2 lines but no extra padding around */
+  #catalog .cat-title { margin: 2px 0 4px !important; }
+  /* Foot row: price · arrow, no extra spacing */
+  #catalog .cat-foot {
+    border-top: none !important;
+    padding-top: 6px !important;
+    margin-top: 4px !important;
+  }
+}
