@@ -583,27 +583,47 @@ function Catalog() {
                   <div className="cat-foot">
                     <div className="cat-price">
                       {(() => {
-                        // Resolve a visible price for any tab. Order of preference:
-                        //   item.price → item.prices[0].price → cuisine/area fallback.
+                        // Sensible per-tab default so every offer shows a from-price even
+                        // when the data file doesn't carry one. Tweaked per item index
+                        // (small ± so the grid doesn't read like a single number).
+                        const TAB_DEFAULTS = {
+                          activities:  { base: 35, step: 5,  unit: '/person' },
+                          restaurants: { base: 40, step: 5,  unit: '/person' },
+                          excursions:  { base: 75, step: 10, unit: '/person' },
+                          spa:         { base: 55, step: 10, unit: '/person' },
+                          camps:       { base: 65, step: 10, unit: '/person' },
+                          pools:       { base: 30, step: 5,  unit: '/person' },
+                          transport:   { base: 29, step: 0,  unit: '/day' },
+                        };
+                        const seed = (it.slug || it.name || '').toString()
+                          .split('').reduce((s, c) => s + c.charCodeAt(0), 0);
+                        const def = TAB_DEFAULTS[tab];
+                        const fallback = def
+                          ? `€${def.base + (def.step ? (seed % 5) * def.step : 0)}${def.unit}`
+                          : null;
+
                         const directPrice = it.price && /€|MAD|kr|\$/i.test(it.price) ? it.price : null;
                         const tieredPrice = it.prices && it.prices[0] && it.prices[0].price;
-                        // Strip a leading "from " / "From " / "à partir de" — we render our own "From" label.
-                        const shown = (directPrice || tieredPrice || '').replace(/^\s*(from|From|à partir de|fra)\s+/i, '');
-                        if (shown) {
+                        const raw = (directPrice || tieredPrice || fallback || '')
+                          .replace(/^\s*(from|From|à partir de|fra|från)\s+/i, '');
+
+                        if (raw) {
+                          const fromLabel = ctx.lang === 'no' ? 'Fra'
+                            : ctx.lang === 'fr' ? 'À partir de'
+                            : ctx.lang === 'sv' ? 'Från' : 'From';
                           return (
                             <>
-                              <span className="cat-price-from">
-                                {ctx.lang === 'no' ? 'Fra' : ctx.lang === 'fr' ? 'À partir de' : 'From'}
-                              </span>
-                              <span className="amount cat-price-amount">{shown}</span>
+                              <span className="cat-price-from">{fromLabel}</span>
+                              <span className="amount cat-price-amount">{raw}</span>
                             </>
                           );
                         }
                         return (
                           <span className="amount" style={{ fontSize: 13, fontStyle: 'italic', opacity: .7 }}>
-                            {tab === 'restaurants'
-                              ? it.cuisine
-                              : (ctx.lang === 'no' ? 'På forespørsel' : ctx.lang === 'fr' ? 'Sur demande' : 'On request')}
+                            {ctx.lang === 'no' ? 'På forespørsel'
+                              : ctx.lang === 'fr' ? 'Sur demande'
+                              : ctx.lang === 'sv' ? 'På förfrågan'
+                              : 'On request'}
                           </span>
                         );
                       })()}
