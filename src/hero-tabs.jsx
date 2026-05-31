@@ -26,13 +26,14 @@ function HeroTabs() {
       <div className="wrap-wide">
         <div className="hero-tabs-grid">
           <Tab id="itineraries"
-            label={tx('Itineraries', 'Reiseplaner', 'Itinéraires')}
-            sub={tx('Curated trips',  'Skreddersydde reiser',  'Voyages sur mesure')} />
+            label={tx('Itineraries', 'Reiseplaner', 'Itinéraires', 'Reseplaner')}
+            sub={tx('Curated trips', 'Skreddersydde reiser', 'Voyages sur mesure', 'Skräddarsydda resor')} />
           <Tab id="catalog"
-            label={tx('Catalogue', 'Katalog', 'Catalogue')}
+            label={tx('Catalogue', 'Katalog', 'Catalogue', 'Katalog')}
             sub={tx('Activities · stays · rentals',
                     'Aktiviteter · opphold · utleie',
-                    'Activités · séjours · location')} />
+                    'Activités · séjours · location',
+                    'Aktiviteter · boende · uthyrning')} />
         </div>
       </div>
     </section>

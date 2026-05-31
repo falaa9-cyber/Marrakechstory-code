@@ -120,6 +120,7 @@ function localizeList(arr, lang) {
 }
 
 function CatalogModal({ item, tab, onClose, lang }) {
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   useEffectC(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -148,11 +149,12 @@ function CatalogModal({ item, tab, onClose, lang }) {
   const rentalSubtotal = baseRate * rentalDays;
 
   const bookRentalOnWhatsapp = () => {
-    const msg = lang === 'no'
-      ? `Hei Marrakech Story, jeg vil booke ${item.name} fra ${pickupDate} til ${returnDate} (${rentalDays} dager).`
-      : lang === 'fr'
-        ? `Bonjour Marrakech Story, je souhaite louer ${item.name} du ${pickupDate} au ${returnDate} (${rentalDays} jours).`
-        : `Hello Marrakech Story, I'd like to book ${item.name} from ${pickupDate} to ${returnDate} (${rentalDays} days).`;
+    const msg = tx(
+      `Hello Marrakech Story, I'd like to book ${item.name} from ${pickupDate} to ${returnDate} (${rentalDays} days).`,
+      `Hei Marrakech Story, jeg vil booke ${item.name} fra ${pickupDate} til ${returnDate} (${rentalDays} dager).`,
+      `Bonjour Marrakech Story, je souhaite louer ${item.name} du ${pickupDate} au ${returnDate} (${rentalDays} jours).`,
+      `Hej Marrakech Story, jag vill boka ${item.name} från ${pickupDate} till ${returnDate} (${rentalDays} dagar).`
+    );
     window.open(`https://wa.me/212698164331?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
   };
 
@@ -164,13 +166,13 @@ function CatalogModal({ item, tab, onClose, lang }) {
   return (
     <div className="cat-modal-backdrop" onClick={onClose}>
       <div className="cat-modal" onClick={e => e.stopPropagation()}>
-        <button className="cat-modal-close" onClick={onClose} aria-label="Lukk">✕</button>
+        <button className="cat-modal-close" onClick={onClose} aria-label={tx('Close', 'Lukk', 'Fermer', 'Stäng')}>✕</button>
         <ModalGallery tab={tab} item={item} lang={lang} />
         <div className="cat-modal-body">
           <div className="cat-modal-rating">
             <span className="stars"><Ic.Star /></span>
             <strong>{item.rating}</strong>
-            <span className="cat-modal-reviews">({(item.reviews || 0).toLocaleString()} {lang === 'no' ? 'anmeldelser' : lang === 'fr' ? 'avis' : 'reviews'})</span>
+            <span className="cat-modal-reviews">({(item.reviews || 0).toLocaleString()} {tx('reviews', 'anmeldelser', 'avis', 'recensioner')})</span>
           </div>
           <h2 className="cat-modal-title">{localize(item.name, lang)}</h2>
           <div className="cat-modal-area"><Ic.Pin s={13} /> {localize(item.area, lang)}</div>
@@ -192,11 +194,11 @@ function CatalogModal({ item, tab, onClose, lang }) {
             <p className="cat-modal-atmosphere"><Ic.Sparkle s={12} /> {item.atmosphere}</p>
           )}
           {item.whatToOrder && (
-            <p className="cat-modal-wto"><strong>{lang === 'no' ? 'Bestill:' : lang === 'fr' ? 'À commander :' : 'What to order:'}</strong> {item.whatToOrder}</p>
+            <p className="cat-modal-wto"><strong>{tx('What to order:', 'Bestill:', 'À commander :', 'Beställ:')}</strong> {item.whatToOrder}</p>
           )}
           {item.perk && (
             <div className="cat-modal-perk">
-              <span className="cat-modal-perk-label">{lang === 'no' ? 'Marrakech Story-fordel' : lang === 'fr' ? 'Avantage Marrakech Story' : 'Marrakech Story perk'}</span>
+              <span className="cat-modal-perk-label">{tx('Marrakech Story perk', 'Marrakech Story-fordel', 'Avantage Marrakech Story', 'Marrakech Story-fördel')}</span>
               <span className="cat-modal-perk-text">{item.perk}</span>
             </div>
           )}
@@ -216,12 +218,8 @@ function CatalogModal({ item, tab, onClose, lang }) {
                 <div className="cat-modal-transport included">
                   <div className="cat-modal-transport-icon"><Ic.Check s={16} /></div>
                   <div className="cat-modal-transport-body">
-                    <strong>{lang === 'no' ? 'Transport inkludert' : lang === 'fr' ? 'Transport inclus' : 'Transport included'}</strong>
-                    <p>{lang === 'no'
-                      ? 'Vi henter deg på hotellet og kjører deg trygt hjem.'
-                      : lang === 'fr'
-                      ? 'Nous vous prenons à l\'hôtel et vous ramenons en toute sécurité.'
-                      : 'We pick you up at your hotel and drive you back safely.'}</p>
+                    <strong>{tx('Transport included', 'Transport inkludert', 'Transport inclus', 'Transport ingår')}</strong>
+                    <p>{tx('We pick you up at your hotel and drive you back safely.', 'Vi henter deg på hotellet og kjører deg trygt hjem.', 'Nous vous prenons à l\'hôtel et vous ramenons en toute sécurité.', 'Vi hämtar dig på hotellet och kör dig hem säkert.')}</p>
                   </div>
                 </div>
               );
@@ -231,12 +229,8 @@ function CatalogModal({ item, tab, onClose, lang }) {
               <div className="cat-modal-transport not-included">
                 <div className="cat-modal-transport-icon"><Ic.Plane s={16} /></div>
                 <div className="cat-modal-transport-body">
-                  <strong>{lang === 'no' ? 'Trenger du transport?' : lang === 'fr' ? 'Besoin d\'un transport ?' : 'Need transport?'}</strong>
-                  <p>{lang === 'no'
-                     ? 'Skru på, så legger vi privat sjåfør til i reservasjonen.'
-                     : lang === 'fr'
-                     ? 'Activez et nous ajoutons un chauffeur privé à la réservation.'
-                     : 'Toggle on and we\'ll add a private driver to your reservation.'}</p>
+                  <strong>{tx('Need transport?', 'Trenger du transport?', 'Besoin d\'un transport ?', 'Behöver du transport?')}</strong>
+                  <p>{tx('Toggle on and we\'ll add a private driver to your reservation.', 'Skru på, så legger vi privat sjåfør til i reservasjonen.', 'Activez et nous ajoutons un chauffeur privé à la réservation.', 'Aktivera så lägger vi till en privatförare i din bokning.')}</p>
                   <label className="cat-transport-toggle">
                     <input
                       type="checkbox"
@@ -246,8 +240,8 @@ function CatalogModal({ item, tab, onClose, lang }) {
                     <span className="cat-transport-switch" aria-hidden="true"></span>
                     <span className="cat-transport-label">
                       {needTransport
-                        ? (lang === 'no' ? 'Ja, legg til transport' : lang === 'fr' ? 'Oui, ajouter le transport' : 'Yes, add transport')
-                        : (lang === 'no' ? 'Nei, jeg ordner selv' : lang === 'fr' ? 'Non, je m\'en occupe' : 'No, I\'ll handle it')}
+                        ? tx('Yes, add transport', 'Ja, legg til transport', 'Oui, ajouter le transport', 'Ja, lägg till transport')
+                        : tx('No, I\'ll handle it', 'Nei, jeg ordner selv', 'Non, je m\'en occupe', 'Nej, jag ordnar själv')}
                     </span>
                   </label>
                   {needTransport && (
@@ -264,7 +258,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
                          onClose();
                          setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
                        }}>
-                      {lang === 'no' ? 'Til reservasjon →' : lang === 'fr' ? 'Vers la réservation →' : 'Go to reservation →'}
+                      {tx('Go to reservation →', 'Til reservasjon →', 'Vers la réservation →', 'Till bokning →')}
                     </a>
                   )}
                 </div>
@@ -273,7 +267,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
           })()}
           {item.included && item.included.length > 0 && (
             <div className="cat-modal-included">
-              <div className="cat-modal-offers-title">{lang === 'no' ? 'Inkludert' : lang === 'fr' ? 'Inclus' : 'Included'}</div>
+              <div className="cat-modal-offers-title">{tx('Included', 'Inkludert', 'Inclus', 'Ingår')}</div>
               <ul className="cat-modal-included-list">
                 {item.included.map((inc, i) => <li key={i}><Ic.Check s={13} /> {inc}</li>)}
               </ul>
@@ -281,7 +275,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
           )}
           {tab === 'transport' && item.prices && item.prices.length > 0 && (
             <div className="cat-modal-offers">
-              <div className="cat-modal-offers-title">{lang === 'no' ? 'Pris' : lang === 'fr' ? 'Tarif' : 'Price'}</div>
+              <div className="cat-modal-offers-title">{tx('Price', 'Pris', 'Tarif', 'Pris')}</div>
               <div className="cat-modal-offers-list">
                 <div className="cat-modal-offer-row">
                   <span>{item.prices[0].label}</span>
@@ -292,7 +286,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
           )}
           {item.perfectFor && item.perfectFor.length > 0 && (
             <div className="cat-modal-perfect">
-              <div className="cat-modal-offers-title">{lang === 'no' ? 'Perfekt for' : lang === 'fr' ? 'Idéal pour' : 'Perfect for'}</div>
+              <div className="cat-modal-offers-title">{tx('Perfect for', 'Perfekt for', 'Idéal pour', 'Perfekt för')}</div>
               <div className="cat-modal-perfect-chips">
                 {(Array.isArray(item.perfectFor) ? item.perfectFor : localizeList(item.perfectFor, lang)).map((pf, i) => <span key={i} className="cat-modal-perfect-chip">{localize(pf, lang)}</span>)}
               </div>
@@ -309,7 +303,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
             const groupOrder = Object.keys(groups);
             return (
               <div className="cat-sub-pkg">
-                <div className="cat-modal-offers-title">{lang === 'no' ? 'Tilbud' : 'Offers'}</div>
+                <div className="cat-modal-offers-title">{tx('Offers', 'Tilbud', 'Offres', 'Erbjudanden')}</div>
                 {groupOrder.map((g) => (
                   <div key={g} className="cat-sub-pkg-group">
                     <div className="cat-sub-pkg-group-h">{g}</div>
@@ -343,7 +337,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
           })()}
           {item.practical && item.practical.length > 0 && (
             <div className="cat-modal-practical">
-              <div className="cat-modal-offers-title">{lang === 'no' ? 'Praktisk info' : lang === 'fr' ? 'Infos pratiques' : 'Good to know'}</div>
+              <div className="cat-modal-offers-title">{tx('Good to know', 'Praktisk info', 'Infos pratiques', 'Bra att veta')}</div>
               <ul className="cat-modal-practical-list">
                 {(Array.isArray(item.practical) ? item.practical : localizeList(item.practical, lang)).map((p, i) => <li key={i}>{localize(p, lang)}</li>)}
               </ul>
@@ -352,11 +346,11 @@ function CatalogModal({ item, tab, onClose, lang }) {
           {tab === 'transport' && (
             <div className="cat-rental-book">
               <div className="cat-rental-book-h">
-                {lang === 'no' ? 'Reservér denne bilen' : lang === 'fr' ? 'Réserver cette voiture' : 'Reserve this car'}
+                {tx('Reserve this car', 'Reservér denne bilen', 'Réserver cette voiture', 'Reservera den här bilen')}
               </div>
               <div className="cat-rental-book-grid">
                 <label className="cat-rental-fld">
-                  <span>{lang === 'no' ? 'Henting' : lang === 'fr' ? 'Prise en charge' : 'Pickup'}</span>
+                  <span>{tx('Pickup', 'Henting', 'Prise en charge', 'Upphämtning')}</span>
                   <input type="date" value={pickupDate} min={_today(0)}
                     onChange={(e) => {
                       setPickupDate(e.target.value);
@@ -367,55 +361,55 @@ function CatalogModal({ item, tab, onClose, lang }) {
                     }} />
                 </label>
                 <label className="cat-rental-fld">
-                  <span>{lang === 'no' ? 'Retur' : lang === 'fr' ? 'Retour' : 'Return'}</span>
+                  <span>{tx('Return', 'Retur', 'Retour', 'Återlämning')}</span>
                   <input type="date" value={returnDate} min={pickupDate}
                     onChange={(e) => setReturnDate(e.target.value)} />
                 </label>
                 <div className="cat-rental-summary">
                   <div className="cat-rental-summary-row">
-                    <span>{rentalDays} {lang === 'no' ? (rentalDays === 1 ? 'dag' : 'dager') : lang === 'fr' ? 'jours' : (rentalDays === 1 ? 'day' : 'days')}</span>
+                    <span>{rentalDays} {lang === 'no' ? (rentalDays === 1 ? 'dag' : 'dager') : lang === 'fr' ? 'jours' : lang === 'sv' ? (rentalDays === 1 ? 'dag' : 'dagar') : (rentalDays === 1 ? 'day' : 'days')}</span>
                     <strong>€{Math.round(rentalSubtotal)}</strong>
                   </div>
                   <div className="cat-rental-summary-meta">
-                    €{baseRate}/{lang === 'no' ? 'dag' : lang === 'fr' ? 'jour' : 'day'}
+                    €{baseRate}/{tx('day', 'dag', 'jour', 'dag')}
                   </div>
                 </div>
               </div>
               <div className="cat-rental-perks">
-                <span className="cat-rental-perks-h">✓ {lang === 'no' ? 'Ingen skjulte kostnader' : lang === 'fr' ? 'Aucun frais caché' : 'No hidden costs'}</span>
-                <span>{lang === 'no' ? 'Ubegrenset kjørelengde' : lang === 'fr' ? 'Kilométrage illimité' : 'Unlimited mileage'}</span>
+                <span className="cat-rental-perks-h">✓ {tx('No hidden costs', 'Ingen skjulte kostnader', 'Aucun frais caché', 'Inga dolda kostnader')}</span>
+                <span>{tx('Unlimited mileage', 'Ubegrenset kjørelengde', 'Kilométrage illimité', 'Obegränsat antal mil')}</span>
                 <span>·</span>
-                <span>{lang === 'no' ? 'Gratis levering på hotell / flyplass' : lang === 'fr' ? 'Livraison gratuite hôtel / aéroport' : 'Free hotel / airport delivery'}</span>
+                <span>{tx('Free hotel / airport delivery', 'Gratis levering på hotell / flyplass', 'Livraison gratuite hôtel / aéroport', 'Gratis leverans hotell / flygplats')}</span>
                 <span>·</span>
-                <span>{lang === 'no' ? 'Forsikring tilgjengelig' : lang === 'fr' ? 'Assurance disponible' : 'Insurance available'}</span>
+                <span>{tx('Insurance available', 'Forsikring tilgjengelig', 'Assurance disponible', 'Försäkring tillgänglig')}</span>
               </div>
             </div>
           )}
           <div className="cat-modal-price-row">
             {tab !== 'transport' && (
               <span className="cat-modal-pr-label" style={{ fontSize: 13, opacity: .7, fontStyle: 'italic' }}>
-                {lang === 'no' ? 'Pris på forespørsel' : lang === 'fr' ? 'Prix sur demande' : 'Price on request'}
+                {tx('Price on request', 'Pris på forespørsel', 'Prix sur demande', 'Pris på förfrågan')}
               </span>
             )}
             {tab === 'transport' && (
               <button className="btn btn-primary cat-modal-cta" onClick={bookRentalOnWhatsapp}
                 disabled={rentalDays < 1}
                 style={{ opacity: rentalDays < 1 ? .5 : 1 }}>
-                {lang === 'no' ? 'Reservér på WhatsApp' : lang === 'fr' ? 'Réserver sur WhatsApp' : 'Book on WhatsApp'} →
+                {tx('Book on WhatsApp', 'Reservér på WhatsApp', 'Réserver sur WhatsApp', 'Boka på WhatsApp')} →
               </button>
             )}
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {item.sourceUrl && (
                 <a className="cat-modal-source" href={item.sourceUrl} target="_blank" rel="noopener"
                    style={{ fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.08em', alignSelf: 'center' }}>
-                  {lang === 'no' ? 'Kilde' : 'Source'}
+                  {tx('Source', 'Kilde', 'Source', 'Källa')}
                 </a>
               )}
               <button className="btn btn-outline cat-modal-cta" onClick={() => { onClose(); window.MS_OpenQuickBook?.(item, tab); }}>
-                ⚡ {lang === 'no' ? 'Bestill kun dette' : lang === 'fr' ? 'Réserver uniquement ceci' : 'Book just this'}
+                ⚡ {tx('Book just this', 'Bestill kun dette', 'Réserver uniquement ceci', 'Boka bara detta')}
               </button>
               <button className="btn btn-primary cat-modal-cta" onClick={addToReservation}>
-                {lang === 'no' ? 'Legg til i reiseplan' : lang === 'fr' ? 'Ajouter à l\'itinéraire' : 'Add to trip'}
+                {tx('Add to trip', 'Legg til i reiseplan', 'Ajouter à l\'itinéraire', 'Lägg till i resan')}
                 <Ic.Arrow s={14} />
               </button>
             </div>
@@ -432,6 +426,7 @@ function Catalog() {
   const t = useT();
   const price = usePrice();
   const ctx = useMS();
+  const tx = (en, no, fr, sv) => ctx.lang === 'no' ? no : ctx.lang === 'fr' ? fr : ctx.lang === 'sv' ? (sv || no || en) : en;
   const [tab, setTab] = useStateC('activities');
   const [filter, setFilter] = useStateC('All');
   const [favs, setFavs] = useStateC({});
@@ -483,7 +478,7 @@ function Catalog() {
     { id: 'pools', label: t('cat_pools'), icon: <Ic.Sun s={16} />, data: D.POOLS,
       filters: ['All', 'Palace', 'Boutique', 'Agafay', 'Beach Club', 'Festive', 'Family', 'Women Only', 'Water Park'], priceLabel: t('cat_per_person') },
     { id: 'transport', label: t('cat_transport'), icon: <Ic.Plane s={16} />, data: D.TRANSPORT,
-      filters: ['All', 'Compact', 'Compact SUV', 'Sedan', 'SUV'], priceLabel: '/ day' },
+      filters: ['All', 'Compact', 'Compact SUV', 'Sedan', 'SUV'], priceLabel: tx('/ day', '/ dag', '/ jour', '/ dag') },
   ];
 
   const current = tabs.find(x => x.id === tab);
@@ -540,13 +535,16 @@ function Catalog() {
         {tab === 'transport' && (
           <div className="cat-rental-banner reveal">
             <div className="cat-rental-banner-eyebrow" style={{ color: 'var(--brand)' }}>
-              ✓ {ctx.lang === 'no' ? 'INGEN SKJULTE KOSTNADER' : ctx.lang === 'fr' ? 'AUCUN FRAIS CACHÉ' : 'NO HIDDEN COSTS'}
+              ✓ {tx('NO HIDDEN COSTS', 'INGEN SKJULTE KOSTNADER', 'AUCUN FRAIS CACHÉ', 'INGA DOLDA KOSTNADER')}
             </div>
             <div className="cat-rental-banner-row">
               <div className="cat-rental-banner-perks">
-                {ctx.lang === 'no' ? 'Ubegrenset kjørelengde · Gratis levering hotell/flyplass · Forsikring tilgjengelig · Drivstoffregel klart spesifisert ved henting'
-                  : ctx.lang === 'fr' ? 'Kilométrage illimité · Livraison gratuite hôtel/aéroport · Assurance disponible · Politique carburant claire à la prise en charge'
-                  : 'Unlimited mileage · Free hotel/airport delivery · Insurance available · Fuel policy clear at pickup'}
+                {tx(
+                  'Unlimited mileage · Free hotel/airport delivery · Insurance available · Fuel policy clear at pickup',
+                  'Ubegrenset kjørelengde · Gratis levering hotell/flyplass · Forsikring tilgjengelig · Drivstoffregel klart spesifisert ved henting',
+                  'Kilométrage illimité · Livraison gratuite hôtel/aéroport · Assurance disponible · Politique carburant claire à la prise en charge',
+                  'Obegränsat antal mil · Gratis leverans hotell/flygplats · Försäkring tillgänglig · Bränslepolicy tydlig vid upphämtning'
+                )}
               </div>
             </div>
           </div>
@@ -574,7 +572,7 @@ function Catalog() {
                   <div className="cat-rating">
                     <span className="stars"><Ic.Star /></span>
                     <strong>{it.rating}</strong>
-                    <span style={{ color: 'var(--ink-3)' }}>({(it.reviews || 0).toLocaleString()} reviews)</span>
+                    <span style={{ color: 'var(--ink-3)' }}>({(it.reviews || 0).toLocaleString()} {tx('reviews', 'anmeldelser', 'avis', 'recensioner')})</span>
                   </div>
                   <h3 className="cat-title">{localize(it.name, ctx.lang)}</h3>
                   <span className="cat-area"><Ic.Pin s={12} /> {localize(it.area, ctx.lang)}</span>
@@ -638,14 +636,12 @@ function Catalog() {
         {hasMore && (
           <div className="cat-showmore-row">
             <button className="cat-showmore" onClick={() => setVisibleCount(c => c + 4)}>
-              {ctx.lang === 'no' ? `Vis flere (${items.length - visibleCount} igjen)`
-                : ctx.lang === 'fr' ? `Voir plus (${items.length - visibleCount} restants)`
-                : `Show more (${items.length - visibleCount} remaining)`}
+              {tx(`Show more (${items.length - visibleCount} remaining)`, `Vis flere (${items.length - visibleCount} igjen)`, `Voir plus (${items.length - visibleCount} restants)`, `Visa fler (${items.length - visibleCount} kvar)`)}
               <Ic.Arrow s={14} />
             </button>
             {visibleCount + 4 < items.length && (
               <button className="cat-showall" onClick={() => setVisibleCount(items.length)}>
-                {ctx.lang === 'no' ? 'Vis alle' : ctx.lang === 'fr' ? 'Tout voir' : 'Show all'}
+                {tx('Show all', 'Vis alle', 'Tout voir', 'Visa alla')}
               </button>
             )}
           </div>

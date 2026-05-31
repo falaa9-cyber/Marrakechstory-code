@@ -179,7 +179,7 @@ function Footer() {
           <div>
             <h4>{t('foot_contact')}</h4>
             <div className="footer-links">
-              <a href={`mailto:${COMPANY.email}`}>Email</a>
+              <a href={`mailto:${COMPANY.email}`}>{t('foot_email')}</a>
               <a href={`tel:${COMPANY.phoneIntl}`}>{COMPANY.phone}</a>
               <a href={`https://wa.me/${COMPANY.whatsapp}`} target="_blank" rel="noopener">WhatsApp</a>
               <a href={`https://instagram.com/${COMPANY.instagram}`} target="_blank" rel="noopener">@{COMPANY.instagram}</a>
@@ -189,9 +189,9 @@ function Footer() {
         <div className="footer-bottom">
           <span>© 2026 Marrakech Story · IATA accredited · ONMT licence #14872 · {t('foot_rights')}</span>
           <span style={{ display: 'flex', gap: 18 }}>
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Cookies</a>
+            <a href="#">{t('foot_privacy')}</a>
+            <a href="#">{t('foot_terms')}</a>
+            <a href="#">{t('foot_cookies')}</a>
           </span>
         </div>
       </div>

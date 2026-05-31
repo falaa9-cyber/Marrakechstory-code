@@ -84,9 +84,9 @@ function FlightHelpBox() {
   const [ret, setRet] = useState(ctx.dates?.ret || '');
   const [people, setPeople] = useState(ctx.travellers?.adults || 2);
 
-  const label = ctx.lang === 'no' ? 'Trenger du hjelp med fly?'
-              : ctx.lang === 'fr' ? "Besoin d'aide pour le vol ?"
-              : 'Need help with flights?';
+  const lang = ctx.lang || 'en';
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const label = tx('Need help with flights?', 'Trenger du hjelp med fly?', "Besoin d'aide pour le vol ?", 'Behöver du hjälp med flyg?');
 
   const syncContext = (d, r, p) => {
     ctx.setDates({ dep: d, ret: r });
@@ -96,13 +96,41 @@ function FlightHelpBox() {
 
   const send = () => {
     syncContext(dep, ret, people);
-    const subj = encodeURIComponent(`Flyforslag – ${fromCity} → Marrakech`);
+    const subj = encodeURIComponent(tx(
+      `Flight enquiry – ${fromCity} → Marrakech`,
+      `Flyforslag – ${fromCity} → Marrakech`,
+      `Demande de vol – ${fromCity} → Marrakech`,
+      `Flygförfrågan – ${fromCity} → Marrakech`
+    ));
+    const paxLabel = tx(
+      `Number of travellers: ${people} person${people > 1 ? 's' : ''}`,
+      `Antall reisende: ${people} person${people > 1 ? 'er' : ''}`,
+      `Nombre de voyageurs : ${people} personne${people > 1 ? 's' : ''}`,
+      `Antal resenärer: ${people} person${people > 1 ? 'er' : ''}`
+    );
     const body = encodeURIComponent(
-      `Hei Marrakech Story,\n\nJeg trenger hjelp med fly:\n\n` +
-      `✈  Utreise: ${fromCity} → Marrakech (RAK)   ${dep}\n` +
-      `✈  Hjemreise: Marrakech (RAK) → ${toCity}   ${ret}\n` +
-      `👥  Antall reisende: ${people} person${people > 1 ? 'er' : ''}\n\n` +
-      `Send meg gjerne de beste alternativene!\n`
+      tx(
+        `Hi Marrakech Story,\n\nI need help with flights:\n\n` +
+        `✈  Outbound: ${fromCity} → Marrakech (RAK)   ${dep}\n` +
+        `✈  Return: Marrakech (RAK) → ${toCity}   ${ret}\n` +
+        `👥  ${paxLabel}\n\n` +
+        `Please send me the best options!\n`,
+        `Hei Marrakech Story,\n\nJeg trenger hjelp med fly:\n\n` +
+        `✈  Utreise: ${fromCity} → Marrakech (RAK)   ${dep}\n` +
+        `✈  Hjemreise: Marrakech (RAK) → ${toCity}   ${ret}\n` +
+        `👥  ${paxLabel}\n\n` +
+        `Send meg gjerne de beste alternativene!\n`,
+        `Bonjour Marrakech Story,\n\nJ'ai besoin d'aide pour les vols :\n\n` +
+        `✈  Aller : ${fromCity} → Marrakech (RAK)   ${dep}\n` +
+        `✈  Retour : Marrakech (RAK) → ${toCity}   ${ret}\n` +
+        `👥  ${paxLabel}\n\n` +
+        `Merci de m'envoyer les meilleures options !\n`,
+        `Hej Marrakech Story,\n\nJag behöver hjälp med flyg:\n\n` +
+        `✈  Utresa: ${fromCity} → Marrakech (RAK)   ${dep}\n` +
+        `✈  Hemresa: Marrakech (RAK) → ${toCity}   ${ret}\n` +
+        `👥  ${paxLabel}\n\n` +
+        `Skicka gärna de bästa alternativen!\n`
+      )
     );
     window.location.href = `mailto:${COMPANY.email}?subject=${subj}&body=${body}`;
     setSent(true);
@@ -131,40 +159,41 @@ function FlightHelpBox() {
           <div>
             <div className="flight-help-title">{label}</div>
             <div className="flight-help-sub">
-              {ctx.lang === 'no'
-                ? 'Fyll inn reisedetaljer – vi finner de beste avgangene og kobler dem til planen din.'
-                : ctx.lang === 'fr'
-                ? 'Remplissez vos infos – nous trouvons les meilleures options de vol.'
-                : 'Fill in your details – we\'ll find the best flights and link them to your itinerary.'}
+              {tx(
+                "Fill in your details – we'll find the best flights and link them to your itinerary.",
+                'Fyll inn reisedetaljer – vi finner de beste avgangene og kobler dem til planen din.',
+                'Remplissez vos infos – nous trouvons les meilleures options de vol.',
+                'Fyll i reseuppgifter – vi hittar de bästa avgångarna och kopplar dem till din plan.'
+              )}
             </div>
           </div>
-          <button className="flight-help-close" onClick={() => setOpen(false)} aria-label="Lukk">✕</button>
+          <button className="flight-help-close" onClick={() => setOpen(false)} aria-label={tx('Close', 'Lukk', 'Fermer', 'Stäng')}>✕</button>
         </div>
         {!sent ? (<>
           <div className="flight-help-route">
             <div className="flight-help-fld">
-              <label>{ctx.lang === 'no' ? '✈ Fra by (Norge)' : '✈ From city (Norway)'}</label>
+              <label>{tx('✈ From city (Norway)', '✈ Fra by (Norge)', '✈ Ville de départ (Norvège)', '✈ Från stad (Norge)')}</label>
               <input list="fhb-cities-from" value={fromCity} onChange={e => setFromCity(e.target.value)} placeholder="Oslo" />
               <datalist id="fhb-cities-from">{NORWAY_CITIES.map(c => <option key={c} value={c} />)}</datalist>
             </div>
             <div className="flight-help-arrow-badge">→ RAK →</div>
             <div className="flight-help-fld">
-              <label>{ctx.lang === 'no' ? '✈ Retur til (Norge)' : '✈ Return to (Norway)'}</label>
+              <label>{tx('✈ Return to (Norway)', '✈ Retur til (Norge)', '✈ Retour vers (Norvège)', '✈ Retur till (Norge)')}</label>
               <input list="fhb-cities-to" value={toCity} onChange={e => setToCity(e.target.value)} placeholder="Oslo" />
               <datalist id="fhb-cities-to">{NORWAY_CITIES.map(c => <option key={c} value={c} />)}</datalist>
             </div>
           </div>
           <div className="flight-help-fields">
             <div className="flight-help-fld">
-              <label>{ctx.lang === 'no' ? 'Avreisedato' : 'Departure date'}</label>
+              <label>{tx('Departure date', 'Avreisedato', 'Date de départ', 'Avresedatum')}</label>
               <input type="date" value={dep} onChange={e => { setDep(e.target.value); ctx.setDates({ dep: e.target.value, ret }); }} />
             </div>
             <div className="flight-help-fld">
-              <label>{ctx.lang === 'no' ? 'Hjemreisedato' : 'Return date'}</label>
+              <label>{tx('Return date', 'Hjemreisedato', 'Date de retour', 'Returdatum')}</label>
               <input type="date" value={ret} onChange={e => { setRet(e.target.value); ctx.setDates({ dep, ret: e.target.value }); }} />
             </div>
             <div className="flight-help-fld narrow">
-              <label>{ctx.lang === 'no' ? 'Antall reisende' : 'Travellers'}</label>
+              <label>{tx('Travellers', 'Antall reisende', 'Voyageurs', 'Resenärer')}</label>
               <div className="flight-pax">
                 <button type="button" onClick={() => { const p = Math.max(1, people - 1); setPeople(p); syncContext(dep, ret, p); }}>−</button>
                 <span>{people}</span>
@@ -173,15 +202,18 @@ function FlightHelpBox() {
             </div>
             <button className="flight-help-btn" onClick={send}>
               <I.Mail s={15} />
-              {ctx.lang === 'no' ? 'Send forespørsel' : ctx.lang === 'fr' ? 'Envoyer' : 'Send request'}
+              {tx('Send request', 'Send forespørsel', 'Envoyer', 'Skicka förfrågan')}
             </button>
           </div>
         </>) : (
           <div className="flight-help-sent">
             <I.Check s={20} />
-            {ctx.lang === 'no'
-              ? 'Takk! Vi sender deg flygingsforslag snart. Datoene er koblet til planen din.'
-              : 'Thanks! We\'ll send flight options shortly. Dates saved to your itinerary.'}
+            {tx(
+              "Thanks! We'll send flight options shortly. Dates saved to your itinerary.",
+              'Takk! Vi sender deg flygingsforslag snart. Datoene er koblet til planen din.',
+              'Merci ! Nous vous enverrons des options de vol rapidement. Dates enregistrées dans votre itinéraire.',
+              'Tack! Vi skickar flygalternativ snart. Datumen är sparade i din plan.'
+            )}
           </div>
         )}
       </div>

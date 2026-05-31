@@ -55,8 +55,10 @@ function PkgMap({ pkgId }) {
 
 function Packages() {
   const PKGS = window.MS_DATA.PACKAGES;
-  const { useT } = window.MS_CTX;
+  const { useT, useMS } = window.MS_CTX;
   const t = useT();
+  const { lang } = useMS();
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
   const [active, setActive] = useStateP(PKGS[1].id);
   const [view, setView] = useStateP('timeline'); // 'timeline' | 'included' | 'terms'
   const isCustom = active === 'custom';
@@ -189,15 +191,17 @@ function Packages() {
             {view === 'terms' && (
               <div className="pkg-terms">
                 <div className="pkg-terms-header">
-                  <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 400, fontSize: 22, color: '#fff', margin: '0 0 4px' }}>Takk for tilliten.</h3>
+                  <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 400, fontSize: 22, color: '#fff', margin: '0 0 4px' }}>
+                    {tx('Thank you for your trust.', 'Takk for tilliten.', 'Merci de votre confiance.', 'Tack för ditt förtroende.')}
+                  </h3>
                 </div>
 
                 <div className="pkg-terms-block">
-                  <h4>BESTILLINGSREGLER</h4>
+                  <h4>{tx('BOOKING RULES', 'BESTILLINGSREGLER', 'RÈGLES DE RÉSERVATION', 'BOKNINGSREGLER')}</h4>
                   <ul className="terms-list">
-                    <li><Ip.Check s={13} /> Alle bestillinger må gjøres på forhånd.</li>
-                    <li><Ip.Check s={13} /> Endringer avhenger av tilgjengelighet.</li>
-                    <li><Ip.Check s={13} /> Avbestillinger må gjøres innen tidsrammene nedenfor.</li>
+                    <li><Ip.Check s={13} /> {tx('All bookings must be made in advance.', 'Alle bestillinger må gjøres på forhånd.', 'Toutes les réservations doivent être effectuées à l\'avance.', 'Alla bokningar måste göras i förväg.')}</li>
+                    <li><Ip.Check s={13} /> {tx('Changes depend on availability.', 'Endringer avhenger av tilgjengelighet.', 'Les modifications dépendent des disponibilités.', 'Ändringar beror på tillgänglighet.')}</li>
+                    <li><Ip.Check s={13} /> {tx('Cancellations must be made within the timeframes below.', 'Avbestillinger må gjøres innen tidsrammene nedenfor.', 'Les annulations doivent être effectuées dans les délais indiqués ci-dessous.', 'Avbokningar måste göras inom tidsgränserna nedan.')}</li>
                   </ul>
                   <div className="terms-contact">
                     <a href="mailto:Marrakechstory@outlook.com">Marrakechstory@outlook.com</a>
@@ -208,27 +212,45 @@ function Packages() {
                 </div>
 
                 <div className="pkg-terms-block">
-                  <h4>BETALINGSPOLICY</h4>
-                  <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 13, margin: '0 0 10px' }}>Du kan velge å betale:</p>
+                  <h4>{tx('PAYMENT POLICY', 'BETALINGSPOLICY', 'POLITIQUE DE PAIEMENT', 'BETALNINGSPOLICY')}</h4>
+                  <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 13, margin: '0 0 10px' }}>
+                    {tx('You can choose to pay:', 'Du kan velge å betale:', 'Vous pouvez choisir de payer :', 'Du kan välja att betala:')}
+                  </p>
                   <ul className="terms-list">
-                    <li><Ip.Check s={13} /> 20% på nett: PayPal, Revolut, Wise, Vipps, Norsk bankoverføring.</li>
-                    <li><Ip.Check s={13} /> 80% kontant ved ankomst til sjåføren.</li>
-                    <li><Ip.Check s={13} /> Eller hele beløpet på nett.</li>
+                    <li><Ip.Check s={13} /> {tx('20% online: PayPal, Revolut, Wise, Vipps, Norwegian bank transfer.', '20% på nett: PayPal, Revolut, Wise, Vipps, Norsk bankoverføring.', '20 % en ligne : PayPal, Revolut, Wise, Vipps, virement bancaire norvégien.', '20% online: PayPal, Revolut, Wise, Vipps, norskt banköverföring.')}</li>
+                    <li><Ip.Check s={13} /> {tx('80% cash on arrival to the driver.', '80% kontant ved ankomst til sjåføren.', '80 % en espèces à l\'arrivée au chauffeur.', '80% kontant vid ankomst till chauffören.')}</li>
+                    <li><Ip.Check s={13} /> {tx('Or the full amount online.', 'Eller hele beløpet på nett.', 'Ou la totalité en ligne.', 'Eller hela beloppet online.')}</li>
                   </ul>
                 </div>
 
                 <div className="pkg-terms-block">
-                  <h4>AVBESTILLINGS OG REFUSJONSPOLITIKK</h4>
+                  <h4>{tx('CANCELLATION & REFUND POLICY', 'AVBESTILLINGS OG REFUSJONSPOLITIKK', 'POLITIQUE D\'ANNULATION ET DE REMBOURSEMENT', 'AVBOKNINGS- OCH ÅTERBETALNINGSPOLICY')}</h4>
                   <div className="terms-table">
                     <div className="terms-row head">
-                      <span>Tid før opplevelsen</span>
-                      <span>Refusjon</span>
+                      <span>{tx('Time before experience', 'Tid før opplevelsen', 'Délai avant l\'expérience', 'Tid före upplevelsen')}</span>
+                      <span>{tx('Refund', 'Refusjon', 'Remboursement', 'Återbetalning')}</span>
                     </div>
                     {[
-                      { notice: 'Inntil 96 timer', fee: '100% refusjon', ok: true },
-                      { notice: '24–48 timer', fee: '50% refusjon', ok: true },
-                      { notice: 'Under 24 timer', fee: 'Refunderes ikke', ok: false },
-                      { notice: 'Ikke-oppmøte', fee: 'Refunderes ikke', ok: false },
+                      {
+                        notice: tx('Up to 96 hours', 'Inntil 96 timer', 'Jusqu\'à 96 heures', 'Upp till 96 timmar'),
+                        fee: tx('100% refund', '100% refusjon', '100 % remboursé', '100% återbetalning'),
+                        ok: true,
+                      },
+                      {
+                        notice: tx('24–48 hours', '24–48 timer', '24–48 heures', '24–48 timmar'),
+                        fee: tx('50% refund', '50% refusjon', '50 % remboursé', '50% återbetalning'),
+                        ok: true,
+                      },
+                      {
+                        notice: tx('Under 24 hours', 'Under 24 timer', 'Moins de 24 heures', 'Under 24 timmar'),
+                        fee: tx('Non-refundable', 'Refunderes ikke', 'Non remboursable', 'Ej återbetalningsbar'),
+                        ok: false,
+                      },
+                      {
+                        notice: tx('No-show', 'Ikke-oppmøte', 'Non-présentation', 'Uteblivande'),
+                        fee: tx('Non-refundable', 'Refunderes ikke', 'Non remboursable', 'Ej återbetalningsbar'),
+                        ok: false,
+                      },
                     ].map(r => (
                       <div key={r.notice} className="terms-row">
                         <span>{r.notice}</span>
@@ -237,24 +259,36 @@ function Packages() {
                     ))}
                   </div>
                   <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 12, marginTop: 10 }}>
-                    Væravhengige aktiviteter (f.eks. varmluftsballong): Omplanlegging eller full refusjon ved avbestilling av sikkerhetsmessige årsaker.
+                    {tx(
+                      'Weather-dependent activities (e.g. hot-air balloon): Rescheduling or full refund if cancelled for safety reasons.',
+                      'Væravhengige aktiviteter (f.eks. varmluftsballong): Omplanlegging eller full refusjon ved avbestilling av sikkerhetsmessige årsaker.',
+                      'Activités dépendant de la météo (ex. montgolfière) : Reprogrammation ou remboursement intégral en cas d\'annulation pour raisons de sécurité.',
+                      'Väderberoende aktiviteter (t.ex. luftballong): Ombokning eller full återbetalning vid avbokning av säkerhetsskäl.'
+                    )}
                   </p>
                 </div>
 
                 <div className="pkg-terms-block">
-                  <h4>VIKTIGE MERKNADER</h4>
+                  <h4>{tx('IMPORTANT NOTES', 'VIKTIGE MERKNADER', 'REMARQUES IMPORTANTES', 'VIKTIGA ANMÄRKNINGAR')}</h4>
                   <ul className="terms-list">
-                    <li><Ip.Check s={13} /> Vær presis til henting.</li>
-                    <li><Ip.Check s={13} /> Sørg for at du har WhatsApp og internett for kommunikasjon under oppholdet.</li>
-                    <li><Ip.Check s={13} /> Informer oss på forhånd om kostholdsrestriksjoner eller fysiske begrensninger.</li>
-                    <li><Ip.Check s={13} /> Bruk komfortable klær og passende fottøy til utflukter.</li>
-                    <li><Ip.Check s={13} /> Marrakechstory er ikke ansvarlig for tapte personlige eiendeler under aktiviteter.</li>
+                    <li><Ip.Check s={13} /> {tx('Be on time for pick-up.', 'Vær presis til henting.', 'Soyez à l\'heure pour le ramassage.', 'Var i tid för upphämtning.')}</li>
+                    <li><Ip.Check s={13} /> {tx('Ensure you have WhatsApp and internet access for communication during your stay.', 'Sørg for at du har WhatsApp og internett for kommunikasjon under oppholdet.', 'Assurez-vous d\'avoir WhatsApp et une connexion internet pour communiquer pendant votre séjour.', 'Se till att du har WhatsApp och internetåtkomst för kommunikation under vistelsen.')}</li>
+                    <li><Ip.Check s={13} /> {tx('Inform us in advance of any dietary restrictions or physical limitations.', 'Informer oss på forhånd om kostholdsrestriksjoner eller fysiske begrensninger.', 'Informez-nous à l\'avance de toute restriction alimentaire ou limitation physique.', 'Informera oss i förväg om eventuella kostbegränsningar eller fysiska begränsningar.')}</li>
+                    <li><Ip.Check s={13} /> {tx('Wear comfortable clothing and appropriate footwear for excursions.', 'Bruk komfortable klær og passende fottøy til utflukter.', 'Portez des vêtements confortables et des chaussures adaptées pour les excursions.', 'Bär bekväma kläder och lämpligt skodon för utflykter.')}</li>
+                    <li><Ip.Check s={13} /> {tx('Marrakechstory is not responsible for lost personal belongings during activities.', 'Marrakechstory er ikke ansvarlig for tapte personlige eiendeler under aktiviteter.', 'Marrakechstory n\'est pas responsable des effets personnels perdus pendant les activités.', 'Marrakechstory ansvarar inte för förlorade personliga tillhörigheter under aktiviteter.')}</li>
                   </ul>
                 </div>
 
                 <div className="pkg-terms-note">
                   <Ip.Pin s={14} />
-                  <span>Marrakechstory opererer under marokkansk reiselivslovgivning (Loi n° 31-96) og er lisensiert av ONMT (lisens #14872).</span>
+                  <span>
+                    {tx(
+                      'Marrakechstory operates under Moroccan tourism law (Loi n° 31-96) and is licensed by ONMT (licence #14872).',
+                      'Marrakechstory opererer under marokkansk reiselivslovgivning (Loi n° 31-96) og er lisensiert av ONMT (lisens #14872).',
+                      'Marrakechstory opère conformément à la loi marocaine sur le tourisme (Loi n° 31-96) et est agréé par l\'ONMT (licence n° 14872).',
+                      'Marrakechstory verkar under marockansk turismlagstiftning (Loi n° 31-96) och är licensierat av ONMT (licens #14872).'
+                    )}
+                  </span>
                 </div>
               </div>
             )}
