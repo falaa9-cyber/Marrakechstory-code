@@ -1,9 +1,5 @@
 name: Deploy fitness preview to GitHub Pages
 
-# Publishes the repo as-is (static site) to GitHub Pages so the fitness
-# app at /fitness.html is reachable from a public URL on every push.
-# Runs on every branch — the most recent push wins.
-
 on:
   push:
   workflow_dispatch:
@@ -26,8 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-      with:
-        enablement: true
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
