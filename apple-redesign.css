@@ -4141,9 +4141,9 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 .itin-modal.itin-modal-v2 .itin-stat-label {
   font-family: -apple-system, system-ui, sans-serif !important;
   font-size: 9.5px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   letter-spacing: 0.09em !important;
-  color: rgba(0,0,0,0.32) !important;
+  color: var(--ms-clay, #c2552a) !important;
   text-transform: uppercase !important;
 }
 .itin-modal.itin-modal-v2 .itin-stat-value {
@@ -4161,10 +4161,10 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 .itin-modal.itin-modal-v2 .itin-modal-h3 {
   font-family: -apple-system, system-ui, sans-serif !important;
   font-size: 10px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   letter-spacing: 0.10em !important;
   text-transform: uppercase !important;
-  color: rgba(0,0,0,0.30) !important;
+  color: var(--ms-clay, #c2552a) !important;
   margin-bottom: 10px !important;
 }
 
@@ -4177,7 +4177,7 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   letter-spacing: -0.005em !important;
 }
 .itin-modal.itin-modal-v2 .itin-modal-ul li::before {
-  color: rgba(0,0,0,0.25) !important;
+  color: var(--ms-clay, #c2552a) !important;
 }
 .itin-modal.itin-modal-v2 .itin-modal-ul.itin-included li::before {
   content: '✓' !important;
