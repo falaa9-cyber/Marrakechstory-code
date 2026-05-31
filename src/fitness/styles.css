@@ -661,6 +661,198 @@ a { color: inherit; text-decoration: none; }
 .fa-mt-20 { margin-top: 20px; }
 .fa-text-center { text-align: center; }
 
+/* ── AM / PM session cards (Today + Workouts) ── */
+.fa-sess {
+  background: var(--fa-card);
+  border-radius: var(--fa-radius-lg);
+  padding: 18px;
+  box-shadow: var(--fa-shadow);
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.fa-sess.am::before, .fa-sess.pm::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+}
+.fa-sess.am::before { background: linear-gradient(180deg, #FFB169, #FF6B35); }
+.fa-sess.pm::before { background: linear-gradient(180deg, #6E63E3, #AF52DE); }
+.fa-sess.done { opacity: 0.65; }
+.fa-sess .badge {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+.fa-sess.am .badge { background: linear-gradient(135deg, #FFB169, #FF6B35); }
+.fa-sess.pm .badge { background: linear-gradient(135deg, #6E63E3, #AF52DE); }
+.fa-sess .info { flex: 1; min-width: 0; }
+.fa-sess .when {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--fa-text-3);
+}
+.fa-sess.am .when { color: var(--fa-accent); }
+.fa-sess.pm .when { color: var(--fa-purple); }
+.fa-sess .ttl { font-size: 16.5px; font-weight: 600; letter-spacing: -0.01em; margin-top: 2px; }
+.fa-sess .meta { font-size: 13px; color: var(--fa-text-3); margin-top: 2px; }
+.fa-sess .play {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--fa-card-2); color: var(--fa-text);
+  display: grid; place-items: center;
+  border: none; flex-shrink: 0;
+}
+.fa-sess.am .play { background: var(--fa-accent); color: #fff; box-shadow: 0 6px 14px rgba(255,107,53,0.32); }
+.fa-sess.pm .play { background: var(--fa-purple); color: #fff; box-shadow: 0 6px 14px rgba(175,82,222,0.32); }
+
+/* ── Water tracker ── */
+.fa-water {
+  display: grid; grid-template-columns: 1fr auto; gap: 10px;
+  align-items: center;
+}
+.fa-water-bar {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;
+  margin-top: 10px;
+}
+.fa-water-cup {
+  height: 28px; border-radius: 7px;
+  background: var(--fa-card-2);
+  border: 1.5px solid var(--fa-sep);
+  display: grid; place-items: center;
+  color: var(--fa-text-4);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.fa-water-cup.full {
+  background: var(--fa-blue);
+  border-color: var(--fa-blue);
+  color: #fff;
+}
+
+/* ── Bottom sheet (AI tweak) ── */
+.fa-sheet-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.32);
+  z-index: 60;
+  animation: fa-fade-in 0.18s ease;
+}
+.fa-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  background: var(--fa-card);
+  border-radius: 22px 22px 0 0;
+  padding: 8px 20px max(28px, env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.18);
+  z-index: 70;
+  max-width: 480px;
+  margin: 0 auto;
+  max-height: 86vh;
+  overflow-y: auto;
+  animation: fa-sheet-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+@keyframes fa-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.fa-sheet-grab {
+  width: 38px; height: 5px; border-radius: 999px;
+  background: var(--fa-sep-strong);
+  margin: 8px auto 14px;
+}
+.fa-sheet h3 {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+.fa-sheet .lead { font-size: 14px; color: var(--fa-text-3); margin-bottom: 16px; line-height: 1.45; }
+.fa-sheet textarea {
+  width: 100%;
+  background: var(--fa-card-2);
+  border: 1px solid var(--fa-sep);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-family: inherit; font-size: 15px;
+  resize: none;
+  min-height: 64px;
+  outline: none;
+  color: var(--fa-text);
+}
+.fa-sheet textarea:focus { border-color: var(--fa-accent); }
+.fa-sheet-quick {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin: 12px 0 8px;
+}
+.fa-sheet-quick button {
+  background: var(--fa-card-2); color: var(--fa-text);
+  border: none; padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13.5px; font-weight: 600;
+  text-align: left;
+  letter-spacing: -0.005em;
+}
+.fa-sheet-quick button:active { background: var(--fa-sep); }
+.fa-ai-result {
+  background: linear-gradient(135deg, #FFF6F0, #FFFFFF);
+  border: 1px solid var(--fa-accent-soft);
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 12px;
+}
+.fa-ai-result .label {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fa-accent);
+  margin-bottom: 4px;
+}
+.fa-ai-result p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--fa-text-2); }
+
+/* ── Rest timer modal ── */
+.fa-timer-modal {
+  position: fixed; inset: 0;
+  background: rgba(15, 15, 20, 0.86);
+  backdrop-filter: blur(20px);
+  display: grid; place-items: center;
+  z-index: 80;
+  color: #fff;
+  animation: fa-fade-in 0.2s ease;
+}
+.fa-timer-inner {
+  text-align: center;
+  padding: 32px;
+}
+.fa-timer-svg {
+  width: 240px; height: 240px;
+}
+.fa-timer-svg .bg-ring { stroke: rgba(255,255,255,0.12); }
+.fa-timer-svg .fg-ring {
+  stroke: var(--fa-accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.95s linear;
+}
+.fa-timer-num {
+  font-size: 64px; font-weight: 700; letter-spacing: -0.03em;
+  margin-top: -190px;
+  position: relative;
+}
+.fa-timer-label {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; opacity: 0.78;
+  margin-bottom: 6px;
+}
+.fa-timer-actions {
+  margin-top: 90px;
+  display: flex; gap: 12px; justify-content: center;
+}
+.fa-timer-actions button {
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 12px 22px; border-radius: 999px;
+  font-size: 14.5px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.fa-timer-actions .stop { background: var(--fa-accent); border-color: transparent; }
+
 /* ── Floating "Start workout" CTA on Today screen ── */
 .fa-today-cta {
   background: var(--fa-card);

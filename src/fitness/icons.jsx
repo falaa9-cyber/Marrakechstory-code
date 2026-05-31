@@ -57,6 +57,18 @@ const FaIcons = {
   Logout: (p) => <FaIcon {...p}><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/><path d="M13 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/></FaIcon>,
   Sun: (p) => <FaIcon {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></FaIcon>,
   Moon: (p) => <FaIcon {...p}><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></FaIcon>,
+  Water: (p) => <FaIcon {...p}><path d="M12 3s6 6 6 11a6 6 0 1 1-12 0c0-5 6-11 6-11z"/></FaIcon>,
+  Bike: (p) => <FaIcon {...p}><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 5h3l-3 9-4-7H7l-1 3"/></FaIcon>,
+  Boxing: (p) => <FaIcon {...p}><path d="M7 11V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6c0 4-2 6-5 6h-3a2 2 0 0 1-2-2v-2"/><path d="M7 9h4v4"/></FaIcon>,
+  Rope: (p) => <FaIcon {...p}><path d="M4 4c2 2 2 6 0 8s-2 6 0 8"/><path d="M20 4c-2 2-2 6 0 8s2 6 0 8"/><path d="M8 12h8"/></FaIcon>,
+  Yoga: (p) => <FaIcon {...p}><circle cx="12" cy="5" r="2"/><path d="M12 7v5"/><path d="M5 14l7-2 7 2"/><path d="M5 14l3 7"/><path d="M19 14l-3 7"/></FaIcon>,
+  Timer: (p) => <FaIcon {...p}><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/><path d="M9 2h6"/><path d="M12 2v2"/></FaIcon>,
+  X: (p) => <FaIcon stroke={2.4} {...p}><path d="M6 6l12 12M18 6L6 18"/></FaIcon>,
+  Pause: (p) => <FaIcon fill="currentColor" stroke="none" {...p}><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></FaIcon>,
+  Sunrise: (p) => <FaIcon {...p}><path d="M4 17h16"/><path d="M8 17a4 4 0 0 1 8 0"/><path d="M12 4v5"/><path d="M9 7l3-3 3 3"/></FaIcon>,
+  Sunset: (p) => <FaIcon {...p}><path d="M4 17h16"/><path d="M8 17a4 4 0 0 1 8 0"/><path d="M12 9V4"/><path d="M9 6l3 3 3-3"/></FaIcon>,
+  Refresh: (p) => <FaIcon {...p}><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></FaIcon>,
+  Walk: (p) => <FaIcon {...p}><circle cx="13" cy="4" r="2"/><path d="M13 6l-2 5 3 2 1 5"/><path d="M11 11l-3 3v4"/><path d="M14 13l3-1"/></FaIcon>,
 };
 
 window.FaIcons = FaIcons;

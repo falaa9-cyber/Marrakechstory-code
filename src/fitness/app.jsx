@@ -1,13 +1,12 @@
 // ============================================
 // FITNESS APP — main shell, onboarding, 5 tab screens
-// (All mock data for v1 design preview)
+// Personalized: 2× per day, kettlebell + rope + boxing + bike + yoga
 // ============================================
 
 const { useState, useEffect, useMemo, useRef } = React;
 const I = window.FaIcons;
 
-// ── Tiny helpers ────────────────────────────────────────────
-const STORAGE_KEY = 'fa.profile.v1';
+const STORAGE_KEY = 'fa.profile.v2';
 function loadProfile() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -23,7 +22,7 @@ function saveProfile(p) {
 //  ONBOARDING
 // ════════════════════════════════════════════════════════════
 
-function OnboardingChoice({ icon, title, desc, selected, onClick }) {
+function OnboardingChoice({ icon, title, desc, selected, onClick, multi }) {
   return (
     <button className={`fa-onb-choice ${selected ? 'sel' : ''}`} onClick={onClick}>
       {icon ? <div className="ic">{icon}</div> : null}
@@ -31,7 +30,31 @@ function OnboardingChoice({ icon, title, desc, selected, onClick }) {
         <div className="t">{title}</div>
         {desc ? <div className="d">{desc}</div> : null}
       </div>
-      <div className="tick"><I.Check size={14} stroke={2.6} /></div>
+      <div className="tick" style={multi ? { borderRadius: 6 } : null}>
+        <I.Check size={14} stroke={2.6} />
+      </div>
+    </button>
+  );
+}
+
+function Toggle({ value, onChange }) {
+  return (
+    <button
+      onClick={() => onChange(!value)}
+      style={{
+        width: 52, height: 32, borderRadius: 999,
+        background: value ? 'var(--fa-success)' : 'var(--fa-sep-strong)',
+        border: 'none', padding: 0, position: 'relative',
+        transition: 'background 0.2s ease'
+      }}>
+      <div style={{
+        position: 'absolute', top: 2,
+        left: value ? 22 : 2,
+        width: 28, height: 28, borderRadius: '50%',
+        background: '#fff',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.18)',
+        transition: 'left 0.22s cubic-bezier(0.4,0,0.2,1)'
+      }} />
     </button>
   );
 }
@@ -49,11 +72,17 @@ function Stepper({ value, onChange, min = 0, max = 999, step = 1, suffix }) {
 function Onboarding({ onDone }) {
   const [step, setStep] = useState(0);
   const [p, setP] = useState({
-    name: '', sex: 'male', age: 28, height: 175, weight: 80, goalWeight: 72,
-    goal: 'cut', experience: 'casual', equipment: 'home',
-    diet: 'mediterranean', daysPerWeek: 4
+    name: '', sex: 'male', age: 30, height: 175, weight: 80, goalWeight: 72,
+    goal: 'stability', experience: 'casual', equipment: ['bodyweight'],
+    twoPerDay: false, diet: 'mediterranean', daysPerWeek: 4
   });
   const set = (k, v) => setP(prev => ({ ...prev, [k]: v }));
+  const toggleEq = (id) => setP(prev => ({
+    ...prev,
+    equipment: prev.equipment.includes(id)
+      ? prev.equipment.filter(e => e !== id)
+      : [...prev.equipment, id]
+  }));
   const steps = window.FaOnboarding.steps;
   const cur = steps[step].id;
   const last = step === steps.length - 1;
@@ -61,7 +90,6 @@ function Onboarding({ onDone }) {
 
   const next = () => setStep(s => Math.min(steps.length - 1, s + 1));
   const back = () => setStep(s => Math.max(0, s - 1));
-
   const finish = () => {
     const profile = { ...p, onboarded: true };
     saveProfile(profile);
@@ -70,6 +98,7 @@ function Onboarding({ onDone }) {
 
   const canContinue = () => {
     if (cur === 'name') return p.name.trim().length >= 1;
+    if (cur === 'equipment') return p.equipment.length >= 1;
     return true;
   };
 
@@ -209,16 +238,36 @@ function Onboarding({ onDone }) {
 
         {cur === 'equipment' && (
           <>
-            <div className="fa-onb-eyebrow">Where you train</div>
-            <div className="fa-onb-h">What do you have access to?</div>
-            <div className="fa-onb-s">Your plan will be built around exactly this.</div>
+            <div className="fa-onb-eyebrow">Your gear · pick all</div>
+            <div className="fa-onb-h">What do you have?</div>
+            <div className="fa-onb-s">Tap everything you can use. Your plan rotates between them.</div>
             <div className="fa-onb-cards">
-              {window.FaEquipment.map(g => (
-                <OnboardingChoice key={g.id} title={g.title} desc={g.desc}
-                  icon={<I.Dumbbell size={20} />}
-                  selected={p.equipment === g.id}
-                  onClick={() => set('equipment', g.id)} />
-              ))}
+              {window.FaEquipment.map(g => {
+                const icon = { rope: <I.Rope size={20}/>, boxing: <I.Boxing size={20}/>, kettlebell: <I.Dumbbell size={20}/>,
+                  bike: <I.Bike size={20}/>, yogamat: <I.Yoga size={20}/>, dumbbells: <I.Dumbbell size={20}/>,
+                  bodyweight: <I.Bolt size={20}/>, bands: <I.Refresh size={20}/>, pullup: <I.Bolt size={20}/>, gym: <I.Dumbbell size={20}/>
+                }[g.id];
+                return (
+                  <OnboardingChoice key={g.id} title={g.title} desc={g.desc}
+                    icon={icon} multi selected={p.equipment.includes(g.id)}
+                    onClick={() => toggleEq(g.id)} />
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {cur === 'twoPerDay' && (
+          <>
+            <div className="fa-onb-eyebrow">Frequency</div>
+            <div className="fa-onb-h">Train twice a day?</div>
+            <div className="fa-onb-s">A short mobility / cardio session in the morning and a longer strength or skill session later. Great for fat loss + mobility.</div>
+            <div className="fa-card fa-row-between" style={{ padding: '18px 22px' }}>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 16 }}>Two-a-day mode</div>
+                <div className="fa-muted" style={{ fontSize: 13, marginTop: 2 }}>AM + PM sessions</div>
+              </div>
+              <Toggle value={p.twoPerDay} onChange={v => set('twoPerDay', v)} />
             </div>
           </>
         )}
@@ -246,43 +295,46 @@ function Onboarding({ onDone }) {
             <div className="fa-onb-s">Consistency matters more than intensity. Pick what you&apos;ll actually do.</div>
             <div className="fa-card fa-row-between" style={{ padding: '18px 22px' }}>
               <span style={{ fontWeight: 600, fontSize: 16 }}>Training days</span>
-              <Stepper value={p.daysPerWeek} onChange={v => set('daysPerWeek', v)} min={2} max={6} suffix="/wk" />
+              <Stepper value={p.daysPerWeek} onChange={v => set('daysPerWeek', v)} min={2} max={7} suffix="/wk" />
             </div>
           </>
         )}
 
-        {cur === 'review' && (
-          <>
-            <div style={{ marginTop: 20, marginBottom: 16, fontSize: 56, textAlign: 'center' }}>✨</div>
-            <div className="fa-onb-eyebrow fa-text-center">All set</div>
-            <div className="fa-onb-h fa-text-center">Your plan is ready.</div>
-            <div className="fa-onb-s fa-text-center">A {window.FaGoals.find(g => g.id === p.goal)?.title.toLowerCase()} plan, {p.daysPerWeek}× per week, built for {window.FaEquipment.find(e => e.id === p.equipment)?.title.toLowerCase()}.</div>
+        {cur === 'review' && (() => {
+          const gear = p.equipment.map(id => window.FaEquipment.find(e => e.id === id)?.title).filter(Boolean);
+          return (
+            <>
+              <div style={{ marginTop: 20, marginBottom: 16, fontSize: 56, textAlign: 'center' }}>✨</div>
+              <div className="fa-onb-eyebrow fa-text-center">All set</div>
+              <div className="fa-onb-h fa-text-center">Your plan is ready.</div>
+              <div className="fa-onb-s fa-text-center">A {window.FaGoals.find(g => g.id === p.goal)?.title.toLowerCase()} plan, {p.daysPerWeek}× per week{p.twoPerDay ? ', AM + PM' : ''}.</div>
 
-            <div className="fa-list fa-mt-16">
-              <div className="fa-list-row">
-                <div className="fa-list-icon" style={{ background: 'var(--fa-accent)' }}><I.Target size={16}/></div>
-                <div className="fa-list-text">
-                  <div className="fa-list-title">{p.weight} kg → {p.goalWeight} kg</div>
-                  <div className="fa-list-sub">{Math.abs(p.weight - p.goalWeight).toFixed(1)} kg to go</div>
+              <div className="fa-list fa-mt-16">
+                <div className="fa-list-row">
+                  <div className="fa-list-icon" style={{ background: 'var(--fa-accent)' }}><I.Target size={16}/></div>
+                  <div className="fa-list-text">
+                    <div className="fa-list-title">{p.weight} kg → {p.goalWeight} kg</div>
+                    <div className="fa-list-sub">{Math.abs(p.weight - p.goalWeight).toFixed(1)} kg to go</div>
+                  </div>
+                </div>
+                <div className="fa-list-row">
+                  <div className="fa-list-icon" style={{ background: 'var(--fa-success)' }}><I.Flame size={16}/></div>
+                  <div className="fa-list-text">
+                    <div className="fa-list-title">~{window.FaUtils.estimateDailyCalories(p)} kcal / day</div>
+                    <div className="fa-list-sub">Estimated daily target for your goal</div>
+                  </div>
+                </div>
+                <div className="fa-list-row">
+                  <div className="fa-list-icon" style={{ background: 'var(--fa-blue)' }}><I.Calendar size={16}/></div>
+                  <div className="fa-list-text">
+                    <div className="fa-list-title">{p.daysPerWeek} days · {p.twoPerDay ? 'twice daily' : 'once daily'}</div>
+                    <div className="fa-list-sub">{gear.slice(0, 3).join(' · ')}{gear.length > 3 ? ` + ${gear.length - 3} more` : ''}</div>
+                  </div>
                 </div>
               </div>
-              <div className="fa-list-row">
-                <div className="fa-list-icon" style={{ background: 'var(--fa-success)' }}><I.Flame size={16}/></div>
-                <div className="fa-list-text">
-                  <div className="fa-list-title">~{window.FaUtils.estimateDailyCalories(p)} kcal / day</div>
-                  <div className="fa-list-sub">Estimated daily target for your goal</div>
-                </div>
-              </div>
-              <div className="fa-list-row">
-                <div className="fa-list-icon" style={{ background: 'var(--fa-blue)' }}><I.Calendar size={16}/></div>
-                <div className="fa-list-text">
-                  <div className="fa-list-title">{p.daysPerWeek} workouts per week</div>
-                  <div className="fa-list-sub">{window.FaEquipment.find(e => e.id === p.equipment)?.title}</div>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+            </>
+          );
+        })()}
       </div>
 
       <div className="fa-onb-foot">
@@ -297,7 +349,7 @@ function Onboarding({ onDone }) {
 }
 
 // ════════════════════════════════════════════════════════════
-//  ACTIVITY RINGS (Apple Fitness)
+//  ACTIVITY RINGS
 // ════════════════════════════════════════════════════════════
 
 function ActivityRings({ move = 0.78, exercise = 0.55, stand = 0.92 }) {
@@ -322,16 +374,157 @@ function ActivityRings({ move = 0.78, exercise = 0.55, stand = 0.92 }) {
 }
 
 // ════════════════════════════════════════════════════════════
-//  TODAY (HOME)
+//  REST TIMER MODAL
 // ════════════════════════════════════════════════════════════
 
-function TodayScreen({ profile, onGoTo }) {
+function RestTimer({ seconds = 60, onClose }) {
+  const [left, setLeft] = useState(seconds);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused) return;
+    const t = setInterval(() => setLeft(s => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [paused]);
+  useEffect(() => { if (left === 0) setTimeout(onClose, 600); }, [left, onClose]);
+
+  const r = 100, c = 2 * Math.PI * r;
+  const offset = c * (1 - left / seconds);
+  const mm = String(Math.floor(left / 60)).padStart(1, '0');
+  const ss = String(left % 60).padStart(2, '0');
+
+  return (
+    <div className="fa-timer-modal" onClick={onClose}>
+      <div className="fa-timer-inner" onClick={e => e.stopPropagation()}>
+        <div className="fa-timer-label">Rest</div>
+        <svg className="fa-timer-svg" viewBox="0 0 240 240">
+          <circle className="bg-ring" cx="120" cy="120" r={r} fill="none" strokeWidth="14"/>
+          <circle className="fg-ring" cx="120" cy="120" r={r} fill="none" strokeWidth="14"
+            strokeDasharray={c} strokeDashoffset={offset}
+            transform="rotate(-90 120 120)" />
+        </svg>
+        <div className="fa-timer-num">{mm}:{ss}</div>
+        <div className="fa-timer-actions">
+          <button onClick={() => setPaused(p => !p)}>
+            {paused ? <I.Play size={14}/> : <I.Pause size={14}/>} {paused ? 'Resume' : 'Pause'}
+          </button>
+          <button className="stop" onClick={onClose}><I.X size={14}/> End</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════
+//  AI TWEAK SHEET
+// ════════════════════════════════════════════════════════════
+
+function AiSheet({ context, onClose }) {
+  const [prompt, setPrompt] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const quick = [
+    { label: '🛏️  Make it easier today',    p: 'Make this workout 20% lighter — I slept badly.' },
+    { label: '🔥  Make it harder',          p: 'Make this 20% harder, I&apos;m feeling strong today.' },
+    { label: '⏱️  I only have 20 minutes',  p: 'Compress this into the most effective 20 minutes I can do right now.' },
+    { label: '🚴  Swap for a bike ride',    p: 'Replace today&apos;s workout with a road bike session of similar effort.' }
+  ];
+
+  const run = (q) => {
+    const text = q || prompt;
+    if (!text.trim()) return;
+    setLoading(true);
+    setResult(null);
+    // Stub: real implementation calls Claude via /api/tweak.
+    // For now we generate a sensible local response so the UX is complete.
+    setTimeout(() => {
+      const lines = [
+        `Got it. Here&apos;s a tweak for ${context?.title || 'today'}:`,
+        '',
+        '• Cut the kettlebell sets from 4 → 3 to save time',
+        '• Keep the 3 boxing rounds but make them 2 minutes each',
+        '• Add a 5-minute mobility cooldown — pigeon, world&apos;s greatest stretch, thoracic openers',
+        '',
+        'Want me to apply it?'
+      ].join('\n');
+      setResult(lines);
+      setLoading(false);
+    }, 700);
+  };
+
+  return (
+    <>
+      <div className="fa-sheet-backdrop" onClick={onClose}/>
+      <div className="fa-sheet" onClick={e => e.stopPropagation()}>
+        <div className="fa-sheet-grab"/>
+        <h3>Tweak with AI</h3>
+        <p className="lead">Tell me how you feel today, or pick one. I&apos;ll adapt the plan around it.</p>
+
+        <div className="fa-sheet-quick">
+          {quick.map(q => (
+            <button key={q.label} onClick={() => run(q.p)}>{q.label}</button>
+          ))}
+        </div>
+
+        <textarea
+          value={prompt}
+          onChange={e => setPrompt(e.target.value)}
+          placeholder="e.g. tired today, knee a bit sore, want to focus on core" />
+
+        <button className="fa-btn fa-mt-12" disabled={loading || !prompt.trim()}
+          style={{ opacity: (loading || !prompt.trim()) ? 0.5 : 1 }}
+          onClick={() => run()}>
+          <I.Sparkle size={16}/> {loading ? 'Thinking…' : 'Suggest a tweak'}
+        </button>
+
+        {result && (
+          <div className="fa-ai-result">
+            <div className="label"><I.Sparkle size={11}/> Suggested</div>
+            <p style={{ whiteSpace: 'pre-line' }}>{result}</p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+              <button className="fa-btn fa-btn-sm" onClick={onClose}>Apply</button>
+              <button className="fa-btn fa-btn-sm fa-btn-secondary" onClick={() => { setResult(null); setPrompt(''); }}>Try another</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════════
+//  SHARED: AM/PM SESSION CARD
+// ════════════════════════════════════════════════════════════
+
+function SessionCard({ when, session, done, onStart, onToggle }) {
+  if (!session) return null;
+  return (
+    <div className={`fa-sess ${when} ${done ? 'done' : ''}`}>
+      <div className="badge">{when === 'am' ? <I.Sunrise size={20}/> : <I.Sunset size={20}/>}</div>
+      <div className="info">
+        <div className="when">{when === 'am' ? 'Morning' : 'Evening'} · {session.minutes} min</div>
+        <div className="ttl">{session.title}</div>
+        <div className="meta">~{session.calories} kcal · {session.focus.join(' · ')}</div>
+      </div>
+      <button className="play" onClick={done ? onToggle : onStart} aria-label={done ? 'Mark as not done' : 'Start session'}>
+        {done ? <I.Check size={16} stroke={3}/> : <I.Play size={13}/>}
+      </button>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════
+//  TODAY
+// ════════════════════════════════════════════════════════════
+
+function TodayScreen({ profile, onGoTo, sessionsDone, toggleSession }) {
   const todayIdx = window.FaUtils.todayIndex();
-  const week = window.FaWeekTemplates.cut;
+  const week = window.FaUtils.weekFor(profile);
   const today = week[todayIdx];
-  const meals = window.FaMealPlan.cut_mediterranean.meals;
-  const targets = window.FaMealPlan.cut_mediterranean.targets;
+  const meals = window.FaUtils.mealsFor(profile).meals;
   const lostKg = (window.FaWeightHistory[0].w - window.FaWeightHistory[window.FaWeightHistory.length - 1].w).toFixed(1);
+  const [water, setWater] = useState(3);
+  const waterTarget = 8;
 
   return (
     <div className="fa-screen">
@@ -341,20 +534,17 @@ function TodayScreen({ profile, onGoTo }) {
       </div>
       <h1 className="fa-title-lg">Hi {(profile.name || 'there').split(' ')[0]}.</h1>
 
-      <div className="fa-hero">
-        <div className="kicker">Today&apos;s mission</div>
-        <div className="h">{today.type === 'rest' ? 'Rest day — earned it.' : today.title}</div>
-        <div className="s">
-          {today.type === 'rest'
-            ? 'Recover, stretch a little, drink water and sleep well tonight.'
-            : `${today.minutes} min · ~${today.calories} kcal · ${today.focus.join(' · ')}`}
-        </div>
-        {today.type !== 'rest' && (
-          <button className="cta" onClick={() => onGoTo('workouts')}>
-            <I.Play size={12}/> Start workout
-          </button>
-        )}
-      </div>
+      <div className="fa-section-label" style={{ marginTop: 4 }}>Today&apos;s sessions</div>
+      <SessionCard when="am" session={today.am}
+        done={!!sessionsDone[`${todayIdx}-am`]}
+        onStart={() => onGoTo('workouts')}
+        onToggle={() => toggleSession(`${todayIdx}-am`)} />
+      {profile.twoPerDay && today.pm && (
+        <SessionCard when="pm" session={today.pm}
+          done={!!sessionsDone[`${todayIdx}-pm`]}
+          onStart={() => onGoTo('workouts')}
+          onToggle={() => toggleSession(`${todayIdx}-pm`)} />
+      )}
 
       <div className="fa-stats">
         <div className="fa-stat">
@@ -366,6 +556,27 @@ function TodayScreen({ profile, onGoTo }) {
           <div className="label">Streak</div>
           <div className="value">12<span className="unit">days</span></div>
           <div className="delta"><I.Flame size={12}/> personal best</div>
+        </div>
+      </div>
+
+      <div className="fa-section-label">Water</div>
+      <div className="fa-card">
+        <div className="fa-row-between">
+          <div>
+            <div className="fa-card-title">{(water * 0.25).toFixed(2)} L of 2.0 L</div>
+            <div className="fa-card-sub">{water}/{waterTarget} cups · keep going</div>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="fa-btn-icon" onClick={() => setWater(Math.max(0, water - 1))}><I.Minus size={16}/></button>
+            <button className="fa-btn-icon" onClick={() => setWater(Math.min(waterTarget, water + 1))} style={{ background: 'var(--fa-blue)', color: '#fff' }}><I.Plus size={16}/></button>
+          </div>
+        </div>
+        <div className="fa-water-bar">
+          {Array.from({ length: waterTarget }).map((_, i) => (
+            <div key={i} className={`fa-water-cup ${i < water ? 'full' : ''}`}>
+              <I.Water size={14}/>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -394,22 +605,6 @@ function TodayScreen({ profile, onGoTo }) {
           </div>
         </div>
       </div>
-
-      <div className="fa-section-label">Today&apos;s targets</div>
-      <div className="fa-card">
-        <div className="fa-row-between">
-          <div>
-            <div className="fa-card-title">{targets.kcal} kcal</div>
-            <div className="fa-card-sub">P {targets.p}g · C {targets.c}g · F {targets.f}g</div>
-          </div>
-          <I.ChevR size={18} style={{ color: 'var(--fa-text-4)' }} />
-        </div>
-        <div className="fa-macro-bar">
-          <div className="seg p" style={{ width: '32%' }} />
-          <div className="seg c" style={{ width: '42%' }} />
-          <div className="seg f" style={{ width: '26%' }} />
-        </div>
-      </div>
     </div>
   );
 }
@@ -419,19 +614,32 @@ function TodayScreen({ profile, onGoTo }) {
 // ════════════════════════════════════════════════════════════
 
 function WorkoutsScreen({ profile }) {
-  const week = window.FaWeekTemplates.cut;
+  const week = window.FaUtils.weekFor(profile);
   const todayIdx = window.FaUtils.todayIndex();
   const [sel, setSel] = useState(todayIdx);
-  const [done, setDone] = useState({}); // exerciseIndex -> true
+  const [block, setBlock] = useState('am');
+  const [done, setDone] = useState({});
+  const [timer, setTimer] = useState(null);
+  const [ai, setAi] = useState(false);
 
   const w = week[sel];
-  const toggleDone = (i) => setDone(prev => ({ ...prev, [i]: !prev[i] }));
+  const cur = w[block] || w.am;
+  const toggleDone = (i) => setDone(prev => ({ ...prev, [`${sel}-${block}-${i}`]: !prev[`${sel}-${block}-${i}`] }));
+
+  const hasPM = profile.twoPerDay && w.pm;
 
   return (
     <div className="fa-screen">
       <div className="fa-screen-top">
         <span className="fa-date">{window.FaUtils.dayLabel()}</span>
-        <button className="fa-btn-icon"><I.Calendar size={18}/></button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="fa-btn-icon" onClick={() => setAi(true)} title="Tweak with AI" style={{ color: 'var(--fa-accent)' }}>
+            <I.Sparkle size={18}/>
+          </button>
+          <button className="fa-btn-icon" onClick={() => setTimer(60)} title="Rest timer">
+            <I.Timer size={18}/>
+          </button>
+        </div>
       </div>
       <h1 className="fa-title-lg">Workouts</h1>
 
@@ -439,7 +647,7 @@ function WorkoutsScreen({ profile }) {
         {week.map((d, i) => (
           <button key={i}
             className={`fa-day ${i === sel ? 'today' : ''} ${i < todayIdx ? 'done' : ''}`}
-            onClick={() => { setSel(i); setDone({}); }}>
+            onClick={() => { setSel(i); setDone({}); setBlock('am'); }}>
             <span className="dl">{d.day.slice(0,3).toUpperCase()}</span>
             <span className="dn">{i+1}</span>
             <span className="ds" />
@@ -447,27 +655,50 @@ function WorkoutsScreen({ profile }) {
         ))}
       </div>
 
-      <div className="fa-card-lg fa-mt-20" style={{ background: w.type === 'rest' ? 'linear-gradient(150deg, #6E6E73, #8E8E93)' : 'linear-gradient(150deg, #FF6B35, #FF8E5C)', color: '#fff' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.9 }}>{w.day} · {w.type}</div>
-        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', marginTop: 4 }}>{w.title}</div>
-        <div style={{ fontSize: 14, marginTop: 6, opacity: 0.92 }}>
-          {w.type === 'rest' ? 'No workout planned. Rest is part of the program.' : `${w.minutes} min · ~${w.calories} kcal · ${w.focus.join(' · ')}`}
+      {hasPM && (
+        <div className="fa-seg fa-mt-16">
+          <button className={block === 'am' ? 'active' : ''} onClick={() => setBlock('am')}>
+            ☀️ Morning · {w.am.minutes}m
+          </button>
+          <button className={block === 'pm' ? 'active' : ''} onClick={() => setBlock('pm')}>
+            🌙 Evening · {w.pm.minutes}m
+          </button>
         </div>
-        {w.type !== 'rest' && (
+      )}
+
+      <div className="fa-card-lg fa-mt-16" style={{
+        background: cur.exercises.length === 0
+          ? 'linear-gradient(150deg, #6E6E73, #8E8E93)'
+          : block === 'am'
+            ? 'linear-gradient(150deg, #FFB169, #FF6B35)'
+            : 'linear-gradient(150deg, #6E63E3, #AF52DE)',
+        color: '#fff'
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.9 }}>
+          {w.day} · {block === 'am' ? 'Morning' : 'Evening'}
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', marginTop: 4 }}>{cur.title}</div>
+        <div style={{ fontSize: 14, marginTop: 6, opacity: 0.92 }}>
+          {cur.exercises.length === 0
+            ? 'No workout planned. Rest is part of the program.'
+            : `${cur.minutes} min · ~${cur.calories} kcal · ${cur.focus.join(' · ')}`}
+        </div>
+        {cur.exercises.length > 0 && (
           <button className="cta" style={{
             marginTop: 14, background: 'rgba(255,255,255,0.22)', border: '1px solid rgba(255,255,255,0.3)',
             color: '#fff', padding: '10px 16px', borderRadius: 999, fontWeight: 600, fontSize: 14, display: 'inline-flex', gap: 6, alignItems: 'center'
-          }}>
+          }} onClick={() => setTimer(60)}>
             <I.Play size={12}/> Begin
           </button>
         )}
       </div>
 
-      {w.exercises.length > 0 && <>
+      {cur.exercises.length > 0 && <>
         <div className="fa-section-label">Exercises</div>
         <div className="fa-card">
-          {w.exercises.map((ex, i) => {
+          {cur.exercises.map((ex, i) => {
             const meta = window.FaExerciseLib[ex.id] || { name: ex.id, muscle: '' };
+            const key = `${sel}-${block}-${i}`;
             return (
               <div key={i} className="fa-ex-row">
                 <div className="fa-ex-thumb" style={{ fontSize: 24 }}>{meta.emoji}</div>
@@ -475,14 +706,17 @@ function WorkoutsScreen({ profile }) {
                   <div className="fa-ex-name">{meta.name}</div>
                   <div className="fa-ex-meta">{ex.sets} × {ex.reps} · rest {ex.rest} · {meta.muscle}</div>
                 </div>
-                <button className={`fa-ex-check ${done[i] ? 'done' : ''}`} onClick={() => toggleDone(i)}>
-                  {done[i] && <I.Check size={14} stroke={3}/>}
+                <button className={`fa-ex-check ${done[key] ? 'done' : ''}`} onClick={() => toggleDone(i)}>
+                  {done[key] && <I.Check size={14} stroke={3}/>}
                 </button>
               </div>
             );
           })}
         </div>
       </>}
+
+      {timer != null && <RestTimer seconds={timer} onClose={() => setTimer(null)}/>}
+      {ai && <AiSheet context={cur} onClose={() => setAi(false)}/>}
     </div>
   );
 }
@@ -492,7 +726,8 @@ function WorkoutsScreen({ profile }) {
 // ════════════════════════════════════════════════════════════
 
 function MealsScreen({ profile }) {
-  const plan = window.FaMealPlan.cut_mediterranean;
+  const plan = window.FaUtils.mealsFor(profile);
+  const [ai, setAi] = useState(false);
   const totals = plan.meals.reduce((acc, m) => ({
     kcal: acc.kcal + m.kcal, p: acc.p + m.p, c: acc.c + m.c, f: acc.f + m.f
   }), { kcal: 0, p: 0, c: 0, f: 0 });
@@ -505,7 +740,9 @@ function MealsScreen({ profile }) {
     <div className="fa-screen">
       <div className="fa-screen-top">
         <span className="fa-date">{window.FaUtils.dayLabel()}</span>
-        <button className="fa-btn-icon"><I.Plus size={18}/></button>
+        <button className="fa-btn-icon" onClick={() => setAi(true)} style={{ color: 'var(--fa-accent)' }}>
+          <I.Sparkle size={18}/>
+        </button>
       </div>
       <h1 className="fa-title-lg">Meals</h1>
 
@@ -548,7 +785,11 @@ function MealsScreen({ profile }) {
         </div>
       ))}
 
-      <button className="fa-btn-secondary fa-btn fa-mt-16"><I.Sparkle size={16}/> Swap to a new menu</button>
+      <button className="fa-btn fa-btn-secondary fa-mt-16" onClick={() => setAi(true)}>
+        <I.Sparkle size={16}/> Swap to a new menu
+      </button>
+
+      {ai && <AiSheet context={{ title: 'today&apos;s meals' }} onClose={() => setAi(false)}/>}
     </div>
   );
 }
@@ -625,14 +866,14 @@ function ProgressScreen({ profile }) {
               <div style={{ fontSize: 38, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1 }}>
                 {cur.toFixed(1)}<span style={{ fontSize: 16, fontWeight: 600, color: 'var(--fa-text-3)', marginLeft: 4 }}>kg</span>
               </div>
-              <div className="delta down" style={{ color: 'var(--fa-success)', fontWeight: 600, fontSize: 13, display: 'inline-flex', gap: 4, alignItems: 'center', marginTop: 4 }}>
+              <div style={{ color: 'var(--fa-success)', fontWeight: 600, fontSize: 13, display: 'inline-flex', gap: 4, alignItems: 'center', marginTop: 4 }}>
                 <I.ChevDown size={12}/> {(start - cur).toFixed(1)} kg total
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="fa-section-label" style={{ margin: 0 }}>Goal</div>
               <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.018em' }}>{target} kg</div>
-              <div className="fa-pill fa-mt-12" style={{ marginTop: 6 }}>{pct}% there</div>
+              <div className="fa-pill" style={{ marginTop: 6 }}>{pct}% there</div>
             </div>
           </div>
           <div className="fa-mt-16">
@@ -679,11 +920,11 @@ function ProgressScreen({ profile }) {
       {tab === 'measure' && <>
         <div className="fa-mt-16 fa-list">
           {[
-            ['Chest',  '102 cm', '−1.5 cm'],
-            ['Waist',  '94 cm',  '−4.0 cm'],
-            ['Hips',   '101 cm', '−2.0 cm'],
-            ['Arm',    '35 cm',  '+0.5 cm'],
-            ['Thigh',  '60 cm',  '−1.0 cm']
+            ['Chest',  '104 cm', '−1.5 cm'],
+            ['Waist',  '98 cm',  '−4.0 cm'],
+            ['Hips',   '103 cm', '−2.0 cm'],
+            ['Arm',    '36 cm',  '+0.5 cm'],
+            ['Thigh',  '62 cm',  '−1.0 cm']
           ].map(([n, v, d]) => (
             <div key={n} className="fa-list-row">
               <div className="fa-list-icon" style={{ background: 'var(--fa-accent)' }}><I.Ruler size={14}/></div>
@@ -709,8 +950,9 @@ function ProfileScreen({ profile, onReset, onUpdate }) {
   const bmi = window.FaUtils.bmi(profile.weight, profile.height);
   const goal = window.FaGoals.find(g => g.id === profile.goal);
   const diet = window.FaDiets.find(d => d.id === profile.diet);
-  const equip = window.FaEquipment.find(e => e.id === profile.equipment);
+  const equipNames = (profile.equipment || []).map(id => window.FaEquipment.find(e => e.id === id)?.title).filter(Boolean);
   const kcal = window.FaUtils.estimateDailyCalories(profile);
+  const [ai, setAi] = useState(false);
 
   return (
     <div className="fa-screen">
@@ -756,8 +998,16 @@ function ProfileScreen({ profile, onReset, onUpdate }) {
         <div className="fa-list-row">
           <div className="fa-list-icon" style={{ background: 'var(--fa-blue)' }}><I.Calendar size={14}/></div>
           <div className="fa-list-text">
-            <div className="fa-list-title">Training days</div>
-            <div className="fa-list-sub">{profile.daysPerWeek} per week · {equip?.title}</div>
+            <div className="fa-list-title">Training schedule</div>
+            <div className="fa-list-sub">{profile.daysPerWeek} days · {profile.twoPerDay ? 'twice daily' : 'once daily'}</div>
+          </div>
+          <I.ChevR size={16} style={{ color: 'var(--fa-text-4)' }} />
+        </div>
+        <div className="fa-list-row">
+          <div className="fa-list-icon" style={{ background: 'var(--fa-warn)' }}><I.Dumbbell size={14}/></div>
+          <div className="fa-list-text">
+            <div className="fa-list-title">Your gear</div>
+            <div className="fa-list-sub">{equipNames.join(' · ') || 'None selected'}</div>
           </div>
           <I.ChevR size={16} style={{ color: 'var(--fa-text-4)' }} />
         </div>
@@ -781,14 +1031,14 @@ function ProfileScreen({ profile, onReset, onUpdate }) {
           </div>
           <I.ChevR size={16} style={{ color: 'var(--fa-text-4)' }} />
         </div>
-        <div className="fa-list-row">
+        <button className="fa-list-row" onClick={() => setAi(true)}>
           <div className="fa-list-icon" style={{ background: '#5856D6' }}><I.Sparkle size={14}/></div>
           <div className="fa-list-text">
-            <div className="fa-list-title">Let AI tweak my plan</div>
-            <div className="fa-list-sub">Coming soon</div>
+            <div className="fa-list-title">Tweak my plan with AI</div>
+            <div className="fa-list-sub">Ask for changes any time</div>
           </div>
           <I.ChevR size={16} style={{ color: 'var(--fa-text-4)' }} />
-        </div>
+        </button>
         <div className="fa-list-row">
           <div className="fa-list-icon" style={{ background: 'var(--fa-text-3)' }}><I.Edit size={14}/></div>
           <div className="fa-list-text">
@@ -802,13 +1052,15 @@ function ProfileScreen({ profile, onReset, onUpdate }) {
       <button className="fa-btn fa-btn-secondary fa-mt-20" onClick={onReset}>
         <I.Logout size={16}/> Reset & start onboarding again
       </button>
-      <div className="fa-card-sub fa-mt-12 fa-text-center">v0.1 · design preview · mock data</div>
+      <div className="fa-card-sub fa-mt-12 fa-text-center">v0.2 · design preview · mock data</div>
+
+      {ai && <AiSheet context={{ title: 'whole plan' }} onClose={() => setAi(false)}/>}
     </div>
   );
 }
 
 // ════════════════════════════════════════════════════════════
-//  APP SHELL + TAB BAR
+//  TAB BAR
 // ════════════════════════════════════════════════════════════
 
 function TabBar({ tab, onTab }) {
@@ -836,8 +1088,9 @@ function TabBar({ tab, onTab }) {
 function App() {
   const [profile, setProfile] = useState(() => loadProfile());
   const [tab, setTab] = useState('today');
+  const [sessionsDone, setSessionsDone] = useState({});
+  const toggleSession = (key) => setSessionsDone(prev => ({ ...prev, [key]: !prev[key] }));
 
-  // First load: if no profile, start onboarding. URL ?demo=1 loads default profile.
   useEffect(() => {
     if (!profile) {
       const params = new URLSearchParams(window.location.search);
@@ -855,7 +1108,7 @@ function App() {
 
   return (
     <div className="fa-app">
-      {tab === 'today'    && <TodayScreen   profile={profile} onGoTo={setTab} />}
+      {tab === 'today'    && <TodayScreen   profile={profile} onGoTo={setTab} sessionsDone={sessionsDone} toggleSession={toggleSession} />}
       {tab === 'workouts' && <WorkoutsScreen profile={profile} />}
       {tab === 'meals'    && <MealsScreen    profile={profile} />}
       {tab === 'progress' && <ProgressScreen profile={profile} />}
