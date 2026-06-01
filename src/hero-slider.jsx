@@ -273,7 +273,7 @@ function HeroSlider() {
           <a href="#plan" className="btn btn-primary ms-hero-cta">
             {tx('Plan my trip', 'Planlegg min reise', 'Planifier mon voyage', 'Planera min resa')} →
           </a>
-          <a href="https://wa.me/212698164331" target="_blank" rel="noopener" className="btn btn-outline ms-hero-cta ms-hero-cta-alt">
+          <a href="https://wa.me/4745774743" target="_blank" rel="noopener" className="btn btn-outline ms-hero-cta ms-hero-cta-alt">
             {tx('Chat on WhatsApp', 'Chat på WhatsApp', 'WhatsApp', 'Chatta på WhatsApp')}
           </a>
         </div>

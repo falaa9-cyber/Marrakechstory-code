@@ -514,7 +514,7 @@ function ItineraryBuilder() {
         ${data.notes ? `<div style="background:#fdfaf6;border-radius:10px;padding:20px 24px;margin-top:16px;border:1px solid #ece1d2;"><strong>Notater:</strong> ${data.notes}</div>` : ''}
 
         <div style="margin-top:40px;padding-top:28px;border-top:1px solid #ece1d2;display:flex;justify-content:space-between;font-size:12px;color:#6b594d;">
-          <span>MarrakechStory · Marrakechstory@outlook.com · +212 6 943 45 354</span>
+          <span>Marrakechstory · Marrakechstory@outlook.com · +47 457 74 743</span>
           <span>www.marrakechstory.com</span>
         </div>
       </div>
@@ -526,7 +526,7 @@ function ItineraryBuilder() {
       document.body.appendChild(el);
       window.html2pdf().set({
         margin: 0,
-        filename: `MarrakechStory-Reiseplan-${data.name || 'gjest'}.pdf`,
+        filename: `Marrakechstory-Reiseplan-${data.name || 'gjest'}.pdf`,
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       }).from(el).save().then(() => document.body.removeChild(el));
@@ -555,7 +555,7 @@ function ItineraryBuilder() {
   const sendWhatsapp = () => {
     if (!window.MS_Auth_User && window.MS_Auth_Prompt) window.MS_Auth_Prompt('register');
     const msg = encodeURIComponent(
-      (ctx.lang === 'no' ? 'Hei Marrakech Story! ' : 'Hi Marrakech Story! ') +
+      (ctx.lang === 'no' ? 'Hei Marrakechstory! ' : 'Hi Marrakechstory! ') +
       (ctx.lang === 'no' ? 'Jeg vil booke:\n\n' : 'I would like to book:\n\n') +
       buildSummary()
     );
@@ -568,7 +568,7 @@ function ItineraryBuilder() {
     if (window.MS_submitForm) {
       window.MS_submitForm('itinerary', { ...data, bookingCtx }, { via: 'whatsapp' });
     }
-    window.open(`https://wa.me/212698164331?text=${msg}`, '_blank');
+    window.open(`https://wa.me/4745774743?text=${msg}`, '_blank');
     setSent(true);
   };
 
@@ -583,7 +583,7 @@ function ItineraryBuilder() {
 
     const totalPax = data.travellers.adults + data.travellers.children + data.travellers.infants;
     const body = encodeURIComponent(
-      `Hei Marrakech Story,\n\nJeg vil planlegge en reise — detaljer fra reiseplanleggeren:\n\n` +
+      `Hei Marrakechstory,\n\nJeg vil planlegge en reise — detaljer fra reiseplanleggeren:\n\n` +
       `— VARIGHET —\n${data.duration} dager\n\n` +
       `— REISENDE —\n${data.travellers.adults} voksne · ${data.travellers.children} barn · ${data.travellers.infants} spedbarn (${totalPax} totalt)\n\n` +
       `— DATOER —\nStart: ${data.startDate} (${data.flex})\n\n` +

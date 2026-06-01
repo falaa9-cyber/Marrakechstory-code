@@ -218,7 +218,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
           <>
             <div className="auth-hero">
               <div className="auth-logo">
-                <img src="assets/logo.png" alt="Marrakech Story" />
+                <img src="assets/logo.png" alt="Marrakechstory" />
               </div>
               <h2 className="auth-title">
                 {T('Welcome to ', 'Velkommen til ', 'Bienvenue chez ')}<em>MarrakechStory</em>

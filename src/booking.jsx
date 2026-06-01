@@ -7,7 +7,7 @@
 const { useState: useStateB, useEffect: useEffectB, useMemo: useMemoB, useRef: useRefB } = React;
 const Ib = window.MS_I;
 
-const WHATSAPP = "212698164331";
+const WHATSAPP = "4745774743";
 
 // ── Helpers ────────────────────────────────────────────────────
 function todayPlusBk(days) {
@@ -67,9 +67,9 @@ function QuickBookModal({ item, tab, onClose }) {
 
   const buildMessage = () => {
     return tx(
-      `Hi Marrakech Story, I'd like to book just this:\n\n• ${item.name}\n• Date: ${dateLabel}\n• People: ${people}\n• Name: ${name}\n• Email: ${email}\n• Phone: ${phone}${transportLine()}${notes ? `\n• Notes: ${notes}` : ''}`,
-      `Hei Marrakech Story, jeg vil bestille kun dette:\n\n• ${item.name}\n• Dato: ${dateLabel}\n• Antall: ${people}\n• Navn: ${name}\n• E-post: ${email}\n• Telefon: ${phone}${transportLine()}${notes ? `\n• Notater: ${notes}` : ''}`,
-      `Bonjour Marrakech Story, je souhaite réserver uniquement ceci :\n\n• ${item.name}\n• Date : ${dateLabel}\n• Personnes : ${people}\n• Nom : ${name}\n• Email : ${email}\n• Téléphone : ${phone}${transportLine()}${notes ? `\n• Notes : ${notes}` : ''}`
+      `Hi Marrakechstory, I'd like to book just this:\n\n• ${item.name}\n• Date: ${dateLabel}\n• People: ${people}\n• Name: ${name}\n• Email: ${email}\n• Phone: ${phone}${transportLine()}${notes ? `\n• Notes: ${notes}` : ''}`,
+      `Hei Marrakechstory, jeg vil bestille kun dette:\n\n• ${item.name}\n• Dato: ${dateLabel}\n• Antall: ${people}\n• Navn: ${name}\n• E-post: ${email}\n• Telefon: ${phone}${transportLine()}${notes ? `\n• Notater: ${notes}` : ''}`,
+      `Bonjour Marrakechstory, je souhaite réserver uniquement ceci :\n\n• ${item.name}\n• Date : ${dateLabel}\n• Personnes : ${people}\n• Nom : ${name}\n• Email : ${email}\n• Téléphone : ${phone}${transportLine()}${notes ? `\n• Notes : ${notes}` : ''}`
     );
   };
 
@@ -252,9 +252,9 @@ function TweakItineraryModal({ trip, onClose }) {
       return `Day ${d.day} — ${d.route}\n   ${d.text}${extrasText ? '\n' + extrasText : ''}`;
     }).join('\n\n');
     return tx(
-      `Hi Marrakech Story, I'd like to book this trip with my own tweaks:\n\nBase trip: ${trip.title} (${trip.duration})\nStart date: ${dateLabel}\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMy custom day-by-day:\n\n${tripLines}\n\n${notes ? `Notes: ${notes}` : ''}`,
-      `Hei Marrakech Story, jeg vil bestille denne turen med mine tilpasninger:\n\nBasetur: ${trip.title} (${trip.duration})\nStartdato: ${dateLabel}\n\nNavn: ${name}\nE-post: ${email}\nTelefon: ${phone}\n\nMin tilpassede plan:\n\n${tripLines}\n\n${notes ? `Notater: ${notes}` : ''}`,
-      `Bonjour Marrakech Story, je souhaite réserver ce voyage avec mes ajustements :\n\nBase : ${trip.title} (${trip.duration})\nDate de début : ${dateLabel}\n\nNom : ${name}\nEmail : ${email}\nTéléphone : ${phone}\n\nMon planning personnalisé :\n\n${tripLines}\n\n${notes ? `Notes : ${notes}` : ''}`
+      `Hi Marrakechstory, I'd like to book this trip with my own tweaks:\n\nBase trip: ${trip.title} (${trip.duration})\nStart date: ${dateLabel}\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMy custom day-by-day:\n\n${tripLines}\n\n${notes ? `Notes: ${notes}` : ''}`,
+      `Hei Marrakechstory, jeg vil bestille denne turen med mine tilpasninger:\n\nBasetur: ${trip.title} (${trip.duration})\nStartdato: ${dateLabel}\n\nNavn: ${name}\nE-post: ${email}\nTelefon: ${phone}\n\nMin tilpassede plan:\n\n${tripLines}\n\n${notes ? `Notater: ${notes}` : ''}`,
+      `Bonjour Marrakechstory, je souhaite réserver ce voyage avec mes ajustements :\n\nBase : ${trip.title} (${trip.duration})\nDate de début : ${dateLabel}\n\nNom : ${name}\nEmail : ${email}\nTéléphone : ${phone}\n\nMon planning personnalisé :\n\n${tripLines}\n\n${notes ? `Notes : ${notes}` : ''}`
     );
   };
 

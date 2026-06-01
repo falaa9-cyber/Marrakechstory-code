@@ -150,12 +150,12 @@ function CatalogModal({ item, tab, onClose, lang }) {
 
   const bookRentalOnWhatsapp = () => {
     const msg = tx(
-      `Hello Marrakech Story, I'd like to book ${item.name} from ${pickupDate} to ${returnDate} (${rentalDays} days).`,
-      `Hei Marrakech Story, jeg vil booke ${item.name} fra ${pickupDate} til ${returnDate} (${rentalDays} dager).`,
-      `Bonjour Marrakech Story, je souhaite louer ${item.name} du ${pickupDate} au ${returnDate} (${rentalDays} jours).`,
-      `Hej Marrakech Story, jag vill boka ${item.name} från ${pickupDate} till ${returnDate} (${rentalDays} dagar).`
+      `Hello Marrakechstory, I'd like to book ${item.name} from ${pickupDate} to ${returnDate} (${rentalDays} days).`,
+      `Hei Marrakechstory, jeg vil booke ${item.name} fra ${pickupDate} til ${returnDate} (${rentalDays} dager).`,
+      `Bonjour Marrakechstory, je souhaite louer ${item.name} du ${pickupDate} au ${returnDate} (${rentalDays} jours).`,
+      `Hej Marrakechstory, jag vill boka ${item.name} från ${pickupDate} till ${returnDate} (${rentalDays} dagar).`
     );
-    window.open(`https://wa.me/212698164331?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    window.open(`https://wa.me/4745774743?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
   };
 
   const addToReservation = () => {
@@ -198,12 +198,12 @@ function CatalogModal({ item, tab, onClose, lang }) {
           )}
           {item.perk && (
             <div className="cat-modal-perk">
-              <span className="cat-modal-perk-label">{tx('Marrakech Story perk', 'Marrakech Story-fordel', 'Avantage Marrakech Story', 'Marrakech Story-fördel')}</span>
+              <span className="cat-modal-perk-label">{tx('Marrakechstory perk', 'Marrakechstory-fordel', 'Avantage Marrakechstory', 'Marrakechstory-fördel')}</span>
               <span className="cat-modal-perk-text">{item.perk}</span>
             </div>
           )}
           {(() => {
-            // Marrakech Story policy: transport is NEVER included in catalog
+            // Marrakechstory policy: transport is NEVER included in catalog
             // bookings except for two activities — hot-air balloons and
             // paragliding — where the operator round-trips you from your
             // riad as part of the safety / weather window.

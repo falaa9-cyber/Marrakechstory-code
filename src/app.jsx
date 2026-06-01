@@ -106,7 +106,7 @@ function Nav() {
     <nav className={`nav ${scrolled ? 'scrolled' : ''} ${overHero && !scrolled ? 'over-hero' : ''}`}>
       <div className="wrap-wide nav-inner">
         <a href="#home" className="nav-logo">
-          <img src="assets/logo.png" alt="Marrakech Story" className="logo-img" />
+          <img src="assets/logo.png" alt="Marrakechstory" className="logo-img" />
           <span>Marrakech<em style={{ fontStyle: 'italic', fontWeight: 400, opacity: .7, marginLeft: 2 }}>Story</em></span>
         </a>
         <div className="nav-links">
@@ -139,7 +139,7 @@ function Footer() {
         <div className="footer-grid">
           <div>
             <a href="#home" className="nav-logo" style={{ color: '#fff' }}>
-              <img src="assets/logo.png" alt="Marrakech Story" style={{ width: 46, height: 46, borderRadius: 10, objectFit: 'cover' }} />
+              <img src="assets/logo.png" alt="Marrakechstory" style={{ width: 46, height: 46, borderRadius: 10, objectFit: 'cover' }} />
               <span style={{ fontSize: 22 }}>Marrakech<em style={{ fontStyle: 'italic', fontWeight: 400, opacity: .7, marginLeft: 2 }}>Story</em></span>
             </a>
             <div className="footer-tag">
@@ -187,7 +187,7 @@ function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Marrakech Story · IATA accredited · ONMT licence #14872 · {t('foot_rights')}</span>
+          <span>© 2026 Marrakechstory · IATA accredited · ONMT licence #14872 · {t('foot_rights')}</span>
           <span style={{ display: 'flex', gap: 18 }}>
             <a href="#">{t('foot_privacy')}</a>
             <a href="#">{t('foot_terms')}</a>

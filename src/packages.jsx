@@ -206,7 +206,6 @@ function Packages() {
                   <div className="terms-contact">
                     <a href="mailto:Marrakechstory@outlook.com">Marrakechstory@outlook.com</a>
                     <a href="https://www.marrakechstory.com" target="_blank" rel="noopener">www.marrakechstory.com</a>
-                    <span>+212 6 943 45 354</span>
                     <span>+47 457 74 743</span>
                   </div>
                 </div>

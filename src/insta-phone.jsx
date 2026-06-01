@@ -197,7 +197,7 @@ function InstagramPhoneMockup() {
 
       {/* CTA pill above the phone */}
       <a className="ip-follow-btn" href={IP_URL} target="_blank" rel="noopener"
-        aria-label="Follow Marrakech Story on Instagram">
+        aria-label="Follow Marrakechstory on Instagram">
         <span aria-hidden="true">📸</span>
         <span>Follow us on Instagram <strong>@{IP_USERNAME}</strong></span>
       </a>

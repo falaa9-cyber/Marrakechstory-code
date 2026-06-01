@@ -16,7 +16,7 @@ const STANDARD_TERMS = {
     "Includes a private driver-guide on all transfers — never shared with another group.",
     "Travel insurance is strongly recommended. We can suggest a partner if needed.",
     "Itinerary is fully customisable — pace, hotels and stops can be adjusted at planning stage.",
-    "Reply within 24 hours via email or WhatsApp (+212 698 164 331).",
+    "Reply within 24 hours via email or WhatsApp (+47 457 74 743).",
   ],
   no: [
     "30 % depositum ved booking via sikker betalingslenke; resten betales 30 dager før avreise.",
@@ -26,7 +26,7 @@ const STANDARD_TERMS = {
     "Inkluderer privat sjåfør-guide på alle transferer — aldri delt med andre grupper.",
     "Reiseforsikring anbefales sterkt. Vi kan foreslå en partner ved behov.",
     "Reiseplanen er fullt tilpassbar — tempo, hoteller og stopp kan justeres under planlegging.",
-    "Svar innen 24 timer via e-post eller WhatsApp (+212 698 164 331).",
+    "Svar innen 24 timer via e-post eller WhatsApp (+47 457 74 743).",
   ],
   fr: [
     "30 % d'acompte à la réservation via lien sécurisé ; solde dû 30 jours avant le départ.",
@@ -36,7 +36,7 @@ const STANDARD_TERMS = {
     "Inclut un chauffeur-guide privé sur tous les transferts — jamais partagé avec un autre groupe.",
     "Une assurance voyage est fortement recommandée. Nous pouvons suggérer un partenaire.",
     "Itinéraire entièrement personnalisable — rythme, hôtels et étapes ajustables en planification.",
-    "Réponse sous 24 h par e-mail ou WhatsApp (+212 698 164 331).",
+    "Réponse sous 24 h par e-mail ou WhatsApp (+47 457 74 743).",
   ],
   sv: [
     "30 % deposition vid bokning via säker betalningslänk; resterande belopp betalas 30 dagar före avresa.",
@@ -46,7 +46,7 @@ const STANDARD_TERMS = {
     "Inkluderar privat chaufför-guide på alla transfers — aldrig delad med en annan grupp.",
     "Reseförsäkring rekommenderas starkt. Vi kan föreslå en partner vid behov.",
     "Resplanen är fullt anpassningsbar — tempo, hotell och stopp kan justeras under planeringsstadiet.",
-    "Svar inom 24 timmar via e-post eller WhatsApp (+212 698 164 331).",
+    "Svar inom 24 timmar via e-post eller WhatsApp (+47 457 74 743).",
   ],
 };
 
@@ -141,7 +141,7 @@ const ITINS = [
       { en: "Lunch on Day 02 at a partner riad (three courses)", no: "Lunsj dag 02 i et partner-riad (tre retter)", fr: "Déjeuner le Jour 02 dans un riad partenaire (trois plats)" },
       { en: "60-minute traditional hammam & gommage at a private spa", no: "60 minutters tradisjonelt hammam & gommage på et privat spa", fr: "Hammam traditionnel de 60 min & gommage dans un spa privé" },
       { en: "Skip-the-line tickets to Jardin Majorelle and YSL Museum", no: "Billetter uten kø til Jardin Majorelle og YSL-museet", fr: "Billets coupe-file pour le Jardin Majorelle et le Musée YSL" },
-      { en: "24/7 in-country support from the Marrakech Story team (WhatsApp)", no: "24/7 støtte i landet fra Marrakech Story-teamet (WhatsApp)", fr: "Assistance 24h/24 sur place par l'équipe Marrakech Story (WhatsApp)" },
+      { en: "24/7 in-country support from the Marrakechstory team (WhatsApp)", no: "24/7 støtte i landet fra Marrakechstory-teamet (WhatsApp)", fr: "Assistance 24h/24 sur place par l'équipe Marrakechstory (WhatsApp)" },
       { en: "Welcome briefing and printed walking map of the medina", no: "Velkomstbriefing og trykt vandrekart over medina", fr: "Briefing d'accueil et carte de balade imprimée de la médina" },
     ],
     excluded: [
@@ -189,7 +189,7 @@ const ITINS = [
       { en: "Lunch on Day 03 en route to Agafay", no: "Lunsj dag 03 på vei til Agafay", fr: "Déjeuner le Jour 03 en route vers l'Agafay" },
       { en: "Dinner on Day 03 at the camp (set menu, three courses)", no: "Middag dag 03 i leiren (fast meny, tre retter)", fr: "Dîner le Jour 03 au camp (menu fixe, trois plats)" },
       { en: "Camel ride at sunset (or substitute activity)", no: "Kamelritt i solnedgang (eller alternativ aktivitet)", fr: "Balade à dos de chameau au coucher du soleil (ou activité de substitution)" },
-      { en: "24/7 WhatsApp support from the Marrakech Story team", no: "24/7 WhatsApp-støtte fra Marrakech Story-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakech Story" },
+      { en: "24/7 WhatsApp support from the Marrakechstory team", no: "24/7 WhatsApp-støtte fra Marrakechstory-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakechstory" },
     ],
     excluded: [
       { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
@@ -240,7 +240,7 @@ const ITINS = [
       { en: "Skip-the-line tickets to Jardin Majorelle and YSL Museum", no: "Billetter uten kø til Jardin Majorelle og YSL-museet", fr: "Billets coupe-file pour le Jardin Majorelle et le Musée YSL" },
       { en: "High Atlas day: guided Berber village walk + home-cooked family lunch", no: "Høyatlas-dag: guidet berberlandsbyvandring + hjemmelaget familielunsj", fr: "Journée Haut Atlas : balade guidée dans un village berbère + déjeuner familial cuisiné à la maison" },
       { en: "Camel ride at sunset in the Agafay + dinner at the camp (three-course set menu)", no: "Kamelritt i solnedgang i Agafay + middag i leiren (tre-retters fast meny)", fr: "Balade à dos de chameau au coucher du soleil à l’Agafay + dîner au camp (menu fixe trois plats)" },
-      { en: "24/7 WhatsApp support from the Marrakech Story team", no: "24/7 WhatsApp-støtte fra Marrakech Story-teamet", fr: "Assistance WhatsApp 24h/24 de l’équipe Marrakech Story" },
+      { en: "24/7 WhatsApp support from the Marrakechstory team", no: "24/7 WhatsApp-støtte fra Marrakechstory-teamet", fr: "Assistance WhatsApp 24h/24 de l’équipe Marrakech Story" },
     ],
     excluded: [
       { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
@@ -458,7 +458,7 @@ const ITINS = [
       { en: "Dinner on Day 01 at a partner riad (candlelit, reserved table)", no: "Middag dag 01 på et partner-riad (stearinlys, reservert bord)", fr: "Dîner le Jour 01 dans un riad partenaire (aux bougies, table réservée)" },
       { en: "Sunset camel ride for two in the Agafay", no: "Kamelritt i solnedgang for to i Agafay", fr: "Balade à dos de chameau au coucher du soleil pour deux à l'Agafay" },
       { en: "Private dinner at the Agafay camp (set Moroccan menu, three courses)", no: "Privat middag på Agafay-leiren (fast marokkansk meny, tre retter)", fr: "Dîner privé au camp de l'Agafay (menu marocain fixe, trois plats)" },
-      { en: "24/7 WhatsApp support from the Marrakech Story team", no: "24/7 WhatsApp-støtte fra Marrakech Story-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakech Story" },
+      { en: "24/7 WhatsApp support from the Marrakechstory team", no: "24/7 WhatsApp-støtte fra Marrakechstory-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakechstory" },
     ],
     excluded: [
       { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
@@ -554,7 +554,7 @@ const ITINS = [
       { en: "Camel ride at sunset in the Agafay (one per person)", no: "Kamelritt i solnedgang i Agafay (én per person)", fr: "Balade à dos de chameau au coucher du soleil à l'Agafay (un par personne)" },
       { en: "Camp dinner at the Agafay (set family menu, child portions available)", no: "Leirsmiddag i Agafay (fast familiemeny, barneporsjoner tilgjengelig)", fr: "Dîner au camp de l'Agafay (menu famille fixe, portions enfants disponibles)" },
       { en: "Skip-the-line tickets to Jardin Majorelle", no: "Billetter uten kø til Jardin Majorelle", fr: "Billets coupe-file pour le Jardin Majorelle" },
-      { en: "24/7 WhatsApp support from the Marrakech Story team", no: "24/7 WhatsApp-støtte fra Marrakech Story-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakech Story" },
+      { en: "24/7 WhatsApp support from the Marrakechstory team", no: "24/7 WhatsApp-støtte fra Marrakechstory-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakechstory" },
     ],
     excluded: [
       { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
@@ -602,7 +602,7 @@ const ITINS = [
       { en: "Full High Atlas day: guided Berber village walk + mule ride for kids + home-cooked family lunch", no: "Full Høyatlas-dag: guidet berberlandsbyvandring + mulesritt for barn + hjemmelaget familielunsj", fr: "Journée complète Haut Atlas : balade guidée dans un village berbère + mulet pour enfants + déjeuner familial cuisiné" },
       { en: "Jardin Majorelle skip-the-line tickets", no: "Billetter uten kø til Jardin Majorelle", fr: "Billets coupe-file pour le Jardin Majorelle" },
       { en: "Camel ride at sunset in the Agafay + camp dinner (family menu, child portions)", no: "Kamelritt i solnedgang i Agafay + leirsmiddag (familiemeny, barneporsjoner)", fr: "Balade à dos de chameau à l'Agafay + dîner au camp (menu famille, portions enfants)" },
-      { en: "24/7 WhatsApp support from the Marrakech Story team", no: "24/7 WhatsApp-støtte fra Marrakech Story-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakech Story" },
+      { en: "24/7 WhatsApp support from the Marrakechstory team", no: "24/7 WhatsApp-støtte fra Marrakechstory-teamet", fr: "Assistance WhatsApp 24h/24 de l'équipe Marrakechstory" },
     ],
     excluded: [
       { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
@@ -829,7 +829,7 @@ function ItinModal({ trip, onClose, lang, fmt }) {
               <button className="btn btn-outline" onClick={() => goPlan('asis')}>
                 {tx('Take as-is →','Ta som den er →','Prendre tel quel →')}
               </button>
-              <a className="btn btn-outline" href="https://wa.me/212698164331" target="_blank" rel="noopener">
+              <a className="btn btn-outline" href="https://wa.me/4745774743" target="_blank" rel="noopener">
                 {tx('WhatsApp us','WhatsApp oss','WhatsApp')}
               </a>
             </div>

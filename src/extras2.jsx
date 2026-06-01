@@ -64,7 +64,7 @@ const FAQ = {
     { q: "Can I cancel?", a: "Free cancel up to 30 days before. 50% from 30 to 14 days. No refund inside 14 days." },
     { q: "How many people can join?", a: "Minimum 2. Children from 6 unless we say otherwise. Bigger groups — just ask." },
     { q: "Do you handle flights?", a: "We don't sell flights, but we help you find the best route and time. Direct from Oslo to Marrakech runs Nov–Apr." },
-    { q: "Where are you based?", a: "In Marrakech. Norwegian-Moroccan team. We answer on WhatsApp from 09 to 22 every day: +212 698 164 331." },
+    { q: "Where are you based?", a: "In Marrakech. Norwegian-Moroccan team. We answer on WhatsApp from 09 to 22 every day: +47 457 74 743." },
     { q: "Is travel insurance included?", a: "No — we strongly suggest you take one. We can point you to a partner." },
     { q: "Do you speak Norwegian?", a: "Yes. Aladdin (the founder) is Norwegian-Moroccan. Email, WhatsApp and call in Norwegian, English or French." },
   ],
@@ -76,7 +76,7 @@ const FAQ = {
     { q: "Kan jeg avbestille?", a: "Gratis inntil 30 dager før. 50 % fra 30 til 14 dager. Ingen refusjon innen 14 dager." },
     { q: "Hvor mange kan være med?", a: "Minimum 2. Barn fra 6 år dersom ikke annet er sagt. Større grupper — bare spør." },
     { q: "Ordner dere fly?", a: "Vi selger ikke fly, men hjelper deg finne beste rute og tid. Direkterute Oslo–Marrakech går nov–april." },
-    { q: "Hvor holder dere til?", a: "I Marrakech. Norsk-marokkansk team. Vi svarer på WhatsApp 09–22 hver dag: +212 698 164 331." },
+    { q: "Hvor holder dere til?", a: "I Marrakech. Norsk-marokkansk team. Vi svarer på WhatsApp 09–22 hver dag: +47 457 74 743." },
     { q: "Er reiseforsikring med?", a: "Nei — vi anbefaler sterkt at du tegner en. Vi kan peke deg mot en partner." },
     { q: "Snakker dere norsk?", a: "Ja. Aladdin (gründeren) er norsk-marokkansk. E-post, WhatsApp og samtale på norsk, engelsk eller fransk." },
   ],
@@ -88,7 +88,7 @@ const FAQ = {
     { q: "Puis-je annuler ?", a: "Annulation gratuite jusqu'à 30 jours avant. 50 % entre 30 et 14 jours. Aucun remboursement à moins de 14 jours." },
     { q: "Combien de personnes ?", a: "Minimum 2. Enfants à partir de 6 ans sauf indication. Grands groupes — demandez." },
     { q: "Gérez-vous les vols ?", a: "Non, mais nous vous aidons à trouver la meilleure route. Direct Oslo-Marrakech nov–avril." },
-    { q: "Où êtes-vous ?", a: "À Marrakech. Équipe norvégienne-marocaine. WhatsApp 9 h – 22 h tous les jours : +212 698 164 331." },
+    { q: "Où êtes-vous ?", a: "À Marrakech. Équipe norvégienne-marocaine. WhatsApp 9 h – 22 h tous les jours : +47 457 74 743." },
     { q: "L'assurance est-elle incluse ?", a: "Non — fortement recommandée. Nous pouvons vous orienter." },
     { q: "Parlez-vous français ?", a: "Oui. Norvégien, anglais, français — par e-mail, WhatsApp ou téléphone." },
   ],
@@ -129,9 +129,9 @@ function Chatbot() {
     let reply;
     if (best.score === 0) {
       reply = tx(
-        "I'll send your question to the team — they answer within 24 h. Or WhatsApp us right away: +212 698 164 331.",
-        "Jeg sender spørsmålet ditt til teamet — de svarer innen 24 t. Eller WhatsApp oss med en gang: +212 698 164 331.",
-        "Je transmets votre question à l'équipe — réponse sous 24 h. Ou WhatsApp tout de suite : +212 698 164 331."
+        "I'll send your question to the team — they answer within 24 h. Or WhatsApp us right away: +47 457 74 743.",
+        "Jeg sender spørsmålet ditt til teamet — de svarer innen 24 t. Eller WhatsApp oss med en gang: +47 457 74 743.",
+        "Je transmets votre question à l'équipe — réponse sous 24 h. Ou WhatsApp tout de suite : +47 457 74 743."
       );
     } else {
       reply = best.item.a;

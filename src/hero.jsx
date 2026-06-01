@@ -110,22 +110,22 @@ function FlightHelpBox() {
     );
     const body = encodeURIComponent(
       tx(
-        `Hi Marrakech Story,\n\nI need help with flights:\n\n` +
+        `Hi Marrakechstory,\n\nI need help with flights:\n\n` +
         `✈  Outbound: ${fromCity} → Marrakech (RAK)   ${dep}\n` +
         `✈  Return: Marrakech (RAK) → ${toCity}   ${ret}\n` +
         `👥  ${paxLabel}\n\n` +
         `Please send me the best options!\n`,
-        `Hei Marrakech Story,\n\nJeg trenger hjelp med fly:\n\n` +
+        `Hei Marrakechstory,\n\nJeg trenger hjelp med fly:\n\n` +
         `✈  Utreise: ${fromCity} → Marrakech (RAK)   ${dep}\n` +
         `✈  Hjemreise: Marrakech (RAK) → ${toCity}   ${ret}\n` +
         `👥  ${paxLabel}\n\n` +
         `Send meg gjerne de beste alternativene!\n`,
-        `Bonjour Marrakech Story,\n\nJ'ai besoin d'aide pour les vols :\n\n` +
+        `Bonjour Marrakechstory,\n\nJ'ai besoin d'aide pour les vols :\n\n` +
         `✈  Aller : ${fromCity} → Marrakech (RAK)   ${dep}\n` +
         `✈  Retour : Marrakech (RAK) → ${toCity}   ${ret}\n` +
         `👥  ${paxLabel}\n\n` +
         `Merci de m'envoyer les meilleures options !\n`,
-        `Hej Marrakech Story,\n\nJag behöver hjälp med flyg:\n\n` +
+        `Hej Marrakechstory,\n\nJag behöver hjälp med flyg:\n\n` +
         `✈  Utresa: ${fromCity} → Marrakech (RAK)   ${dep}\n` +
         `✈  Hemresa: Marrakech (RAK) → ${toCity}   ${ret}\n` +
         `👥  ${paxLabel}\n\n` +
