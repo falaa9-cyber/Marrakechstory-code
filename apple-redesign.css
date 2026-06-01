@@ -4283,21 +4283,95 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   border-radius: 999px !important;
 }
 
-/* ── Includes ── */
-.itin-modal.itin-modal-v2 .itin-includes-grid {
-  gap: 14px !important;
+/* ── Time-of-day slots inside timeline card ── */
+.itin-tl-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 6px;
 }
-.itin-modal.itin-modal-v2 .itin-includes-col {
-  border-radius: 14px !important;
-  border: none !important;
-  padding: 16px 18px 18px !important;
-  background: #f5f5f7 !important;
+.itin-tl-slot {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 8px;
+  align-items: start;
 }
-.itin-modal.itin-modal-v2 .itin-includes-col-yes {
-  background: rgba(42,157,92,0.07) !important;
+.itin-tl-slot-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a0a0a8;
+  padding-top: 2px;
+  white-space: nowrap;
 }
-.itin-modal.itin-modal-v2 .itin-includes-col-no {
-  background: rgba(208,76,47,0.06) !important;
+.itin-tl-slot-icon { font-size: 12px; line-height: 1; }
+.itin-tl-slot-text {
+  font-size: 12.5px;
+  color: rgba(0,0,0,0.68);
+  line-height: 1.5;
+}
+
+/* ── Includes / Excludes — clean, no backgrounds ── */
+.itin-inex {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.itin-inex-col {
+  padding: 20px 20px 22px;
+}
+.itin-inex-col-no {
+  border-left: 1px solid rgba(0,0,0,0.07);
+}
+.itin-inex-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+.itin-inex-header-yes { color: #2a9d5c; }
+.itin-inex-header-no  { color: #86868b; }
+.itin-inex-list {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.itin-inex-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: rgba(0,0,0,0.68);
+  line-height: 1.45;
+}
+.itin-inex-dot {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+  width: 14px;
+  text-align: center;
+}
+.itin-inex-dot-yes { color: #2a9d5c; }
+.itin-inex-dot-no  { color: #c0c0c8; }
+
+@media (max-width: 600px) {
+  .itin-inex { grid-template-columns: 1fr; }
+  .itin-inex-col-no { border-left: none; border-top: 1px solid rgba(0,0,0,0.07); }
+  .itin-tl-slot { grid-template-columns: 78px 1fr; }
 }
 
 /* ── Booking tab ── */

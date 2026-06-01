@@ -763,36 +763,101 @@ function ItinModal({ trip, onClose, lang, fmt }) {
               <span className="itin-timeline-count">{trip.days} {tx('days','dager','jours')}</span>
             </div>
             <ol className="itin-timeline-list">
-              {trip.itinerary.map((d, i) => (
-                <li key={i} className="itin-timeline-item">
-                  <div className="itin-timeline-marker">
-                    <span className="itin-tl-badge" aria-hidden="true">{d.day}</span>
-                  </div>
-                  <div className="itin-timeline-card">
-                    <div className="itin-timeline-route">{s(d.route)}</div>
-                    <p className="itin-timeline-text">{s(d.text)}</p>
-                  </div>
-                </li>
-              ))}
+              {trip.itinerary.map((d, i) => {
+                const rawText = s(d.text);
+                const sents = rawText.split('. ').reduce((acc, seg) => {
+                  const t = seg.replace(/\.\s*$/, '').trim();
+                  if (!t) return acc;
+                  // Merge back if previous sentence ended with an abbreviation (short word like "kl", "ca", "~1h")
+                  if (acc.length > 0 && /^[\d~]/.test(t)) {
+                    acc[acc.length - 1] = acc[acc.length - 1] + '. ' + t;
+                  } else {
+                    acc.push(t);
+                  }
+                  return acc;
+                }, []);
+                const TOD = [
+                  { time: tx('Morning','Morgen','Matin'), icon: '🌅' },
+                  { time: tx('Afternoon','Ettermiddag','Après-midi'), icon: '☀️' },
+                  { time: tx('Evening','Kveld','Soir'), icon: '🌙' },
+                ];
+                let slots;
+                if (sents.length <= 2) {
+                  slots = [{ ...TOD[0], items: sents }];
+                } else if (sents.length <= 4) {
+                  const mid = Math.ceil(sents.length / 2);
+                  slots = [
+                    { ...TOD[0], items: sents.slice(0, mid) },
+                    { ...TOD[2], items: sents.slice(mid) },
+                  ];
+                } else {
+                  const m = Math.ceil(sents.length * 0.4);
+                  const a = Math.ceil((sents.length - m) / 2);
+                  slots = [
+                    { ...TOD[0], items: sents.slice(0, m) },
+                    { ...TOD[1], items: sents.slice(m, m + a) },
+                    { ...TOD[2], items: sents.slice(m + a) },
+                  ];
+                }
+                return (
+                  <li key={i} className="itin-timeline-item">
+                    <div className="itin-timeline-marker">
+                      <span className="itin-tl-badge" aria-hidden="true">{d.day}</span>
+                    </div>
+                    <div className="itin-timeline-card">
+                      <div className="itin-timeline-route">{s(d.route)}</div>
+                      <div className="itin-tl-slots">
+                        {slots.map((slot, si) => (
+                          <div key={si} className="itin-tl-slot">
+                            <div className="itin-tl-slot-label">
+                              <span className="itin-tl-slot-icon">{slot.icon}</span>
+                              <span>{slot.time}</span>
+                            </div>
+                            <div className="itin-tl-slot-text">
+                              {slot.items.join('. ')}{slot.items.length > 0 && !slot.items[slot.items.length - 1].endsWith('.') ? '.' : ''}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           </div>
 
           {/* ── Included / Not included ── */}
           <div className="itin-section-divider" />
-          <div className="itin-modal-grid itin-includes-grid">
+          <div className="itin-inex">
             {trip.included && trip.included.length > 0 && (
-              <div className="itin-includes-col itin-includes-col-yes">
-                <h3 className="itin-modal-h3">{tx('Included','Inkludert','Inclus')}</h3>
-                <ul className="itin-modal-ul itin-included">
-                  {trip.included.map((x, i) => <li key={i}>{s(x)}</li>)}
+              <div className="itin-inex-col">
+                <div className="itin-inex-header itin-inex-header-yes">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6.5" fill="#2a9d5c" fillOpacity=".15"/><path d="M3.5 6.5l2 2 4-4" stroke="#2a9d5c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {tx('Included','Inkludert','Inclus')}
+                </div>
+                <ul className="itin-inex-list">
+                  {trip.included.map((x, i) => (
+                    <li key={i} className="itin-inex-item">
+                      <span className="itin-inex-dot itin-inex-dot-yes">✓</span>
+                      <span>{s(x)}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
             {trip.excluded && trip.excluded.length > 0 && (
-              <div className="itin-includes-col itin-includes-col-no">
-                <h3 className="itin-modal-h3">{tx('Not included','Ikke inkludert','Non inclus')}</h3>
-                <ul className="itin-modal-ul itin-excluded">
-                  {trip.excluded.map((x, i) => <li key={i}>{s(x)}</li>)}
+              <div className="itin-inex-col itin-inex-col-no">
+                <div className="itin-inex-header itin-inex-header-no">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6.5" fill="#86868b" fillOpacity=".12"/><path d="M4.5 4.5l4 4M8.5 4.5l-4 4" stroke="#86868b" strokeWidth="1.4" strokeLinecap="round"/></svg>
+                  {tx('Not included','Ikke inkludert','Non inclus')}
+                </div>
+                <ul className="itin-inex-list">
+                  {trip.excluded.map((x, i) => (
+                    <li key={i} className="itin-inex-item">
+                      <span className="itin-inex-dot itin-inex-dot-no">—</span>
+                      <span>{s(x)}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
