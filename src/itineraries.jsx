@@ -758,16 +758,17 @@ function ItinModal({ trip, onClose, lang, fmt }) {
           {/* ── Day by day ── */}
           <div className="itin-section-divider" />
           <div className="itin-timeline">
-            <h3 className="itin-modal-h3 itin-timeline-h">{tx('Day by day','Dag for dag','Jour par jour')}</h3>
+            <div className="itin-timeline-header">
+              <h3 className="itin-modal-h3 itin-timeline-h">{tx('Day by day','Dag for dag','Jour par jour')}</h3>
+              <span className="itin-timeline-count">{trip.days} {tx('days','dager','jours')}</span>
+            </div>
             <ol className="itin-timeline-list">
               {trip.itinerary.map((d, i) => (
                 <li key={i} className="itin-timeline-item">
                   <div className="itin-timeline-marker">
-                    <span className="itin-timeline-dot" aria-hidden="true" />
-                    <span className="itin-timeline-day">{d.day}</span>
+                    <span className="itin-tl-badge" aria-hidden="true">{d.day}</span>
                   </div>
                   <div className="itin-timeline-card">
-                    <div className="itin-timeline-eyebrow">{tx('Day','Dag','Jour')} {d.day}</div>
                     <div className="itin-timeline-route">{s(d.route)}</div>
                     <p className="itin-timeline-text">{s(d.text)}</p>
                   </div>
