@@ -451,7 +451,27 @@ function ItineraryBuilder() {
   ];
   const steps = allSteps;
 
-  const next = () => setStep(s => Math.min(s + 1, steps.length - 1));
+  const next = () => {
+    const newStep = Math.min(step + 1, steps.length - 1);
+    setStep(newStep);
+    // Speed-to-lead: capture partial data whenever we have an email.
+    // Fire-and-forget — never blocks the UI or throws.
+    if (data.email && data.name) {
+      if (window.MS_saveSubscriber) {
+        window.MS_saveSubscriber({
+          name: data.name, email: data.email, phone: data.phone,
+          source: 'builder_step' + (step + 1),
+        });
+      }
+      if (window.MS_submitForm) {
+        window.MS_submitForm('lead_partial', {
+          name: data.name, email: data.email, phone: data.phone, country: data.country,
+          startDate: data.startDate, endDate: data.endDate, duration: data.duration,
+          tripType: data.tripType,
+        }, { via: 'step_' + (step + 1) });
+      }
+    }
+  };
   const prev = () => setStep(s => Math.max(s - 1, 0));
   const cid = steps[Math.min(step, steps.length - 1)]?.id || 'when';
   const show = (...ids) => ids.includes(cid);
@@ -1002,11 +1022,22 @@ function ItineraryBuilder() {
                       return (
                         <div>
                           <h3 className="itin-q">{t('itin_step_int')}</h3>
-                          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>
+                          <p style={{ fontSize: 13, color: 'var(--ink-3)', marginBottom: 18 }}>
                             {ctx.lang === 'no'
-                              ? '← Gå tilbake til Når-steget og velg en periode først, så fyller du reisen dag for dag her.'
-                              : '← Go back to the When step and pick a date range first — then fill your trip day by day here.'}
+                              ? 'Velg antall dager, så fyller du reisen din dag for dag.'
+                              : ctx.lang === 'fr'
+                              ? 'Choisissez la durée, puis remplissez votre voyage jour par jour.'
+                              : 'Pick a trip length, then fill your journey day by day below.'}
                           </p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                            {presets.map(p => (
+                              <button key={p.d} type="button" className="opt-card"
+                                style={{ flex: '1 1 calc(33% - 8px)', minWidth: 100 }}
+                                onClick={() => upd('duration', p.d)}>
+                                <span className="ttl">{p.label[ctx.lang] || p.label.en}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       );
                     }

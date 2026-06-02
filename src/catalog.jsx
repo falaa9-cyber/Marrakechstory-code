@@ -26,6 +26,18 @@ const MS_CAT_DIR = {
   transport: 'transport',
 };
 
+// Final local fallback per category — guaranteed-present files in assets/.
+const MS_CAT_LOCAL = {
+  activities: 'assets/act-agafay-pool.jpg',
+  restaurants: 'assets/act-food.jpg',
+  spa:         'assets/act-zellige.jpg',
+  spas:        'assets/act-zellige.jpg',
+  camps:       'assets/act-sahara.jpg',
+  pools:       'assets/act-agafay-pool.jpg',
+  excursions:  'assets/hero-ourika.jpg',
+  transport:   'assets/hero-medina.jpg',
+};
+
 // Resolver: try real photo at canonical path first, then AI placeholder, then existing Unsplash URL.
 // Returns { primary, fallback1, fallback2, isAi }.
 function msResolveImg(tab, item) {
@@ -37,20 +49,23 @@ function msResolveImg(tab, item) {
   return { primary: real, placeholder, remote, slug };
 }
 
-// Img component with onError fallback chain
+// Img component with onError fallback chain:
+// primary (assets/catalog/…) → placeholder_ai → remote (item.img) → local category image
 function ResolvedImg({ tab, item, alt = '', className = '', style = {}, srcOverride = null }) {
   const { primary, placeholder, remote } = msResolveImg(tab, item);
+  const local = MS_CAT_LOCAL[tab] || MS_CAT_LOCAL[MS_CAT_DIR[tab]] || 'assets/hero-medina.jpg';
   const initial = srcOverride || primary;
   const [src, setSrc] = useStateC(initial);
   const [stage, setStage] = useStateC(srcOverride ? 'override' : 'primary');
-  // If srcOverride changes (e.g. user clicks thumbnail), update
   useEffectC(() => {
     if (srcOverride) { setSrc(srcOverride); setStage('override'); }
   }, [srcOverride]);
   const onError = () => {
-    if (stage === 'override') { setSrc(primary); setStage('primary'); }
-    else if (stage === 'primary') { setSrc(placeholder); setStage('placeholder'); }
-    else if (stage === 'placeholder') { setSrc(remote); setStage('remote'); }
+    if (stage === 'override')         { setSrc(primary);     setStage('primary');     }
+    else if (stage === 'primary')     { setSrc(placeholder); setStage('placeholder'); }
+    else if (stage === 'placeholder') { setSrc(remote);      setStage('remote');      }
+    else if (stage === 'remote')      { setSrc(local);       setStage('local');       }
+    // 'local' is a guaranteed-present file — no further fallback needed
   };
   const isAi = stage === 'placeholder';
   const isDev = (typeof window !== 'undefined' && /localhost|127\.0\.0\.1/.test(location.hostname));

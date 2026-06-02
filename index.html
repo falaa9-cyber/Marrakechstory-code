@@ -11,8 +11,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=165" />
-  <link rel="stylesheet" href="apple-redesign.css?v=165" />
+  <link rel="stylesheet" href="styles.css?v=166" />
+  <link rel="stylesheet" href="apple-redesign.css?v=166" />
+
+  <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', { send_page_view: true });
+  </script>
+
+  <!-- Microsoft Clarity — replace XXXXXXXXXX with your Project ID -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window,document,"clarity","script","XXXXXXXXXX");
+  </script>
 
   <!--
     Inline guard: if React / Babel fail to load (CDN outage, blocked
@@ -52,44 +70,53 @@
   </div>
 
   <!--
-    Core libraries.
-    • Production builds — faster, no debug warnings, more browser-friendly.
-    • NO subresource-integrity hashes: a single CDN content tweak made
-      Chrome refuse the script silently, blanking the page. Without SRI,
-      the worst case is the same dependency from the same pinned version.
+    Core libraries — primary CDN: unpkg. Fallback CDN: jsdelivr.
+    Both serve the exact same pinned version so behaviour is identical.
+    The inline fallback checks window.React / window.Babel immediately
+    after the synchronous <script> and injects an alternative <script>
+    if the global is missing, then halts further work until it loads.
   -->
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.React) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"><\/scr'+'ipt>'); }</script>
+
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.ReactDOM) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"><\/scr'+'ipt>'); }</script>
+
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.Babel) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.0/babel.min.js"><\/scr'+'ipt>'); }</script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.html2pdf) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"><\/scr'+'ipt>'); }</script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous"></script>
+  <script>if (!window.supabase) { document.write('<scr'+'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>'); }</script>
 
   <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
-  <script src="src/env.js?v=165"></script>
-  <script src="src/supabase.js?v=165"></script>
-  <script src="src/data.js?v=165"></script>
+  <script src="src/env.js?v=166"></script>
+  <script src="src/supabase.js?v=166"></script>
+  <script src="src/data.js?v=166"></script>
 
   <!--
     JSX modules. All bumped to the same cache version on every release
     so a stale CDN copy never co-exists with a fresh one.
   -->
-  <script type="text/babel" src="src/i18n.jsx?v=165"></script>
-  <script type="text/babel" src="src/icons.jsx?v=165"></script>
-  <script type="text/babel" src="src/motion.jsx?v=165"></script>
-  <script type="text/babel" src="src/hero.jsx?v=165"></script>
-  <script type="text/babel" src="src/insta-phone.jsx?v=165"></script>
-  <script type="text/babel" src="src/hero-tabs.jsx?v=165"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=165"></script>
-  <script type="text/babel" src="src/itineraries.jsx?v=165"></script>
-  <script type="text/babel" src="src/booking.jsx?v=165"></script>
-  <script type="text/babel" src="src/catalog.jsx?v=165"></script>
-  <script type="text/babel" src="src/form.jsx?v=165"></script>
-  <script type="text/babel" src="src/extras.jsx?v=165"></script>
-  <script type="text/babel" src="src/extras2.jsx?v=165"></script>
-  <script type="text/babel" src="src/weather.jsx?v=165"></script>
-  <script type="text/babel" src="src/auth.jsx?v=165"></script>
-  <script type="text/babel" src="src/app.jsx?v=165"></script>
-  <script type="text/babel" src="src/apple-fx.jsx?v=165"></script>
+  <script type="text/babel" src="src/i18n.jsx?v=166"></script>
+  <script type="text/babel" src="src/icons.jsx?v=166"></script>
+  <script type="text/babel" src="src/motion.jsx?v=166"></script>
+  <script type="text/babel" src="src/hero.jsx?v=166"></script>
+  <script type="text/babel" src="src/insta-phone.jsx?v=166"></script>
+  <script type="text/babel" src="src/hero-tabs.jsx?v=166"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=166"></script>
+  <script type="text/babel" src="src/itineraries.jsx?v=166"></script>
+  <script type="text/babel" src="src/booking.jsx?v=166"></script>
+  <script type="text/babel" src="src/catalog.jsx?v=166"></script>
+  <script type="text/babel" src="src/form.jsx?v=166"></script>
+  <script type="text/babel" src="src/extras.jsx?v=166"></script>
+  <script type="text/babel" src="src/extras2.jsx?v=166"></script>
+  <script type="text/babel" src="src/weather.jsx?v=166"></script>
+  <script type="text/babel" src="src/auth.jsx?v=166"></script>
+  <script type="text/babel" src="src/app.jsx?v=166"></script>
+  <script type="text/babel" src="src/apple-fx.jsx?v=166"></script>
 
   <!--
     Boot-watchdog: gives the app 6 seconds to paint anything inside #root.
