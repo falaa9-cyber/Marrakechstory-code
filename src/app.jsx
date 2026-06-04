@@ -257,7 +257,9 @@ function Footer() {
         </div>
         <CollabForm />
         <div className="footer-bottom">
-          <span>© 2026 Marrakechstory · IATA accredited · ONMT licence #14872 · {t('foot_rights')}</span>
+          <span>© 2026 Marrakechstory · IATA accredited · ONMT licence #14872 · {t('foot_rights')}
+            {' '}<a href="#admin" className="footer-admin-link" title="Staff area" aria-label="Staff area">·</a>
+          </span>
           <span style={{ display: 'flex', gap: 18 }}>
             <a href="#">{t('foot_privacy')}</a>
             <a href="#">{t('foot_terms')}</a>
