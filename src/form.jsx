@@ -598,7 +598,6 @@ function ItineraryBuilder() {
   };
 
   const sendWhatsapp = () => {
-    if (!window.MS_Auth_User && window.MS_Auth_Prompt) window.MS_Auth_Prompt('register');
     const msg = encodeURIComponent(
       (ctx.lang === 'no' ? 'Hei Marrakechstory! ' : 'Hi Marrakechstory! ') +
       (ctx.lang === 'no' ? 'Jeg vil booke:\n\n' : 'I would like to book:\n\n') +
@@ -615,11 +614,6 @@ function ItineraryBuilder() {
   };
 
   const send = () => {
-    // Prompt account creation if not logged in
-    if (!window.MS_Auth_User && window.MS_Auth_Prompt) {
-      window.MS_Auth_Prompt('register');
-    }
-
     // Generate PDF
     generatePDF();
 
@@ -1296,6 +1290,14 @@ function ItineraryBuilder() {
                 <p style={{ color: 'var(--ink-3)', maxWidth: 460, margin: '0 auto 28px' }}>
                   {t('itin_sent_sub')}
                 </p>
+                {!window.MS_Auth_User && window.MS_Auth_Prompt && (
+                  <div className="itin-sent-account">
+                    <p>{ctx.lang === 'no' ? 'Vil du følge bookingen din og svare oss underveis?' : ctx.lang === 'fr' ? 'Voulez-vous suivre votre réservation et échanger avec nous ?' : 'Want to track your booking and chat with us?'}</p>
+                    <button className="btn btn-primary" onClick={() => window.MS_Auth_Prompt('register')}>
+                      {ctx.lang === 'no' ? 'Opprett konto' : ctx.lang === 'fr' ? 'Créer un compte' : 'Create an account'}
+                    </button>
+                  </div>
+                )}
                 <button className="btn btn-ink" onClick={() => { setSent(false); setStep(0); }}>{t('itin_sent_again')}</button>
               </div>
             )}
