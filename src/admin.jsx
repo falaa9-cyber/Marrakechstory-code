@@ -76,6 +76,7 @@
     bell: () => svg([P('M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0')]),
     settings: () => svg([h('circle', { cx: 12, cy: 12, r: 3 }), P('M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z')]),
     globe: () => svg([h('circle', { cx: 12, cy: 12, r: 10 }), P('M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20')]),
+    insights: () => svg([P('M3 3v18h18'), h('rect', { x: 7, y: 11, width: 3, height: 6, rx: 1 }), h('rect', { x: 12, y: 7, width: 3, height: 10, rx: 1 }), h('rect', { x: 17, y: 13, width: 3, height: 4, rx: 1 })]),
   };
 
   // =====================================================================
@@ -851,6 +852,60 @@
   }
 
   // =====================================================================
+  // =====================================================================
+  // INSIGHTS — website analytics (visits, countries, devices, sections)
+  // =====================================================================
+  function Insights() {
+    const [rows, setRows] = useState(null);
+    useEffect(() => { const sb = getSB(); if (!sb) { setRows([]); return; } sb.from('page_views').select('*').order('created_at', { ascending: false }).limit(5000).then(({ data }) => setRows(data || [])); }, []);
+    if (rows === null) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading analytics…'));
+    const visits = rows.length;
+    const uniq = new Set(rows.map(r => r.session_id)).size;
+    const dev = {}; rows.forEach(r => { const d = r.device || 'desktop'; dev[d] = (dev[d] || 0) + 1; });
+    const mobilePct = visits ? Math.round(((dev.mobile || 0) + (dev.tablet || 0)) / visits * 100) : 0;
+    const cc = {}; rows.forEach(r => { if (r.country) cc[r.country] = (cc[r.country] || 0) + 1; });
+    const countries = Object.entries(cc).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const maxC = Math.max(1, ...countries.map(c => c[1]));
+    const durs = rows.filter(r => r.duration_seconds > 0).map(r => r.duration_seconds);
+    const avg = durs.length ? Math.round(durs.reduce((s, x) => s + x, 0) / durs.length) : 0;
+    const avgLabel = avg >= 60 ? (Math.floor(avg / 60) + 'm ' + (avg % 60) + 's') : (avg + 's');
+    const SEC = { home: 'Home', itineraries: 'Trips', catalog: 'Catalog', plan: 'Trip planner', contact: 'Contact', instagram: 'Instagram', collaborate: 'Collaborate', reviews: 'Reviews' };
+    const sec = {}; rows.forEach(r => { (Array.isArray(r.sections) ? r.sections : []).forEach(s => { sec[s] = (sec[s] || 0) + 1; }); });
+    const sections = Object.entries(sec).sort((a, b) => b[1] - a[1]);
+    const secTotal = sections.reduce((s, x) => s + x[1], 0) || 1;
+    const byDay = {}; rows.forEach(r => { const k = (r.created_at || '').slice(0, 10); if (k) byDay[k] = (byDay[k] || 0) + 1; });
+    const days = Object.keys(byDay).sort().slice(-14).map(k => ({ label: k.slice(8) + '/' + k.slice(5, 7), value: byDay[k] }));
+    const refc = {}; rows.forEach(r => { const k = r.referrer || 'direct'; refc[k] = (refc[k] || 0) + 1; });
+    const refs = Object.entries(refc).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const kpi = (label, value, cls) => h('div', { className: 'msa-kpi ' + (cls || 'msa-kpi-plain') }, h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, value));
+
+    return h('div', { className: 'msa-page' },
+      h('header', { className: 'msa-page-head' }, h('h1', null, 'Insights'), h('p', { className: 'msa-subtitle' }, 'Website analytics — visits, audience, behaviour')),
+      visits === 0 ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'No visits recorded yet. Data appears here as people browse the public site.')) : h('div', null,
+        h('div', { className: 'msa-dash-top' },
+          kpi('Total visits', nf(visits), 'msa-kpi-income'),
+          kpi('Unique visitors', nf(uniq), 'msa-kpi-benefit'),
+          kpi('Avg. time on site', avgLabel),
+          kpi('Mobile share', mobilePct + '%', 'msa-kpi-cost')),
+        h('div', { className: 'msa-dash-charts' },
+          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Device')),
+            h('div', { className: 'msa-chart-row' }, h(Donut, { segments: [{ label: 'Desktop', value: dev.desktop || 0, color: '#0a84ff' }, { label: 'Mobile', value: dev.mobile || 0, color: '#e0432a' }, { label: 'Tablet', value: dev.tablet || 0, color: '#34c759' }] }),
+              h('div', { className: 'msa-legend' },
+                h('div', null, h('span', { className: 'msa-dot', style: { background: '#0a84ff' } }), 'Desktop ', h('strong', null, (dev.desktop || 0))),
+                h('div', null, h('span', { className: 'msa-dot', style: { background: '#e0432a' } }), 'Mobile ', h('strong', null, (dev.mobile || 0))),
+                h('div', null, h('span', { className: 'msa-dot', style: { background: '#34c759' } }), 'Tablet ', h('strong', null, (dev.tablet || 0)))))),
+          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Visits — last 14 days')), days.length ? h(Bars, { data: days }) : h('div', { className: 'msa-empty' }, 'Not enough data.'))),
+        h('div', { className: 'msa-cols msa-cols-12' },
+          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Top countries')),
+            countries.length === 0 ? h('div', { className: 'msa-empty' }, 'No country data yet.')
+            : h('div', { className: 'msa-srcbars' }, countries.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' }, h('span', { className: 'msa-srcbar-l' }, k), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / maxC * 100) + '%' } })), h('span', { className: 'msa-srcbar-v' }, Math.round(v / visits * 100) + '%'))))),
+          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Most-visited sections')),
+            sections.length === 0 ? h('div', { className: 'msa-empty' }, 'No section data yet.')
+            : h('div', { className: 'msa-srcbars' }, sections.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' }, h('span', { className: 'msa-srcbar-l' }, SEC[k] || k), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / sections[0][1] * 100) + '%' } })), h('span', { className: 'msa-srcbar-v' }, Math.round(v / secTotal * 100) + '%'))))) ),
+        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Traffic sources')),
+          h('div', { className: 'msa-srcbars' }, refs.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' }, h('span', { className: 'msa-srcbar-l' }, k === 'direct' ? 'Direct' : k), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / refs[0][1] * 100) + '%' } })), h('span', { className: 'msa-srcbar-v' }, v))))) ));
+  }
+
   // SHELL
   // =====================================================================
   // =====================================================================
@@ -889,7 +944,7 @@
         h('button', { className: 'msa-btn', style: { marginTop: 12 }, onClick: changePw }, 'Update password')));
   }
 
-  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Tasks', 'tasks'], ['requests', 'Requests', 'requests'], ['settings', 'Settings', 'settings']];
+  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Tasks', 'tasks'], ['requests', 'Requests', 'requests'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
 
   function Shell({ user, onLogout }) {
     const [tab, setTab] = useState('dashboard'); const [navOpen, setNavOpen] = useState(false);
@@ -932,6 +987,7 @@
         case 'finance': return h(Finance, { bookings });
         case 'tasks': return h(Tasks, { tasks, reload: reloadAll });
         case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings });
+        case 'insights': return h(Insights, {});
         case 'settings': return h(Settings, { settings, onSaved: reloadAll });
         default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking });
       }

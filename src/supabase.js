@@ -88,4 +88,76 @@
       return { ok: false, error: String(e && e.message || e) };
     }
   };
+
+  // ============================================================
+  // Lightweight website analytics — one row per visit, enriched with
+  // device, country, referrer, time-on-site and sections viewed.
+  // Privacy-friendly: no cookies, session id in sessionStorage only.
+  // ============================================================
+  (function analytics() {
+    try {
+      if (!window.MS_SB) return;
+      // Don't track the admin console itself.
+      if ((location.hash || '').replace('#', '').split('?')[0] === 'admin') return;
+      var SB = window.MS_SB;
+      var sid = sessionStorage.getItem('ms_sid');
+      if (!sid) { sid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 8)); sessionStorage.setItem('ms_sid', sid); }
+      // Only one DB row per browser session.
+      var rowId = sessionStorage.getItem('ms_pv_id') || null;
+      var ua = navigator.userAgent || '';
+      var device = /Mobi|Android|iPhone|iPod/i.test(ua) ? 'mobile' : (/iPad|Tablet/i.test(ua) ? 'tablet' : 'desktop');
+      var lang = (navigator.language || '').slice(0, 5);
+      var ref = document.referrer ? (function () { try { return new URL(document.referrer).hostname; } catch (e) { return document.referrer; } })() : 'direct';
+      var started = Date.now();
+      var sections = {};
+      var SECTION_NAMES = { home: 'Home', itineraries: 'Trips', catalog: 'Catalog', plan: 'Trip planner', contact: 'Contact', instagram: 'Instagram', collaborate: 'Collaborate', reviews: 'Reviews' };
+
+      function durSec() { return Math.round((Date.now() - started) / 1000); }
+      function sectionList() { return Object.keys(sections).sort(function (a, b) { return sections[b] - sections[a]; }); }
+
+      // Observe known sections to learn what gets seen.
+      try {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) { if (en.isIntersecting && en.target.id) { sections[en.target.id] = (sections[en.target.id] || 0) + 1; } });
+        }, { threshold: 0.4 });
+        document.querySelectorAll('section[id], [data-track-section][id]').forEach(function (el) { io.observe(el); });
+      } catch (e) {}
+
+      function persist(isUpdate) {
+        var base = { session_id: sid, device: device, lang: lang, referrer: ref, landing: location.pathname + location.hash,
+          sections: sectionList(), duration_seconds: durSec(), user_agent: ua.slice(0, 400), updated_at: new Date().toISOString() };
+        if (rowId) {
+          SB.from('page_views').update(base).eq('id', rowId).then(function () {}, function () {});
+        } else {
+          SB.from('page_views').insert(base).select('id').then(function (res) {
+            if (res && res.data && res.data[0]) { rowId = res.data[0].id; sessionStorage.setItem('ms_pv_id', rowId); }
+          }, function () {});
+        }
+      }
+
+      // Country via free IP geolocation (best-effort, no key).
+      fetch('https://ipwho.is/?fields=success,country,country_code,city').then(function (r) { return r.json(); }).then(function (g) {
+        if (g && g.success) {
+          var patch = { country: g.country, country_code: g.country_code, city: g.city };
+          if (rowId) SB.from('page_views').update(patch).eq('id', rowId).then(function () {}, function () {});
+          else { window.__ms_geo = patch; }
+        }
+      }).catch(function () {});
+
+      // Initial insert (after a short tick so a few sections register), then
+      // periodic + on-hide updates for duration & sections.
+      setTimeout(function () {
+        var first = { session_id: sid, device: device, lang: lang, referrer: ref, landing: location.pathname + location.hash,
+          sections: sectionList(), duration_seconds: durSec(), user_agent: ua.slice(0, 400) };
+        if (window.__ms_geo) { first.country = window.__ms_geo.country; first.country_code = window.__ms_geo.country_code; first.city = window.__ms_geo.city; }
+        SB.from('page_views').insert(first).select('id').then(function (res) {
+          if (res && res.data && res.data[0]) { rowId = res.data[0].id; sessionStorage.setItem('ms_pv_id', rowId); }
+        }, function () {});
+      }, 1500);
+
+      setInterval(function () { if (rowId) persist(true); }, 20000);
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && rowId) persist(true); });
+      window.addEventListener('pagehide', function () { if (rowId) persist(true); });
+    } catch (e) { /* analytics never breaks the site */ }
+  })();
 })();
