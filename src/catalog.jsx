@@ -61,10 +61,10 @@ function ResolvedImg({ tab, item, alt = '', className = '', style = {}, srcOverr
     if (srcOverride) { setSrc(srcOverride); setStage('override'); }
   }, [srcOverride]);
   const onError = () => {
-    if (stage === 'override')         { setSrc(primary);     setStage('primary');     }
-    else if (stage === 'primary')     { setSrc(placeholder); setStage('placeholder'); }
-    else if (stage === 'placeholder') { setSrc(remote);      setStage('remote');      }
-    else if (stage === 'remote')      { setSrc(local);       setStage('local');       }
+    if (stage === 'override')     { setSrc(primary);      setStage('primary');     }
+    else if (stage === 'primary') { setSrc(placeholder);  setStage('placeholder'); }
+    else if (stage === 'placeholder') { setSrc(remote);   setStage('remote');      }
+    else if (stage === 'remote')  { setSrc(local);        setStage('local');       }
     // 'local' is a guaranteed-present file — no further fallback needed
   };
   const isAi = stage === 'placeholder';
@@ -163,19 +163,31 @@ function CatalogModal({ item, tab, onClose, lang }) {
   })();
   const rentalSubtotal = baseRate * rentalDays;
 
-  const bookRentalOnWhatsapp = () => {
-    const msg = tx(
-      `Hello Marrakechstory, I'd like to book ${item.name} from ${pickupDate} to ${returnDate} (${rentalDays} days).`,
-      `Hei Marrakechstory, jeg vil booke ${item.name} fra ${pickupDate} til ${returnDate} (${rentalDays} dager).`,
-      `Bonjour Marrakechstory, je souhaite louer ${item.name} du ${pickupDate} au ${returnDate} (${rentalDays} jours).`,
-      `Hej Marrakechstory, jag vill boka ${item.name} från ${pickupDate} till ${returnDate} (${rentalDays} dagar).`
-    );
-    window.open(`https://wa.me/4745774743?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
-  };
-
-  const addToReservation = () => {
-    onClose();
-    document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' });
+  // Single in-modal reservation — sends straight to the admin (Requests) and
+  // the email. No second popup, no jump to the trips form.
+  const [r, setR] = useStateC({ name: '', email: '', phone: '', date: _today(7), people: 2, notes: '' });
+  const [sent, setSent] = useStateC(false);
+  const [busy, setBusy] = useStateC(false);
+  const setR1 = (k, v) => setR(p => ({ ...p, [k]: v }));
+  const sendReservation = async () => {
+    if (!r.name.trim() || !r.email.trim()) return;
+    setBusy(true);
+    const isTransport = tab === 'transport';
+    const start = isTransport ? pickupDate : r.date;
+    const end = isTransport ? returnDate : r.date;
+    const dur = isTransport ? Math.max(1, rentalDays) : 1;
+    try {
+      if (window.MS_submitForm) {
+        await window.MS_submitForm('quickbook', {
+          item: item.name, tab, name: r.name, email: r.email, phone: r.phone,
+          people: r.people, date: start, notes: r.notes,
+          startDate: start, endDate: end, duration: dur,
+        }, { via: 'catalog' });
+      }
+      const prev = JSON.parse(localStorage.getItem('ms_profile_data') || '{}');
+      localStorage.setItem('ms_profile_data', JSON.stringify({ ...prev, name: r.name || prev.name, email: r.email || prev.email, phone: r.phone || prev.phone }));
+    } catch (e) {}
+    setBusy(false); setSent(true);
   };
 
   return (
@@ -400,34 +412,40 @@ function CatalogModal({ item, tab, onClose, lang }) {
               </div>
             </div>
           )}
-          <div className="cat-modal-price-row">
-            {tab !== 'transport' && (
-              <span className="cat-modal-pr-label" style={{ fontSize: 13, opacity: .7, fontStyle: 'italic' }}>
-                {tx('Price on request', 'Pris på forespørsel', 'Prix sur demande', 'Pris på förfrågan')}
-              </span>
+          <div className="cat-reserve">
+            {sent ? (
+              <div className="cat-reserve-done">
+                <div className="cat-reserve-check">✓</div>
+                <h3>{tx('Reservation sent!', 'Reservasjon sendt!', 'Réservation envoyée !', 'Bokning skickad!')}</h3>
+                <p>{tx('We received your request and will confirm by email shortly.', 'Vi har mottatt forespørselen din og bekrefter på e-post snart.', 'Nous avons bien reçu votre demande et confirmerons par e-mail.', 'Vi har mottagit din förfrågan och bekräftar via e-post.')}</p>
+              </div>
+            ) : (
+              <>
+                <h3 className="cat-reserve-h">{tx('Send a reservation', 'Send reservasjon', 'Envoyer une réservation', 'Skicka en bokning')}</h3>
+                <div className="cat-reserve-grid">
+                  <input placeholder={tx('Full name', 'Fullt navn', 'Nom complet', 'Namn')} value={r.name} autoComplete="name" onChange={e => setR1('name', e.target.value)} />
+                  <input type="email" placeholder={tx('Email', 'E-post', 'E-mail', 'E-post')} value={r.email} autoComplete="email" onChange={e => setR1('email', e.target.value)} />
+                  <input type="tel" placeholder={tx('Phone', 'Telefon', 'Téléphone', 'Telefon')} value={r.phone} autoComplete="tel" onChange={e => setR1('phone', e.target.value)} />
+                  {tab !== 'transport' && <input type="date" value={r.date} min={_today(0)} onChange={e => setR1('date', e.target.value)} />}
+                  {tab !== 'transport' && <input type="number" min="1" placeholder={tx('People', 'Antall', 'Personnes', 'Antal')} value={r.people} onChange={e => setR1('people', e.target.value)} />}
+                </div>
+                <textarea rows="2" className="cat-reserve-notes" value={r.notes} onChange={e => setR1('notes', e.target.value)}
+                  placeholder={tx('Notes — date flexibility, preferences…', 'Notater — fleksibilitet, ønsker …', 'Notes — flexibilité, préférences…', 'Anteckningar')} />
+                {tab === 'transport' && <div className="cat-reserve-note">{tx('Using the pickup/return dates above.', 'Bruker hente-/leveringsdatoene over.', 'Avec les dates choisies ci-dessus.', 'Använder datumen ovan.')}</div>}
+                <div className="cat-reserve-foot">
+                  {item.sourceUrl && (
+                    <a className="cat-modal-source" href={item.sourceUrl} target="_blank" rel="noopener"
+                       style={{ fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.08em', alignSelf: 'center' }}>
+                      {tx('Source', 'Kilde', 'Source', 'Källa')}
+                    </a>
+                  )}
+                  <button className="btn btn-primary cat-reserve-btn" onClick={sendReservation}
+                    disabled={busy || !r.name.trim() || !r.email.trim() || (tab === 'transport' && rentalDays < 1)}>
+                    {busy ? tx('Sending…', 'Sender…', 'Envoi…', 'Skickar…') : tx('Send reservation', 'Send reservasjon', 'Envoyer la réservation', 'Skicka bokning')} →
+                  </button>
+                </div>
+              </>
             )}
-            {tab === 'transport' && (
-              <button className="btn btn-primary cat-modal-cta" onClick={bookRentalOnWhatsapp}
-                disabled={rentalDays < 1}
-                style={{ opacity: rentalDays < 1 ? .5 : 1 }}>
-                {tx('Book on WhatsApp', 'Reservér på WhatsApp', 'Réserver sur WhatsApp', 'Boka på WhatsApp')} →
-              </button>
-            )}
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {item.sourceUrl && (
-                <a className="cat-modal-source" href={item.sourceUrl} target="_blank" rel="noopener"
-                   style={{ fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.08em', alignSelf: 'center' }}>
-                  {tx('Source', 'Kilde', 'Source', 'Källa')}
-                </a>
-              )}
-              <button className="btn btn-outline cat-modal-cta" onClick={() => { onClose(); window.MS_OpenQuickBook?.(item, tab); }}>
-                ⚡ {tx('Book just this', 'Bestill kun dette', 'Réserver uniquement ceci', 'Boka bara detta')}
-              </button>
-              <button className="btn btn-primary cat-modal-cta" onClick={addToReservation}>
-                {tx('Add to trip', 'Legg til i reiseplan', 'Ajouter à l\'itinéraire', 'Lägg till i resan')}
-                <Ic.Arrow s={14} />
-              </button>
-            </div>
           </div>
         </div>
       </div>
