@@ -207,7 +207,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     }, 280);
   };
 
-  return (
+  const _modal = (
     <div className="auth-backdrop"
       onPointerDown={onBackdropPointerDown}
       onClick={onBackdropClick}>
@@ -385,6 +385,10 @@ function AuthModal({ view: initView, onClose, onLogin }) {
       </div>
     </div>
   );
+  // Portal to <body> so the fixed backdrop escapes the nav's containing
+  // block (the nav's backdrop-filter would otherwise pin it to the top).
+  const RD = window.ReactDOM || (typeof ReactDOM !== 'undefined' ? ReactDOM : null);
+  return RD && RD.createPortal ? RD.createPortal(_modal, document.body) : _modal;
 }
 
 function AuthWidget({ user, onShowModal, onLogout, onOpenProfile }) {

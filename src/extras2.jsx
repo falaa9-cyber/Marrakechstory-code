@@ -285,7 +285,7 @@ function ProfilePanel({ user, onClose, onLogout }) {
   })();
   const totalSaved = itins.length + catFavList.length;
 
-  return (
+  const _panel = (
     <div className="ms-profile-backdrop" onClick={onClose}>
       <div className="ms-profile-panel" onClick={e => e.stopPropagation()}>
         <button className="ms-profile-close" onClick={onClose} aria-label="Close">✕</button>
@@ -482,6 +482,8 @@ function ProfilePanel({ user, onClose, onLogout }) {
       </div>
     </div>
   );
+  const RD = window.ReactDOM || (typeof ReactDOM !== 'undefined' ? ReactDOM : null);
+  return RD && RD.createPortal ? RD.createPortal(_panel, document.body) : _panel;
 }
 
 // Expose to auth.jsx via window so login can open it
