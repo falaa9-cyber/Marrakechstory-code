@@ -170,10 +170,15 @@
     const revenue = bookings.reduce((s, b) => s + (+b.selling_price || 0), 0);
     const cost = bookings.reduce((s, b) => s + (+b.total_cost || 0), 0);
     const benefit = revenue - cost;
-    const outstanding = bookings.filter(b => !['cancelled','completed'].includes(b.status)).reduce((s, b) => s + (+b.balance || 0), 0);
     const openTasks = tasks.filter(t => t.status !== 'completed');
     const newRequests = leads.filter(l => !l.routed_booking_id || true).slice(0, 5);
     const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    // finance figures for the charts
+    const acc = bookings.reduce((s, b) => s + (+b.cost_accommodation || 0), 0);
+    const tr = bookings.reduce((s, b) => s + (+b.cost_transportation || 0), 0);
+    const ac = bookings.reduce((s, b) => s + (+b.cost_activities || 0), 0);
+    const byMonth = {}; bookings.forEach(b => { if (!b.arrival_date) return; const k = b.arrival_date.slice(0, 7); byMonth[k] = (byMonth[k] || 0) + (+b.selling_price || 0); });
+    const months = Object.keys(byMonth).sort().slice(-8).map(k => ({ label: k.slice(5) + '/' + k.slice(2, 4), value: byMonth[k] }));
 
     const kpi = (label, value, cls, tab) => h('button', { className: 'msa-kpi ' + cls, onClick: () => tab && go(tab) },
       h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, value));
@@ -183,13 +188,28 @@
         h('div', null, h('h1', null, 'Dashboard'), h('p', null, 'Status for ' + today)),
         h('button', { className: 'msa-btn msa-btn-primary', onClick: () => openBooking({}) }, ICON.plus(), 'New Booking')),
 
-      h('div', { className: 'msa-kpi-grid' },
-        kpi('Active Bookings', active, 'msa-kpi-plain', 'bookings'),
-        kpi('Upcoming', future.length, 'msa-kpi-plain', 'bookings'),
+      // Top section — 4 equal stat boxes
+      h('div', { className: 'msa-dash-top' },
+        h('button', { className: 'msa-kpi msa-kpi-plain msa-kpi-dual', onClick: () => go('bookings') },
+          h('span', { className: 'msa-kpi-label' }, 'Bookings'),
+          h('div', { className: 'msa-kpi-dual-row' },
+            h('div', null, h('span', { className: 'msa-kpi-value' }, active), h('span', { className: 'msa-kpi-sub' }, 'Active')),
+            h('div', { className: 'msa-kpi-divider' }),
+            h('div', null, h('span', { className: 'msa-kpi-value' }, future.length), h('span', { className: 'msa-kpi-sub' }, 'Upcoming')))),
         kpi('Total Income', kr(revenue), 'msa-kpi-income', 'finance'),
         kpi('Total Cost', kr(cost), 'msa-kpi-cost', 'finance'),
-        kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance'),
-        kpi('Outstanding', kr(outstanding), 'msa-kpi-plain', 'finance')),
+        kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance')),
+
+      // Top section — 2 equal chart boxes
+      h('div', { className: 'msa-dash-charts' },
+        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Cost breakdown'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
+          h('div', { className: 'msa-chart-row' }, h(Donut, { segments: [{ label: 'Accommodation', value: acc, color: '#e0432a' }, { label: 'Transportation', value: tr, color: '#0a84ff' }, { label: 'Activities', value: ac, color: '#34c759' }] }),
+            h('div', { className: 'msa-legend' },
+              h('div', null, h('span', { className: 'msa-dot', style: { background: '#e0432a' } }), 'Accommodation ', h('strong', null, kr(acc))),
+              h('div', null, h('span', { className: 'msa-dot', style: { background: '#0a84ff' } }), 'Transportation ', h('strong', null, kr(tr))),
+              h('div', null, h('span', { className: 'msa-dot', style: { background: '#34c759' } }), 'Activities ', h('strong', null, kr(ac)))))),
+        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Revenue by month'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
+          months.length ? h(Bars, { data: months }) : h('div', { className: 'msa-empty' }, 'No dated bookings.'))),
 
       // Operations calendar — yearly overview
       h('div', { className: 'msa-card' },
