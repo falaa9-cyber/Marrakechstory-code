@@ -450,7 +450,9 @@ function ItineraryBuilder() {
     { id: 'extra',   label: ctx.lang === 'no' ? 'Det lille ekstra'  : ctx.lang === 'fr' ? 'Le petit plus' : 'Little extras' },
     { id: 'send',    label: ctx.lang === 'no' ? 'Send'              : ctx.lang === 'fr' ? 'Envoyer'       : 'Send' },
   ];
-  const steps = allSteps;
+  // When a ready-made trip was picked, the itinerary already exists — so we
+  // only ask for contact + flight info (no activities/style/taste steps).
+  const steps = bookingCtx ? allSteps.filter(s => ['contact', 'when', 'send'].includes(s.id)) : allSteps;
 
   const next = () => {
     const newStep = Math.min(step + 1, steps.length - 1);
@@ -467,6 +469,16 @@ function ItineraryBuilder() {
   // user's day picks, falling back to the suggested draft) so the whole
   // reservation lands in the admin as ONE organised request.
   const buildDailyItinerary = () => {
+    // Ready-made trip: use the curated itinerary that already exists.
+    const t = bookingCtx && bookingCtx.trip;
+    if (t && Array.isArray(t.itinerary) && t.itinerary.length) {
+      return t.itinerary.map((d, i) => ({
+        day: d.day || i + 1,
+        city: (d.route && (d.route[ctx.lang] || d.route.en)) || (typeof d.route === 'string' ? d.route : ''),
+        date: data.startDate ? new Date(new Date(data.startDate).getTime() + i * 864e5).toISOString().slice(0, 10) : '',
+        activities: [{ time: '', type: 'Plan', details: (d.text && (d.text[ctx.lang] || d.text.en)) || (typeof d.text === 'string' ? d.text : '') }],
+      }));
+    }
     const out = []; const total = data.duration || (data.daySchedule || []).length || 0;
     const strip = (s) => String(s).replace(/^[a-z]:/, '');
     for (let i = 0; i < total; i++) {
@@ -613,28 +625,24 @@ function ItineraryBuilder() {
     setSent(true);
   };
 
-  const send = () => {
-    // Generate PDF
-    generatePDF();
+  // Persist the reservation to the user's local profile (and, when logged in,
+  // it auto-links to their account by email so it shows in "My bookings").
+  const saveToProfile = (via) => {
+    try {
+      const prev = JSON.parse(localStorage.getItem('ms_profile_data') || '{}');
+      localStorage.setItem('ms_profile_data', JSON.stringify({ ...prev, name: data.name || prev.name, email: data.email || prev.email, phone: data.phone || prev.phone, country: data.country || prev.country }));
+      const reqs = JSON.parse(localStorage.getItem('ms_requests') || '[]');
+      reqs.unshift({ when: new Date().toISOString(), via, ctx: bookingCtx?.title || null, data });
+      localStorage.setItem('ms_requests', JSON.stringify(reqs.slice(0, 20)));
+    } catch {}
+  };
 
-    const totalPax = data.travellers.adults + data.travellers.children + data.travellers.infants;
-    const body = encodeURIComponent(
-      `Hei Marrakechstory,\n\nJeg vil planlegge en reise — detaljer fra reiseplanleggeren:\n\n` +
-      `— VARIGHET —\n${data.duration} dager\n\n` +
-      `— REISENDE —\n${data.travellers.adults} voksne · ${data.travellers.children} barn · ${data.travellers.infants} spedbarn (${totalPax} totalt)\n\n` +
-      `— DATOER —\nStart: ${data.startDate} (${data.flex})\n\n` +
-      (data.chooseForMe ? `— VELG FOR MEG —\nKunden ønsker at MarrakechStory setter sammen reisen.\n\n` : '') +
-      `— STIL —\nOvernatting: ${data.accommodation}\nTempo: ${data.pace}\nBudsjett: ${data.budget}\n\n` +
-      `— INTERESSER —\n${data.interests.join(', ') || 'åpent'}\n\n` +
-      `— ANLEDNING —\n${data.occasion || '—'}\n\n` +
-      `— UNNGÅ —\n${data.avoid || '—'}\n\n` +
-      `— NOTATER —\n${data.notes || '—'}\n\n` +
-      `— UTKAST REISEPLAN —\n${itinerary.map((d, i) => `Dag ${i + 1}: ${(ACT_POOL[d.key]?.title?.[ctx.lang]) || d.key}`).join('\n')}\n\n` +
-      `— KONTAKT —\n${data.name}\n${data.email}\n${data.phone}\n${data.country}\n\nGleder meg til å høre fra dere!\n`
-    );
-    const subject = encodeURIComponent(`Ny reiseforespørsel — ${data.name || 'gjest'} · ${data.duration} dager`);
-    submitReservation('email');               // one organised request -> admin
-    window.location.href = `mailto:marrakechstory@outlook.com?subject=${subject}&body=${body}`;
+  // Primary "Send": saves the request straight to the admin (Supabase) + the
+  // profile, and triggers the professional email automatically. No mail-app
+  // popup, no PDF download.
+  const send = () => {
+    submitReservation('email');
+    saveToProfile('email');
     setSent(true);
   };
 
@@ -734,8 +742,8 @@ function ItineraryBuilder() {
                         </div>
                       )}
 
-                      {/* Multi-city — only if longer than 4 days */}
-                      {data.startDate && data.endDate && data.duration > 4 && (() => {
+                      {/* Multi-city — only if longer than 4 days, and not for ready-made trips */}
+                      {data.startDate && data.endDate && data.duration > 4 && !bookingCtx && (() => {
                         const cityOptions = ['Marrakech', 'Essaouira', 'Fes', 'Casablanca', 'Chefchaouen', 'Rabat', 'Tangier', 'Agadir', 'Merzouga (Sahara)', 'Ouarzazate', 'Ait Ben Haddou', 'Atlas Mountains'];
                         const totalNights = Math.max(0, data.duration - 1);
                         const used = data.stops.reduce((s, x) => s + (parseInt(x.nights) || 0), 0);
@@ -1502,7 +1510,9 @@ function ItineraryBuilder() {
                     if (!hasAnyDayPick) {
                       return (
                         <div className="itin-empty-soft">
-                          {ctx.lang === 'no' ? '→ Gå til Smak-steget og fyll inn dagene dine' : '→ Go to the Taste step to fill in your days'}
+                          {bookingCtx
+                            ? (ctx.lang === 'no' ? '✓ Den foreslåtte reiseplanen sendes med forespørselen din' : ctx.lang === 'fr' ? '✓ L\'itinéraire suggéré sera envoyé avec votre demande' : '✓ The suggested itinerary will be sent with your request')
+                            : (ctx.lang === 'no' ? '→ Gå til Smak-steget og fyll inn dagene dine' : '→ Go to the Taste step to fill in your days')}
                         </div>
                       );
                     }
