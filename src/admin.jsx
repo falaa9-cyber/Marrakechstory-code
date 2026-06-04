@@ -523,7 +523,23 @@
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Total spent'), h('div', null, h('strong', { className: 'msa-text-brand' }, kr(c.total_spent)))),
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Profit generated'), h('div', null, h('strong', { className: 'msa-text-green' }, kr(profit)))),
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Trips'), h('div', null, trips + ' booking(s)'))),
-        cb.length > 0 && h('div', { className: 'msa-cl-trips' }, cb.map(b => h('div', { key: b.id, className: 'msa-cl-trip' }, h('span', { className: 'msa-ref-chip' }, b.reference || '—'), h('span', null, fmtDate(b.arrival_date)), h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), h('span', { className: 'msa-text-brand' }, kr(b.selling_price)))))));
+        cb.length > 0 && h('div', { className: 'msa-cl-trips' }, cb.map(b => {
+          const itin = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
+          return h('div', { key: b.id, className: 'msa-cl-bk' },
+            h('div', { className: 'msa-cl-bk-head', onClick: () => setExpanded(s => ({ ...s, ['itin-' + b.id]: !s['itin-' + b.id] })) },
+              h('span', { className: 'msa-ref-chip' }, b.reference || '—'),
+              h('span', { className: 'msa-cl-bk-route' }, (b.arrival_city || 'Marrakech') + ' → ' + (b.departure_city || 'Marrakech')),
+              h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]),
+              h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(b.selling_price)),
+              itin.length > 0 && h('span', { className: 'msa-cl-bk-chev' }, expanded['itin-' + b.id] ? '⌃' : '⌄')),
+            h('div', { className: 'msa-cl-bk-sub' }, fmtDate(b.arrival_date) + ' → ' + fmtDate(b.departure_date) + ' · ' + (b.total_nights || 0) + 'N/' + (b.total_days || 0) + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax' + (itin.length ? '' : ' · no itinerary yet')),
+            (itin.length > 0 && expanded['itin-' + b.id]) ? h('div', { className: 'msa-cl-itin' }, itin.map((d, i) => h('div', { key: i, className: 'msa-cl-itin-day' },
+              h('div', { className: 'msa-cl-itin-n' }, d.day || i + 1),
+              h('div', { className: 'msa-cl-itin-body' },
+                h('strong', null, (d.city || ('Day ' + (d.day || i + 1))) + (d.date ? ' · ' + fmtDate(d.date) : '')),
+                (d.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-cl-itin-act' }, (a.time ? a.time + ' · ' : '') + (a.type || '') + (a.details ? ' — ' + a.details : ''))))))) : null,
+            (b.internal_notes || b.special_requests) ? h('div', { className: 'msa-cl-bk-notes' }, b.internal_notes || b.special_requests) : null);
+        }))));
       return [main, detail];
     };
     return h('div', { className: 'msa-page' },

@@ -547,3 +547,17 @@
 .msa-msg-composer { display: flex; gap: 8px; margin-top: 8px; }
 .msa-msg-composer input { flex: 1; padding: 11px 14px; border: 1px solid var(--msa-line); border-radius: 12px; font-size: 14px; background: #fafafa; }
 .msa-msg-composer input:focus { outline: none; border-color: var(--msa-brand); background: #fff; }
+
+/* ============ v192 — client itinerary detail (Clients section) ============ */
+.msa-cl-trips { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.msa-cl-bk { border: 1px solid var(--msa-line); border-radius: 12px; padding: 12px 14px; background: #fff; }
+.msa-cl-bk-head { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
+.msa-cl-bk-route { flex: 1; font-weight: 700; font-size: 13.5px; }
+.msa-cl-bk-chev { color: var(--msa-dim); font-size: 15px; }
+.msa-cl-bk-sub { font-size: 12.5px; color: var(--msa-dim); margin-top: 5px; }
+.msa-cl-itin { margin-top: 10px; border-top: 1px solid #f1f1f4; padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.msa-cl-itin-day { display: flex; gap: 11px; }
+.msa-cl-itin-n { width: 26px; height: 26px; border-radius: 8px; background: var(--msa-brand); color: #fff; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.msa-cl-itin-body strong { font-size: 13px; }
+.msa-cl-itin-act { font-size: 12.5px; color: var(--msa-ink2); margin-top: 2px; }
+.msa-cl-bk-notes { margin-top: 8px; font-size: 12.5px; color: var(--msa-dim); font-style: italic; border-top: 1px dashed #eee; padding-top: 8px; }
