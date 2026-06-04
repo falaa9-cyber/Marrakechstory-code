@@ -534,3 +534,16 @@
 @media (max-width: 980px) { .msa-dash-top { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 860px) { .msa-dash-charts { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .msa-dash-top { grid-template-columns: 1fr; } }
+
+/* ============ v191 — admin message thread (booking modal) ============ */
+.msa-msg-thread { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding: 4px 0 12px; }
+.msa-msg { display: flex; flex-direction: column; max-width: 78%; }
+.msa-msg.me { align-self: flex-end; align-items: flex-end; }
+.msa-msg.them { align-self: flex-start; align-items: flex-start; }
+.msa-msg-bubble { padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.45; }
+.msa-msg.me .msa-msg-bubble { background: var(--msa-brand); color: #fff; border-bottom-right-radius: 4px; }
+.msa-msg.them .msa-msg-bubble { background: #f0f0f3; color: var(--msa-ink); border-bottom-left-radius: 4px; }
+.msa-msg-meta { font-size: 10.5px; color: var(--msa-dim); margin-top: 3px; }
+.msa-msg-composer { display: flex; gap: 8px; margin-top: 8px; }
+.msa-msg-composer input { flex: 1; padding: 11px 14px; border: 1px solid var(--msa-line); border-radius: 12px; font-size: 14px; background: #fafafa; }
+.msa-msg-composer input:focus { outline: none; border-color: var(--msa-brand); background: #fff; }

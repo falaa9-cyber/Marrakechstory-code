@@ -2,7 +2,7 @@
 // LIVE ITINERARY BUILDER
 // Left: questions. Right: animated timeline preview.
 // ============================================
-const { useState: useSF, useEffect: useEF, useMemo: useMF } = React;
+const { useState: useSF, useEffect: useEF, useMemo: useMF, useRef: useRF } = React;
 const If = window.MS_I;
 
 const ACT_EMOJI = {
@@ -455,23 +455,38 @@ function ItineraryBuilder() {
   const next = () => {
     const newStep = Math.min(step + 1, steps.length - 1);
     setStep(newStep);
-    // Speed-to-lead: capture partial data whenever we have an email.
-    // Fire-and-forget — never blocks the UI or throws.
-    if (data.email && data.name) {
-      if (window.MS_saveSubscriber) {
-        window.MS_saveSubscriber({
-          name: data.name, email: data.email, phone: data.phone,
-          source: 'builder_step' + (step + 1),
-        });
-      }
-      if (window.MS_submitForm) {
-        window.MS_submitForm('lead_partial', {
-          name: data.name, email: data.email, phone: data.phone, country: data.country,
-          startDate: data.startDate, endDate: data.endDate, duration: data.duration,
-          tripType: data.tripType,
-        }, { via: 'step_' + (step + 1) });
-      }
+    // Speed-to-lead: remember the contact for marketing (deduped by email
+    // in the subscribers table). We do NOT create a request per step — the
+    // single booking request is created only on final Send.
+    if (data.email && data.name && window.MS_saveSubscriber) {
+      window.MS_saveSubscriber({ name: data.name, email: data.email, phone: data.phone, source: 'builder_step' + (step + 1) });
     }
+  };
+
+  // Build a clean day-by-day itinerary array for the booking (from the
+  // user's day picks, falling back to the suggested draft) so the whole
+  // reservation lands in the admin as ONE organised request.
+  const buildDailyItinerary = () => {
+    const out = []; const total = data.duration || (data.daySchedule || []).length || 0;
+    const strip = (s) => String(s).replace(/^[a-z]:/, '');
+    for (let i = 0; i < total; i++) {
+      const ds = (data.daySchedule || [])[i] || {};
+      const date = data.startDate ? new Date(new Date(data.startDate).getTime() + i * 864e5).toISOString().slice(0, 10) : '';
+      const acts = [];
+      (ds.activities || []).forEach(a => acts.push({ time: '', type: 'Excursion', details: strip(a) }));
+      (ds.wellness || []).forEach(a => acts.push({ time: '', type: 'Spa/Hammam', details: strip(a) }));
+      (ds.pool || []).forEach(a => acts.push({ time: '', type: 'Agafay Day Pass', details: strip(a) }));
+      if (ds.restaurant) acts.push({ time: '19:00', type: 'Restaurant', details: strip(ds.restaurant) });
+      if (acts.length === 0 && itinerary[i]) { const act = ACT_POOL[itinerary[i].key]; if (act) acts.push({ time: '', type: 'Guided Tour', details: (act.title && (act.title[ctx.lang] || act.title.en)) || itinerary[i].key }); }
+      out.push({ day: i + 1, city: '', date, activities: acts });
+    }
+    return out;
+  };
+  const submittedRef = useRF(false);
+  const submitReservation = (via) => {
+    if (submittedRef.current) return;            // one request per reservation
+    submittedRef.current = true;
+    if (window.MS_submitForm) window.MS_submitForm('itinerary', { ...data, bookingCtx, daily_itinerary: buildDailyItinerary(), summary: buildSummary() }, { via });
   };
   const prev = () => setStep(s => Math.max(s - 1, 0));
   const cid = steps[Math.min(step, steps.length - 1)]?.id || 'when';
@@ -543,14 +558,22 @@ function ItineraryBuilder() {
 
     if (window.html2pdf) {
       const el = document.createElement('div');
+      // Render off-screen but with a real layout box (width + visible) so
+      // html2canvas captures content instead of a blank page.
+      el.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;background:#fff;z-index:-1;';
       el.innerHTML = html;
       document.body.appendChild(el);
-      window.html2pdf().set({
-        margin: 0,
-        filename: `Marrakechstory-Reiseplan-${data.name || 'gjest'}.pdf`,
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      }).from(el).save().then(() => document.body.removeChild(el));
+      const cleanup = () => { try { document.body.removeChild(el); } catch (e) {} };
+      // Wait a frame so the browser lays the element out before capture.
+      setTimeout(() => {
+        window.html2pdf().set({
+          margin: 0,
+          filename: `Marrakechstory-Reiseplan-${data.name || 'gjest'}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        }).from(el.firstElementChild || el).save().then(cleanup).catch(cleanup);
+      }, 60);
     }
   };
 
@@ -586,10 +609,7 @@ function ItineraryBuilder() {
       prev.unshift({ when: new Date().toISOString(), via: 'whatsapp', ctx: bookingCtx?.title || null, data });
       localStorage.setItem('ms_requests', JSON.stringify(prev.slice(0, 20)));
     } catch {}
-    // Fire-and-forget persistence to Supabase
-    if (window.MS_submitForm) {
-      window.MS_submitForm('itinerary', { ...data, bookingCtx }, { via: 'whatsapp' });
-    }
+    submitReservation('whatsapp');
     window.open(`https://wa.me/4745774743?text=${msg}`, '_blank');
     setSent(true);
   };
@@ -619,10 +639,7 @@ function ItineraryBuilder() {
       `— KONTAKT —\n${data.name}\n${data.email}\n${data.phone}\n${data.country}\n\nGleder meg til å høre fra dere!\n`
     );
     const subject = encodeURIComponent(`Ny reiseforespørsel — ${data.name || 'gjest'} · ${data.duration} dager`);
-    // Fire-and-forget persistence to Supabase (routes into the admin)
-    if (window.MS_submitForm) {
-      window.MS_submitForm('itinerary', { ...data, bookingCtx }, { via: 'email' });
-    }
+    submitReservation('email');               // one organised request -> admin
     window.location.href = `mailto:marrakechstory@outlook.com?subject=${subject}&body=${body}`;
     setSent(true);
   };

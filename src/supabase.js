@@ -16,7 +16,7 @@
   window.MS_SB = window.supabase.createClient(
     window.MS_ENV.SUPABASE_URL,
     window.MS_ENV.SUPABASE_KEY,
-    { auth: { persistSession: false } }
+    { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'ms-site-auth' } }
   );
 
   // Save (or upsert by email) a row into public.subscribers.
@@ -38,26 +38,12 @@
         user_agent: navigator.userAgent ? navigator.userAgent.slice(0, 400) : null,
         payload: data.payload || {}
       };
-      // Try INSERT first; if the email already exists (Postgres 23505),
-      // fall back to an UPDATE keyed by email. Both INSERT and UPDATE
-      // are anon-allowed; we avoid .upsert() because its implicit
-      // return-representation SELECT is denied by RLS.
-      const ins = await window.MS_SB.from('subscribers').insert(row);
-      if (ins.error && (ins.error.code === '23505' || /duplicate key/i.test(ins.error.message || ''))) {
-        const { id: _id, created_at: _ca, visit_count: _vc, ...patch } = row;
-        const { error: upErr } = await window.MS_SB
-          .from('subscribers')
-          .update(patch)
-          .eq('email', row.email);
-        if (upErr) {
-          console.warn('[MS_SB] subscribers update failed', upErr.message);
-          return { ok: false, error: upErr.message };
-        }
-        return { ok: true, updated: true };
-      }
-      if (ins.error) {
-        console.warn('[MS_SB] subscribers insert failed', ins.error.message);
-        return { ok: false, error: ins.error.message };
+      const { error } = await window.MS_SB
+        .from('subscribers')
+        .upsert(row, { onConflict: 'email', ignoreDuplicates: false });
+      if (error) {
+        console.warn('[MS_SB] subscribers upsert failed', error.message);
+        return { ok: false, error: error.message };
       }
       return { ok: true };
     } catch (e) {

@@ -221,6 +221,36 @@ function ProfilePanel({ user, onClose, onLogout }) {
   }));
   const [tab, setTab] = useStateE2('overview');
 
+  // ---- Client portal: real bookings + message thread from Supabase ----
+  const [myBookings, setMyBookings] = useStateE2(null);
+  const [msgs, setMsgs] = useStateE2([]);
+  const [draft, setDraft] = useStateE2('');
+  const [loadingPortal, setLoadingPortal] = useStateE2(false);
+  const [openItin, setOpenItin] = useStateE2({});
+  const ST_LABEL = { new: tx('Received', 'Mottatt', 'Reçu'), quotation_sent: tx('Quote sent', 'Tilbud sendt', 'Devis envoyé'), waiting_confirmation: tx('Awaiting', 'Avventer', 'En attente'), confirmed: tx('Confirmed', 'Bekreftet', 'Confirmé'), deposit_paid: tx('Deposit paid', 'Depositum betalt', 'Acompte payé'), fully_paid: tx('Fully paid', 'Fullt betalt', 'Payé'), ongoing: tx('Ongoing', 'Pågår', 'En cours'), completed: tx('Completed', 'Fullført', 'Terminé'), cancelled: tx('Cancelled', 'Avbrutt', 'Annulé') };
+  const fmtD = (d) => { if (!d) return '—'; try { return new Date(d).toLocaleDateString(lang === 'no' ? 'no-NO' : lang === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); } catch { return d; } };
+  const krf = (n) => (Number(n) || 0).toLocaleString('en-US') + ' kr';
+  const loadPortal = async () => {
+    const SB = window.MS_SB; if (!SB) return; setLoadingPortal(true);
+    try {
+      const [b, m] = await Promise.all([
+        SB.from('bookings').select('*').order('arrival_date', { ascending: true }),
+        SB.from('messages').select('*').order('created_at', { ascending: true }),
+      ]);
+      setMyBookings(b.data || []); setMsgs(m.data || []);
+      const unread = (m.data || []).filter(x => x.sender === 'admin' && !x.read_by_client).map(x => x.id);
+      if (unread.length) SB.from('messages').update({ read_by_client: true }).in('id', unread);
+    } catch (e) { setMyBookings([]); }
+    setLoadingPortal(false);
+  };
+  useEffectE2(() => { if (tab === 'bookings' && myBookings === null) loadPortal(); }, [tab]);
+  const sendMsg = async () => {
+    const SB = window.MS_SB; if (!draft.trim() || !SB) return;
+    const body = draft.trim(); setDraft('');
+    await SB.from('messages').insert({ client_email: user.email, sender: 'client', body, booking_id: (myBookings && myBookings[0] && myBookings[0].id) || null });
+    loadPortal();
+  };
+
   useEffectE2(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -269,7 +299,8 @@ function ProfilePanel({ user, onClose, onLogout }) {
         <nav className="ms-profile-tabs">
           {[
             { id: 'overview',  label: tx('Overview',     'Oversikt',    'Aperçu') },
-            { id: 'trips',     label: tx('My trips',     'Mine reiser', 'Mes voyages') },
+            { id: 'bookings',  label: tx('My bookings',  'Mine bookinger', 'Mes réservations') },
+            { id: 'trips',     label: tx('Saved',        'Lagret',      'Sauvegardés') },
             { id: 'profile',   label: tx('My info',      'Min info',    'Mes infos') },
           ].map(t => (
             <button key={t.id} className={`ms-profile-tab ${tab === t.id ? 'active' : ''}`}
@@ -298,6 +329,78 @@ function ProfilePanel({ user, onClose, onLogout }) {
                 <p>{tx('Tell us what you want — we build it.', 'Fortell oss hva du vil — vi bygger den.', 'Dites-nous ce que vous voulez — on le construit.')}</p>
                 <a className="btn btn-primary" href="#plan" onClick={onClose}>{tx('Start →', 'Start →', 'Démarrer →')}</a>
               </div>
+            </div>
+          )}
+
+          {tab === 'bookings' && (
+            <div className="ms-cp">
+              {loadingPortal && myBookings === null ? (
+                <div className="ms-profile-empty"><p>{tx('Loading your bookings…', 'Laster bookingene dine …', 'Chargement…')}</p></div>
+              ) : (
+                <>
+                  <h4 className="ms-profile-section-h">{tx('Your bookings', 'Dine bookinger', 'Vos réservations')}{myBookings && myBookings.length ? ` (${myBookings.length})` : ''}</h4>
+                  {(!myBookings || myBookings.length === 0) ? (
+                    <div className="ms-profile-empty">
+                      <p>{tx('No bookings linked to this email yet. Once you send a trip request, it appears here with live status and your itinerary.',
+                        'Ingen bookinger knyttet til denne e-posten ennå. Når du sender en reiseforespørsel, vises den her med status og reiseplan.',
+                        'Aucune réservation liée à cet e-mail. Dès que vous envoyez une demande, elle apparaît ici avec le statut et l\'itinéraire.')}</p>
+                      <a className="btn btn-primary" href="#plan" onClick={onClose}>{tx('Plan a trip →', 'Planlegg en reise →', 'Planifier →')}</a>
+                    </div>
+                  ) : myBookings.map(b => {
+                    const bal = Number(b.balance) || 0; const paid = Number(b.paid_amount) || 0;
+                    const itin = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
+                    const open = !!openItin[b.id];
+                    return (
+                      <article key={b.id} className="ms-cp-booking">
+                        <div className="ms-cp-bk-top">
+                          <div>
+                            <div className="ms-cp-ref">{b.reference || '—'}</div>
+                            <h3>{(b.arrival_city || 'Marrakech')} → {(b.departure_city || 'Marrakech')}</h3>
+                            <div className="ms-cp-dates">{fmtD(b.arrival_date)} → {fmtD(b.departure_date)} · {(b.total_days || '?')} {tx('days', 'dager', 'jours')} · {(b.adults || 0) + (b.kids || 0)} {tx('travellers', 'reisende', 'voyageurs')}</div>
+                          </div>
+                          <span className={`ms-cp-status st-${b.status}`}>{ST_LABEL[b.status] || b.status}</span>
+                        </div>
+                        <div className="ms-cp-pay">
+                          <div><span>{tx('Price', 'Pris', 'Prix')}</span><strong>{krf(b.selling_price)}</strong></div>
+                          <div><span>{tx('Paid', 'Betalt', 'Payé')}</span><strong className="ms-cp-green">{krf(paid)}</strong></div>
+                          <div><span>{tx('Balance', 'Restbeløp', 'Solde')}</span><strong>{krf(bal)}</strong></div>
+                        </div>
+                        {itin.length > 0 && (
+                          <div className="ms-cp-itin">
+                            <button className="ms-cp-itin-toggle" onClick={() => setOpenItin(s => ({ ...s, [b.id]: !s[b.id] }))}>
+                              {open ? tx('Hide itinerary', 'Skjul reiseplan', 'Masquer l\'itinéraire') : tx('View itinerary', 'Se reiseplan', 'Voir l\'itinéraire')} ({itin.length} {tx('days', 'dager', 'jours')}) {open ? '▲' : '▼'}
+                            </button>
+                            {open && itin.map((d, i) => (
+                              <div key={i} className="ms-cp-day">
+                                <div className="ms-cp-day-n">{d.day || i + 1}</div>
+                                <div>
+                                  <strong>{d.city || (tx('Day', 'Dag', 'Jour') + ' ' + (d.day || i + 1))}</strong>
+                                  {(d.activities || []).map((a, ai) => <div key={ai} className="ms-cp-act">{a.time ? a.time + ' · ' : ''}{a.type}{a.details ? ' — ' + a.details : ''}</div>)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+
+                  <h4 className="ms-profile-section-h" style={{ marginTop: 24 }}>{tx('Messages with MarrakechStory', 'Meldinger med MarrakechStory', 'Messages avec MarrakechStory')}</h4>
+                  <div className="ms-cp-thread">
+                    {msgs.length === 0 && <div className="ms-cp-thread-empty">{tx('No messages yet. Ask us anything about your trip — we reply here.', 'Ingen meldinger ennå. Spør oss om reisen — vi svarer her.', 'Aucun message. Posez-nous vos questions — nous répondons ici.')}</div>}
+                    {msgs.map(m => (
+                      <div key={m.id} className={`ms-cp-msg ${m.sender === 'client' ? 'me' : 'them'}`}>
+                        <div className="ms-cp-bubble">{m.body}</div>
+                        <div className="ms-cp-msg-meta">{m.sender === 'client' ? tx('You', 'Du', 'Vous') : 'MarrakechStory'} · {fmtD(m.created_at)}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <form className="ms-cp-composer" onSubmit={e => { e.preventDefault(); sendMsg(); }}>
+                    <input value={draft} onChange={e => setDraft(e.target.value)} placeholder={tx('Write a message…', 'Skriv en melding …', 'Écrire un message…')} />
+                    <button type="submit" className="btn btn-primary" disabled={!draft.trim()}>{tx('Send', 'Send', 'Envoyer')}</button>
+                  </form>
+                </>
+              )}
             </div>
           )}
 

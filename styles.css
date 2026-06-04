@@ -7533,3 +7533,36 @@ section.hero-v2 { display: none; }
   background: #f0f7f1; border: 1px solid #cfe9d4; color: #1c7a3f;
   border-radius: 14px; padding: 16px 18px; font-size: 14px; line-height: 1.5;
 }
+
+/* ===== Client portal — My bookings + messages ===== */
+.ms-cp { display: flex; flex-direction: column; }
+.ms-cp-booking { background: #fff; border: 1px solid #ececec; border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+.ms-cp-bk-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.ms-cp-bk-top h3 { margin: 4px 0 4px; font-size: 18px; }
+.ms-cp-ref { font-family: ui-monospace, Menlo, monospace; font-size: 11px; font-weight: 700; color: #e0432a; background: #fbe7e1; display: inline-block; padding: 2px 8px; border-radius: 6px; }
+.ms-cp-dates { font-size: 13px; color: #6e6e73; }
+.ms-cp-status { font-size: 11.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; white-space: nowrap; background: #eef0f2; color: #444; }
+.ms-cp-status.st-new { background: #e7efff; color: #1f57c4; } .ms-cp-status.st-confirmed,.ms-cp-status.st-fully_paid { background: #e3f9e9; color: #15803d; }
+.ms-cp-status.st-deposit_paid { background: #e2f1fb; color: #0a6ec4; } .ms-cp-status.st-quotation_sent,.ms-cp-status.st-waiting_confirmation { background: #fff2dd; color: #9a6400; }
+.ms-cp-status.st-cancelled { background: #ffe8e6; color: #d11; }
+.ms-cp-pay { display: flex; gap: 26px; margin: 14px 0; padding: 12px 0; border-top: 1px solid #f1f1f4; border-bottom: 1px solid #f1f1f4; }
+.ms-cp-pay > div { display: flex; flex-direction: column; }
+.ms-cp-pay span { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: #6e6e73; font-weight: 700; }
+.ms-cp-pay strong { font-size: 15px; color: #1d1d1f; }
+.ms-cp-green { color: #15803d; }
+.ms-cp-itin-toggle { background: none; border: none; color: #e0432a; font-weight: 600; font-size: 13px; cursor: pointer; padding: 4px 0; }
+.ms-cp-day { display: flex; gap: 12px; padding: 8px 0; border-top: 1px solid #f4f4f2; }
+.ms-cp-day-n { width: 26px; height: 26px; border-radius: 8px; background: #e0432a; color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ms-cp-act { font-size: 12.5px; color: #6e6e73; margin-top: 2px; }
+.ms-cp-thread { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; padding: 6px 0; }
+.ms-cp-thread-empty { color: #8a8a8a; font-size: 13.5px; padding: 8px 0; }
+.ms-cp-msg { display: flex; flex-direction: column; max-width: 80%; }
+.ms-cp-msg.me { align-self: flex-end; align-items: flex-end; }
+.ms-cp-msg.them { align-self: flex-start; align-items: flex-start; }
+.ms-cp-bubble { padding: 9px 13px; border-radius: 14px; font-size: 14px; line-height: 1.45; }
+.ms-cp-msg.me .ms-cp-bubble { background: #e0432a; color: #fff; border-bottom-right-radius: 4px; }
+.ms-cp-msg.them .ms-cp-bubble { background: #f0f0f3; color: #1d1d1f; border-bottom-left-radius: 4px; }
+.ms-cp-msg-meta { font-size: 10.5px; color: #8a8a8a; margin-top: 3px; }
+.ms-cp-composer { display: flex; gap: 8px; margin-top: 10px; }
+.ms-cp-composer input { flex: 1; padding: 12px 14px; border: 1px solid #e3e3e3; border-radius: 12px; font-size: 14px; }
+.ms-cp-composer input:focus { outline: none; border-color: #e0432a; }

@@ -259,6 +259,10 @@
   function BookingModal({ initial, onClose, onSaved, onView }) {
     const [b, setB] = useState(() => ({ ...EMPTY_BOOKING, ...initial, daily_itinerary: (initial && initial.daily_itinerary) || [], included: (initial && initial.included) || [], excluded: (initial && initial.excluded) || [] }));
     const [busy, setBusy] = useState(false);
+    const [thread, setThread] = useState([]); const [reply, setReply] = useState('');
+    const loadThread = useCallback(() => { const sb = getSB(); if (!sb || !initial || !initial.email) return; sb.from('messages').select('*').eq('client_email', initial.email).order('created_at', { ascending: true }).then(({ data }) => { setThread(data || []); const unread = (data || []).filter(x => x.sender === 'client' && !x.read_by_admin).map(x => x.id); if (unread.length) sb.from('messages').update({ read_by_admin: true }).in('id', unread); }); }, [initial && initial.id]);
+    useEffect(() => { loadThread(); }, [loadThread]);
+    const sendReply = async () => { const sb = getSB(); if (!reply.trim() || !sb || !initial || !initial.email) return; const body = reply.trim(); setReply(''); await sb.from('messages').insert({ client_email: initial.email, sender: 'admin', body, booking_id: initial.id, read_by_admin: true }); loadThread(); };
     const set = (k, v) => setB(p => ({ ...p, [k]: v }));
     const setCost = (k, v) => setB(p => { const n = { ...p, [k]: v }; n.total_cost = (+n.cost_transportation || 0) + (+n.cost_activities || 0) + (+n.cost_accommodation || 0); return n; });
     const setPrice = (v) => setB(p => ({ ...p, selling_price: v, deposit_amount: Math.round(v * 0.2), balance: v - (+p.paid_amount || Math.round(v * 0.2)) }));
@@ -334,7 +338,16 @@
           h('div', { className: 'msa-field' }, h('label', null, 'Not included'), h('textarea', { rows: 4, value: (b.excluded || []).join('\n'), onChange: (e) => setList('excluded', e.target.value) }))),
         h('h4', { className: 'msa-section' }, 'Notes'),
         h('div', { className: 'msa-field' }, h('label', null, 'Internal notes'), h('textarea', { rows: 2, value: b.internal_notes || '', onChange: (e) => set('internal_notes', e.target.value) })),
-        h('div', { className: 'msa-field' }, h('label', null, 'Special requests'), h('textarea', { rows: 2, value: b.special_requests || '', onChange: (e) => set('special_requests', e.target.value) })))));
+        h('div', { className: 'msa-field' }, h('label', null, 'Special requests'), h('textarea', { rows: 2, value: b.special_requests || '', onChange: (e) => set('special_requests', e.target.value) })),
+        (initial && initial.id && initial.email) ? h('div', null,
+          h('h4', { className: 'msa-section' }, 'Messages with client'),
+          h('div', { className: 'msa-msg-thread' },
+            thread.length === 0 ? h('div', { className: 'msa-dim', style: { padding: '8px 0' } }, 'No messages yet.')
+            : thread.map(m => h('div', { key: m.id, className: 'msa-msg ' + (m.sender === 'admin' ? 'me' : 'them') },
+                h('div', { className: 'msa-msg-bubble' }, m.body), h('div', { className: 'msa-msg-meta' }, (m.sender === 'admin' ? 'You' : (b.client_name || 'Client')) + ' · ' + fmtDateTime(m.created_at))))),
+          h('div', { className: 'msa-msg-composer' },
+            h('input', { value: reply, placeholder: 'Reply to the client…', onChange: (e) => setReply(e.target.value), onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); sendReply(); } } }),
+            h('button', { className: 'msa-btn msa-btn-primary', onClick: sendReply, disabled: !reply.trim() }, 'Send'))) : null)));
   }
 
   // =====================================================================
