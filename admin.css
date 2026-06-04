@@ -469,3 +469,25 @@
 .msa-doc-terms h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--msa-dim); margin: 0 0 8px; }
 .msa-doc-terms p { font-size: 12.5px; color: var(--msa-ink2); line-height: 1.6; margin: 0; }
 .msa-doc-terms-text { white-space: pre-line; }
+
+/* ============ v186 — calendar Year/Month/Day views ============ */
+.msa-cal-toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.msa-cal-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.msa-cal-toolbar .msa-cal-legend { margin-left: auto; margin-bottom: 0; }
+
+/* Year view — 12 mini months */
+.msa-yr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.msa-yr-month { display: flex; flex-direction: column; gap: 8px; }
+.msa-yr-name { font-size: 13px; font-weight: 700; color: var(--msa-ink); cursor: pointer; padding: 2px 4px; border-radius: 7px; display: inline-block; }
+.msa-yr-name:hover { color: var(--msa-brand); background: var(--msa-brand-soft); }
+.msa-yr-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.msa-yr-dow { font-size: 8px; text-align: center; color: #b0b0b8; font-weight: 700; }
+.msa-yr-day { font-size: 10px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--msa-ink2); cursor: pointer; transition: background .12s; }
+.msa-yr-day:hover { background: #eee; }
+.msa-yr-day.empty { visibility: hidden; cursor: default; }
+.msa-yr-day.single { background: var(--msa-brand); color: #fff; font-weight: 700; }
+.msa-yr-day.multi { background: var(--msa-blue); color: #fff; font-weight: 700; }
+.msa-yr-day.today { box-shadow: inset 0 0 0 2px var(--msa-green); color: var(--msa-green); font-weight: 700; }
+.msa-yr-day.today.single, .msa-yr-day.today.multi { color: #fff; }
+@media (max-width: 860px) { .msa-yr-grid { grid-template-columns: repeat(2, 1fr); } .msa-cal-toolbar .msa-cal-legend { margin-left: 0; width: 100%; } }
+@media (max-width: 420px) { .msa-yr-grid { grid-template-columns: 1fr; } }
