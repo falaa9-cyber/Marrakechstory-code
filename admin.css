@@ -568,3 +568,47 @@
 .msa-nav-btn.active .msa-nav-badge { background: #fff; color: var(--msa-brand); }
 /* collapsed (icon-only) sidebar fallback — show a dot */
 @media (max-width: 860px) { .msa-nav-badge { margin-left: 8px; } }
+
+/* ============ v198 — request detail modal + doc sizing ============ */
+/* Requests list */
+.msa-rq-new td { background: #fffdf7; }
+.msa-rq-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--msa-brand); margin-left: 7px; vertical-align: middle; }
+
+/* Request detail modal */
+.msa-rq-trip { background: var(--msa-brand-soft); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.msa-rq-trip-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--msa-brand-deep); font-weight: 700; }
+.msa-rq-trip strong { font-size: 16px; color: var(--msa-brand-deep); }
+.msa-rq-flag { background: #fff4e5; color: #9a6400; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.msa-rq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 22px; }
+.msa-rq-kv { display: flex; flex-direction: column; gap: 1px; font-size: 13.5px; padding: 4px 0; }
+.msa-rq-kv span { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--msa-dim); font-weight: 700; }
+.msa-rq-kv a { color: var(--msa-blue); text-decoration: none; }
+.msa-rq-itin { display: flex; flex-direction: column; gap: 8px; }
+.msa-rq-day { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f1f4; }
+.msa-rq-day:last-child { border-bottom: none; }
+.msa-rq-day-n { width: 26px; height: 26px; border-radius: 8px; background: var(--msa-brand); color: #fff; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.msa-rq-booking { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.msa-rq-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--msa-line); }
+.msa-rq-actions a.msa-btn { text-decoration: none; }
+@media (max-width: 860px) { .msa-rq-grid { grid-template-columns: 1fr; } }
+
+/* ---- Itinerary / Invoice documents — wider, shorter, smaller headlines ---- */
+.msa-modal-doc { max-width: 880px !important; }
+.msa-modal-doc .msa-modal-body { padding: 16px 22px 24px; }
+.msa-doc { padding: 8px 18px 18px; }
+.msa-doc-top { padding-bottom: 14px; }
+.msa-doc-logo { width: 48px; height: 48px; }
+.msa-doc-brand h1 { font-size: 20px; }
+.msa-doc-brand p { font-size: 12px; }
+.msa-doc-meta h2 { font-size: 16px; }
+.msa-doc-meta p { font-size: 12px; }
+.msa-doc-cols { gap: 24px; margin: 16px 0; }
+.msa-doc-big { font-size: 15px; }
+.msa-doc-days { gap: 14px; margin: 14px 0; }
+.msa-doc-day-head h3 { font-size: 16px; }
+.msa-doc-day-head span { font-size: 12.5px; }
+.msa-doc-act { gap: 14px; margin-bottom: 8px; }
+.msa-doc-act p { font-size: 12.5px; }
+.msa-doc-balance { font-size: 17px; }
+.msa-doc-foot { padding-top: 14px; margin-top: 16px; }
+.msa-doc-terms p { font-size: 12px; }
