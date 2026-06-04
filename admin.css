@@ -612,3 +612,37 @@
 .msa-doc-balance { font-size: 17px; }
 .msa-doc-foot { padding-top: 14px; margin-top: 16px; }
 .msa-doc-terms p { font-size: 12px; }
+
+/* ============ v199 — wider+smaller documents, request rows ============ */
+/* Documents: +20% width, ~-30% content size */
+.msa-modal-doc { max-width: 1056px !important; }
+.msa-modal-doc .msa-modal-body { padding: 12px 20px 20px; }
+.msa-doc { padding: 6px 16px 14px; }
+.msa-doc-logo { width: 40px; height: 40px; }
+.msa-doc-top { padding-bottom: 11px; }
+.msa-doc-brand { gap: 11px; }
+.msa-doc-brand h1 { font-size: 15px; }
+.msa-doc-brand p { font-size: 10.5px; }
+.msa-doc-meta h2 { font-size: 13px; }
+.msa-doc-meta p { font-size: 10.5px; }
+.msa-doc-cols { gap: 18px; margin: 12px 0; }
+.msa-doc-cols h3 { font-size: 10px; }
+.msa-doc-big { font-size: 12.5px; }
+.msa-doc-days { gap: 10px; margin: 10px 0; }
+.msa-doc-day { padding-left: 14px; }
+.msa-doc-day-head h3 { font-size: 13px; }
+.msa-doc-day-head span { font-size: 11px; }
+.msa-doc-time { font-size: 11px; width: 48px; }
+.msa-doc-act { gap: 12px; margin-bottom: 6px; }
+.msa-doc-act p { font-size: 11px; }
+.msa-doc-act strong { font-size: 12px; }
+.msa-doc-table { font-size: 12px; margin: 10px 0; }
+.msa-doc-totals > div { font-size: 12.5px; }
+.msa-doc-balance { font-size: 15px !important; }
+.msa-doc-incl { gap: 16px; margin-top: 14px; padding-top: 12px; }
+.msa-doc-incl li { font-size: 11px; }
+.msa-doc-bank { padding: 13px; margin-top: 14px; }
+.msa-bank-grid { font-size: 11px; }
+.msa-doc-terms { margin-top: 14px; padding-top: 11px; }
+.msa-doc-terms p { font-size: 10.5px; }
+.msa-doc-foot { font-size: 10.5px; padding-top: 11px; margin-top: 12px; }
