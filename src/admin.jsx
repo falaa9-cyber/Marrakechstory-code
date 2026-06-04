@@ -70,6 +70,8 @@
     logout: () => svg([P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')]),
     menu: () => svg([P('M3 12h18M3 6h18M3 18h18')]),
     bell: () => svg([P('M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0')]),
+    settings: () => svg([h('circle', { cx: 12, cy: 12, r: 3 }), P('M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z')]),
+    globe: () => svg([h('circle', { cx: 12, cy: 12, r: 10 }), P('M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20')]),
   };
 
   // =====================================================================
@@ -114,6 +116,29 @@
       h('span', { className: 'msa-bar-label' }, d.label))));
   }
 
+  // Shared month calendar (used on Dashboard + Calendar tab).
+  // Includes ALL bookings — upcoming and archived/past.
+  function MonthCalendar({ bookings, sel, onSelect, compact }) {
+    const [cursor, setCursor] = useState(() => { const d = sel ? new Date(sel) : new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
+    const Y = cursor.getFullYear(), M = cursor.getMonth();
+    const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dayMap = useMemo(() => { const m = {}; bookings.forEach(b => { if (!b.arrival_date || !b.departure_date) { if (b.arrival_date) (m[b.arrival_date] = m[b.arrival_date] || []).push(b); return; } let d = new Date(b.arrival_date); const e = new Date(b.departure_date); let g = 0; while (d <= e && g++ < 400) { const k = d.toISOString().slice(0, 10); (m[k] = m[k] || []).push(b); d = new Date(d.getTime() + 864e5); } }); return m; }, [bookings]);
+    const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate(); const todayStr = todayISO();
+    const cells = [];
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
+    for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
+    for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const items = dayMap[k] || []; const cnt = items.length; const isToday = k === todayStr;
+      cells.push(h('div', { key: d, className: 'msa-cal-cell' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : '') + (compact ? ' mini' : ''), onClick: () => onSelect && onSelect(k) },
+        h('span', { className: 'msa-cal-num' }, d),
+        cnt > 0 && h('span', { className: 'msa-cal-dot ' + (cnt > 1 ? 'multi' : 'single') }, cnt))); }
+    return h('div', null,
+      h('div', { className: 'msa-card-head' }, h('h3', null, MON[M] + ' ' + Y),
+        h('div', { className: 'msa-cal-controls' }, h('button', { className: 'msa-icon-btn', onClick: () => setCursor(new Date(Y, M - 1, 1)) }, ICON.chevL()),
+          h('button', { className: 'msa-btn msa-btn-sm', onClick: () => { const d = new Date(); setCursor(new Date(d.getFullYear(), d.getMonth(), 1)); onSelect && onSelect(todayISO()); } }, 'Today'),
+          h('button', { className: 'msa-icon-btn', onClick: () => setCursor(new Date(Y, M + 1, 1)) }, ICON.chevR()))),
+      h('div', { className: 'msa-cal-grid' + (compact ? ' mini' : '') }, cells));
+  }
+
   // =====================================================================
   // DASHBOARD
   // =====================================================================
@@ -145,6 +170,9 @@
         kpi('Outstanding', kr(outstanding), 'msa-kpi-plain', 'finance')),
 
       h('div', { className: 'msa-cols msa-cols-21' },
+        // Operations calendar (upcoming + archived)
+        h('div', { className: 'msa-card' }, h(MonthCalendar, { bookings, sel: todayISO(), onSelect: () => go('calendar'), compact: true }),
+          h('div', { className: 'msa-cal-legend', style: { marginTop: 12 } }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today'), h('span', null, h('i', { className: 'msa-lg msa-lg-single' }), 'Single'), h('span', null, h('i', { className: 'msa-lg msa-lg-multi' }), 'Multiple'))),
         // Booking reminders with countdown
         h('div', { className: 'msa-card' },
           h('div', { className: 'msa-card-head' }, h('h3', null, ICON.bell(), ' Upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All bookings →')),
@@ -280,9 +308,12 @@
       window.html2pdf().set({ margin: 8, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save();
     } else { window.print(); }
   }
-  function DocModal({ booking, initialType, onClose }) {
+  function DocModal({ booking, initialType, onClose, settings }) {
     const [type, setType] = useState(initialType || 'itinerary');
-    const b = booking;
+    const b = booking; const S = settings || {};
+    const cName = S.company_name || 'MarrakechStory SARL';
+    const cPhone = S.company_phone || COMPANY.phone;
+    const cWeb = (S.website_url || 'https://marrakechstory.com').replace(/^https?:\/\//, '');
     const logo = h('img', { src: 'assets/logo.png', alt: '', className: 'msa-doc-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } });
     const itinerary = () => h('div', { className: 'msa-doc' },
       h('div', { className: 'msa-doc-top' }, h('div', { className: 'msa-doc-brand' }, logo, h('div', null, h('h1', null, 'MarrakechStory'), h('p', null, 'Bespoke Travel Experiences'))),
@@ -297,10 +328,10 @@
       ((b.included || []).length || (b.excluded || []).length) ? h('div', { className: 'msa-doc-incl' },
         (b.included || []).length ? h('div', null, h('h3', null, 'Included'), h('ul', { className: 'msa-incl-list' }, b.included.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
         (b.excluded || []).length ? h('div', null, h('h3', null, 'Not included'), h('ul', { className: 'msa-incl-list' }, b.excluded.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null,
-      h('div', { className: 'msa-doc-foot' }, h('p', null, 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'), h('p', null, 'www.marrakechstory.com | ' + COMPANY.phone)));
+      h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'), h('p', null, cWeb + ' | ' + cPhone)));
     const invoice = () => { const sub = +b.selling_price || 0, paid = +b.paid_amount || +b.deposit_amount || 0, bal = +b.balance || (sub - paid);
       return h('div', { className: 'msa-doc' },
-        h('div', { className: 'msa-doc-top' }, h('div', { className: 'msa-doc-brand' }, logo, h('div', null, h('h1', null, 'MarrakechStory'), h('p', null, 'Invoice #INV-' + (b.reference || '').split('-').pop()))),
+        h('div', { className: 'msa-doc-top' }, h('div', { className: 'msa-doc-brand' }, logo, h('div', null, h('h1', null, 'MarrakechStory'), h('p', null, 'Invoice #' + (S.invoice_prefix || 'INV') + '-' + (b.reference || '').split('-').pop()))),
           h('div', { className: 'msa-doc-meta' }, h('h2', null, 'INVOICE'), h('p', null, 'Date: ' + new Date().toLocaleDateString()))),
         h('div', { className: 'msa-doc-cols' }, h('div', null, h('h3', null, 'Bill To'), h('p', { className: 'msa-doc-big' }, b.client_name), h('p', { className: 'msa-dim' }, b.email || ''), h('p', { className: 'msa-dim' }, b.phone || '')),
           h('div', { className: 'msa-right' }, h('h3', null, 'Payment'), h('p', { className: 'msa-dim' }, 'Status: ' + (STATUS_LABEL[b.status] || b.status)), h('p', { className: 'msa-dim' }, 'Method: ' + (b.payment_method || 'Bank Transfer')))),
@@ -310,8 +341,8 @@
           h('div', null, h('span', { className: 'msa-dim' }, 'Paid'), h('span', { className: 'msa-text-green' }, '-' + kr(paid))),
           h('div', { className: 'msa-doc-balance' }, h('span', null, 'Balance Due'), h('span', null, kr(bal)))),
         h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Bank Transfer Details'), h('div', { className: 'msa-bank-grid' },
-          h('span', { className: 'msa-dim' }, 'Bank Name:'), h('span', null, 'BMCE Bank of Africa'), h('span', { className: 'msa-dim' }, 'Account Name:'), h('span', null, 'MarrakechStory SARL'),
-          h('span', { className: 'msa-dim' }, 'RIB:'), h('span', null, '011 450 0000 123456789012 34'), h('span', { className: 'msa-dim' }, 'SWIFT:'), h('span', null, 'BMCE MAMC')))); };
+          h('span', { className: 'msa-dim' }, 'Bank Name:'), h('span', null, S.bank_name || 'BMCE Bank of Africa'), h('span', { className: 'msa-dim' }, 'Account Name:'), h('span', null, S.account_name || 'MarrakechStory SARL'),
+          h('span', { className: 'msa-dim' }, 'RIB:'), h('span', null, S.rib || '011 450 0000 123456789012 34'), h('span', { className: 'msa-dim' }, 'SWIFT:'), h('span', null, S.swift || 'BMCE MAMC')))); };
     const fname = (type === 'itinerary' ? 'Itinerary-' : 'Invoice-') + (b.reference || 'MS') + '.pdf';
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-doc', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head msa-print-hide' },
@@ -325,49 +356,73 @@
   // =====================================================================
   // BOOKINGS
   // =====================================================================
-  function Bookings({ bookings, reload, focusBooking, clearFocus, openExternal }) {
+  function Bookings({ bookings, reload, settings, focusBooking, clearFocus }) {
     const [edit, setEdit] = useState(null); const [doc, setDoc] = useState(null);
-    const [q, setQ] = useState(''); const [showArchived, setShowArchived] = useState(false); const [statusF, setStatusF] = useState('all');
+    const [q, setQ] = useState(''); const [statusF, setStatusF] = useState('all'); const [showFilters, setShowFilters] = useState(false);
+    const [sort, setSort] = useState({ k: 'arrival_date', d: 'asc' }); const [expanded, setExpanded] = useState({}); const [archiveOpen, setArchiveOpen] = useState(false);
     useEffect(() => { if (focusBooking) { if (focusBooking.id) setEdit(focusBooking); else setEdit(EMPTY_BOOKING); clearFocus && clearFocus(); } }, [focusBooking]);
-    useEffect(() => { if (openExternal) { setDoc(openExternal); } }, [openExternal]);
-    const list = bookings.filter(b => {
-      if (!showArchived && (b.archived || b.status === 'completed' || b.status === 'cancelled')) return false;
-      if (statusF !== 'all' && b.status !== statusF) return false;
-      if (!q) return true;
-      const hay = [b.client_name, b.reference, b.email, b.phone, b.arrival_date, b.departure_date, b.selling_price, b.arrival_city].join(' ').toLowerCase();
-      return hay.includes(q.toLowerCase());
-    }).sort((a, b) => new Date(b.arrival_date || 0) - new Date(a.arrival_date || 0));
-    const archive = async (b, e) => { e.stopPropagation(); await dbUpdate('bookings', b.id, { archived: !b.archived }); reload(); };
+    const isArch = (b) => b.archived || b.status === 'completed' || b.status === 'cancelled';
+    const matchB = (b) => { if (statusF !== 'all' && b.status !== statusF) return false; if (!q) return true; return [b.client_name, b.reference, b.email, b.phone, b.arrival_date, b.departure_date, b.selling_price, b.total_cost, b.arrival_city].join(' ').toLowerCase().includes(q.toLowerCase()); };
+    const val = (b, k) => k === 'profit' ? ((+b.selling_price || 0) - (+b.total_cost || 0)) : k === 'travelers' ? ((+b.adults || 0) + (+b.kids || 0)) : b[k];
+    const sorter = (a, b) => { let x = val(a, sort.k), y = val(b, sort.k); if (typeof x === 'string') x = x.toLowerCase(); if (typeof y === 'string') y = y.toLowerCase(); if (x == null) x = ''; if (y == null) y = ''; if (x < y) return sort.d === 'asc' ? -1 : 1; if (x > y) return sort.d === 'asc' ? 1 : -1; return 0; };
+    const active = bookings.filter(b => !isArch(b) && matchB(b)).sort(sorter);
+    const archived = bookings.filter(b => isArch(b) && matchB(b)).sort(sorter);
+    const toggleSort = (k) => setSort(s => s.k === k ? { k, d: s.d === 'asc' ? 'desc' : 'asc' } : { k, d: 'asc' });
+    const archiveB = async (b, e) => { e.stopPropagation(); await dbUpdate('bookings', b.id, { archived: !b.archived }); reload(); };
     const del = async (b, e) => { e.stopPropagation(); if (confirm('Delete ' + (b.reference || b.client_name) + '?')) { await dbDelete('bookings', b.id); reload(); } };
+    const exportCSV = () => { const rows = active.concat(archived); const head = ['Reference','Client','Email','Phone','Arrival','Departure','Travelers','Price','Cost','Profit','Status']; const esc = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+      const lines = [head.join(',')]; rows.forEach(b => lines.push([b.reference, b.client_name, b.email, b.phone, b.arrival_date, b.departure_date, (+b.adults || 0) + (+b.kids || 0), b.selling_price, b.total_cost, (+b.selling_price || 0) - (+b.total_cost || 0), STATUS_LABEL[b.status]].map(esc).join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'marrakechstory-bookings.csv'; a.click(); URL.revokeObjectURL(url); };
+
+    const COLS = [['reference', 'Reference'], ['client_name', 'Client'], ['arrival_date', 'Dates'], ['travelers', 'Travelers'], ['selling_price', 'Price (NOK)'], ['total_cost', 'Cost (NOK)'], ['profit', 'Profit (NOK)'], ['status', 'Status']];
+    const headCell = (k, l) => h('th', { key: k, className: 'msa-th-sort' + (['selling_price','total_cost','profit'].includes(k) ? ' msa-right' : ''), onClick: () => toggleSort(k) }, l, h('span', { className: 'msa-sort-ar' }, sort.k === k ? (sort.d === 'asc' ? ' ↑' : ' ↓') : ''));
+    const row = (b) => { const profit = (+b.selling_price || 0) - (+b.total_cost || 0); const n = daysUntil(b.arrival_date); const cd = n == null ? '' : (n === 0 ? 'msa-text-green' : (n > 0 && n <= 14 ? 'msa-text-orange' : n < 0 ? 'msa-dim' : 'msa-text-brand')); const ex = !!expanded[b.id];
+      const main = h('tr', { key: b.id, className: 'msa-bt-row' + (ex ? ' open' : ''), onClick: () => setExpanded(s => ({ ...s, [b.id]: !s[b.id] })) },
+        h('td', { className: 'msa-bt-chev', 'data-label': '' }, h('span', { className: 'msa-chevtog' }, ex ? '⌃' : '⌄')),
+        h('td', { 'data-label': 'Reference' }, h('span', { className: 'msa-ref-chip' }, b.reference || '—')),
+        h('td', { 'data-label': 'Client' }, h('strong', null, b.client_name)),
+        h('td', { 'data-label': 'Dates' }, h('div', null, (b.arrival_date || '—') + ' to ' + (b.departure_date || '—')), n != null && h('div', { className: 'msa-cd-text ' + cd }, countdownLabel(b.arrival_date))),
+        h('td', { 'data-label': 'Travelers' }, h('span', { className: 'msa-trav' }, ICON.clients(), (b.adults || 0) + (b.kids || 0))),
+        h('td', { 'data-label': 'Price', className: 'msa-right' }, kr(b.selling_price)),
+        h('td', { 'data-label': 'Cost', className: 'msa-right msa-text-red' }, kr(b.total_cost)),
+        h('td', { 'data-label': 'Profit', className: 'msa-right' }, h('strong', { className: 'msa-text-green' }, kr(profit))),
+        h('td', { 'data-label': 'Status' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status])),
+        h('td', { 'data-label': '', className: 'msa-right msa-actions' },
+          h('button', { className: 'msa-icon-btn', title: 'Edit', onClick: (e) => { e.stopPropagation(); setEdit(b); } }, ICON.edit()),
+          h('button', { className: 'msa-icon-btn', title: 'Itinerary PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'itinerary' }); } }, ICON.doc()),
+          h('button', { className: 'msa-icon-btn msa-ic-green', title: 'Invoice PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'invoice' }); } }, ICON.invoice()),
+          b.phone && h('a', { className: 'msa-icon-btn', title: 'WhatsApp', href: waLink(b.phone), target: '_blank', onClick: (e) => e.stopPropagation() }, ICON.whatsapp())));
+      if (!ex) return main;
+      const paid = +b.paid_amount || +b.deposit_amount || 0;
+      const detail = h('tr', { key: b.id + '-d', className: 'msa-bt-detail' }, h('td', { colSpan: 10 },
+        h('div', { className: 'msa-bt-detail-grid' },
+          h('div', null, h('span', { className: 'msa-fin-k' }, 'Route & dates'), h('div', null, (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' nights / ' + (b.total_days || 0) + ' days · ' + countdownLabel(b.arrival_date))),
+          h('div', null, h('span', { className: 'msa-fin-k' }, 'Contact'), b.email && h('div', null, h('a', { href: 'mailto:' + b.email }, b.email)), b.phone && h('div', null, h('a', { href: waLink(b.phone), target: '_blank' }, b.phone)), h('div', { className: 'msa-dim' }, 'Source: ' + (b.lead_source || '—'))),
+          h('div', null, h('span', { className: 'msa-fin-k' }, 'Payment'), h('div', null, 'Paid ', h('strong', { className: 'msa-text-green' }, kr(paid))), h('div', null, 'Balance ', h('strong', null, kr(b.balance)))),
+          h('div', null, h('span', { className: 'msa-fin-k' }, 'Notes'), h('div', { className: 'msa-dim' }, b.internal_notes || b.special_requests || '—'))),
+        h('div', { className: 'msa-bt-detail-actions' },
+          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => setEdit(b) }, ICON.edit(), 'Edit booking'),
+          h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'itinerary' }) }, ICON.doc(), 'Itinerary PDF'),
+          h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'invoice' }) }, ICON.invoice(), 'Invoice PDF'),
+          h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => archiveB(b, e) }, b.archived ? 'Unarchive' : 'Archive'),
+          h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => del(b, e) }, ICON.trash(), 'Delete'))));
+      return [main, detail];
+    };
+    const table = (rows) => h('table', { className: 'msa-table msa-btable' }, h('thead', null, h('tr', null, h('th', { className: 'msa-bt-chev' }, ''), COLS.map(([k, l]) => headCell(k, l)), h('th', null, ''))), h('tbody', null, rows.map(row)));
+
     return h('div', { className: 'msa-page' },
-      h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Bookings'), h('p', null, list.length + ' shown' + (showArchived ? ' (incl. archived)' : ''))),
+      h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Bookings'), h('p', { className: 'msa-subtitle' }, 'Trips & inquiries management')),
         h('button', { className: 'msa-btn msa-btn-primary', onClick: () => setEdit(EMPTY_BOOKING) }, ICON.plus(), 'New Booking')),
-      h('div', { className: 'msa-toolbar' },
-        h('input', { className: 'msa-search', placeholder: 'Search bookings — name, ref, email, phone, date, price…', value: q, onChange: (e) => setQ(e.target.value) }),
-        h('select', { value: statusF, onChange: (e) => setStatusF(e.target.value) }, [h('option', { key: 'all', value: 'all' }, 'All statuses')].concat(STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))),
-        h('button', { className: 'msa-btn' + (showArchived ? ' msa-btn-on' : ''), onClick: () => setShowArchived(s => !s) }, showArchived ? 'Hide archived' : 'Show archived')),
-      h('div', { className: 'msa-booking-list' }, list.length === 0 ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'No bookings.'))
-        : list.map(b => { const profit = (+b.selling_price || 0) - (+b.total_cost || 0); const n = daysUntil(b.arrival_date); const isUpcoming = n != null && n >= 0 && !b.archived && !['completed','cancelled'].includes(b.status);
-          const cd = n === 0 ? 'msa-cd-today' : (n > 0 && n <= 7) ? 'msa-cd-soon' : 'msa-cd-far';
-          return h('div', { key: b.id, className: 'msa-bk' + (b.archived ? ' is-arch' : ''), onClick: () => setEdit(b) },
-            isUpcoming ? h('div', { className: 'msa-bk-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days')))
-              : h('div', { className: 'msa-bk-cd msa-cd-done' }, h('strong', null, '✓')),
-            h('div', { className: 'msa-bk-main' },
-              h('div', { className: 'msa-bk-row1' }, h('strong', null, b.client_name), h('span', { className: 'msa-ref-chip' }, b.reference || '—'), h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status])),
-              h('div', { className: 'msa-bk-row2 msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + fmtDate(b.arrival_date) + ' → ' + fmtDate(b.departure_date) + ' · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
-            h('div', { className: 'msa-bk-fin' },
-              h('div', null, h('span', { className: 'msa-fin-k' }, 'Price'), h('span', { className: 'msa-fin-v' }, kr(b.selling_price))),
-              h('div', null, h('span', { className: 'msa-fin-k' }, 'Cost'), h('span', { className: 'msa-fin-v msa-text-red' }, kr(b.total_cost))),
-              h('div', null, h('span', { className: 'msa-fin-k' }, 'Profit'), h('span', { className: 'msa-fin-v msa-text-green' }, kr(profit)))),
-            h('div', { className: 'msa-bk-actions' },
-              h('button', { className: 'msa-icon-btn', title: 'Itinerary PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'itinerary' }); } }, ICON.doc()),
-              h('button', { className: 'msa-icon-btn', title: 'Invoice PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'invoice' }); } }, ICON.invoice()),
-              b.phone && h('a', { className: 'msa-icon-btn', title: 'WhatsApp', href: waLink(b.phone), target: '_blank', onClick: (e) => e.stopPropagation() }, ICON.whatsapp()),
-              h('button', { className: 'msa-icon-btn', title: b.archived ? 'Unarchive' : 'Archive', onClick: (e) => archive(b, e) }, b.archived ? '↺' : '🗄'),
-              h('button', { className: 'msa-icon-btn', title: 'Delete', onClick: (e) => del(b, e) }, ICON.trash())));
-        })),
+      h('div', { className: 'msa-searchbar' },
+        h('div', { className: 'msa-searchbar-in' }, ICON.search(), h('input', { placeholder: 'Search bookings…', value: q, onChange: (e) => setQ(e.target.value) })),
+        h('button', { className: 'msa-btn' + (showFilters ? ' msa-btn-on' : ''), onClick: () => setShowFilters(s => !s) }, ICON.requests(), 'Filters'),
+        h('button', { className: 'msa-btn msa-btn-export', onClick: exportCSV }, ICON.pdf(), 'Export CSV')),
+      showFilters && h('div', { className: 'msa-filterbar' }, h('label', null, 'Status'), h('select', { value: statusF, onChange: (e) => setStatusF(e.target.value) }, [h('option', { key: 'all', value: 'all' }, 'All statuses')].concat(STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s]))))),
+      h('div', { className: 'msa-table-card' }, active.length === 0 ? h('div', { className: 'msa-empty' }, 'No active bookings.') : table(active),
+        h('button', { className: 'msa-archive-bar', onClick: () => setArchiveOpen(o => !o) }, h('span', { className: 'msa-archive-count' }, archived.length), 'Past bookings archive', h('span', { className: 'msa-archive-chev' }, archiveOpen ? '⌃' : '⌄'))),
+      archiveOpen && h('div', { className: 'msa-table-card', style: { marginTop: 14 } }, archived.length === 0 ? h('div', { className: 'msa-empty' }, 'No archived bookings.') : table(archived)),
       edit && h(BookingModal, { initial: edit.id ? edit : EMPTY_BOOKING, onClose: () => setEdit(null), onSaved: () => { setEdit(null); reload(); }, onView: (bk, t) => setDoc({ booking: bk, type: t }) }),
-      doc && h(DocModal, { booking: doc.booking, initialType: doc.type, onClose: () => setDoc(null) }));
+      doc && h(DocModal, { booking: doc.booking, initialType: doc.type, settings: settings, onClose: () => setDoc(null) }));
   }
 
   // =====================================================================
@@ -601,20 +656,55 @@
   // =====================================================================
   // SHELL
   // =====================================================================
-  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Tasks', 'tasks'], ['requests', 'Requests', 'requests']];
+  // =====================================================================
+  // SETTINGS (company / invoice info + admin controls)
+  // =====================================================================
+  function Settings({ settings, onSaved }) {
+    const [s, setS] = useState(settings || {});
+    const [busy, setBusy] = useState(false); const [msg, setMsg] = useState('');
+    const [pw, setPw] = useState(''); const [pw2, setPw2] = useState(''); const [pwMsg, setPwMsg] = useState('');
+    useEffect(() => { setS(settings || {}); }, [settings]);
+    const set = (k, v) => setS(p => ({ ...p, [k]: v }));
+    const save = async () => { setBusy(true); setMsg('');
+      const row = { id: 1, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', updated_at: new Date().toISOString() };
+      const sb = getSB(); const { error } = await sb.from('admin_settings').upsert(row, { onConflict: 'id' });
+      setBusy(false); setMsg(error ? 'Save failed: ' + error.message : 'Saved ✓'); if (!error) onSaved && onSaved(); };
+    const changePw = async () => { setPwMsg(''); if (pw.length < 8) { setPwMsg('Min 8 characters'); return; } if (pw !== pw2) { setPwMsg('Passwords do not match'); return; }
+      const sb = getSB(); const { error } = await sb.auth.updateUser({ password: pw }); setPwMsg(error ? error.message : 'Password updated ✓'); if (!error) { setPw(''); setPw2(''); } };
+    const fld = (label, k, ph) => h('div', { className: 'msa-field' }, h('label', null, label), h('input', { value: s[k] == null ? '' : s[k], placeholder: ph || '', onChange: (e) => set(k, e.target.value) }));
+    return h('div', { className: 'msa-page msa-narrow' },
+      h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Settings'), h('p', { className: 'msa-subtitle' }, 'Company info, invoices & admin controls')),
+        h('button', { className: 'msa-btn msa-btn-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save changes')),
+      msg && h('div', { className: 'msa-savemsg' }, msg),
+      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Company')),
+        h('div', { className: 'msa-grid-2' }, fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))),
+      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Invoice')),
+        h('div', { className: 'msa-grid-2' }, fld('Invoice prefix', 'invoice_prefix', 'INV'), fld('Default deposit %', 'deposit_pct'), fld('Bank name', 'bank_name'), fld('Account name', 'account_name'), fld('RIB', 'rib'), fld('SWIFT', 'swift')),
+        h('div', { className: 'msa-field', style: { marginTop: 12 } }, h('label', null, 'Invoice footer note'), h('textarea', { rows: 2, value: s.invoice_footer || '', onChange: (e) => set('invoice_footer', e.target.value) }))),
+      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Admin password')),
+        h('div', { className: 'msa-grid-2' },
+          h('div', { className: 'msa-field' }, h('label', null, 'New password'), h('input', { type: 'password', value: pw, autoComplete: 'new-password', onChange: (e) => setPw(e.target.value) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Confirm password'), h('input', { type: 'password', value: pw2, autoComplete: 'new-password', onChange: (e) => setPw2(e.target.value) }))),
+        pwMsg && h('div', { className: 'msa-savemsg' }, pwMsg),
+        h('button', { className: 'msa-btn', style: { marginTop: 12 }, onClick: changePw }, 'Update password')));
+  }
+
+  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Tasks', 'tasks'], ['requests', 'Requests', 'requests'], ['settings', 'Settings', 'settings']];
 
   function Shell({ user, onLogout }) {
     const [tab, setTab] = useState('dashboard'); const [navOpen, setNavOpen] = useState(false);
     const [bookings, setBookings] = useState([]); const [clients, setClients] = useState([]); const [suppliers, setSuppliers] = useState([]);
     const [tasks, setTasks] = useState([]); const [leads, setLeads] = useState([]); const [loading, setLoading] = useState(true);
-    const [supSeed, setSupSeed] = useState(null); const [focusBooking, setFocusBooking] = useState(null); const [externalDoc, setExternalDoc] = useState(null);
-    const [clientQuery, setClientQuery] = useState(''); const [search, setSearch] = useState('');
+    const [supSeed, setSupSeed] = useState(null); const [focusBooking, setFocusBooking] = useState(null);
+    const [clientQuery, setClientQuery] = useState(''); const [search, setSearch] = useState(''); const [settings, setSettings] = useState({});
     const goTab = (id) => { setTab(id); setNavOpen(false); setSearch(''); };
     const currentLabel = (TABS.find(t => t[0] === tab) || [, 'Admin'])[1];
 
     const reloadAll = useCallback(async () => {
+      const sb = getSB();
       const [bk, cl, su, tk, ld] = await Promise.all([dbList('bookings', 'created_at', false), dbList('clients', 'name', true), dbList('suppliers', 'name', true), dbList('tasks', 'created_at', false), dbList('form_submissions', 'created_at', false)]);
       setBookings(bk); setClients(cl); setSuppliers(su); setTasks(tk); setLeads(ld); setLoading(false);
+      if (sb) { const { data } = await sb.from('admin_settings').select('*').eq('id', 1).maybeSingle(); if (data) setSettings(data); }
     }, []);
     useEffect(() => { reloadAll(); }, [reloadAll]);
 
@@ -625,13 +715,14 @@
       if (loading) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading…'));
       if (search.trim()) return h(SearchResults, { q: search.trim(), data: { bookings, clients, suppliers, tasks, leads }, route: routeTo, openBooking, clear: () => setSearch('') });
       switch (tab) {
-        case 'bookings': return h(Bookings, { bookings, reload: reloadAll, focusBooking, clearFocus: () => setFocusBooking(null) });
+        case 'bookings': return h(Bookings, { bookings, reload: reloadAll, settings, focusBooking, clearFocus: () => setFocusBooking(null) });
         case 'calendar': return h(CalendarTab, { bookings, openBooking });
         case 'clients': return h(Clients, { clients, bookings, reload: reloadAll, initialQuery: clientQuery });
         case 'suppliers': return h(Suppliers, { suppliers, leads, reload: reloadAll, seed: supSeed, clearSeed: () => setSupSeed(null) });
         case 'finance': return h(Finance, { bookings });
         case 'tasks': return h(Tasks, { tasks, reload: reloadAll });
         case 'requests': return h(Requests, { leads, reload: reloadAll, openBooking, go: setTab });
+        case 'settings': return h(Settings, { settings, onSaved: reloadAll });
         default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking });
       }
     };
@@ -646,7 +737,9 @@
       h('aside', { className: 'msa-sidebar' },
         h('div', { className: 'msa-brand' }, h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }), h('span', null, 'MarrakechStory'), h('button', { className: 'msa-drawer-close', onClick: () => setNavOpen(false) }, ICON.x())),
         h('nav', { className: 'msa-nav' }, TABS.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label)))),
-        h('div', { className: 'msa-user' }, h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || 'Aladdin faiz'), h('span', { className: 'msa-dim' }, 'Administrator')),
+        h('div', { className: 'msa-user' },
+          h('a', { className: 'msa-btn msa-btn-block msa-btn-site', href: '#', onClick: () => setNavOpen(false) }, ICON.globe(), 'Back to website'),
+          h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || 'Aladdin faiz'), h('span', { className: 'msa-dim' }, 'Administrator')),
           h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout }, ICON.logout(), 'Log out'))),
       h('main', { className: 'msa-main' }, body()));
   }

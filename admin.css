@@ -380,3 +380,72 @@
   .msa-modal-doc { max-width: 100%; box-shadow: none; }
   .msa-print-hide, .msa-sidebar, .msa-topbar, .msa-edge-toggle { display: none !important; }
 }
+
+/* ============ v184 — booking table, settings, dashboard calendar ============ */
+.msa-subtitle { text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 600; }
+
+/* Search/toolbar bar (image style) */
+.msa-searchbar { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--msa-line); border-radius: 18px; padding: 12px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+.msa-searchbar-in { flex: 1; display: flex; align-items: center; gap: 10px; background: #f4f4f6; border-radius: 12px; padding: 0 14px; height: 44px; color: var(--msa-dim); }
+.msa-searchbar-in svg { width: 17px; height: 17px; }
+.msa-searchbar-in input { border: none; background: none; outline: none; flex: 1; font-size: 14px; font-weight: 600; letter-spacing: 0.02em; color: var(--msa-ink); text-transform: uppercase; }
+.msa-searchbar-in input::placeholder { color: #9a9aa2; letter-spacing: 0.04em; }
+.msa-btn-export { color: var(--msa-brand); border-color: #f1cfc6; }
+.msa-filterbar { display: flex; align-items: center; gap: 10px; margin: -6px 0 16px; padding: 12px 16px; background: #fff; border: 1px solid var(--msa-line); border-radius: 14px; }
+.msa-filterbar label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--msa-dim); }
+.msa-filterbar select { padding: 9px 12px; border: 1px solid var(--msa-line); border-radius: 10px; font-size: 14px; background: #fafafa; }
+
+/* Booking table card */
+.msa-table-card { background: #fff; border: 1px solid var(--msa-line); border-radius: 20px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+.msa-btable { width: 100%; }
+.msa-btable thead tr { background: #f7f7f9; }
+.msa-btable th { padding: 14px 14px; }
+.msa-th-sort { cursor: pointer; user-select: none; white-space: nowrap; }
+.msa-th-sort:hover { color: var(--msa-ink); }
+.msa-sort-ar { color: var(--msa-brand); font-weight: 800; }
+.msa-bt-chev { width: 40px; text-align: center; }
+.msa-chevtog { color: var(--msa-dim); font-size: 14px; }
+.msa-btable td { padding: 14px; }
+.msa-bt-row { cursor: pointer; transition: background .12s; }
+.msa-bt-row:hover { background: #fafafb; }
+.msa-bt-row.open { background: #f7faf8; }
+.msa-cd-text { font-size: 11.5px; font-weight: 700; margin-top: 2px; }
+.msa-trav { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.msa-trav svg { width: 15px; height: 15px; color: var(--msa-dim); }
+.msa-ic-green { color: var(--msa-green); }
+.msa-ic-green:hover { background: var(--msa-green-soft); color: #1c7a3f; }
+.msa-bt-detail td { background: #fafafb; padding: 0 14px 16px; }
+.msa-bt-detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 14px 0; }
+.msa-bt-detail-grid a { color: var(--msa-blue); text-decoration: none; }
+.msa-bt-detail-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Archive bar */
+.msa-archive-bar { display: flex; align-items: center; gap: 12px; width: 100%; border: none; background: #fafafb; border-top: 1px solid var(--msa-line); padding: 16px 18px; cursor: pointer; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--msa-ink2); }
+.msa-archive-bar:hover { background: #f4f4f6; }
+.msa-archive-count { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 12px; background: var(--msa-brand); color: #fff; font-size: 12px; }
+.msa-archive-chev { margin-left: auto; color: var(--msa-dim); font-size: 16px; }
+
+/* Settings */
+.msa-savemsg { background: var(--msa-green-soft); color: #1c7a3f; padding: 10px 14px; border-radius: 11px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.msa-btn-site { background: #f4f4f6; border-color: transparent; color: var(--msa-ink2); margin-bottom: 8px; text-decoration: none; }
+.msa-btn-site:hover { background: #ebebef; }
+
+/* Compact dashboard calendar */
+.msa-cal-grid.mini { gap: 4px; }
+.msa-cal-cell.mini { min-height: 40px; padding: 4px; }
+.msa-cal-cell.mini .msa-cal-dot { min-width: 15px; height: 15px; font-size: 9px; top: 3px; right: 3px; }
+.msa-cal-cell.mini.is-today .msa-cal-num { width: 19px; height: 19px; font-size: 11px; }
+
+@media (max-width: 860px) {
+  .msa-searchbar { flex-wrap: wrap; }
+  .msa-searchbar-in { min-width: 100%; }
+  .msa-btable thead { display: none; }
+  .msa-btable, .msa-btable tbody, .msa-btable tr, .msa-btable td { display: block; width: 100%; }
+  .msa-btable tr.msa-bt-row { border: 1px solid var(--msa-line); border-radius: 14px; margin: 10px; padding: 6px 12px; }
+  .msa-btable td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f1f1f4; text-align: right; }
+  .msa-btable td::before { content: attr(data-label); font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--msa-dim); }
+  .msa-btable td[data-label='']::before { content: ''; }
+  .msa-bt-chev { display: none !important; }
+  .msa-bt-detail td { display: block; }
+  .msa-bt-detail-grid { grid-template-columns: 1fr 1fr; }
+}
