@@ -837,7 +837,16 @@
     const [tasks, setTasks] = useState([]); const [leads, setLeads] = useState([]); const [loading, setLoading] = useState(true);
     const [supSeed, setSupSeed] = useState(null); const [focusBooking, setFocusBooking] = useState(null);
     const [clientQuery, setClientQuery] = useState(''); const [search, setSearch] = useState(''); const [settings, setSettings] = useState({});
-    const goTab = (id) => { setTab(id); setNavOpen(false); setSearch(''); };
+    const newRequests = leads.filter(l => !l.handled).length;
+    const markRequestsRead = async () => {
+      const sb = getSB(); if (!sb) return;
+      const ids = leads.filter(l => !l.handled).map(l => l.id);
+      if (!ids.length) return;
+      setLeads(ls => ls.map(l => ({ ...l, handled: true })));
+      await sb.from('form_submissions').update({ handled: true }).in('id', ids);
+    };
+    const goTab = (id) => { setTab(id); setNavOpen(false); setSearch(''); if (id === 'requests') markRequestsRead(); };
+    const NAV_BADGE = { requests: newRequests };
     const currentLabel = (TABS.find(t => t[0] === tab) || [, 'Admin'])[1];
 
     const reloadAll = useCallback(async () => {
@@ -876,7 +885,7 @@
       h('div', { className: 'msa-nav-overlay', onClick: () => setNavOpen(false) }),
       h('aside', { className: 'msa-sidebar' },
         h('div', { className: 'msa-brand' }, h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }), h('span', null, 'MarrakechStory'), h('button', { className: 'msa-drawer-close', onClick: () => setNavOpen(false) }, ICON.x())),
-        h('nav', { className: 'msa-nav' }, TABS.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label)))),
+        h('nav', { className: 'msa-nav' }, TABS.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label), (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))),
         h('div', { className: 'msa-user' },
           h('a', { className: 'msa-btn msa-btn-block msa-btn-site', href: '#', onClick: () => setNavOpen(false) }, ICON.globe(), 'Back to website'),
           h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || 'Aladdin faiz'), h('span', { className: 'msa-dim' }, 'Administrator')),

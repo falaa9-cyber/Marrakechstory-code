@@ -561,3 +561,10 @@
 .msa-cl-itin-body strong { font-size: 13px; }
 .msa-cl-itin-act { font-size: 12.5px; color: var(--msa-ink2); margin-top: 2px; }
 .msa-cl-bk-notes { margin-top: 8px; font-size: 12.5px; color: var(--msa-dim); font-style: italic; border-top: 1px dashed #eee; padding-top: 8px; }
+
+/* ============ v194 — sidebar notification badge (new requests) ============ */
+.msa-nav-btn { position: relative; }
+.msa-nav-badge { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--msa-red); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.msa-nav-btn.active .msa-nav-badge { background: #fff; color: var(--msa-brand); }
+/* collapsed (icon-only) sidebar fallback — show a dot */
+@media (max-width: 860px) { .msa-nav-badge { margin-left: 8px; } }
