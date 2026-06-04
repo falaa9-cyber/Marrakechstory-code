@@ -183,7 +183,7 @@
       const a = b.arrival_date ? new Date(b.arrival_date) : null, d = b.departure_date ? new Date(b.departure_date) : null;
       return a && d && now >= a && now <= d && ['confirmed','deposit_paid','fully_paid'].includes(b.status);
     }).length;
-    const upcoming = bookings.filter(b => { const a = b.arrival_date ? new Date(b.arrival_date) : null; return a && a > now && ['confirmed','deposit_paid','fully_paid'].includes(b.status); }).length;
+    const upcoming = bookings.filter(b => { const a = b.arrival_date ? new Date(b.arrival_date) : null; return a && a > now && !['cancelled','completed'].includes(b.status); }).length;
     const revenue = bookings.reduce((s, b) => s + (Number(b.selling_price) || 0), 0);
     const totalCost = bookings.reduce((s, b) => s + (Number(b.total_cost) || 0), 0);
     const benefit = revenue - totalCost;
@@ -365,6 +365,11 @@
                 h('span', { className: 'msa-muted msa-doc-date' }, day.date || 'TBD')),
               (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' },
                 h('div', { className: 'msa-doc-time' }, a.time), h('div', null, h('strong', null, a.type), h('p', null, a.details))))))),
+      ((b.included && b.included.length) || (b.excluded && b.excluded.length)) && h('div', { className: 'msa-doc-incl' },
+        (b.included && b.included.length) ? h('div', null, h('h3', null, 'Included'),
+          h('ul', { className: 'msa-incl-list' }, b.included.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
+        (b.excluded && b.excluded.length) ? h('div', null, h('h3', null, 'Not included'),
+          h('ul', { className: 'msa-incl-list' }, b.excluded.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null),
       h('div', { className: 'msa-doc-foot' }, h('p', null, 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'),
         h('p', null, 'www.marrakechstory.com | ' + COMPANY.phone))
     );
@@ -474,12 +479,14 @@
       h('div', { className: 'msa-card msa-card-flush' },
         filtered.length === 0 ? h('div', { className: 'msa-empty' }, 'No clients found.')
         : h('table', { className: 'msa-table' },
-            h('thead', null, h('tr', null, ['Name','Contact Info','Country','Trips',''].map((c, i) => h('th', { key: i, className: i === 3 ? 'msa-center' : '' }, c)))),
+            h('thead', null, h('tr', null, ['Name','Contact Info','Country','Trips','Total Spent','Last Trip',''].map((c, i) => h('th', { key: i, className: i === 3 ? 'msa-center' : (i === 4 ? 'msa-right' : '') }, c)))),
             h('tbody', null, filtered.map(c => h('tr', { key: c.id },
               h('td', { 'data-label': 'Name' }, h('strong', null, c.name)),
               h('td', { 'data-label': 'Contact' }, c.email && h('div', { className: 'msa-muted' }, '✉ ', h('a', { href: 'mailto:' + c.email }, c.email)), c.phone && h('div', { className: 'msa-muted' }, '📞 ', h('a', { href: waLink(c.phone), target: '_blank' }, c.phone))),
               h('td', { 'data-label': 'Country' }, c.country || '—'),
               h('td', { 'data-label': 'Trips', className: 'msa-center' }, h('strong', null, c.trips || 0)),
+              h('td', { 'data-label': 'Total Spent', className: 'msa-right' }, c.total_spent ? fmtNOK(c.total_spent) : '—'),
+              h('td', { 'data-label': 'Last Trip' }, c.last_trip ? fmtDate(c.last_trip) : '—'),
               h('td', { 'data-label': '', className: 'msa-right' }, h('button', { className: 'msa-icon-btn', onClick: () => del(c) }, '🗑'))))) ))
     );
   }
@@ -735,7 +742,9 @@
           h('button', { className: 'msa-drawer-close', 'aria-label': 'Close', onClick: () => setNavOpen(false) }, '✕')),
         h('nav', { className: 'msa-nav' }, TABS.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, icon), h('span', { className: 'msa-nav-label' }, label)))),
         h('div', { className: 'msa-user' },
-          h('div', { className: 'msa-user-info' }, h('strong', null, 'Admin'), h('span', { className: 'msa-muted' }, user.email)),
+          h('div', { className: 'msa-user-info' },
+            h('strong', null, (user.user_metadata && user.user_metadata.name) || 'Aladdin faiz'),
+            h('span', { className: 'msa-muted' }, 'Administrator')),
           h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout }, 'Log out'))),
       h('main', { className: 'msa-main' }, body())
     );
