@@ -144,6 +144,13 @@ function CollabForm() {
   const submit = (e) => {
     e.preventDefault();
     if (!name.trim() || !email.trim()) return;
+    // Save to Supabase so it lands in the admin → Leads tab (fire-and-forget)
+    if (window.MS_submitForm) {
+      window.MS_submitForm('collaboration', {
+        name, email, tripType: type,
+        payload: { collaborationType: type, message: msg }
+      }, { via: 'collab-form' });
+    }
     const subj = encodeURIComponent(`Collaboration: ${type || 'General'} — ${name}`);
     const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nType: ${type}\n\n${msg}`);
     window.open(`mailto:${COMPANY.email}?subject=${subj}&body=${body}`);
@@ -307,3 +314,40 @@ function App() {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
+// ============================================================
+// Private admin router — opens the operations dashboard at #admin.
+// No link on the public site; mounts into its own overlay container
+// and hides the main site while active.
+// ============================================================
+(function () {
+  function ensureAdminRoot() {
+    let el = document.getElementById('ms-admin-root');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'ms-admin-root';
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+  function syncAdmin() {
+    const isAdmin = (location.hash || '').replace(/^#/, '').split('?')[0] === 'admin';
+    const siteRoot = document.getElementById('root');
+    if (isAdmin) {
+      const el = ensureAdminRoot();
+      el.style.display = 'block';
+      if (siteRoot) siteRoot.style.display = 'none';
+      let tries = 0;
+      (function mount() {
+        if (typeof window.MS_AdminMount === 'function') { window.MS_AdminMount(el); }
+        else if (tries++ < 50) { setTimeout(mount, 100); }
+      })();
+    } else {
+      const el = document.getElementById('ms-admin-root');
+      if (el) { el.style.display = 'none'; if (window.MS_AdminUnmount) window.MS_AdminUnmount(); }
+      if (siteRoot) siteRoot.style.display = '';
+    }
+  }
+  window.addEventListener('hashchange', syncAdmin);
+  syncAdmin();
+})();

@@ -1,0 +1,181 @@
+/* ============================================================
+   MarrakechStory Admin — self-contained styling (msa- prefix).
+   Loaded only on #admin. Full-screen overlay over the site.
+   ============================================================ */
+:root { --msa-brand: #e0432a; --msa-ink: #1d1d1f; --msa-bg: #fbfbf9; --msa-line: #ececec; }
+
+#ms-admin-root {
+  position: fixed; inset: 0; z-index: 100000;
+  background: var(--msa-bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--msa-ink);
+  overflow: hidden;
+}
+#ms-admin-root * { box-sizing: border-box; }
+
+/* ---------- Login ---------- */
+.msa-login { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #f4f3f0; }
+.msa-login-card {
+  background: #fff; width: 100%; max-width: 380px; padding: 40px 34px;
+  border-radius: 22px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  display: flex; flex-direction: column; gap: 10px; text-align: center;
+}
+.msa-login-logo { width: 72px; height: 72px; object-fit: contain; border-radius: 16px; margin: 0 auto 6px; }
+.msa-login-card h1 { font-size: 24px; margin: 0; font-weight: 800; }
+.msa-login-sub { color: #8a8a8a; margin: 0 0 14px; font-size: 14px; }
+.msa-login-card label { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-top: 6px; }
+.msa-login-card input {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--msa-line); border-radius: 12px;
+  font-size: 15px; background: #fafafa;
+}
+.msa-login-card input:focus { outline: none; border-color: var(--msa-brand); background: #fff; }
+.msa-login-err { background: #fde8e4; color: #b8331e; padding: 10px; border-radius: 10px; font-size: 13px; }
+.msa-login-back { margin-top: 14px; color: #999; font-size: 13px; text-decoration: none; }
+.msa-login-back:hover { color: var(--msa-brand); }
+
+/* ---------- Shell ---------- */
+.msa-shell { display: flex; height: 100vh; }
+.msa-sidebar {
+  width: 240px; background: #fff; border-right: 1px solid var(--msa-line);
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.msa-brand { display: flex; align-items: center; gap: 10px; padding: 20px 22px; font-weight: 800; font-size: 17px; }
+.msa-brand img { width: 32px; height: 32px; object-fit: contain; border-radius: 8px; }
+.msa-nav { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.msa-nav-btn {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px;
+  border: none; background: none; border-radius: 12px; cursor: pointer;
+  font-size: 14.5px; font-weight: 600; color: #6a6a6a; text-align: left; transition: all .15s;
+}
+.msa-nav-btn:hover { background: #f5f5f3; color: var(--msa-brand); }
+.msa-nav-btn.active { background: var(--msa-brand); color: #fff; box-shadow: 0 4px 14px rgba(224,67,42,.25); }
+.msa-nav-ico { font-size: 16px; width: 20px; text-align: center; }
+.msa-user { padding: 14px; border-top: 1px solid var(--msa-line); }
+.msa-user-info { padding: 6px 10px 12px; display: flex; flex-direction: column; }
+.msa-user-info strong { font-size: 14px; }
+
+.msa-main { flex: 1; overflow-y: auto; }
+.msa-page { max-width: 1200px; margin: 0 auto; padding: 36px 40px 80px; }
+.msa-page-head { margin-bottom: 26px; }
+.msa-page-head h1 { font-size: 30px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.02em; }
+.msa-page-head p { color: #8a8a8a; margin: 0; font-size: 14.5px; }
+.msa-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+/* ---------- Buttons ---------- */
+.msa-btn { padding: 10px 18px; border-radius: 12px; border: 1px solid var(--msa-line); background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; transition: all .15s; }
+.msa-btn:hover { background: #f5f5f3; }
+.msa-btn-primary { background: var(--msa-brand); color: #fff; border-color: var(--msa-brand); }
+.msa-btn-primary:hover { background: #c43a23; }
+.msa-btn-primary:disabled { opacity: .6; cursor: default; }
+.msa-btn-ghost { color: #c0392b; border: none; background: none; }
+.msa-btn-ghost:hover { background: #fdecea; }
+.msa-btn-block { width: 100%; }
+.msa-btn-sm { padding: 6px 12px; font-size: 12.5px; margin-right: 6px; }
+.msa-link { background: none; border: none; color: var(--msa-brand); cursor: pointer; font-size: 13px; font-weight: 600; }
+.msa-icon-btn { background: none; border: none; cursor: pointer; font-size: 15px; opacity: .5; padding: 4px 6px; border-radius: 8px; }
+.msa-icon-btn:hover { opacity: 1; background: #fdecea; }
+
+/* ---------- Stats ---------- */
+.msa-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.msa-stat { background: #fff; border: 1px solid var(--msa-line); border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; }
+.msa-stat-label { font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.msa-stat-value { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.msa-stat-value.msa-accent { color: var(--msa-brand); }
+
+/* ---------- Cards / tables ---------- */
+.msa-cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+.msa-card { background: #fff; border: 1px solid var(--msa-line); border-radius: 16px; padding: 20px 22px; margin-bottom: 20px; position: relative; }
+.msa-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.msa-card-head h3 { margin: 0; font-size: 16px; font-weight: 700; }
+.msa-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+.msa-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.msa-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #aaa; font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--msa-line); }
+.msa-table td { padding: 12px 10px; border-bottom: 1px solid #f4f4f2; vertical-align: top; }
+.msa-table tr:last-child td { border-bottom: none; }
+.msa-right { text-align: right; }
+.msa-row-click { cursor: pointer; }
+.msa-row-click:hover td { background: #faf9f7; }
+.msa-muted { color: #9a9a9a; font-size: 12.5px; }
+.msa-empty { padding: 40px; text-align: center; color: #b0b0b0; font-size: 14px; }
+.msa-pos { color: #1a8f3c; } .msa-neg { color: #c0392b; }
+
+/* ---------- Badges ---------- */
+.msa-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; background: #f0f0ee; color: #666; white-space: nowrap; }
+.msa-st-new { background: #eef2ff; color: #4353c4; }
+.msa-st-quotation_sent { background: #fff4e5; color: #b5710a; }
+.msa-st-waiting_confirmation { background: #fff4e5; color: #b5710a; }
+.msa-st-confirmed { background: #e7f6ec; color: #1a8f3c; }
+.msa-st-deposit_paid { background: #e6f4f9; color: #1c7a99; }
+.msa-st-fully_paid { background: #e7f6ec; color: #157a33; }
+.msa-st-ongoing { background: #ede4fb; color: #6c3bb5; }
+.msa-st-completed { background: #eef0f0; color: #777; }
+.msa-st-cancelled { background: #fdecea; color: #c0392b; }
+.msa-type { background: #f3ede4; color: #9a6b2f; text-transform: capitalize; }
+.msa-pri-high { background: #fdecea; color: #c0392b; }
+.msa-pri-medium { background: #fff4e5; color: #b5710a; }
+.msa-pri-low { background: #eef0f0; color: #888; }
+.msa-ev-arrival { background: #e6f0fb; color: #2563a8; }
+.msa-ev-departure { background: #fdecea; color: #c0392b; }
+
+/* ---------- Toolbar / forms ---------- */
+.msa-toolbar { display: flex; gap: 10px; margin-bottom: 16px; }
+.msa-search { flex: 1; padding: 11px 16px; border: 1px solid var(--msa-line); border-radius: 12px; font-size: 14px; background: #fff; }
+.msa-search:focus { outline: none; border-color: var(--msa-brand); }
+.msa-toolbar select { padding: 11px 14px; border: 1px solid var(--msa-line); border-radius: 12px; background: #fff; font-size: 14px; }
+.msa-inline-form { display: flex; flex-direction: column; gap: 14px; }
+.msa-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.msa-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.msa-inline-form input, .msa-inline-form select { padding: 11px 14px; border: 1px solid var(--msa-line); border-radius: 12px; font-size: 14px; background: #fafafa; }
+.msa-inline-form input:focus, .msa-inline-form select:focus { outline: none; border-color: var(--msa-brand); background: #fff; }
+
+/* ---------- Mini cards (collaborators) ---------- */
+.msa-mini-card { background: #fff; border: 1px solid var(--msa-line); border-radius: 16px; padding: 18px; position: relative; display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+.msa-mini-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+.msa-mini-head strong { font-size: 15px; }
+.msa-mini-card a { color: var(--msa-brand); text-decoration: none; }
+.msa-notes { font-style: italic; }
+.msa-del-corner { position: absolute; top: 12px; right: 12px; }
+
+/* ---------- Tasks ---------- */
+.msa-task-add { display: grid; grid-template-columns: 1fr auto auto auto; gap: 10px; }
+.msa-task-add input, .msa-task-add select { padding: 11px 14px; border: 1px solid var(--msa-line); border-radius: 12px; font-size: 14px; background: #fafafa; }
+.msa-task { display: flex; align-items: center; gap: 14px; padding: 12px 4px; border-bottom: 1px solid #f4f4f2; }
+.msa-task:last-child { border-bottom: none; }
+.msa-task.done .msa-task-title { text-decoration: line-through; color: #b0b0b0; }
+.msa-check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--msa-line); background: #fff; cursor: pointer; color: var(--msa-brand); font-weight: 800; flex-shrink: 0; }
+.msa-task.done .msa-check { background: var(--msa-brand); border-color: var(--msa-brand); color: #fff; }
+.msa-task-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.msa-task-title { font-size: 14.5px; font-weight: 600; }
+
+/* ---------- Modal ---------- */
+.msa-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100010; display: flex; align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto; }
+.msa-modal { background: #fff; width: 100%; max-width: 860px; border-radius: 22px; box-shadow: 0 30px 80px rgba(0,0,0,0.3); }
+.msa-modal-head { position: sticky; top: 0; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 22px 28px; border-bottom: 1px solid var(--msa-line); border-radius: 22px 22px 0 0; z-index: 2; }
+.msa-modal-head h2 { margin: 0; font-size: 22px; font-weight: 800; }
+.msa-modal-head > div { display: flex; gap: 10px; }
+.msa-modal-body { padding: 24px 28px 32px; }
+.msa-section { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #aaa; font-weight: 800; margin: 22px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0ee; }
+.msa-section:first-child { margin-top: 0; }
+.msa-field { display: flex; flex-direction: column; gap: 5px; }
+.msa-field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #999; }
+.msa-field input, .msa-field select, .msa-field textarea { padding: 11px 14px; border: 1px solid var(--msa-line); border-radius: 12px; font-size: 14px; background: #fafafa; font-family: inherit; }
+.msa-field input:focus, .msa-field select:focus, .msa-field textarea:focus { outline: none; border-color: var(--msa-brand); background: #fff; }
+.msa-readout { padding: 11px 14px; border-radius: 12px; background: #faf3f1; border: 1px solid #f3d9d2; font-weight: 700; color: var(--msa-brand); }
+
+.msa-lead-list { display: flex; flex-direction: column; gap: 4px; }
+.msa-lead { display: flex; align-items: center; justify-content: space-between; padding: 10px 4px; border-bottom: 1px solid #f4f4f2; }
+.msa-lead:last-child { border-bottom: none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .msa-cols { grid-template-columns: 1fr; }
+  .msa-grid-2, .msa-grid-4 { grid-template-columns: 1fr 1fr; }
+  .msa-sidebar { width: 64px; }
+  .msa-brand span, .msa-nav-btn { font-size: 0; }
+  .msa-nav-btn { justify-content: center; padding: 12px; }
+  .msa-nav-ico { font-size: 18px; }
+  .msa-user-info { display: none; }
+  .msa-page { padding: 24px 18px 60px; }
+  .msa-task-add { grid-template-columns: 1fr; }
+}
