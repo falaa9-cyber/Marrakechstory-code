@@ -165,9 +165,11 @@
   // =====================================================================
   // DASHBOARD
   // =====================================================================
-  function Dashboard({ bookings, tasks, leads, clients, go, openBooking }) {
+  function Dashboard({ bookings, tasks, leads, clients, go, openBooking, reload }) {
     const active = bookings.filter(b => !b.archived && b.arrival_date && b.departure_date && new Date(b.arrival_date) <= startOfToday() && startOfToday() <= new Date(b.departure_date)).length;
     const future = bookings.filter(b => !b.archived && b.arrival_date && new Date(b.arrival_date) > startOfToday() && !['cancelled','completed'].includes(b.status)).sort((a, b) => new Date(a.arrival_date) - new Date(b.arrival_date));
+    const past = bookings.filter(b => b.archived || ['completed','cancelled'].includes(b.status) || (b.departure_date && new Date(b.departure_date) < startOfToday())).length;
+    const toggleTask = async (t, e) => { if (e) e.stopPropagation(); await dbUpdate('tasks', t.id, { status: t.status === 'completed' ? 'pending' : 'completed' }); reload && reload(); };
     const revenue = bookings.reduce((s, b) => s + (+b.selling_price || 0), 0);
     const cost = bookings.reduce((s, b) => s + (+b.total_cost || 0), 0);
     const benefit = revenue - cost;
@@ -196,7 +198,9 @@
           h('div', { className: 'msa-kpi-dual-row' },
             h('div', null, h('span', { className: 'msa-kpi-value' }, active), h('span', { className: 'msa-kpi-sub' }, 'Active')),
             h('div', { className: 'msa-kpi-divider' }),
-            h('div', null, h('span', { className: 'msa-kpi-value' }, future.length), h('span', { className: 'msa-kpi-sub' }, 'Upcoming')))),
+            h('div', null, h('span', { className: 'msa-kpi-value' }, future.length), h('span', { className: 'msa-kpi-sub' }, 'Upcoming')),
+            h('div', { className: 'msa-kpi-divider' }),
+            h('div', null, h('span', { className: 'msa-kpi-value' }, past), h('span', { className: 'msa-kpi-sub' }, 'Past')))),
         kpi('Total Income', kr(revenue), 'msa-kpi-income', 'finance'),
         kpi('Total Cost', kr(cost), 'msa-kpi-cost', 'finance'),
         kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance')),
@@ -232,9 +236,9 @@
           h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Task reminders'), h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Manage →')),
           h('div', { className: 'msa-dash-scroll' }, openTasks.length === 0 ? h('div', { className: 'msa-empty' }, 'No open tasks.')
             : openTasks.slice(0, 6).map(t => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = n != null && n < 0; const soon = n != null && n >= 0 && n <= 2;
-                return h('button', { key: t.id, className: 'msa-task-mini', onClick: () => go('tasks') },
-                  h('span', { className: 'msa-task-dot msa-pri-dot-' + t.priority }),
-                  h('div', { className: 'msa-task-mini-body' }, h('span', null, t.title), h('span', { className: 'msa-dim ' + (overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : '') }, (t.due || '') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : ''))),
+                return h('div', { key: t.id, className: 'msa-task-mini' },
+                  h('button', { className: 'msa-check msa-check-sm', title: 'Mark done', onClick: (e) => toggleTask(t, e) }, ''),
+                  h('div', { className: 'msa-task-mini-body', onClick: () => go('tasks'), style: { cursor: 'pointer' } }, h('span', null, t.title), h('span', { className: 'msa-dim ' + (overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : '') }, (t.due || '') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : ''))),
                   h('span', { className: 'msa-badge msa-pri-' + t.priority }, t.priority)); }))),
 
         h('div', { className: 'msa-card msa-dash-box' },
@@ -996,7 +1000,7 @@
         case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings });
         case 'insights': return h(Insights, {});
         case 'settings': return h(Settings, { settings, onSaved: reloadAll });
-        default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking });
+        default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll });
       }
     };
 

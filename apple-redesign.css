@@ -4698,3 +4698,73 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   cursor: pointer;
 }
 .footer-admin-link:hover { color: var(--brand, #e0432a) !important; }
+
+/* ============================================================
+   v205 — iOS-26 "Liquid Glass" + 3D bubbly motion (public site)
+   Additive, scoped to public classes (not .msa- admin).
+   Respects prefers-reduced-motion.
+   ============================================================ */
+:root { --ms-spring: cubic-bezier(.34, 1.56, .64, 1); }
+
+/* Floating colour orbs behind the hero for glassy depth */
+.ms-hero { position: relative; overflow: hidden; }
+.ms-hero::before, .ms-hero::after {
+  content: ''; position: absolute; border-radius: 50%; z-index: 1; pointer-events: none;
+  filter: blur(70px); opacity: .45; mix-blend-mode: screen;
+  animation: msOrb 18s ease-in-out infinite;
+}
+.ms-hero::before { width: 380px; height: 380px; top: -80px; left: -60px; background: radial-gradient(circle, rgba(224,67,42,.7), transparent 70%); }
+.ms-hero::after { width: 320px; height: 320px; bottom: -70px; right: -50px; background: radial-gradient(circle, rgba(255,165,90,.6), transparent 70%); animation-delay: -9s; }
+@keyframes msOrb { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(40px,-26px) scale(1.12); } 66% { transform: translate(-26px,18px) scale(.92); } }
+.ms-hero-content, .ms-hero-content-centered, .ms-hero-credibility, .ms-hero-search-wrap { position: relative; z-index: 3; }
+
+/* 3D bubbly cards — springy lift + glass edge highlight */
+.cat-card, .trip-feature, .trip-card, .reiseplan-card, .itin-card, .ms-mini-card,
+.pkg-card, .review-card, .testimonial-card, .ms-profile-trip {
+  transition: transform .42s var(--ms-spring), box-shadow .42s var(--ms-spring) !important;
+  will-change: transform;
+}
+.cat-card:hover, .trip-feature:hover, .trip-card:hover, .reiseplan-card:hover,
+.itin-card:hover, .ms-mini-card:hover, .pkg-card:hover {
+  transform: translateY(-9px) scale(1.015) !important;
+  box-shadow: 0 26px 54px rgba(20,16,14,.18), 0 8px 18px rgba(20,16,14,.08),
+              inset 0 1px 0 rgba(255,255,255,.6) !important;
+}
+.cat-card:active, .trip-feature:active, .trip-card:active { transform: translateY(-3px) scale(.995) !important; }
+
+/* Card images get a gentle zoom for depth */
+.cat-img, .trip-feature-img, .itin-img { transition: transform .6s var(--ms-spring); }
+.cat-card:hover .cat-img, .trip-feature:hover .trip-feature-img { transform: scale(1.06); }
+
+/* Bubbly buttons — glass sheen sweep + spring press */
+.btn-primary, .btn-ink, .reiseplaner-cta-chip, .ms-hero-cta, .cat-modal-cta, .cat-reserve-btn {
+  position: relative; overflow: hidden;
+  transition: transform .25s var(--ms-spring), box-shadow .25s ease, filter .25s ease !important;
+}
+.btn-primary:hover, .btn-ink:hover, .ms-hero-cta:hover, .cat-reserve-btn:hover {
+  transform: translateY(-2px) scale(1.03); box-shadow: 0 14px 30px rgba(224,67,42,.34);
+}
+.btn-primary:active, .btn-ink:active, .ms-hero-cta:active, .cat-reserve-btn:active { transform: translateY(0) scale(.95); }
+.btn-primary::after, .btn-ink::after, .ms-hero-cta::after, .cat-reserve-btn::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.45) 50%, transparent 62%);
+  transform: translateX(-130%); transition: transform .7s ease;
+}
+.btn-primary:hover::after, .btn-ink:hover::after, .ms-hero-cta:hover::after, .cat-reserve-btn:hover::after { transform: translateX(130%); }
+
+/* Stronger frosted glass on the nav + lang pill + widgets */
+.nav.scrolled { background: rgba(255,255,255,0.55) !important; -webkit-backdrop-filter: saturate(180%) blur(22px) !important; backdrop-filter: saturate(180%) blur(22px) !important; }
+.ms-lc-pill, .ms-lc-menu, .nav-pill-menu { -webkit-backdrop-filter: saturate(180%) blur(18px); backdrop-filter: saturate(180%) blur(18px); }
+.ms-lc-menu, .nav-pill-menu { background: rgba(255,255,255,0.78) !important; }
+
+/* Glassy modal sheets (catalog / itinerary) */
+.cat-modal, .itin-modal { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+
+/* Floating widgets (WhatsApp/chat/instagram) get a gentle bob */
+.wa-widget, .ms-chat-fab { animation: msBob 4.5s ease-in-out infinite; }
+@keyframes msBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-hero::before, .ms-hero::after, .wa-widget, .ms-chat-fab { animation: none !important; }
+  .cat-card, .trip-feature, .trip-card, .reiseplaner-card, .btn-primary, .btn-ink { transition: none !important; }
+}
