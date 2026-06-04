@@ -7506,3 +7506,30 @@ section.hero-v2 { display: none; }
   .hero-tab-title { font-size: 15px; }
   .hero-tab-sub { font-size: 11.5px; }
 }
+
+/* ===== Trip planner — "Choose for me" box (taste step) ===== */
+.itin-choose-me {
+  display: flex; align-items: center; gap: 14px; width: 100%;
+  text-align: left; cursor: pointer;
+  background: linear-gradient(135deg, #fff6f3, #fef0ec);
+  border: 1.5px solid #f3d3c8; border-radius: 16px;
+  padding: 16px 18px; margin: 4px 0 20px;
+  transition: border-color .2s, box-shadow .2s, transform .1s;
+}
+.itin-choose-me:hover { border-color: var(--brand, #e0432a); box-shadow: 0 6px 20px rgba(224,67,42,.12); }
+.itin-choose-me.active { border-color: var(--brand, #e0432a); background: linear-gradient(135deg, #fdeee9, #fbe2da); box-shadow: 0 6px 20px rgba(224,67,42,.16); }
+.itin-choose-ico { font-size: 26px; flex-shrink: 0; }
+.itin-choose-txt { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.itin-choose-txt strong { font-size: 16px; color: #1d1d1f; }
+.itin-choose-txt span { font-size: 13px; color: #6e6e73; line-height: 1.4; }
+.itin-choose-check {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #e0d2cc; color: #fff; font-weight: 800; font-size: 15px;
+  transition: all .2s;
+}
+.itin-choose-me.active .itin-choose-check { background: var(--brand, #e0432a); border-color: var(--brand, #e0432a); }
+.itin-choose-note {
+  background: #f0f7f1; border: 1px solid #cfe9d4; color: #1c7a3f;
+  border-radius: 14px; padding: 16px 18px; font-size: 14px; line-height: 1.5;
+}

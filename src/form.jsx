@@ -324,6 +324,7 @@ function ItineraryBuilder() {
     accommodation: '',
     pace: '',
     interests: [],
+    chooseForMe: false,
     occasion: '',
     avoid: '',
     notes: '',
@@ -563,6 +564,7 @@ function ItineraryBuilder() {
       lines.push(`Stil: ${data.accommodation} · ${data.pace} · ${data.budget}`);
       if (data.interests.length) lines.push(`Interesser: ${data.interests.join(', ')}`);
     }
+    if (data.chooseForMe) lines.push(`⭐ Velg for meg: kunden ønsker at MarrakechStory setter sammen reisen`);
     lines.push(`Reisende: ${data.travellers.adults}v ${data.travellers.children}b ${data.travellers.infants}s (${totalPax} totalt)`);
     lines.push(`Periode: ${data.startDate}${data.endDate ? ' → ' + data.endDate : ''} (${data.flex})`);
     lines.push(`Fly: lander i ${data.arriveCity}, hjem fra ${data.departCity}`);
@@ -607,6 +609,7 @@ function ItineraryBuilder() {
       `— VARIGHET —\n${data.duration} dager\n\n` +
       `— REISENDE —\n${data.travellers.adults} voksne · ${data.travellers.children} barn · ${data.travellers.infants} spedbarn (${totalPax} totalt)\n\n` +
       `— DATOER —\nStart: ${data.startDate} (${data.flex})\n\n` +
+      (data.chooseForMe ? `— VELG FOR MEG —\nKunden ønsker at MarrakechStory setter sammen reisen.\n\n` : '') +
       `— STIL —\nOvernatting: ${data.accommodation}\nTempo: ${data.pace}\nBudsjett: ${data.budget}\n\n` +
       `— INTERESSER —\n${data.interests.join(', ') || 'åpent'}\n\n` +
       `— ANLEDNING —\n${data.occasion || '—'}\n\n` +
@@ -616,11 +619,11 @@ function ItineraryBuilder() {
       `— KONTAKT —\n${data.name}\n${data.email}\n${data.phone}\n${data.country}\n\nGleder meg til å høre fra dere!\n`
     );
     const subject = encodeURIComponent(`Ny reiseforespørsel — ${data.name || 'gjest'} · ${data.duration} dager`);
-    // Fire-and-forget persistence to Supabase
+    // Fire-and-forget persistence to Supabase (routes into the admin)
     if (window.MS_submitForm) {
       window.MS_submitForm('itinerary', { ...data, bookingCtx }, { via: 'email' });
     }
-    window.location.href = `mailto:${COMPANY.email}?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:marrakechstory@outlook.com?subject=${subject}&body=${body}`;
     setSent(true);
   };
 
@@ -1114,6 +1117,27 @@ function ItineraryBuilder() {
                           {ctx.lang === 'no' ? 'Fyll inn dag for dag' : ctx.lang === 'fr' ? 'Remplissez jour par jour' : 'Fill the trip day by day'}
                         </h3>
 
+                        {/* Choose-for-me — let MarrakechStory plan it for you */}
+                        <button type="button"
+                          className={`itin-choose-me ${data.chooseForMe ? 'active' : ''}`}
+                          onClick={() => upd('chooseForMe', !data.chooseForMe)}>
+                          <span className="itin-choose-ico">✨</span>
+                          <span className="itin-choose-txt">
+                            <strong>{ctx.lang === 'no' ? 'Velg for meg' : ctx.lang === 'fr' ? 'Choisissez pour moi' : 'Choose for me'}</strong>
+                            <span>{ctx.lang === 'no' ? 'Ikke lyst til å bruke tid? La MarrakechStory sette sammen reisen for deg.' : ctx.lang === 'fr' ? 'Pas envie de choisir ? Laissez MarrakechStory composer votre voyage.' : "Don't want to spend time choosing? Let MarrakechStory craft the trip for you."}</span>
+                          </span>
+                          <span className="itin-choose-check">{data.chooseForMe ? '✓' : ''}</span>
+                        </button>
+
+                        {data.chooseForMe ? (
+                          <div className="itin-choose-note">
+                            {ctx.lang === 'no'
+                              ? 'Perfekt — vi setter sammen en skreddersydd reise basert på lengde, reisefølge og datoer. Du kan legge til ønsker i neste steg.'
+                              : ctx.lang === 'fr'
+                              ? 'Parfait — nous composerons un voyage sur mesure selon la durée, les voyageurs et les dates. Ajoutez vos souhaits à l\'étape suivante.'
+                              : 'Perfect — we\'ll craft a tailored trip from your length, travellers and dates. Add any wishes in the next step.'}
+                          </div>
+                        ) : (<>
                         <div className="day-nav">
                           <button type="button" className="day-nav-arrow"
                             onClick={() => setActiveDay(d => Math.max(0, d - 1))}
@@ -1149,6 +1173,7 @@ function ItineraryBuilder() {
                           title={ctx.lang === 'no' ? '🏜️☀️ Agafay & bassenger' : '🏜️☀️ Agafay & pools'} />
                         <Section id="rest"     items={restaurantStyles}                       slot="restaurant" picked={day.restaurant}
                           title={ctx.lang === 'no' ? '🍽️ Middag — restaurant-stil' : '🍽️ Dinner — restaurant style'} />
+                        </>)}
                       </div>
                     );
                   })()}
@@ -1231,13 +1256,13 @@ function ItineraryBuilder() {
                     </button>
                   ) : (
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button className="btn btn-outline" onClick={send} title="Email"
+                      <button className="btn btn-outline" onClick={sendWhatsapp} title="WhatsApp"
                         disabled={!data.name.trim() || !data.email.trim()}>
-                        <If.Mail s={14} />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-1s-.5-.1-.7.1c-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.9-2.8-1.5-4-3.5-.3-.5.3-.5.9-1.6.1-.2.1-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.3 3.1c.1.2 2.1 3.4 5.2 4.7 1.9.8 2.7.9 3.6.7.6-.1 1.7-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.3c1.5.8 3.1 1.3 4.8 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
                       </button>
-                      <button className="btn btn-primary" onClick={sendWhatsapp}
+                      <button className="btn btn-primary" onClick={send}
                         disabled={!data.name.trim() || !data.email.trim()}>
-                        {ctx.lang === 'no' ? 'Send via WhatsApp' : ctx.lang === 'fr' ? 'Envoyer par WhatsApp' : 'Send via WhatsApp'} →
+                        {ctx.lang === 'no' ? 'Send' : ctx.lang === 'fr' ? 'Envoyer' : 'Send'} →
                       </button>
                     </div>
                   )}
