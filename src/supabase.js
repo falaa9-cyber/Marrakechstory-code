@@ -100,64 +100,59 @@
       // Don't track the admin console itself.
       if ((location.hash || '').replace('#', '').split('?')[0] === 'admin') return;
       var SB = window.MS_SB;
+      var uuid = function () {
+        try { if (crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); });
+      };
       var sid = sessionStorage.getItem('ms_sid');
-      if (!sid) { sid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 8)); sessionStorage.setItem('ms_sid', sid); }
-      // Only one DB row per browser session.
-      var rowId = sessionStorage.getItem('ms_pv_id') || null;
+      if (!sid) { sid = uuid(); sessionStorage.setItem('ms_sid', sid); }
+      // Client-generated row id — we INSERT with this id and UPDATE by it.
+      // (Anon can insert/update but NOT select, so we never use .select().)
+      var pvId = sessionStorage.getItem('ms_pv_id');
+      var isNewRow = !pvId;
+      if (!pvId) { pvId = uuid(); sessionStorage.setItem('ms_pv_id', pvId); }
       var ua = navigator.userAgent || '';
       var device = /Mobi|Android|iPhone|iPod/i.test(ua) ? 'mobile' : (/iPad|Tablet/i.test(ua) ? 'tablet' : 'desktop');
       var lang = (navigator.language || '').slice(0, 5);
       var ref = document.referrer ? (function () { try { return new URL(document.referrer).hostname; } catch (e) { return document.referrer; } })() : 'direct';
       var started = Date.now();
       var sections = {};
-      var SECTION_NAMES = { home: 'Home', itineraries: 'Trips', catalog: 'Catalog', plan: 'Trip planner', contact: 'Contact', instagram: 'Instagram', collaborate: 'Collaborate', reviews: 'Reviews' };
+      var geo = {};
 
       function durSec() { return Math.round((Date.now() - started) / 1000); }
       function sectionList() { return Object.keys(sections).sort(function (a, b) { return sections[b] - sections[a]; }); }
 
-      // Observe known sections to learn what gets seen.
       try {
         var io = new IntersectionObserver(function (entries) {
           entries.forEach(function (en) { if (en.isIntersecting && en.target.id) { sections[en.target.id] = (sections[en.target.id] || 0) + 1; } });
-        }, { threshold: 0.4 });
+        }, { threshold: 0.35 });
         document.querySelectorAll('section[id], [data-track-section][id]').forEach(function (el) { io.observe(el); });
       } catch (e) {}
 
-      function persist(isUpdate) {
-        var base = { session_id: sid, device: device, lang: lang, referrer: ref, landing: location.pathname + location.hash,
-          sections: sectionList(), duration_seconds: durSec(), user_agent: ua.slice(0, 400), updated_at: new Date().toISOString() };
-        if (rowId) {
-          SB.from('page_views').update(base).eq('id', rowId).then(function () {}, function () {});
-        } else {
-          SB.from('page_views').insert(base).select('id').then(function (res) {
-            if (res && res.data && res.data[0]) { rowId = res.data[0].id; sessionStorage.setItem('ms_pv_id', rowId); }
-          }, function () {});
-        }
+      // INSERT the visit row immediately (explicit id, NO .select()).
+      function insertRow() {
+        var row = { id: pvId, session_id: sid, device: device, lang: lang, referrer: ref,
+          landing: (location.pathname + location.hash).slice(0, 300), sections: sectionList(),
+          duration_seconds: durSec(), user_agent: ua.slice(0, 400) };
+        if (geo.country) { row.country = geo.country; row.country_code = geo.country_code; row.city = geo.city; }
+        SB.from('page_views').insert(row).then(function (r) { if (r && r.error) console.warn('[MS analytics] insert', r.error.message); }, function () {});
+      }
+      function updateRow() {
+        var patch = { sections: sectionList(), duration_seconds: durSec(), updated_at: new Date().toISOString() };
+        if (geo.country) { patch.country = geo.country; patch.country_code = geo.country_code; patch.city = geo.city; }
+        SB.from('page_views').update(patch).eq('id', pvId).then(function () {}, function () {});
       }
 
-      // Country via free IP geolocation (best-effort, no key).
-      fetch('https://ipwho.is/?fields=success,country,country_code,city').then(function (r) { return r.json(); }).then(function (g) {
-        if (g && g.success) {
-          var patch = { country: g.country, country_code: g.country_code, city: g.city };
-          if (rowId) SB.from('page_views').update(patch).eq('id', rowId).then(function () {}, function () {});
-          else { window.__ms_geo = patch; }
-        }
-      }).catch(function () {});
+      // Country via free IP geolocation (best-effort).
+      fetch('https://ipwho.is/?fields=success,country,country_code,city')
+        .then(function (r) { return r.json(); })
+        .then(function (g) { if (g && g.success) { geo = { country: g.country, country_code: g.country_code, city: g.city }; updateRow(); } })
+        .catch(function () {});
 
-      // Initial insert (after a short tick so a few sections register), then
-      // periodic + on-hide updates for duration & sections.
-      setTimeout(function () {
-        var first = { session_id: sid, device: device, lang: lang, referrer: ref, landing: location.pathname + location.hash,
-          sections: sectionList(), duration_seconds: durSec(), user_agent: ua.slice(0, 400) };
-        if (window.__ms_geo) { first.country = window.__ms_geo.country; first.country_code = window.__ms_geo.country_code; first.city = window.__ms_geo.city; }
-        SB.from('page_views').insert(first).select('id').then(function (res) {
-          if (res && res.data && res.data[0]) { rowId = res.data[0].id; sessionStorage.setItem('ms_pv_id', rowId); }
-        }, function () {});
-      }, 1500);
-
-      setInterval(function () { if (rowId) persist(true); }, 20000);
-      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && rowId) persist(true); });
-      window.addEventListener('pagehide', function () { if (rowId) persist(true); });
+      if (isNewRow) insertRow(); else updateRow();
+      setInterval(updateRow, 15000);
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') updateRow(); });
+      window.addEventListener('pagehide', updateRow);
     } catch (e) { /* analytics never breaks the site */ }
   })();
 })();
