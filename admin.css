@@ -646,3 +646,9 @@
 .msa-doc-terms { margin-top: 14px; padding-top: 11px; }
 .msa-doc-terms p { font-size: 10.5px; }
 .msa-doc-foot { font-size: 10.5px; padding-top: 11px; margin-top: 12px; }
+
+/* ============ v203 — Insights live indicator ============ */
+.msa-live-wrap { display: flex; align-items: center; gap: 6px; }
+.msa-live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #1c7a3f; background: var(--msa-green-soft); padding: 5px 11px; border-radius: 999px; }
+.msa-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--msa-green); animation: msaPulse 1.6s ease-in-out infinite; }
+@keyframes msaPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }

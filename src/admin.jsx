@@ -857,7 +857,9 @@
   // =====================================================================
   function Insights() {
     const [rows, setRows] = useState(null);
-    useEffect(() => { const sb = getSB(); if (!sb) { setRows([]); return; } sb.from('page_views').select('*').order('created_at', { ascending: false }).limit(5000).then(({ data }) => setRows(data || [])); }, []);
+    const [updatedAt, setUpdatedAt] = useState(null);
+    const load = useCallback(() => { const sb = getSB(); if (!sb) { setRows([]); return; } sb.from('page_views').select('*').order('created_at', { ascending: false }).limit(5000).then(({ data }) => { setRows(data || []); setUpdatedAt(new Date()); }); }, []);
+    useEffect(() => { load(); const t = setInterval(load, 30000); return () => clearInterval(t); }, [load]);
     if (rows === null) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading analytics…'));
     const visits = rows.length;
     const uniq = new Set(rows.map(r => r.session_id)).size;
@@ -880,7 +882,12 @@
     const kpi = (label, value, cls) => h('div', { className: 'msa-kpi ' + (cls || 'msa-kpi-plain') }, h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, value));
 
     return h('div', { className: 'msa-page' },
-      h('header', { className: 'msa-page-head' }, h('h1', null, 'Insights'), h('p', { className: 'msa-subtitle' }, 'Website analytics — visits, audience, behaviour')),
+      h('header', { className: 'msa-page-head msa-row' },
+        h('div', null, h('h1', null, 'Insights'), h('p', { className: 'msa-subtitle' }, 'Website analytics — visits, audience, behaviour')),
+        h('div', { className: 'msa-live-wrap' },
+          h('span', { className: 'msa-live' }, h('span', { className: 'msa-live-dot' }), 'Live'),
+          updatedAt && h('span', { className: 'msa-dim', style: { marginRight: 8 } }, 'Updated ' + updatedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })),
+          h('button', { className: 'msa-btn msa-btn-sm', onClick: load }, 'Refresh'))),
       visits === 0 ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'No visits recorded yet. Data appears here as people browse the public site.')) : h('div', null,
         h('div', { className: 'msa-dash-top' },
           kpi('Total visits', nf(visits), 'msa-kpi-income'),
