@@ -167,18 +167,8 @@
 .msa-lead { display: flex; align-items: center; justify-content: space-between; padding: 10px 4px; border-bottom: 1px solid #f4f4f2; }
 .msa-lead:last-child { border-bottom: none; }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 900px) {
-  .msa-cols { grid-template-columns: 1fr; }
-  .msa-grid-2, .msa-grid-4 { grid-template-columns: 1fr 1fr; }
-  .msa-sidebar { width: 64px; }
-  .msa-brand span, .msa-nav-btn { font-size: 0; }
-  .msa-nav-btn { justify-content: center; padding: 12px; }
-  .msa-nav-ico { font-size: 18px; }
-  .msa-user-info { display: none; }
-  .msa-page { padding: 24px 18px 60px; }
-  .msa-task-add { grid-template-columns: 1fr; }
-}
+/* ---------- Desktop defaults for mobile-only chrome ---------- */
+.msa-topbar, .msa-nav-overlay, .msa-burger, .msa-drawer-close { display: none; }
 
 /* ============================================================
    v179 additions — faithful port: year calendar, day cards,
@@ -307,4 +297,141 @@
   .msa-modal-backdrop { position: absolute; inset: 0; background: #fff; padding: 0; }
   .msa-modal-doc { max-width: 100%; box-shadow: none; }
   .msa-print-hide { display: none !important; }
+}
+
+/* ============================================================
+   v180 — FULL MOBILE APP LAYOUT
+   Slide-in drawer, top app bar, card-reflow tables, fitted modals.
+   Nothing overflows the viewport on phones.
+   ============================================================ */
+@media (max-width: 860px) {
+  /* ---- App top bar ---- */
+  .msa-topbar {
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 50;
+    height: 56px; padding: 0 14px;
+    background: #fff; border-bottom: 1px solid var(--msa-line);
+  }
+  .msa-burger {
+    border: none; background: #f4f3f0; width: 40px; height: 40px;
+    border-radius: 11px; font-size: 18px; cursor: pointer; flex-shrink: 0; color: var(--msa-ink);
+  }
+  .msa-topbar-title { font-weight: 800; font-size: 17px; flex: 1; }
+  .msa-topbar-logo { width: 32px; height: 32px; object-fit: contain; border-radius: 8px; }
+
+  /* ---- Shell becomes single column ---- */
+  .msa-shell { flex-direction: column; height: 100dvh; }
+  .msa-main { flex: 1; -webkit-overflow-scrolling: touch; }
+
+  /* ---- Sidebar -> slide-in drawer ---- */
+  .msa-sidebar {
+    position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
+    width: 80vw; max-width: 300px;
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 40px rgba(0,0,0,0.18);
+  }
+  .msa-shell.nav-open .msa-sidebar { transform: translateX(0); }
+  .msa-nav-overlay {
+    display: block; position: fixed; inset: 0; z-index: 90;
+    background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity .28s;
+  }
+  .msa-shell.nav-open .msa-nav-overlay { opacity: 1; pointer-events: auto; }
+  .msa-brand { position: relative; }
+  .msa-drawer-close {
+    display: block; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    border: none; background: #f4f3f0; width: 34px; height: 34px; border-radius: 10px;
+    font-size: 15px; cursor: pointer; color: #777;
+  }
+  .msa-nav-btn { font-size: 15px; padding: 13px 16px; }
+  .msa-nav-label { font-size: 15px; }
+  .msa-user-info { display: flex; }
+
+  /* ---- Page padding ---- */
+  .msa-page { padding: 18px 14px 90px; }
+  .msa-page-head h1 { font-size: 24px; }
+  .msa-page-head.msa-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .msa-page-head.msa-row .msa-btn { width: 100%; }
+
+  /* ---- Grids collapse ---- */
+  .msa-cols, .msa-cols-21, .msa-cols-12,
+  .msa-grid-2, .msa-grid-4, .msa-fin-grid,
+  .msa-day-grid, .msa-card-grid { grid-template-columns: 1fr !important; }
+  .msa-stat-grid, .msa-stat-5 { grid-template-columns: repeat(2, 1fr) !important; }
+  .msa-task-add { grid-template-columns: 1fr !important; }
+
+  /* ---- Toolbars wrap ---- */
+  .msa-toolbar { flex-wrap: wrap; }
+  .msa-toolbar .msa-search { min-width: 100%; }
+
+  /* ---- TABLES -> stacked cards (no horizontal overflow) ---- */
+  .msa-card-flush { padding: 0; background: transparent; border: none; }
+  .msa-table, .msa-table tbody, .msa-table tr, .msa-table td { display: block; width: 100%; }
+  .msa-table thead { display: none; }
+  .msa-table tr {
+    background: #fff; border: 1px solid var(--msa-line); border-radius: 14px;
+    margin-bottom: 12px; padding: 6px 14px;
+  }
+  .msa-table td {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    padding: 9px 0; border-bottom: 1px solid #f4f4f2; text-align: right;
+  }
+  .msa-table tr td:last-child { border-bottom: none; }
+  .msa-table td::before {
+    content: attr(data-label); flex-shrink: 0;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: #aaa; text-align: left;
+  }
+  .msa-table td:empty, .msa-table td[data-label='']::before { content: ''; }
+  .msa-table td .msa-muted { font-size: 13px; }
+  .msa-actions { justify-content: flex-end; }
+  /* keep nested doc/invoice tables as normal tables */
+  .msa-doc-table, .msa-doc-table tbody, .msa-doc-table tr, .msa-doc-table td { display: revert; }
+  .msa-doc-table thead { display: table-header-group; }
+  .msa-doc-table td::before { content: none; }
+
+  /* ---- Modals -> full screen sheets ---- */
+  .msa-modal-backdrop { padding: 0; align-items: stretch; }
+  .msa-modal, .msa-modal-wide, .msa-modal-doc {
+    max-width: 100%; width: 100%; min-height: 100dvh; border-radius: 0; margin: 0;
+  }
+  .msa-modal-head { flex-wrap: wrap; gap: 10px; padding: 14px 16px; }
+  .msa-modal-head h2 { font-size: 19px; width: 100%; }
+  .msa-modal-head > div { width: 100%; display: flex; gap: 8px; }
+  .msa-modal-head > div .msa-btn { flex: 1; }
+  .msa-modal-body { padding: 16px; }
+
+  /* ---- Login fits ---- */
+  .msa-login-card { max-width: 92vw; }
+
+  /* ---- Calendar fits ---- */
+  .msa-mini-months { grid-template-columns: repeat(2, 1fr); }
+  .msa-cal-cell { min-height: 56px; padding: 3px; }
+  .msa-cal-num { font-size: 11px; }
+  .msa-cal-dow { padding: 5px 2px; font-size: 8px; }
+  .msa-cal-evt { font-size: 8px; padding: 1px 3px; }
+
+  /* ---- Documents fit ---- */
+  .msa-doc { padding: 6px 4px 24px; }
+  .msa-doc-top { flex-direction: column; gap: 14px; }
+  .msa-doc-meta { text-align: left; }
+  .msa-doc-cols { grid-template-columns: 1fr; gap: 16px; }
+  .msa-doc-cols .msa-right { text-align: left; }
+  .msa-doc-brand h1 { font-size: 22px; }
+  .msa-doc-totals > div { min-width: 100%; }
+  .msa-bank-grid { grid-template-columns: 1fr; gap: 2px 0; }
+  .msa-bank-grid span:nth-child(odd) { margin-top: 6px; }
+
+  /* ---- Day-card activity row wraps ---- */
+  .msa-act-row { flex-wrap: wrap; }
+  .msa-act-row select { min-width: 60%; }
+
+  /* ---- Everything: never exceed viewport width ---- */
+  .msa-page *, .msa-modal * { max-width: 100%; }
+  .msa-table a, .msa-mini-card a { word-break: break-word; }
+}
+
+@media (max-width: 380px) {
+  .msa-stat-grid, .msa-stat-5 { grid-template-columns: 1fr !important; }
+  .msa-mini-months { grid-template-columns: 1fr; }
 }

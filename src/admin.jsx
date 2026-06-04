@@ -434,13 +434,13 @@
         : h('table', { className: 'msa-table' },
             h('thead', null, h('tr', null, ['Reference','Client','Dates','Travelers','Price (NOK)','Status',''].map((c, i) => h('th', { key: i }, c)))),
             h('tbody', null, filtered.map(b => h('tr', { key: b.id, className: 'msa-row-click', onClick: () => setEdit(b) },
-              h('td', null, h('span', { className: 'msa-mono' }, b.reference || '—')),
-              h('td', null, h('strong', null, b.client_name), h('div', { className: 'msa-muted' }, b.email || '')),
-              h('td', null, h('div', { className: 'msa-muted' }, fmtDate(b.arrival_date)), h('div', { className: 'msa-muted' }, '→ ' + fmtDate(b.departure_date))),
-              h('td', null, (b.adults || 0) + (b.kids || 0)),
-              h('td', null, b.selling_price ? fmtNOK(b.selling_price) : '—'),
-              h('td', null, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status] || b.status)),
-              h('td', { className: 'msa-right msa-actions' },
+              h('td', { 'data-label': 'Reference' }, h('span', { className: 'msa-mono' }, b.reference || '—')),
+              h('td', { 'data-label': 'Client' }, h('strong', null, b.client_name), h('div', { className: 'msa-muted' }, b.email || '')),
+              h('td', { 'data-label': 'Dates' }, h('div', { className: 'msa-muted' }, fmtDate(b.arrival_date)), h('div', { className: 'msa-muted' }, '→ ' + fmtDate(b.departure_date))),
+              h('td', { 'data-label': 'Travelers' }, (b.adults || 0) + (b.kids || 0)),
+              h('td', { 'data-label': 'Price' }, b.selling_price ? fmtNOK(b.selling_price) : '—'),
+              h('td', { 'data-label': 'Status' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status] || b.status)),
+              h('td', { 'data-label': 'Actions', className: 'msa-right msa-actions' },
                 h('button', { className: 'msa-icon-btn', title: 'Itinerary', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'itinerary' }); } }, '📄'),
                 h('button', { className: 'msa-icon-btn', title: 'Invoice', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'invoice' }); } }, '🧾'),
                 b.phone && h('a', { className: 'msa-icon-btn', title: 'WhatsApp', href: waLink(b.phone), target: '_blank', onClick: (e) => e.stopPropagation() }, '💬'),
@@ -476,11 +476,11 @@
         : h('table', { className: 'msa-table' },
             h('thead', null, h('tr', null, ['Name','Contact Info','Country','Trips',''].map((c, i) => h('th', { key: i, className: i === 3 ? 'msa-center' : '' }, c)))),
             h('tbody', null, filtered.map(c => h('tr', { key: c.id },
-              h('td', null, h('strong', null, c.name)),
-              h('td', null, c.email && h('div', { className: 'msa-muted' }, '✉ ', h('a', { href: 'mailto:' + c.email }, c.email)), c.phone && h('div', { className: 'msa-muted' }, '📞 ', h('a', { href: waLink(c.phone), target: '_blank' }, c.phone))),
-              h('td', null, c.country || '—'),
-              h('td', { className: 'msa-center' }, h('strong', null, c.trips || 0)),
-              h('td', { className: 'msa-right' }, h('button', { className: 'msa-icon-btn', onClick: () => del(c) }, '🗑'))))) ))
+              h('td', { 'data-label': 'Name' }, h('strong', null, c.name)),
+              h('td', { 'data-label': 'Contact' }, c.email && h('div', { className: 'msa-muted' }, '✉ ', h('a', { href: 'mailto:' + c.email }, c.email)), c.phone && h('div', { className: 'msa-muted' }, '📞 ', h('a', { href: waLink(c.phone), target: '_blank' }, c.phone))),
+              h('td', { 'data-label': 'Country' }, c.country || '—'),
+              h('td', { 'data-label': 'Trips', className: 'msa-center' }, h('strong', null, c.trips || 0)),
+              h('td', { 'data-label': '', className: 'msa-right' }, h('button', { className: 'msa-icon-btn', onClick: () => del(c) }, '🗑'))))) ))
     );
   }
 
@@ -545,12 +545,12 @@
             h('thead', null, h('tr', null, ['Booking','Client','Price','Cost','Profit','Status'].map((c, i) => h('th', { key: i, className: i >= 2 && i <= 4 ? 'msa-right' : '' }, c)))),
             h('tbody', null, bookings.map(b => { const s = +b.selling_price || 0, c = +b.total_cost || 0, p = s - c;
               return h('tr', { key: b.id },
-                h('td', null, h('span', { className: 'msa-mono' }, b.reference || '—')),
-                h('td', null, b.client_name),
-                h('td', { className: 'msa-right' }, fmtNOK(s)),
-                h('td', { className: 'msa-right msa-neg' }, fmtNOK(c)),
-                h('td', { className: 'msa-right msa-pos' }, fmtNOK(p)),
-                h('td', null, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status] || b.status))); }))))
+                h('td', { 'data-label': 'Booking' }, h('span', { className: 'msa-mono' }, b.reference || '—')),
+                h('td', { 'data-label': 'Client' }, b.client_name),
+                h('td', { 'data-label': 'Price', className: 'msa-right' }, fmtNOK(s)),
+                h('td', { 'data-label': 'Cost', className: 'msa-right msa-neg' }, fmtNOK(c)),
+                h('td', { 'data-label': 'Profit', className: 'msa-right msa-pos' }, fmtNOK(p)),
+                h('td', { 'data-label': 'Status' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status] || b.status))); }))))
     );
   }
 
@@ -648,13 +648,13 @@
         : h('table', { className: 'msa-table' },
             h('thead', null, h('tr', null, ['Date','Type','Name','Contact','Trip','Routed',''].map((c, i) => h('th', { key: i }, c)))),
             h('tbody', null, leads.map(l => h('tr', { key: l.id },
-              h('td', null, fmtDate(l.created_at)),
-              h('td', null, h('span', { className: 'msa-badge' }, l.kind || '—')),
-              h('td', null, h('strong', null, l.name || '—')),
-              h('td', null, l.email && h('div', { className: 'msa-muted' }, h('a', { href: 'mailto:' + l.email }, l.email)), l.phone && h('div', { className: 'msa-muted' }, h('a', { href: waLink(l.phone), target: '_blank' }, l.phone))),
-              h('td', null, [l.trip_type, l.duration ? l.duration + 'd' : null, l.country].filter(Boolean).join(' · ') || '—'),
-              h('td', null, l.routed_booking_id ? h('span', { className: 'msa-badge msa-st-confirmed', title: 'Auto-created in Bookings' }, '→ Booking') : (l.kind === 'collaboration' ? h('span', { className: 'msa-badge msa-type' }, 'Partner') : h('span', { className: 'msa-muted' }, '—'))),
-              h('td', { className: 'msa-right msa-actions' },
+              h('td', { 'data-label': 'Date' }, fmtDate(l.created_at)),
+              h('td', { 'data-label': 'Type' }, h('span', { className: 'msa-badge' }, l.kind || '—')),
+              h('td', { 'data-label': 'Name' }, h('strong', null, l.name || '—')),
+              h('td', { 'data-label': 'Contact' }, l.email && h('div', { className: 'msa-muted' }, h('a', { href: 'mailto:' + l.email }, l.email)), l.phone && h('div', { className: 'msa-muted' }, h('a', { href: waLink(l.phone), target: '_blank' }, l.phone))),
+              h('td', { 'data-label': 'Trip' }, [l.trip_type, l.duration ? l.duration + 'd' : null, l.country].filter(Boolean).join(' · ') || '—'),
+              h('td', { 'data-label': 'Routed' }, l.routed_booking_id ? h('span', { className: 'msa-badge msa-st-confirmed', title: 'Auto-created in Bookings' }, '→ Booking') : (l.kind === 'collaboration' ? h('span', { className: 'msa-badge msa-type' }, 'Partner') : h('span', { className: 'msa-muted' }, '—'))),
+              h('td', { 'data-label': 'Actions', className: 'msa-right msa-actions' },
                 l.kind === 'collaboration' && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => onConvertCollab(l) }, '+ Collaborator'),
                 l.routed_booking_id && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => go('bookings') }, 'Open booking'),
                 h('button', { className: 'msa-icon-btn', onClick: () => del(l) }, '🗑')))))) )
@@ -673,10 +673,13 @@
 
   function Shell({ user, onLogout }) {
     const [tab, setTab] = useState('dashboard');
+    const [navOpen, setNavOpen] = useState(false);
     const [bookings, setBookings] = useState([]); const [clients, setClients] = useState([]);
     const [suppliers, setSuppliers] = useState([]); const [tasks, setTasks] = useState([]);
     const [leads, setLeads] = useState([]); const [loading, setLoading] = useState(true);
     const [openNew, setOpenNew] = useState(false); const [supSeed, setSupSeed] = useState(null);
+    const goTab = (id) => { setTab(id); setNavOpen(false); };
+    const currentLabel = (TABS.find(t => t[0] === tab) || [,'Admin'])[1];
 
     const reloadAll = useCallback(async () => {
       const [bk, cl, su, tk, ld] = await Promise.all([
@@ -709,10 +712,21 @@
       }
     };
 
-    return h('div', { className: 'msa-shell' },
+    return h('div', { className: 'msa-shell' + (navOpen ? ' nav-open' : '') },
+      // Mobile top app bar (hidden on desktop via CSS)
+      h('header', { className: 'msa-topbar' },
+        h('button', { className: 'msa-burger', 'aria-label': 'Menu', onClick: () => setNavOpen(true) }, '☰'),
+        h('span', { className: 'msa-topbar-title' }, currentLabel),
+        h('img', { className: 'msa-topbar-logo', src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } })
+      ),
+      // Drawer overlay (mobile)
+      h('div', { className: 'msa-nav-overlay', onClick: () => setNavOpen(false) }),
       h('aside', { className: 'msa-sidebar' },
-        h('div', { className: 'msa-brand' }, h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }), h('span', null, 'MarrakechStory')),
-        h('nav', { className: 'msa-nav' }, TABS.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id ? ' active' : ''), onClick: () => setTab(id) }, h('span', { className: 'msa-nav-ico' }, icon), h('span', { className: 'msa-nav-label' }, label)))),
+        h('div', { className: 'msa-brand' },
+          h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }),
+          h('span', null, 'MarrakechStory'),
+          h('button', { className: 'msa-drawer-close', 'aria-label': 'Close', onClick: () => setNavOpen(false) }, '✕')),
+        h('nav', { className: 'msa-nav' }, TABS.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, icon), h('span', { className: 'msa-nav-label' }, label)))),
         h('div', { className: 'msa-user' },
           h('div', { className: 'msa-user-info' }, h('strong', null, 'Admin'), h('span', { className: 'msa-muted' }, user.email)),
           h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout }, 'Log out'))),
