@@ -217,8 +217,8 @@ function HeroSearch({ lang, tx }) {
   );
 }
 
-const HERO_IMG      = "assets/photos/hero/hero-riad.jpg?v=69";
-const HERO_FALLBACK = "assets/photos/nobu-hotel-marrakech-marbella-review-683ddd3e251e9.avif";
+const HERO_IMG      = "assets/photos/riad-courtyard-pool-03.jpg?v=69";
+const HERO_FALLBACK = "assets/photos/riad-pool-terrace-08.avif";
 
 function useResolvedHeroImage(primary, fallback) {
   const [src, setSrc] = useStateHs(primary);

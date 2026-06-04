@@ -910,7 +910,7 @@ function ItineraryBuilder() {
                         {data.bookedAccom && (
                           <div className="fld" style={{ marginTop: 8 }}>
                             <label>{ctx.lang === 'no' ? 'Hotell / riad / adresse' : 'Hotel / riad / address'}</label>
-                            <input value={data.bookedAccomAddr} onChange={e => upd('bookedAccomAddr', e.target.value)} placeholder={ctx.lang === 'no' ? 'Navn eller adresse' : 'Name or address'} />
+                            <input autoComplete="street-address" value={data.bookedAccomAddr} onChange={e => upd('bookedAccomAddr', e.target.value)} placeholder={ctx.lang === 'no' ? 'Navn eller adresse' : 'Name or address'} />
                           </div>
                         )}
                         <label className="already-booked-check" style={{ marginTop: 8 }}>
@@ -1158,7 +1158,7 @@ function ItineraryBuilder() {
                       <h3 className="itin-q">{t('itin_step_extra')}</h3>
                       <div className="fld">
                         <label>{t('itin_special')}</label>
-                        <input value={data.occasion} onChange={e => upd('occasion', e.target.value)} placeholder={t('itin_special_ph')} />
+                        <input autoComplete="off" value={data.occasion} onChange={e => upd('occasion', e.target.value)} placeholder={t('itin_special_ph')} />
                       </div>
                       <div className="fld">
                         <label>{t('itin_avoid')}</label>

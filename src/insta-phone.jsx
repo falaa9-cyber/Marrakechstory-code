@@ -10,16 +10,16 @@ const IP_URL      = 'https://www.instagram.com/marrakechstory/';
 const IP_AVATAR   = 'assets/logo.png';
 
 const IP_POSTS = [
-  { id: 1,  type: 'image', caption: 'REISE TIL MAROKKO? Vi hjelper deg ✈️🇲🇦',                                                                  link: 'https://www.instagram.com/marrakechstory/p/DRZgst6jZIC/',     thumb: 'assets/instagram/post-1.jpg',  likes: 2148, comments: 87,  shares: 312 },
-  { id: 2,  type: 'image', caption: 'How We Plan Your Moroccan Trip – step by step guide ✨',                                                  link: 'https://www.instagram.com/marrakechstory/p/DGAnb0pN8NO/',     thumb: 'assets/instagram/post-2.jpg',  likes: 1542, comments: 64,  shares: 198 },
-  { id: 3,  type: 'image', caption: 'Dette sier kundene våre ❤️ Real reviews from real travelers',                                              link: 'https://www.instagram.com/marrakechstory/p/DRepQ2ZjO_Y/',     thumb: 'assets/instagram/post-3.jpg',  likes: 3074, comments: 152, shares: 421 },
-  { id: 4,  type: 'reel',  caption: 'You booked with MarrakechStory… and suddenly you’re watching the most beautiful Sahara sunset 🌅', link: 'https://www.instagram.com/marrakechstory/reel/DXX00FEDEVm/',  thumb: 'assets/instagram/post-4.jpg',  likes: 8930, comments: 412, shares: 1240 },
-  { id: 5,  type: 'reel',  caption: 'Marrakech – where tradition and energy meet ✨ souks, medina, riads',                                      link: 'https://www.instagram.com/marrakechstory/reel/DXUbSnBjWWb/',  thumb: 'assets/instagram/post-5.jpg',  likes: 6210, comments: 248, shares: 873 },
-  { id: 6,  type: 'reel',  caption: 'Me & you, together in Morocco 🇲🇦 from desert vibes to city lights ❤️',                                  link: 'https://www.instagram.com/marrakechstory/reel/DXSTo2HjfR5/',  thumb: 'assets/instagram/post-6.jpg',  likes: 5483, comments: 197, shares: 612 },
-  { id: 7,  type: 'reel',  caption: 'Lost in the iconic Majorelle Garden 💙 where nature meets art',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXRDHJEjeY4/',  thumb: 'assets/instagram/post-7.jpg',  likes: 4127, comments: 134, shares: 506 },
-  { id: 8,  type: 'reel',  caption: 'Atlas Mountains 🏔️ snow-capped peaks & hidden Berber villages',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXM5hiojc-z/',  thumb: 'assets/instagram/post-8.jpg',  likes: 7340, comments: 286, shares: 982 },
-  { id: 9,  type: 'reel',  caption: 'Rabat hits different… history meets the ocean 🌊✨',                                                        link: 'https://www.instagram.com/marrakechstory/reel/DXKwDqyDUPk/',  thumb: 'assets/instagram/post-9.jpg',  likes: 2870, comments: 104, shares: 358 },
-  { id: 10, type: 'reel',  caption: 'Essaouira – if Marrakech is the heart, Essaouira is the soul 🌊💨',                                        link: 'https://www.instagram.com/marrakechstory/reel/DWejJXajYl1/',  thumb: 'assets/instagram/post-10.jpg', likes: 4685, comments: 168, shares: 597 },
+  { id: 1,  type: 'image', caption: 'REISE TIL MAROKKO? Vi hjelper deg ✈️🇲🇦',                                                                  link: 'https://www.instagram.com/marrakechstory/p/DRZgst6jZIC/',     thumb: 'assets/photos/sahara-sunset-riding-17.jpg',  likes: 2148, comments: 87,  shares: 312 },
+  { id: 2,  type: 'image', caption: 'How We Plan Your Moroccan Trip – step by step guide ✨',                                                  link: 'https://www.instagram.com/marrakechstory/p/DGAnb0pN8NO/',     thumb: 'assets/photos/riad-courtyard-pool-03.jpg',  likes: 1542, comments: 64,  shares: 198 },
+  { id: 3,  type: 'image', caption: 'Dette sier kundene våre ❤️ Real reviews from real travelers',                                              link: 'https://www.instagram.com/marrakechstory/p/DRepQ2ZjO_Y/',     thumb: 'assets/photos/about-07.webp',  likes: 3074, comments: 152, shares: 421 },
+  { id: 4,  type: 'reel',  caption: 'You booked with MarrakechStory… and suddenly you’re watching the most beautiful Sahara sunset 🌅', link: 'https://www.instagram.com/marrakechstory/reel/DXX00FEDEVm/',  thumb: 'assets/photos/sahara-dunes-12.jpg',  likes: 8930, comments: 412, shares: 1240 },
+  { id: 5,  type: 'reel',  caption: 'Marrakech – where tradition and energy meet ✨ souks, medina, riads',                                      link: 'https://www.instagram.com/marrakechstory/reel/DXUbSnBjWWb/',  thumb: 'assets/photos/medina-food-stall-12.jpg',  likes: 6210, comments: 248, shares: 873 },
+  { id: 6,  type: 'reel',  caption: 'Me & you, together in Morocco 🇲🇦 from desert vibes to city lights ❤️',                                  link: 'https://www.instagram.com/marrakechstory/reel/DXSTo2HjfR5/',  thumb: 'assets/photos/agafay-12.jpg',  likes: 5483, comments: 197, shares: 612 },
+  { id: 7,  type: 'reel',  caption: 'Lost in the iconic Majorelle Garden 💙 where nature meets art',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXRDHJEjeY4/',  thumb: 'assets/photos/food-garden-restaurant-05.jpg',  likes: 4127, comments: 134, shares: 506 },
+  { id: 8,  type: 'reel',  caption: 'Atlas Mountains 🏔️ snow-capped peaks & hidden Berber villages',                                            link: 'https://www.instagram.com/marrakechstory/reel/DXM5hiojc-z/',  thumb: 'assets/photos/atlas-lodge-05.webp',  likes: 7340, comments: 286, shares: 982 },
+  { id: 9,  type: 'reel',  caption: 'Rabat hits different… history meets the ocean 🌊✨',                                                        link: 'https://www.instagram.com/marrakechstory/reel/DXKwDqyDUPk/',  thumb: 'assets/photos/riad-pool-terrace-08.avif',  likes: 2870, comments: 104, shares: 358 },
+  { id: 10, type: 'reel',  caption: 'Essaouira – if Marrakech is the heart, Essaouira is the soul 🌊💨',                                        link: 'https://www.instagram.com/marrakechstory/reel/DWejJXajYl1/',  thumb: 'assets/photos/essaouira-beach-horse-01.jpg', likes: 4685, comments: 168, shares: 597 },
 ];
 
 // Compact short-form formatter — 9876 → "9.9k"
@@ -32,16 +32,16 @@ function fmtCount(n) {
 
 // Fallback chain — if a thumbnail file isn't on disk yet, use a brand-coloured local photo
 const IP_FALLBACKS = [
-  'assets/photos/agafay-valley-marrakech-93.jpg',
-  'assets/photos/hammam-mamounia-marrakech-morocco.jpg.avif',
-  'assets/photos/agafay-valley-marrakech-70.jpg',
-  'assets/photos/marrakech-desert.jpg',
-  'assets/photos/cheval-essaouira.jpg',
-  'assets/photos/about-us-hq-26-scaled.jpg.webp',
-  'assets/photos/lodge-atlas-1-scaled.jpg.webp',
-  'assets/photos/about-us-hq-31-scaled.jpg.webp',
-  'assets/photos/jemaa-el-fna-18.jpg',
-  'assets/photos/agafay-valley-marrakech-38.jpg',
+  'assets/photos/agafay-16.jpg',
+  'assets/photos/hammam-spa-room-01.avif',
+  'assets/photos/agafay-12.jpg',
+  'assets/photos/sahara-dunes-11.jpg',
+  'assets/photos/essaouira-beach-horse-01.jpg',
+  'assets/photos/about-07.webp',
+  'assets/photos/atlas-lodge-05.webp',
+  'assets/photos/about-09.webp',
+  'assets/photos/medina-food-stall-12.jpg',
+  'assets/photos/agafay-11.jpg',
 ];
 
 // Inline SVGs (avoid loading lucide-react since we don't bundle).

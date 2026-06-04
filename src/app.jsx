@@ -49,7 +49,8 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
     <div className="ms-lc" ref={ref} style={{ position: 'relative' }}>
       <button className="ms-lc-pill" onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open} aria-label={`${lang} / ${curr}`}>
         <span className="ms-lc-flag">{langItem?.flag}</span>
-        <span className="ms-lc-sym">{CURR_SYMBOL[curr] || '€'}</span>
+        <span className="ms-lc-sep">·</span>
+        <span className="ms-lc-flag">{CURR_EMOJI[curr] || '💰'}</span>
       </button>
       {open && (
         <div className="ms-lc-menu" role="listbox">
@@ -58,10 +59,10 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
           <div>
             {LANG_LIST.map(it => (
               <button key={it.id}
-                className={`ms-lc-opt ${lang === it.id ? 'is-active' : ''}`}
-                onClick={() => { setLang(it.id); }}>
+                className={`ms-lc-opt flags-only ${lang === it.id ? 'is-active' : ''}`}
+                onClick={() => { setLang(it.id); }}
+                aria-label={it.label}>
                 <span className="flag">{it.flag}</span>
-                <span>{it.label}</span>
                 {lang === it.id && <Ia.Check s={13} className="check" />}
               </button>
             ))}
@@ -69,10 +70,10 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
           <div>
             {CURR_LIST.map(it => (
               <button key={it.id}
-                className={`ms-lc-opt ${curr === it.id ? 'is-active' : ''}`}
-                onClick={() => { setCurr(it.id); }}>
+                className={`ms-lc-opt flags-only ${curr === it.id ? 'is-active' : ''}`}
+                onClick={() => { setCurr(it.id); }}
+                aria-label={it.id}>
                 <span className="flag">{CURR_EMOJI[it.id] || '💰'}</span>
-                <span>{it.label}</span>
                 {curr === it.id && <Ia.Check s={13} className="check" />}
               </button>
             ))}
@@ -114,6 +115,7 @@ function Nav() {
           <a href="#catalog">{t('nav_catalog')}</a>
           <a href="#plan">{t('nav_plan')}</a>
           <a href="#contact">{t('nav_contact')}</a>
+          <a href="#collaborate" className="nav-collab-link">{t('nav_collab')}</a>
         </div>
         <div className="nav-cta">
           <LangCurrPill
@@ -127,6 +129,66 @@ function Nav() {
         </div>
       </div>
     </nav>
+  );
+}
+
+function CollabForm() {
+  const { useT, COMPANY } = window.MS_CTX;
+  const t = useT();
+  const [name,  setName]  = useStateA('');
+  const [email, setEmail] = useStateA('');
+  const [type,  setType]  = useStateA('');
+  const [msg,   setMsg]   = useStateA('');
+  const [sent,  setSent]  = useStateA(false);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim()) return;
+    const subj = encodeURIComponent(`Collaboration: ${type || 'General'} — ${name}`);
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nType: ${type}\n\n${msg}`);
+    window.open(`mailto:${COMPANY.email}?subject=${subj}&body=${body}`);
+    setSent(true);
+  };
+
+  const types = [
+    { v: 'hotel',    l: t('collab_type_hotel')    },
+    { v: 'rest',     l: t('collab_type_rest')     },
+    { v: 'spa',      l: t('collab_type_spa')      },
+    { v: 'activity', l: t('collab_type_activity') },
+    { v: 'creator',  l: t('collab_type_creator')  },
+    { v: 'agency',   l: t('collab_type_agency')   },
+    { v: 'other',    l: t('collab_type_other')    },
+  ];
+
+  return (
+    <div className="footer-collab reveal" id="collaborate">
+      <div className="footer-collab-text">
+        <span className="footer-collab-eyebrow">{t('collab_eyebrow')}</span>
+        <h4 className="footer-collab-title">{t('collab_title')}</h4>
+        <p className="footer-collab-sub">{t('collab_sub')}</p>
+      </div>
+      {sent ? (
+        <div className="footer-collab-thanks">
+          <span>✓</span> {t('collab_thanks')}
+        </div>
+      ) : (
+        <form className="footer-collab-form" onSubmit={submit}>
+          <div className="footer-collab-row">
+            <input autoComplete="name" required value={name}
+              onChange={e => setName(e.target.value)} placeholder={t('collab_name')} />
+            <input autoComplete="email" type="email" required value={email}
+              onChange={e => setEmail(e.target.value)} placeholder={t('collab_email')} />
+          </div>
+          <select value={type} onChange={e => setType(e.target.value)}>
+            <option value="">{t('collab_type')}</option>
+            {types.map(tp => <option key={tp.v} value={tp.v}>{tp.l}</option>)}
+          </select>
+          <textarea rows={2} autoComplete="off" value={msg}
+            onChange={e => setMsg(e.target.value)} placeholder={t('collab_msg')} />
+          <button type="submit">{t('collab_send')} →</button>
+        </form>
+      )}
+    </div>
   );
 }
 
@@ -186,6 +248,7 @@ function Footer() {
             </div>
           </div>
         </div>
+        <CollabForm />
         <div className="footer-bottom">
           <span>© 2026 Marrakechstory · IATA accredited · ONMT licence #14872 · {t('foot_rights')}</span>
           <span style={{ display: 'flex', gap: 18 }}>

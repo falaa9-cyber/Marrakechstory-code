@@ -50,8 +50,7 @@ function ContactSection() {
           <div className="contact-info">
             <span className="eyebrow" style={{ color: '#ffae7c' }}>{t('contact_eyebrow')}</span>
             <h2 className="serif" style={{ fontSize: 'clamp(36px, 5vw, 60px)', fontWeight: 400, color: '#fff', margin: '14px 0 14px', letterSpacing: '-0.025em', lineHeight: 1 }}>
-              {t('contact_title_a')}<br />
-              <em style={{ fontStyle: 'italic', color: '#ffae7c' }}>{t('contact_title_b')}</em>
+              {t('contact_title_a')}
             </h2>
             <p style={{ color: 'rgba(255,255,255,.75)', fontSize: 16, maxWidth: 460, margin: '0 0 32px' }}>
               {t('contact_sub')}

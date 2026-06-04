@@ -176,7 +176,7 @@ function QuickBookModal({ item, tab, onClose }) {
                 </div>
                 <label className="ms-qb-field" style={{ gridColumn: '1 / -1' }}>
                   <span>{tx('Notes (optional)', 'Notater (valgfritt)', 'Notes (optionnel)')}</span>
-                  <textarea rows={2} value={notes} onChange={e => setNotes(e.target.value)}
+                  <textarea rows={2} autoComplete="off" value={notes} onChange={e => setNotes(e.target.value)}
                     placeholder={tx('Allergies, time preference…', 'Allergier, tidspreferanse …', 'Allergies, préférence horaire …')} />
                 </label>
               </div>
@@ -357,7 +357,7 @@ function TweakItineraryModal({ trip, onClose }) {
                 </label>
                 <label className="ms-qb-field" style={{ gridColumn: '1 / -1' }}>
                   <span>{tx('Anything else?', 'Annet?', 'Autre chose ?')}</span>
-                  <textarea rows={2} value={notes} onChange={e => setNotes(e.target.value)} />
+                  <textarea rows={2} autoComplete="off" value={notes} onChange={e => setNotes(e.target.value)} />
                 </label>
               </div>
             </div>

@@ -505,6 +505,12 @@ body, html { background: #fbfbfd !important; }
   width: 100%;
   transition: background 0.15s ease;
 }
+/* When the column only has flags, wrap them in a tighter row */
+.ms-lc-menu > div:has(.flags-only) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
 .ms-lc-opt:hover { background: #f5f5f7; }
 .ms-lc-opt.is-active { background: rgba(225, 67, 42, 0.10); color: var(--brand); }
 .ms-lc-opt .flag { font-size: 14px; }
@@ -3374,15 +3380,24 @@ h2.itin-modal-title {
    Mobile = native-app feel · minimalist · roomy · smooth touch
    ════════════════════════════════════════════════════════════════ */
 
-/* Tiny symbol pill — flag emoji + currency symbol only */
+/* Flags-only pill — two flags separated by a dot */
 .ms-lc-pill {
   padding: 4px 9px !important;
   font-size: 13px !important;
   line-height: 1 !important;
-  gap: 6px !important;
+  gap: 4px !important;
 }
-.ms-lc-flag  { font-size: 14px !important; }
-.ms-lc-sym   { font-family: var(--apple-font); font-weight: 600; font-size: 12.5px; color: inherit; }
+.ms-lc-flag  { font-size: 16px !important; line-height: 1; }
+.ms-lc-sep   { font-size: 11px !important; opacity: 0.4; padding: 0 1px; }
+/* Flags-only option buttons — compact square grid cells */
+.ms-lc-opt.flags-only {
+  justify-content: center !important;
+  padding: 8px 6px !important;
+  font-size: 20px !important;
+  width: auto !important;
+  min-width: 44px !important;
+  gap: 4px !important;
+}
 
 /* ── iOS rendering basics ─────────────────────────────────────── */
 html, body {
@@ -3714,9 +3729,10 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   .itin-step-pill.active { background: var(--brand) !important; color: #fff !important; }
   .itin-step-pill.active .n { background: #fff !important; color: var(--brand) !important; }
 
-  /* IG + WA buttons stay round + don't overlap weather widget */
-  .wa-widget { right: 14px !important; bottom: 18px !important; }
-  .ig-scroll-widget { right: 14px !important; bottom: 84px !important; }
+  /* IG + WA + Chatbot stack cleanly — no overlap on mobile */
+  .wa-widget        { right: 14px !important; bottom: 18px  !important; }
+  .ms-chat-fab      { right: 14px !important; bottom: 76px  !important; }
+  .ig-scroll-widget { right: 14px !important; bottom: 134px !important; }
   .ms-weather-fab, .ms-weather { left: 14px !important; bottom: 18px !important; }
   .wa-btn, .ig-scroll-btn { width: 50px !important; height: 50px !important; }
 
@@ -4519,5 +4535,154 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   }
   .itin-modal.itin-modal-v2 .itin-modal-body {
     padding: 18px 16px 32px !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   COLLABORATION FORM — footer band + nav link
+   ════════════════════════════════════════════════════════════════ */
+
+/* Nav collaborate link — subtle accent */
+.nav-links .nav-collab-link {
+  color: var(--brand, #e0432a) !important;
+  font-weight: 600 !important;
+  border: 1.5px solid rgba(224, 67, 42, 0.35) !important;
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
+  transition: background 0.2s, border-color 0.2s !important;
+  white-space: nowrap;
+}
+.nav-links .nav-collab-link:hover {
+  background: rgba(224, 67, 42, 0.08) !important;
+  border-color: rgba(224, 67, 42, 0.65) !important;
+}
+.nav.over-hero .nav-links .nav-collab-link {
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
+.nav.over-hero .nav-links .nav-collab-link:hover {
+  background: rgba(255,255,255,0.15) !important;
+}
+
+/* Collab band in footer */
+.footer-collab {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 32px 48px;
+  align-items: start;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 20px;
+  padding: 36px 40px;
+  margin: 40px 0 32px;
+}
+.footer-collab-eyebrow {
+  display: block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: var(--brand, #e0432a);
+  margin-bottom: 10px;
+}
+.footer-collab-title {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  margin: 0 0 10px !important;
+  line-height: 1.2 !important;
+}
+.footer-collab-sub {
+  font-size: 13.5px !important;
+  color: rgba(255,255,255,0.55) !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+}
+.footer-collab-thanks {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+}
+.footer-collab-thanks span {
+  font-size: 20px;
+  color: #4ade80;
+}
+
+/* Collab form fields */
+.footer-collab-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.footer-collab-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.footer-collab-form input,
+.footer-collab-form select,
+.footer-collab-form textarea {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  color: #fff !important;
+  font-size: 13.5px !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.2s, background 0.2s !important;
+  font-family: var(--apple-font, sans-serif) !important;
+}
+.footer-collab-form input::placeholder,
+.footer-collab-form textarea::placeholder {
+  color: rgba(255,255,255,0.35) !important;
+}
+.footer-collab-form input:focus,
+.footer-collab-form select:focus,
+.footer-collab-form textarea:focus {
+  outline: none !important;
+  border-color: rgba(224, 67, 42, 0.7) !important;
+  background: rgba(255,255,255,0.12) !important;
+}
+.footer-collab-form select option {
+  background: #2d2d2d;
+  color: #fff;
+}
+.footer-collab-form button[type="submit"] {
+  background: var(--brand, #e0432a) !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 11px 24px !important;
+  border-radius: 999px !important;
+  border: none !important;
+  cursor: pointer !important;
+  align-self: flex-start !important;
+  transition: opacity 0.2s, transform 0.15s !important;
+}
+.footer-collab-form button[type="submit"]:hover {
+  opacity: 0.88 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .footer-collab {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    padding: 28px 22px !important;
+    margin: 28px 0 24px !important;
+  }
+  .footer-collab-row {
+    grid-template-columns: 1fr !important;
+  }
+  .nav-links .nav-collab-link {
+    display: none !important;
   }
 }

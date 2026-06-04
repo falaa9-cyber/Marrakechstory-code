@@ -5787,10 +5787,10 @@ section.hero-v2 { display: none; }
 .ms-chat-panel     { bottom: 162px !important; right: 30px !important; }
 .ig-scroll-widget  { bottom: 168px !important; right: 30px !important; z-index: 198; }
 @media (max-width: 600px) {
-  .wa-widget        { bottom: 16px  !important; right: 16px !important; }
-  .ms-chat-fab      { bottom: 84px  !important; right: 22px !important; }
-  .ms-chat-panel    { bottom: 144px !important; right: 22px !important; }
-  .ig-scroll-widget { bottom: 144px !important; right: 22px !important; }
+  .wa-widget        { bottom: 18px  !important; right: 14px !important; }
+  .ms-chat-fab      { bottom: 76px  !important; right: 14px !important; }
+  .ms-chat-panel    { bottom: 134px !important; right: 14px !important; }
+  .ig-scroll-widget { bottom: 134px !important; right: 14px !important; }
 }
 
 /* ─── "Lag din reise" — bigger, brand-orange, gentle pulse ─── */
