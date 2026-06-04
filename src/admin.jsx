@@ -119,12 +119,29 @@
 
   // Shared month calendar (used on Dashboard + Calendar tab).
   // Includes ALL bookings — upcoming and archived/past.
-  function MonthCalendar({ bookings, sel, onSelect, compact }) {
+  function MonthCalendar({ bookings, sel, onSelect, compact, year }) {
     const [cursor, setCursor] = useState(() => { const d = sel ? new Date(sel) : new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
     const Y = cursor.getFullYear(), M = cursor.getMonth();
     const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const todayStr = todayISO();
     const dayMap = useMemo(() => { const m = {}; bookings.forEach(b => { if (!b.arrival_date || !b.departure_date) { if (b.arrival_date) (m[b.arrival_date] = m[b.arrival_date] || []).push(b); return; } let d = new Date(b.arrival_date); const e = new Date(b.departure_date); let g = 0; while (d <= e && g++ < 400) { const k = d.toISOString().slice(0, 10); (m[k] = m[k] || []).push(b); d = new Date(d.getTime() + 864e5); } }); return m; }, [bookings]);
-    const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate(); const todayStr = todayISO();
+
+    if (year) {
+      const miniMonth = (mi) => { const first = new Date(Y, mi, 1).getDay(); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
+        ['S','M','T','W','T','F','S'].forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
+        for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
+        for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const cnt = (dayMap[k] || []).length;
+          cells.push(h('span', { key: d, className: 'msa-yr-day' + (cnt ? (cnt > 1 ? ' multi' : ' single') : '') + (k === todayStr ? ' today' : ''), onClick: () => onSelect && onSelect(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
+        return h('div', { key: mi, className: 'msa-yr-month' }, h('div', { className: 'msa-yr-name', onClick: () => onSelect && onSelect(new Date(Y, mi, 1).toISOString().slice(0, 10)) }, MON[mi]), h('div', { className: 'msa-yr-days' }, cells)); };
+      return h('div', null,
+        h('div', { className: 'msa-card-head' }, h('h3', null, String(Y)),
+          h('div', { className: 'msa-cal-controls' }, h('button', { className: 'msa-icon-btn', onClick: () => setCursor(new Date(Y - 1, M, 1)) }, ICON.chevL()),
+            h('button', { className: 'msa-btn msa-btn-sm', onClick: () => { const d = new Date(); setCursor(new Date(d.getFullYear(), d.getMonth(), 1)); } }, 'This year'),
+            h('button', { className: 'msa-icon-btn', onClick: () => setCursor(new Date(Y + 1, M, 1)) }, ICON.chevR()))),
+        h('div', { className: 'msa-yr-grid msa-yr-grid-dash' }, MON.map((_, i) => miniMonth(i))));
+    }
+
+    const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate();
     const cells = [];
     ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
     for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
@@ -170,9 +187,9 @@
         kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance'),
         kpi('Outstanding', kr(outstanding), 'msa-kpi-plain', 'finance')),
 
-      // Operations calendar — same look as the Calendar section
+      // Operations calendar — yearly overview
       h('div', { className: 'msa-card' },
-        h(MonthCalendar, { bookings, sel: todayISO(), onSelect: () => go('calendar') }),
+        h(MonthCalendar, { bookings, sel: todayISO(), onSelect: () => go('calendar'), year: true }),
         h('div', { className: 'msa-cal-legend', style: { marginTop: 12 } }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today'), h('span', null, h('i', { className: 'msa-lg msa-lg-single' }), 'Single booking'), h('span', null, h('i', { className: 'msa-lg msa-lg-multi' }), 'Multiple bookings'))),
 
       // Symmetric 2×2 grid of equal boxes

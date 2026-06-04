@@ -491,3 +491,9 @@
 .msa-yr-day.today.single, .msa-yr-day.today.multi { color: #fff; }
 @media (max-width: 860px) { .msa-yr-grid { grid-template-columns: repeat(2, 1fr); } .msa-cal-toolbar .msa-cal-legend { margin-left: 0; width: 100%; } }
 @media (max-width: 420px) { .msa-yr-grid { grid-template-columns: 1fr; } }
+
+/* Dashboard year calendar — denser grid to fit the wide card */
+.msa-yr-grid-dash { grid-template-columns: repeat(6, 1fr); }
+@media (max-width: 1100px) { .msa-yr-grid-dash { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 860px) { .msa-yr-grid-dash { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .msa-yr-grid-dash { grid-template-columns: repeat(2, 1fr); } }
