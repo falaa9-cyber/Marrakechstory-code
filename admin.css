@@ -652,3 +652,82 @@
 .msa-live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #1c7a3f; background: var(--msa-green-soft); padding: 5px 11px; border-radius: 999px; }
 .msa-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--msa-green); animation: msaPulse 1.6s ease-in-out infinite; }
 @keyframes msaPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+
+/* ============================================================
+   v204 — MOBILE APP POLISH + all-white document/modal background
+   ============================================================ */
+@media (max-width: 860px) {
+  /* Modals become true full-screen white sheets (no dark edges anywhere) */
+  .msa-modal-backdrop { background: #fff !important; padding: 0 !important; align-items: stretch !important; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .msa-modal, .msa-modal-wide, .msa-modal-doc {
+    max-width: 100% !important; width: 100% !important; min-height: 100dvh !important;
+    border-radius: 0 !important; box-shadow: none !important; background: #fff !important;
+    display: flex !important; flex-direction: column;
+  }
+  .msa-modal-head { border-radius: 0 !important; background: #fff !important; }
+  .msa-modal-body { flex: 1 1 auto; background: #fff !important; }
+  .msa-modal-doc .msa-modal-body { padding: 10px 14px 28px !important; background: #fff !important; }
+  .msa-doc, .msa-doc-bank { background: #fff !important; }
+  .msa-doc-bank { border: 1px solid var(--msa-line); }
+
+  /* App chrome — slimmer, comfortable tap targets */
+  .msa-topbar { height: 54px; }
+  .msa-burger { width: 42px; height: 42px; }
+  .msa-page { padding: 14px 12px 84px; }
+  .msa-page-head { margin-bottom: 16px; }
+  .msa-page-head h1 { font-size: 21px; }
+  .msa-page-head p, .msa-subtitle { font-size: 12px; }
+  .msa-card { padding: 15px; border-radius: 16px; margin-bottom: 14px; }
+  .msa-card-head h3 { font-size: 14.5px; }
+  .msa-kpi { padding: 15px; }
+  .msa-kpi-value { font-size: 19px; }
+  .msa-kpi-label { font-size: 10.5px; }
+  .msa-fin-value { font-size: 22px; }
+
+  /* Buttons / inputs sized for fingers */
+  .msa-btn { padding: 11px 15px; font-size: 14px; }
+  .msa-btn-sm { padding: 9px 12px; }
+  .msa-icon-btn { padding: 9px; }
+  .msa-icon-btn svg { width: 18px; height: 18px; }
+  .msa-search, .msa-searchbar-in { height: 46px; font-size: 15px; }
+  .msa-field input, .msa-field select, .msa-field textarea { font-size: 16px; padding: 12px 13px; } /* 16px = no iOS zoom */
+  .msa-inline-form input, .msa-inline-form select, .msa-day-in, .msa-act-row select, .msa-act-row input { font-size: 16px; }
+
+  /* Bigger, app-like drawer nav rows */
+  .msa-nav-btn { padding: 14px 16px; font-size: 15.5px; border-radius: 13px; }
+  .msa-nav-ico svg { width: 20px; height: 20px; }
+  .msa-user-info strong { font-size: 15px; }
+
+  /* Booking/request cards: comfortable spacing, never overflow */
+  .msa-bk { padding: 14px; border-radius: 16px; gap: 12px; }
+  .msa-bk-cd, .msa-remind-cd { width: 50px; height: 50px; }
+  .msa-bk-fin { gap: 14px; }
+  .msa-remind { padding: 12px; }
+  .msa-evt-row, .msa-line-item, .msa-task, .msa-task-mini { padding: 13px 6px; }
+  .msa-check { width: 28px; height: 28px; }
+
+  /* Insights/Finance charts stack cleanly */
+  .msa-chart-row { gap: 16px; }
+  .msa-bars { height: 130px; }
+  .msa-donut svg { width: 130px; height: 130px; }
+
+  /* Calendar fits the screen */
+  .msa-cal-grid { gap: 4px; }
+  .msa-cal-cell { min-height: 46px; padding: 3px; border-radius: 9px; }
+  .msa-cal-ev { height: 15px; font-size: 9px; }
+  .msa-yr-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+  /* Nothing escapes the viewport */
+  #ms-admin-root { overflow-x: hidden; }
+  .msa-page *, .msa-modal * { max-width: 100%; }
+  .msa-table a, .msa-rq-kv a, .msa-client-contact a { word-break: break-word; }
+}
+
+/* Print/PDF: force white so generated documents are always clean */
+.msa-doc, .msa-modal-doc, .msa-modal-doc .msa-modal-body { background: #fff; }
+
+@media (max-width: 420px) {
+  .msa-yr-grid { grid-template-columns: repeat(2, 1fr); }
+  .msa-bk-fin { width: 100%; }
+  .msa-modal-head h2 { font-size: 17px; }
+}
