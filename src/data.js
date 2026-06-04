@@ -74,7 +74,7 @@ const PACKAGES = [
   {
     id: "4d3n", days: 4, nights: 3,
     title: "Marrakech & Agafay Luxury Escape", label: "Lang helg",
-    img: "assets/photos/agafay-camp-aerial-06.jpg",
+    img: "assets/photos/agafay-pool-08.jpg",
     tags: ["Riad", "Hammam", "Agafay", "Balloon"],
     description: "Perfectly balanced between cultural immersion and desert wonder. Two nights in a luxury riad in the ancient Medina, one extraordinary night in a tented camp in the Agafay stone desert — with a hot air balloon sunrise above the Atlas in between.",
     included: [
@@ -337,7 +337,7 @@ const PACKAGES = [
   {
     id: "14d13n", days: 14, nights: 13,
     title: "Full Morocco Honeymoon", label: "Drømmereise",
-    img: "assets/photos/agafay-dome-night-09.webp",
+    img: "assets/photos/agafay-night-lounge-05.jpg",
     tags: ["Agadir", "Marrakech", "Sahara", "Fes", "Chefchaouen"],
     description: "Fourteen days, seven completely different Moroccos. Atlantic beachfront in Agadir. The ancient red city. The Sahara for two nights. The world's oldest university city. The blue mountain city of Chefchaouen. The Strait of Gibraltar. Designed by Aladdin & Marte as if it were their own anniversary trip — nothing rushed, nothing missed.",
     included: [
