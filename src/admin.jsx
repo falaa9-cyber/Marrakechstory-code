@@ -42,6 +42,9 @@
   const ACTIVITY_TYPES = ['Transport','Guided Tour','Cooking Class','Hot Air Balloon','Paragliding','Agafay Day Pass','Agafay Dinner','Quad/Buggy','Camel Ride','Jet Ski','Restaurant','Spa/Hammam','Excursion'];
   const SUP_TYPES = [['hotel','Hotel / Riad'],['driver','Transport / Driver'],['guide','Guide'],['camp','Desert Camp'],['activity','Activity Provider']];
   const PAYMENT_METHODS = ['Bank Transfer', 'Revolut', 'Wise', 'PayPal', 'NOK Bank', 'MAD Bank'];
+  // Stable distinct color per booking (so spans are easy to follow on the calendar)
+  const BK_PALETTE = ['#e0432a', '#0a84ff', '#34c759', '#ff9f0a', '#af52de', '#ff2d55', '#0aa2c0', '#a2845e', '#d4a017', '#1c7a3f', '#5856d6', '#ff6482', '#00b8a3', '#c2410c'];
+  function bkColor(b) { const s = String((b && (b.reference || b.id || b.client_name)) || ''); let n = 0; for (let i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0; return BK_PALETTE[n % BK_PALETTE.length]; }
   const BOOKING_KINDS = ['itinerary', 'quickbook', 'tweak'];
 
   // ---- SVG icon set (no emoji, professional line icons) ----
@@ -130,8 +133,9 @@
       const miniMonth = (mi) => { const first = new Date(Y, mi, 1).getDay(); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
         ['S','M','T','W','T','F','S'].forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
         for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
-        for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const cnt = (dayMap[k] || []).length;
-          cells.push(h('span', { key: d, className: 'msa-yr-day' + (cnt ? (cnt > 1 ? ' multi' : ' single') : '') + (k === todayStr ? ' today' : ''), onClick: () => onSelect && onSelect(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
+        for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const items = dayMap[k] || []; const cnt = items.length;
+          const st = cnt ? { background: bkColor(items[0]), color: '#fff', fontWeight: 700 } : null;
+          cells.push(h('span', { key: d, className: 'msa-yr-day' + (k === todayStr ? ' today' : ''), style: st, onClick: () => onSelect && onSelect(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
         return h('div', { key: mi, className: 'msa-yr-month' }, h('div', { className: 'msa-yr-name', onClick: () => onSelect && onSelect(new Date(Y, mi, 1).toISOString().slice(0, 10)) }, MON[mi]), h('div', { className: 'msa-yr-days' }, cells)); };
       return h('div', null,
         h('div', { className: 'msa-card-head' }, h('h3', null, String(Y)),
@@ -642,7 +646,8 @@
       DOW.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d[0])));
       for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
       for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const info = dayMap[k]; const cnt = info ? info.on.length : 0;
-        cells.push(h('span', { key: d, className: 'msa-yr-day' + (cnt ? (cnt > 1 ? ' multi' : ' single') : '') + (k === todayStr ? ' today' : ''), onClick: () => openDay(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
+        const st = cnt ? { background: bkColor(info.on[0]), color: '#fff', fontWeight: 700 } : null;
+        cells.push(h('span', { key: d, className: 'msa-yr-day' + (k === todayStr ? ' today' : ''), style: st, onClick: () => openDay(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
       return h('div', { key: mi, className: 'msa-yr-month' }, h('div', { className: 'msa-yr-name', onClick: () => { setCursor(new Date(Y, mi, 1)); setView('month'); } }, MON[mi]), h('div', { className: 'msa-yr-days' }, cells));
     };
     const yearView = () => h('div', { className: 'msa-card' }, h('div', { className: 'msa-yr-grid' }, MON.map((_, i) => miniMonth(i))));
@@ -651,22 +656,36 @@
     const monthGrid = () => { const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate(); const cells = [];
       DOW.forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
       for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
-      for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const info = dayMap[k]; const cnt = info ? info.on.length : 0; const isToday = k === todayStr;
-        cells.push(h('div', { key: d, className: 'msa-cal-cell' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : ''), onClick: () => setSel(k), onDoubleClick: () => openDay(k) },
-          h('span', { className: 'msa-cal-num' }, d), cnt > 0 && h('span', { className: 'msa-cal-dot ' + (cnt > 1 ? 'multi' : 'single') }, cnt),
-          info && info.arr.length > 0 && h('span', { className: 'msa-cal-tag arr' }, '↓' + info.arr.length), info && info.dep.length > 0 && h('span', { className: 'msa-cal-tag dep' }, '↑' + info.dep.length))); }
+      for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const info = dayMap[k] || { arr: [], dep: [], on: [] }; const isToday = k === todayStr;
+        const bars = info.on.slice(0, 4).map(b => { const c = bkColor(b); const isStart = b.arrival_date === k; const isEnd = b.departure_date === k;
+          return h('div', { key: b.id, className: 'msa-cal-ev' + (isStart ? ' start' : '') + (isEnd ? ' end' : '') + (!isStart && !isEnd ? ' mid' : ''), style: { background: c }, title: b.client_name + (isStart ? ' — arrival' : isEnd ? ' — departure' : ''), onClick: (e) => { e.stopPropagation(); openBooking(b); } },
+            isStart ? h('span', { className: 'msa-cal-ev-cap' }, '▶') : null,
+            h('span', { className: 'msa-cal-ev-name' }, (isStart || k === new Date(Y, M, 1).toISOString().slice(0, 10) || new Date(k).getDay() === 0) ? ((b.client_name || '').split(' ')[0]) : ''),
+            isEnd ? h('span', { className: 'msa-cal-ev-cap' }, '◀') : null); });
+        cells.push(h('div', { key: d, className: 'msa-cal-cell tall' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : ''), onClick: () => setSel(k), onDoubleClick: () => openDay(k) },
+          h('span', { className: 'msa-cal-num' }, d), h('div', { className: 'msa-cal-evs' }, bars, info.on.length > 4 && h('span', { className: 'msa-cal-more' }, '+' + (info.on.length - 4))))); }
       return h('div', { className: 'msa-cal-grid' }, cells); };
     const dayPanel = (k, showOpen) => { const info = dayMap[k] || { arr: [], dep: [], on: [] };
+      const evt = (b, kind, time) => h('button', { key: kind + b.id, className: 'msa-evt-row', style: { borderLeft: '4px solid ' + bkColor(b) }, onClick: () => openBooking(b) },
+        h('span', { className: 'msa-badge ' + (kind === 'Arrival' ? 'msa-ev-arrival' : kind === 'Departure' ? 'msa-ev-departure' : 'msa-st-' + b.status) }, kind === 'On trip' ? STATUS_LABEL[b.status] : kind),
+        h('div', { className: 'msa-evt-title' }, h('span', { className: 'msa-key-dot', style: { background: bkColor(b) } }), b.client_name), h('span', { className: 'msa-dim' }, time || (b.arrival_city || '') + '→' + (b.departure_city || '')));
       return (info.arr.length + info.dep.length + info.on.length === 0) ? h('div', { className: 'msa-empty' }, 'Nothing scheduled.')
         : h('div', null,
-            info.arr.map(b => h('button', { key: 'a' + b.id, className: 'msa-evt-row', onClick: () => openBooking(b) }, h('span', { className: 'msa-badge msa-ev-arrival' }, 'Arrival'), h('div', { className: 'msa-evt-title' }, b.client_name), h('span', { className: 'msa-dim' }, '14:00'))),
-            info.dep.map(b => h('button', { key: 'd' + b.id, className: 'msa-evt-row', onClick: () => openBooking(b) }, h('span', { className: 'msa-badge msa-ev-departure' }, 'Departure'), h('div', { className: 'msa-evt-title' }, b.client_name), h('span', { className: 'msa-dim' }, '11:00'))),
+            info.arr.map(b => evt(b, 'Arrival', '14:00')),
+            info.dep.map(b => evt(b, 'Departure', '11:00')),
             h('div', { className: 'msa-card-head', style: { marginTop: 12 } }, h('h3', null, 'On trip')),
-            info.on.length === 0 ? h('div', { className: 'msa-dim' }, '—') : info.on.map(b => h('button', { key: 'o' + b.id, className: 'msa-evt-row', onClick: () => openBooking(b) }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), h('div', { className: 'msa-evt-title' }, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_city || '') + '→' + (b.departure_city || '')))));
+            info.on.length === 0 ? h('div', { className: 'msa-dim' }, '—') : info.on.map(b => evt(b, 'On trip')));
     };
-    const monthView = () => h('div', { className: 'msa-cols msa-cols-21' },
-      h('div', { className: 'msa-card' }, monthGrid()),
-      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, fmtDate(sel)), h('button', { className: 'msa-link', onClick: () => setView('day') }, 'Day view →')), dayPanel(sel)));
+    // Color key — which booking is which color (this month)
+    const monthBookings = bookings.filter(b => { if (!b.arrival_date && !b.departure_date) return false; const a = b.arrival_date || b.departure_date; const e = b.departure_date || b.arrival_date; return !(e < new Date(Y, M, 1).toISOString().slice(0, 10) || a > new Date(Y, M + 1, 0).toISOString().slice(0, 10)); });
+    const colorKey = () => monthBookings.length === 0 ? null : h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Booking colors')),
+      h('div', { className: 'msa-keylist' }, monthBookings.map(b => h('button', { key: b.id, className: 'msa-keyitem', onClick: () => openBooking(b) },
+        h('span', { className: 'msa-key-dot', style: { background: bkColor(b) } }), h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_date || '?') + ' → ' + (b.departure_date || '?'))))));
+    const monthView = () => h('div', null,
+      h('div', { className: 'msa-cols msa-cols-21' },
+        h('div', { className: 'msa-card' }, monthGrid()),
+        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, fmtDate(sel)), h('button', { className: 'msa-link', onClick: () => setView('day') }, 'Day view →')), dayPanel(sel))),
+      colorKey());
     const dayView = () => h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Schedule'), h('span', { className: 'msa-dim' }, sel === todayStr ? 'Today' : countdownLabel(sel))), dayPanel(sel, false));
 
     return h('div', { className: 'msa-page' },
