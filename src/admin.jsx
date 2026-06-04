@@ -715,10 +715,17 @@
     return h('div', { className: 'msa-shell' + (navOpen ? ' nav-open' : '') },
       // Mobile top app bar (hidden on desktop via CSS)
       h('header', { className: 'msa-topbar' },
-        h('button', { className: 'msa-burger', 'aria-label': 'Menu', onClick: () => setNavOpen(true) }, '☰'),
+        h('button', { className: 'msa-burger', 'aria-label': navOpen ? 'Close menu' : 'Open menu', onClick: () => setNavOpen(o => !o) },
+          h('span', { className: 'msa-burger-ico' }, navOpen ? '✕' : '☰'),
+          h('span', { className: 'msa-burger-txt' }, 'Menu')),
         h('span', { className: 'msa-topbar-title' }, currentLabel),
         h('img', { className: 'msa-topbar-logo', src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } })
       ),
+      // Always-visible edge pull-tab indicator (mobile) — shows the drawer
+      // can be opened (›) / closed (‹). Slides with the drawer.
+      h('button', { className: 'msa-edge-toggle', 'aria-label': navOpen ? 'Hide menu' : 'Show menu', onClick: () => setNavOpen(o => !o) },
+        h('span', { className: 'msa-edge-chev' }, navOpen ? '‹' : '›'),
+        h('span', { className: 'msa-edge-dots' }, '☰')),
       // Drawer overlay (mobile)
       h('div', { className: 'msa-nav-overlay', onClick: () => setNavOpen(false) }),
       h('aside', { className: 'msa-sidebar' },

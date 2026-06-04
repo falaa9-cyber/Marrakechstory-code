@@ -435,3 +435,47 @@
   .msa-stat-grid, .msa-stat-5 { grid-template-columns: 1fr !important; }
   .msa-mini-months { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   v181 — Sidebar show/hide INDICATOR (mobile)
+   A clear, always-visible pull-tab on the left edge + a labelled
+   hamburger that flips to ✕ when the drawer is open.
+   ============================================================ */
+.msa-edge-toggle { display: none; }   /* desktop: hidden */
+
+@media (max-width: 860px) {
+  /* Hamburger gets a "Menu" label + flips icon */
+  .msa-burger { display: inline-flex; align-items: center; gap: 7px; width: auto; padding: 0 14px; }
+  .msa-burger-ico { font-size: 18px; line-height: 1; }
+  .msa-burger-txt { font-size: 13px; font-weight: 700; }
+
+  /* Always-visible edge pull-tab — the show/hide indicator */
+  .msa-edge-toggle {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    position: fixed; left: 0; top: 50%; transform: translateY(-50%);
+    z-index: 101;
+    width: 30px; height: 74px;
+    border: none; cursor: pointer;
+    background: var(--msa-brand); color: #fff;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 2px 0 14px rgba(224,67,42,0.4);
+    transition: left .28s cubic-bezier(.4,0,.2,1), background .2s;
+    animation: msa-nudge 2.4s ease-in-out infinite;
+  }
+  .msa-edge-chev { font-size: 22px; font-weight: 800; line-height: 1; }
+  .msa-edge-dots { font-size: 11px; opacity: .8; }
+  /* When the drawer is open, the tab rides along its right edge and flips */
+  .msa-shell.nav-open .msa-edge-toggle {
+    left: min(80vw, 300px);
+    border-radius: 0 16px 16px 0;
+    animation: none;
+  }
+  /* Subtle nudge so users notice it can be pulled */
+  @keyframes msa-nudge {
+    0%, 92%, 100% { transform: translateY(-50%) translateX(0); }
+    96% { transform: translateY(-50%) translateX(4px); }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .msa-edge-toggle { animation: none !important; }
+}
