@@ -469,6 +469,15 @@
 .msa-doc-terms h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--msa-dim); margin: 0 0 8px; }
 .msa-doc-terms p { font-size: 12.5px; color: var(--msa-ink2); line-height: 1.6; margin: 0; }
 .msa-doc-terms-text { white-space: pre-line; }
+/* Collapsible Terms / Payment box in the admin doc (click to expand) — v207 */
+.msa-doc-collapsible { border: 1px solid var(--msa-line); border-top: 1px solid var(--msa-line); border-radius: 10px; padding: 0; margin-top: 14px; overflow: hidden; background: var(--msa-card, #fff); }
+.msa-doc-collapsible > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--msa-ink, #1a1a1a); user-select: none; }
+.msa-doc-collapsible > summary::-webkit-details-marker { display: none; }
+.msa-doc-collapsible > summary:hover { background: var(--msa-hover, #f6f6f7); }
+.msa-doc-chevron { transition: transform .2s ease; color: var(--msa-dim); font-size: 13px; }
+.msa-doc-collapsible[open] > summary { border-bottom: 1px solid var(--msa-line); }
+.msa-doc-collapsible[open] .msa-doc-chevron { transform: rotate(180deg); }
+.msa-doc-collapsible > p { padding: 12px 14px; }
 
 /* ============ v186 — calendar Year/Month/Day views ============ */
 .msa-cal-toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }

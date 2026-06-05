@@ -879,7 +879,10 @@ function ItinModal({ trip, onClose, lang, fmt }) {
             </div>
 
             <div className="itin-booking-cta-row">
-              <button className="btn btn-primary itin-booking-btn-primary"
+              <button className="btn btn-primary itin-booking-btn-primary" onClick={() => goPlan('asis')}>
+                {tx('Take as-is →','Ta som den er →','Prendre tel quel →')}
+              </button>
+              <button className="btn btn-outline"
                 onClick={() => {
                   onClose();
                   setTimeout(() => {
@@ -896,9 +899,6 @@ function ItinModal({ trip, onClose, lang, fmt }) {
                   }, 60);
                 }}>
                 ✏️ {tx('Tweak this trip','Tilpass denne reisen','Personnaliser ce voyage')}
-              </button>
-              <button className="btn btn-outline" onClick={() => goPlan('asis')}>
-                {tx('Take as-is →','Ta som den er →','Prendre tel quel →')}
               </button>
               <a className="btn btn-outline" href="https://wa.me/4745774743" target="_blank" rel="noopener">
                 {tx('WhatsApp us','WhatsApp oss','WhatsApp')}
@@ -948,8 +948,7 @@ function Itineraries() {
       // Real itineraries
       const trip = (window.MS_ITINERARIES || []).find(t => t.slug === slug);
       if (trip) { setOpenTrip(trip); return; }
-      // Theme cards — switch filter to Themes and scroll (themes go straight to form when clicked)
-      setFilter('Themes');
+      setFilter('4D3N');
     };
     window.addEventListener('ms:open-trip', onOpen);
     return () => window.removeEventListener('ms:open-trip', onOpen);
@@ -968,7 +967,7 @@ function Itineraries() {
     if (f === '14D13N')           return tx('14 days', '14 dager', '14 jours');
     return f;
   };
-  const filters = ['4D3N', '5D4N', '7D6N', '10D9N', '14D13N', 'Themes', 'Romance & Family'];
+  const filters = ['4D3N', '5D4N', '7D6N', '10D9N', '14D13N', 'Romance & Family'];
   // Only ship trips with the allowed durations
   const ALLOWED_DURATIONS = new Set(['4D3N','5D4N','7D6N','10D9N','14D13N']);
 
@@ -1178,7 +1177,7 @@ function Itineraries() {
                 <>
                   <button className="trip-slider-arrow prev" aria-label="Previous"
                     onClick={(e) => { const sc = e.currentTarget.parentElement.querySelector('.trip-slider-track'); sc?.scrollBy({ left: -(sc.clientWidth * 0.85), behavior: 'smooth' }); }}>
-                    <Iit.Arrow s={18} />
+                    <Iit.Arrow s={18} dir={180} />
                   </button>
                   <button className="trip-slider-arrow next" aria-label="Next"
                     onClick={(e) => { const sc = e.currentTarget.parentElement.querySelector('.trip-slider-track'); sc?.scrollBy({ left: sc.clientWidth * 0.85, behavior: 'smooth' }); }}>
@@ -1190,16 +1189,16 @@ function Itineraries() {
                   {/* Feature mode: arrows step through the 6 duration buckets */}
                   <button className="trip-slider-arrow prev" aria-label={tx('Shorter trip', 'Kortere reise', 'Plus court')}
                     onClick={() => {
-                      const order = ['4D3N','5D4N','7D6N','10D9N','14D13N','Themes','Romance & Family'];
+                      const order = ['4D3N','5D4N','7D6N','10D9N','14D13N','Romance & Family'];
                       const idx = Math.max(0, order.indexOf(filter));
                       setSliderDir('prev');
                       setFilter(order[(idx - 1 + order.length) % order.length]);
                     }}>
-                    <Iit.Arrow s={18} />
+                    <Iit.Arrow s={18} dir={180} />
                   </button>
                   <button className="trip-slider-arrow next" aria-label={tx('Longer trip', 'Lengre reise', 'Plus long')}
                     onClick={() => {
-                      const order = ['4D3N','5D4N','7D6N','10D9N','14D13N','Themes','Romance & Family'];
+                      const order = ['4D3N','5D4N','7D6N','10D9N','14D13N','Romance & Family'];
                       const idx = Math.max(0, order.indexOf(filter));
                       setSliderDir('next');
                       setFilter(order[(idx + 1) % order.length]);

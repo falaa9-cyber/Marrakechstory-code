@@ -360,6 +360,8 @@
   // =====================================================================
   function exportPDF(filename) {
     const el = document.getElementById('msa-printable'); if (!el) return;
+    // Force any collapsible Terms/Payment boxes open so they appear in the PDF.
+    el.querySelectorAll('details').forEach((d) => { d.open = true; });
     if (window.html2pdf) {
       window.html2pdf().set({ margin: 8, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save();
     } else { window.print(); }
@@ -384,8 +386,8 @@
       ((b.included || []).length || (b.excluded || []).length) ? h('div', { className: 'msa-doc-incl' },
         (b.included || []).length ? h('div', null, h('h3', null, 'Included'), h('ul', { className: 'msa-incl-list' }, b.included.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
         (b.excluded || []).length ? h('div', null, h('h3', null, 'Not included'), h('ul', { className: 'msa-incl-list' }, b.excluded.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null,
-      S.payment_info ? h('div', { className: 'msa-doc-terms' }, h('h3', null, 'Payment Information'), h('p', null, S.payment_info)) : null,
-      S.terms_conditions ? h('div', { className: 'msa-doc-terms' }, h('h3', null, 'Terms & Conditions'), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null,
+      S.payment_info ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Payment Information'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', null, S.payment_info)) : null,
+      S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null,
       h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'), h('p', null, cWeb + ' | ' + cPhone)));
     const invoice = () => { const sub = +b.selling_price || 0, paid = +b.paid_amount || +b.deposit_amount || 0, bal = +b.balance || (sub - paid);
       return h('div', { className: 'msa-doc' },
@@ -401,8 +403,8 @@
         h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Bank Transfer Details'), h('div', { className: 'msa-bank-grid' },
           h('span', { className: 'msa-dim' }, 'Bank Name:'), h('span', null, S.bank_name || 'BMCE Bank of Africa'), h('span', { className: 'msa-dim' }, 'Account Name:'), h('span', null, S.account_name || 'MarrakechStory SARL'),
           h('span', { className: 'msa-dim' }, 'RIB:'), h('span', null, S.rib || '011 450 0000 123456789012 34'), h('span', { className: 'msa-dim' }, 'SWIFT:'), h('span', null, S.swift || 'BMCE MAMC'))),
-        S.payment_info ? h('div', { className: 'msa-doc-terms' }, h('h3', null, 'Payment Information'), h('p', null, S.payment_info)) : null,
-        S.terms_conditions ? h('div', { className: 'msa-doc-terms' }, h('h3', null, 'Terms & Conditions'), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null); };
+        S.payment_info ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Payment Information'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', null, S.payment_info)) : null,
+        S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null); };
     const fname = (type === 'itinerary' ? 'Itinerary-' : 'Invoice-') + (b.reference || 'MS') + '.pdf';
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-doc', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head msa-print-hide' },

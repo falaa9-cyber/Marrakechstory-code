@@ -1143,6 +1143,65 @@ textarea { border-radius: 14px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
+   v207 — Compact, professional pop-ups (~40% smaller), dark text.
+   Tighter widths, smaller hero, condensed padding & type,
+   high-contrast dark copy so everything is easy to read.
+   ════════════════════════════════════════════════════════════════ */
+.cat-modal,
+.ag-modal,
+.itin-modal,
+.ms-qb-modal,
+.ms-tweak-modal {
+  width: min(720px, 100%) !important;
+  max-width: min(720px, 100%) !important;
+  border-radius: 18px !important;
+}
+/* Smaller, still-cinematic hero */
+.cat-modal-img,
+.itin-modal-hero,
+.ag-modal-img {
+  height: clamp(150px, 22vh, 230px) !important;
+  border-radius: 18px 18px 0 0 !important;
+}
+/* Condensed body padding */
+.cat-modal-body,
+.itin-modal-body,
+.ag-modal-body,
+.ms-qb-body,
+.ms-tweak-body {
+  padding: clamp(18px, 2.2vw, 26px) !important;
+}
+/* Dark, readable text everywhere in the pop-ups */
+.cat-modal, .cat-modal-body,
+.itin-modal, .itin-modal-body,
+.ag-modal, .ag-modal-body,
+.ms-qb-modal, .ms-qb-body,
+.ms-tweak-modal, .ms-tweak-body {
+  color: #1d1d1f !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+.cat-modal-body p, .itin-modal-body p,
+.cat-modal-body li, .itin-modal-body li,
+.cat-modal-desc, .itin-modal-overview,
+.cat-modal-area, .cat-modal-atmosphere {
+  color: #2c2c2e !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+}
+.cat-modal-body h1, .cat-modal-body h2, .cat-modal-body h3, .cat-modal-body h4,
+.itin-modal-body h1, .itin-modal-body h2, .itin-modal-body h3, .itin-modal-body h4,
+.cat-modal-title, .itin-modal-title {
+  color: #111113 !important;
+}
+.cat-modal-title, .itin-modal-title { font-size: 22px !important; line-height: 1.2 !important; margin-bottom: 6px !important; }
+/* Tighten the vertical rhythm so condensed content stays organised */
+.cat-modal-body > *, .itin-modal-body > * { margin-top: 0 !important; }
+.cat-modal-body > * + *, .itin-modal-body > * + * { margin-top: 14px !important; }
+.itin-modal-day { padding: 10px 0 !important; }
+.cat-modal-pill, .itin-modal-tags > * { font-size: 12px !important; }
+
+/* ════════════════════════════════════════════════════════════════
    APPLE REDESIGN — Phase 7 · Partner trip (Happy Surfers)
    Partner strip, formulas grid, optional extras
    ════════════════════════════════════════════════════════════════ */
