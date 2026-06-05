@@ -210,16 +210,20 @@ function TweakItineraryModal({ trip, onClose }) {
   const ctx = useMS();
   const lang = ctx.lang || 'no';
   const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  // Localize {en,no,fr,sv} objects (or pass strings through). Trip titles,
+  // day routes/text and catalog item names all arrive as localized objects —
+  // rendering one raw as a React child crashes the whole page.
+  const L = (v) => v == null ? '' : (typeof v === 'string' ? v : (v[lang] || v.en || v.no || v.nb || v.fr || v.sv || (Object.values(v).find((x) => typeof x === 'string')) || ''));
   const prefill = readUserPrefill();
 
-  // Build editable day-list from the trip
+  // Build editable day-list from the trip (localized to plain strings)
   const initialDays = useMemoB(() => (trip.itinerary || []).map((d, i) => ({
     id: `day-${i}`,
     day: d.day || i + 1,
-    route: d.route,
-    text: d.text,
+    route: L(d.route),
+    text: L(d.text),
     extras: [],   // added catalog items per day
-  })), [trip]);
+  })), [trip, lang]);
   const [days, setDays] = useStateB(initialDays);
   const [pickerOpenFor, setPickerOpenFor] = useStateB(null);  // day id when picker active
   const [date, setDate] = useStateB(todayPlusBk(28));
@@ -248,13 +252,14 @@ function TweakItineraryModal({ trip, onClose }) {
     const dateLabel = new Date(date).toLocaleDateString(lang === 'no' ? 'no-NO' : lang === 'fr' ? 'fr-FR' : 'en-GB',
       { day: 'numeric', month: 'short', year: 'numeric' });
     const tripLines = days.map(d => {
-      const extrasText = d.extras.map(e => `   + ${e.item.name}`).join('\n');
+      const extrasText = d.extras.map(e => `   + ${L(e.item.name)}`).join('\n');
       return `Day ${d.day} — ${d.route}\n   ${d.text}${extrasText ? '\n' + extrasText : ''}`;
     }).join('\n\n');
+    const baseTitle = L(trip.title);
     return tx(
-      `Hi Marrakechstory, I'd like to book this trip with my own tweaks:\n\nBase trip: ${trip.title} (${trip.duration})\nStart date: ${dateLabel}\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMy custom day-by-day:\n\n${tripLines}\n\n${notes ? `Notes: ${notes}` : ''}`,
-      `Hei Marrakechstory, jeg vil bestille denne turen med mine tilpasninger:\n\nBasetur: ${trip.title} (${trip.duration})\nStartdato: ${dateLabel}\n\nNavn: ${name}\nE-post: ${email}\nTelefon: ${phone}\n\nMin tilpassede plan:\n\n${tripLines}\n\n${notes ? `Notater: ${notes}` : ''}`,
-      `Bonjour Marrakechstory, je souhaite réserver ce voyage avec mes ajustements :\n\nBase : ${trip.title} (${trip.duration})\nDate de début : ${dateLabel}\n\nNom : ${name}\nEmail : ${email}\nTéléphone : ${phone}\n\nMon planning personnalisé :\n\n${tripLines}\n\n${notes ? `Notes : ${notes}` : ''}`
+      `Hi Marrakechstory, I'd like to book this trip with my own tweaks:\n\nBase trip: ${baseTitle} (${trip.duration})\nStart date: ${dateLabel}\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMy custom day-by-day:\n\n${tripLines}\n\n${notes ? `Notes: ${notes}` : ''}`,
+      `Hei Marrakechstory, jeg vil bestille denne turen med mine tilpasninger:\n\nBasetur: ${baseTitle} (${trip.duration})\nStartdato: ${dateLabel}\n\nNavn: ${name}\nE-post: ${email}\nTelefon: ${phone}\n\nMin tilpassede plan:\n\n${tripLines}\n\n${notes ? `Notater: ${notes}` : ''}`,
+      `Bonjour Marrakechstory, je souhaite réserver ce voyage avec mes ajustements :\n\nBase : ${baseTitle} (${trip.duration})\nDate de début : ${dateLabel}\n\nNom : ${name}\nEmail : ${email}\nTéléphone : ${phone}\n\nMon planning personnalisé :\n\n${tripLines}\n\n${notes ? `Notes : ${notes}` : ''}`
     );
   };
 
@@ -282,7 +287,7 @@ function TweakItineraryModal({ trip, onClose }) {
         <button className="ms-tweak-close" onClick={onClose} aria-label="Close">✕</button>
         <header className="ms-tweak-head">
           <div className="ms-tweak-eyebrow">— {tx('TWEAK THIS TRIP', 'TILPASS DENNE TUREN', 'PERSONNALISER CE VOYAGE')}</div>
-          <h2>{trip.title}</h2>
+          <h2>{L(trip.title)}</h2>
           <p>{tx(
             "Remove days you don't want. Add anything from our catalogue. We'll cost it up and confirm.",
             "Fjern dager du ikke vil ha. Legg til hva som helst fra katalogen. Vi priser det og bekrefter.",
@@ -319,7 +324,7 @@ function TweakItineraryModal({ trip, onClose }) {
                     <ul className="ms-tweak-extras">
                       {d.extras.map((e, i) => (
                         <li key={i}>
-                          <span>+ {e.item.name}</span>
+                          <span>+ {L(e.item.name)}</span>
                           <button onClick={() => removeExtra(d.id, i)} aria-label="Remove">×</button>
                         </li>
                       ))}
@@ -454,6 +459,7 @@ function FavouritesQuickAdd() {
   const ctx = useMS();
   const lang = ctx.lang || 'no';
   const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const L = (v) => v == null ? '' : (typeof v === 'string' ? v : (v[lang] || v.en || v.no || v.nb || v.fr || v.sv || (Object.values(v).find((x) => typeof x === 'string')) || ''));
   const [favs, setFavs] = useStateB([]);
   const [tweakTrip, setTweakTrip] = useStateB(null);
   const [pickerOpen, setPickerOpen] = useStateB(false);
@@ -503,8 +509,8 @@ function FavouritesQuickAdd() {
               <div key={`c-${i}`} className="ms-fav-card">
                 <div className="ms-fav-thumb" style={{ backgroundImage: `url(${f.item.img})` }} />
                 <div className="ms-fav-meta">
-                  <strong>{f.item.name}</strong>
-                  <span>{f.item.area}</span>
+                  <strong>{L(f.item.name)}</strong>
+                  <span>{L(f.item.area)}</span>
                 </div>
                 <button className="ms-fav-cta" onClick={() => window.MS_OpenQuickBook?.(f.item, f.tab)}>
                   {tx('Book this →', 'Bestill →', 'Réserver →')}
@@ -517,8 +523,8 @@ function FavouritesQuickAdd() {
             <div key={`i-${i}`} className="ms-fav-card ms-fav-card-itin">
               <div className="ms-fav-thumb" style={{ backgroundImage: `url(${f.trip.img})` }} />
               <div className="ms-fav-meta">
-                <strong>{f.trip.title}</strong>
-                <span>{f.trip.duration} · {f.trip.route}</span>
+                <strong>{L(f.trip.title)}</strong>
+                <span>{f.trip.duration} · {L(f.trip.route)}</span>
               </div>
               <button className="ms-fav-cta" onClick={() => setTweakTrip(f.trip)}>
                 {tx('Tweak this →', 'Tilpass →', 'Personnaliser →')}
