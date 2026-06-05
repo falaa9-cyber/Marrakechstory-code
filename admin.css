@@ -415,7 +415,7 @@
 .msa-ic-green { color: var(--msa-green); }
 .msa-ic-green:hover { background: var(--msa-green-soft); color: #1c7a3f; }
 .msa-bt-detail td { background: #fafafb; padding: 0 14px 16px; }
-.msa-bt-detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 14px 0; }
+.msa-bt-detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; padding: 14px 0; }
 .msa-bt-detail-grid a { color: var(--msa-blue); text-decoration: none; }
 .msa-bt-detail-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -795,3 +795,14 @@
   .msa-cols-3 { grid-template-columns: 1fr !important; }
   .msa-insights-bar { gap: 8px; }
 }
+
+/* v208 — Requests: "all submitted details" dump (every field a visitor sent) */
+.msa-rq-dump { margin-top: 12px; border: 1px solid var(--msa-line); border-radius: 10px; background: #fafafa; overflow: hidden; }
+.msa-rq-dump > summary { cursor: pointer; list-style: none; padding: 9px 13px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--msa-dim); user-select: none; }
+.msa-rq-dump > summary::-webkit-details-marker { display: none; }
+.msa-rq-dump > summary:hover { background: #f1f1f3; }
+.msa-rq-dump[open] > summary { border-bottom: 1px solid var(--msa-line); }
+.msa-rq-dump-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; padding: 12px 13px; }
+.msa-rq-dump-item { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.msa-rq-dump-k { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; color: var(--msa-dim); font-weight: 700; }
+.msa-rq-dump-v { font-size: 13px; color: var(--msa-ink); word-break: break-word; white-space: pre-wrap; }

@@ -28,6 +28,23 @@
   // ---- format ----
   const nf = (n) => (Number(n) || 0).toLocaleString('en-US');
   const kr = (n) => nf(n) + ' kr';
+  // ---- request/lead display helpers (used by Dashboard + Requests) ----
+  const CAT_LABEL = { experiences: 'Experience', activities: 'Experience', transport: 'Transport', stays: 'Stay', riads: 'Stay', tours: 'Tour', desert: 'Desert trip', wellness: 'Wellness', food: 'Food & dining', day: 'Day trip', daytrips: 'Day trip' };
+  // Localized values arrive as {en,no,fr,sv} objects OR plain strings.
+  function reqText(v) {
+    if (v == null) return '';
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+    if (typeof v === 'object') return v.en || v.no || v.nb || v.fr || v.sv || (Object.values(v).find(x => typeof x === 'string') || '');
+    return String(v);
+  }
+  // What did this person actually book / ask for? Works across every form kind.
+  function reqTitle(l) {
+    const p = (l && l.payload) || {};
+    return reqText(p.bookingCtx && p.bookingCtx.title) || reqText(p.item) || reqText(p.baseTitle) || (l && l.trip_type) || '';
+  }
+  const REQ_KIND = { quickbook: 'Booking', itinerary: 'Trip request', tweak: 'Custom trip', collaboration: 'Partnership' };
+  function reqKindLabel(l) { return (l && REQ_KIND[l.kind]) || (l && l.kind) || 'Request'; }
   const fmtDate = (d) => { if (!d) return '—'; try { return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); } catch { return d; } };
   const fmtDateTime = (d) => { if (!d) return '—'; try { return new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
   const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -245,7 +262,9 @@
           h('div', { className: 'msa-card-head' }, h('h3', null, ICON.requests(), ' Latest requests'), h('button', { className: 'msa-link', onClick: () => go('requests') }, 'All →')),
           h('div', { className: 'msa-dash-scroll' }, newRequests.length === 0 ? h('div', { className: 'msa-empty' }, 'No website requests yet.')
             : newRequests.map(l => h('button', { key: l.id, className: 'msa-line-item', onClick: () => go('requests') },
-                h('div', null, h('strong', null, l.name || l.email || 'Anonymous'), h('span', { className: 'msa-dim' }, ' · ' + (l.kind || ''))),
+                h('div', null, h('strong', null, l.name || l.email || 'Anonymous'),
+                  reqTitle(l) ? h('span', { className: 'msa-text-brand', style: { marginLeft: 6, fontWeight: 600 } }, '· ' + reqTitle(l)) : null,
+                  h('span', { className: 'msa-dim' }, ' · ' + reqKindLabel(l))),
                 h('span', { className: 'msa-dim' }, fmtDate(l.created_at)))))),
 
         h('div', { className: 'msa-card msa-dash-box' },
@@ -782,7 +801,8 @@
 
     const row = (l) => {
       const b = bkFor(l); const p = l.payload || {};
-      const title = (p.bookingCtx && p.bookingCtx.title) || (l.trip_type || '—');
+      const title = reqTitle(l) || '—';
+      const catLabel = p.tab ? (CAT_LABEL[p.tab] || p.tab) : null;
       const itin = (Array.isArray(p.daily_itinerary) && p.daily_itinerary.length) ? p.daily_itinerary : (b && Array.isArray(b.daily_itinerary) ? b.daily_itinerary : []);
       const ex = !!expanded[l.id];
       const st = b ? b.status : (l.kind === 'collaboration' ? 'ongoing' : (l.handled ? 'completed' : 'new'));
@@ -792,7 +812,8 @@
         h('td', { className: 'msa-bt-chev', 'data-label': '' }, h('span', { className: 'msa-chevtog' }, ex ? '⌃' : '⌄')),
         h('td', { 'data-label': 'Date' }, fmtDate(l.created_at)),
         h('td', { 'data-label': 'Client' }, h('strong', null, l.name || '—'), !l.handled && h('span', { className: 'msa-rq-dot', title: 'New' })),
-        h('td', { 'data-label': 'Itinerary' }, title === '—' ? h('span', { className: 'msa-dim' }, [l.trip_type, l.duration ? l.duration + 'd' : null].filter(Boolean).join(' · ') || '—') : h('strong', { className: 'msa-text-brand' }, title)),
+        h('td', { 'data-label': 'Booked' }, title === '—' ? h('span', { className: 'msa-dim' }, [l.trip_type, l.duration ? l.duration + 'd' : null].filter(Boolean).join(' · ') || '—') : h('strong', { className: 'msa-text-brand' }, title),
+          h('div', { className: 'msa-dim', style: { fontSize: 11, marginTop: 2 } }, [catLabel || reqKindLabel(l), p.people ? p.people + ' pax' : null].filter(Boolean).join(' · '))),
         h('td', { 'data-label': 'Dates' }, l.start_date ? h('div', null, l.start_date + (l.end_date ? ' → ' + l.end_date : '')) : h('span', { className: 'msa-dim' }, '—'), n != null && n >= 0 && h('div', { className: 'msa-cd-text ' + (n === 0 ? 'msa-text-green' : n <= 14 ? 'msa-text-orange' : 'msa-text-brand') }, countdownLabel(l.start_date))),
         h('td', { 'data-label': 'Status' }, h('span', { className: 'msa-badge msa-st-' + st }, stLabel)),
         h('td', { 'data-label': '', className: 'msa-right msa-actions' },
@@ -803,14 +824,29 @@
       if (!ex) return main;
       const trav = p.travellers || {}; const pax = (+trav.adults || 0) + (+trav.children || 0) + (+trav.infants || 0);
       const flights = [p.arriveCity ? 'In: ' + p.arriveCity : '', p.departCity ? 'Out: ' + p.departCity : '', p.flightBooked ? 'Booked: ' + p.flightBooked : ''].filter(Boolean).join('  ·  ');
+      const hasStyle = !!(p.accommodation || p.pace || p.budget || p.occasion);
+      const dateStr = l.start_date ? (l.start_date + (l.end_date && l.end_date !== l.start_date ? ' → ' + l.end_date : '')) : (reqText(p.date) || '');
+      const transport = p.needTransport ? ('Transport requested' + (p.pickupAddr ? ' · pickup: ' + reqText(p.pickupAddr) : '')) : '';
+      // Full dump of everything the visitor submitted — nothing hidden.
+      const HIDE = ['daily_itinerary', 'days', 'summary', 'bookingCtx', 'travellers'];
+      const dump = Object.keys(p).filter(k => HIDE.indexOf(k) < 0).map(k => {
+        let v = p[k]; if (v == null || v === '') return null;
+        if (typeof v === 'object') { v = reqText(v) || JSON.stringify(v); }
+        if (v === '' || v === '[object Object]') return null;
+        return [k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()), String(v)];
+      }).filter(Boolean);
       const detail = h('tr', { key: l.id + '-d', className: 'msa-bt-detail' }, h('td', { colSpan: 8 },
         p.chooseForMe ? h('div', { className: 'msa-rq-flag' }, '⭐ Choose for me — client wants MarrakechStory to craft the trip') : null,
         h('div', { className: 'msa-bt-detail-grid' },
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Contact'), l.email && h('div', null, h('a', { href: 'mailto:' + l.email }, l.email)), l.phone && h('div', null, h('a', { href: waLink(l.phone), target: '_blank' }, l.phone)), h('div', { className: 'msa-dim' }, [l.country, 'via ' + (l.via || l.kind)].filter(Boolean).join(' · '))),
-          h('div', null, h('span', { className: 'msa-fin-k' }, 'Trip'), h('div', null, title), h('div', { className: 'msa-dim' }, [l.duration ? l.duration + ' days' : null, pax ? pax + ' pax' : null].filter(Boolean).join(' · '))),
-          h('div', null, h('span', { className: 'msa-fin-k' }, 'Flights'), h('div', { className: 'msa-dim' }, flights || '—'), p.flightDetails && h('div', { className: 'msa-dim' }, p.flightDetails)),
-          h('div', null, h('span', { className: 'msa-fin-k' }, 'Style'), h('div', { className: 'msa-dim' }, [p.accommodation, p.pace, p.budget].filter(Boolean).join(' · ') || '—'), p.occasion && h('div', { className: 'msa-dim' }, 'Occasion: ' + p.occasion))),
-        (p.notes || p.avoid) ? h('div', { className: 'msa-bk-notes', style: { marginTop: 10 } }, [p.notes, p.avoid && ('Avoid: ' + p.avoid)].filter(Boolean).join(' · ')) : null,
+          h('div', null, h('span', { className: 'msa-fin-k' }, l.kind === 'quickbook' ? 'Booked' : 'Trip'), h('div', { style: { fontWeight: 600 } }, title), h('div', { className: 'msa-dim' }, [catLabel || reqKindLabel(l), p.people ? p.people + ' pax' : (pax ? pax + ' pax' : null), l.duration ? l.duration + ' days' : null, dateStr || null].filter(Boolean).join(' · '))),
+          (l.kind === 'itinerary' || flights) ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Flights'), h('div', { className: 'msa-dim' }, flights || '—'), p.flightDetails && h('div', { className: 'msa-dim' }, reqText(p.flightDetails))) : null,
+          hasStyle ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Style'), h('div', { className: 'msa-dim' }, [p.accommodation, p.pace, p.budget].filter(Boolean).join(' · ') || '—'), p.occasion && h('div', { className: 'msa-dim' }, 'Occasion: ' + reqText(p.occasion))) : null,
+          transport ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Transport'), h('div', { className: 'msa-dim' }, transport)) : null,
+          p.baseTitle ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Based on'), h('div', { className: 'msa-dim' }, reqText(p.baseTitle) + (p.baseDuration ? ' · ' + reqText(p.baseDuration) : ''))) : null),
+        (p.notes || p.avoid) ? h('div', { className: 'msa-bk-notes', style: { marginTop: 10 } }, [p.notes && reqText(p.notes), p.avoid && ('Avoid: ' + reqText(p.avoid))].filter(Boolean).join(' · ')) : null,
+        dump.length ? h('details', { className: 'msa-rq-dump' }, h('summary', null, 'All submitted details (' + dump.length + ')'),
+          h('div', { className: 'msa-rq-dump-grid' }, dump.map(([k, v], i) => h('div', { key: i, className: 'msa-rq-dump-item' }, h('span', { className: 'msa-rq-dump-k' }, k), h('span', { className: 'msa-rq-dump-v' }, v))))) : null,
         itin.length > 0 ? h('div', { className: 'msa-rq-itin', style: { marginTop: 12 } }, itin.map((d, i) => h('div', { key: i, className: 'msa-rq-day' },
           h('div', { className: 'msa-rq-day-n' }, d.day || i + 1),
           h('div', null, h('strong', null, (d.city || ('Day ' + (d.day || i + 1))) + (d.date ? ' · ' + fmtDate(d.date) : '')),
@@ -854,7 +890,7 @@
       sec('Clients', cl.map(c => h('button', { key: c.id, className: 'msa-line-item', onClick: () => route('clients', c.name) }, h('div', null, h('strong', null, c.name), h('span', { className: 'msa-dim' }, ' · ' + (c.phone || '') + ' · ' + kr(c.total_spent))), c.phone && h('span', { className: 'msa-wa-btn' }, ICON.whatsapp())))),
       sec('Collaborators', su.map(s => h('button', { key: s.id, className: 'msa-line-item', onClick: () => route('suppliers') }, h('strong', null, s.name), h('span', { className: 'msa-dim' }, ' · ' + (s.city || ''))))),
       sec('Tasks', tk.map(x => h('button', { key: x.id, className: 'msa-line-item', onClick: () => route('tasks') }, h('strong', null, x.title), h('span', { className: 'msa-dim' }, ' · ' + (x.due || ''))))),
-      sec('Requests', rq.map(l => h('button', { key: l.id, className: 'msa-line-item', onClick: () => route('requests') }, h('strong', null, l.name || l.email || '—'), h('span', { className: 'msa-dim' }, ' · ' + (l.kind || ''))))));
+      sec('Requests', rq.map(l => h('button', { key: l.id, className: 'msa-line-item', onClick: () => route('requests') }, h('strong', null, l.name || l.email || '—'), h('span', { className: 'msa-dim' }, ' · ' + (reqTitle(l) || reqKindLabel(l)))))));
   }
 
   // ---- analytics helpers ----
