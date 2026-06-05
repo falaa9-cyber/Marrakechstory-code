@@ -118,15 +118,26 @@ async function postSlack(text: string) {
   return { status: r.status };
 }
 
+async function sendOne(key: string, from: string, to: string, subject: string, html: string) {
+  const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ from, to, subject, html }) });
+  let detail: any = null; try { detail = await r.json(); } catch (_e) { /* ignore */ }
+  return { ok: r.ok, status: r.status, to, detail };
+}
 async function sendEmail(subject: string, html: string) {
   const s = await loadSecrets();
   const key = Deno.env.get('RESEND_API_KEY') || s.resend_api_key;
-  const to = Deno.env.get('ADMIN_EMAIL_TO') || s.admin_email_to || 'f.alaa9@gmail.com';
+  const primary = Deno.env.get('ADMIN_EMAIL_TO') || s.admin_email_to || 'marrakechstory@outlook.com';
+  const fallback = Deno.env.get('ADMIN_EMAIL_FALLBACK') || s.admin_email_fallback || 'f.alaa9@gmail.com';
   const from = Deno.env.get('ADMIN_EMAIL_FROM') || s.admin_email_from || 'MarrakechStory <onboarding@resend.dev>';
   if (!key) return { skipped: 'no resend key' };
-  const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ from, to, subject, html }) });
-  let detail: any = null; try { detail = await r.json(); } catch (_e) { /* ignore */ }
-  return { status: r.status, to, detail };
+  // Try the intended recipient first. Resend's sandbox (default onboarding@
+  // resend.dev sender) only delivers to the account-owner address until a
+  // domain is verified — so if the primary send is rejected, fall back so the
+  // notification is never lost. Once a domain is verified the primary works.
+  const first = await sendOne(key, from, primary, subject, html);
+  if (first.ok || (fallback && primary.toLowerCase() === fallback.toLowerCase())) return { primary: first };
+  const second = await sendOne(key, from, fallback, subject, html);
+  return { primary: first, fallback: second };
 }
 
 Deno.serve(async (req) => {

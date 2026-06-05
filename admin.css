@@ -806,3 +806,30 @@
 .msa-rq-dump-item { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .msa-rq-dump-k { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; color: var(--msa-dim); font-weight: 700; }
 .msa-rq-dump-v { font-size: 13px; color: var(--msa-ink); word-break: break-word; white-space: pre-wrap; }
+
+/* ════════════════════════════════════════════════════════════════
+   v213 — Partner/team: activity indicator + request reply & notes
+   ════════════════════════════════════════════════════════════════ */
+.msa-team .msa-card-head { align-items: center; }
+.msa-team-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.msa-team-status.on { color: #1c7a3f; background: var(--msa-green-soft); }
+.msa-team-status.off { color: var(--msa-dim); background: #f0f0f3; }
+.msa-team-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.msa-team-status.on .msa-team-dot { animation: msaPulse 1.6s ease-in-out infinite; }
+.msa-team-who { display: flex; flex-direction: column; gap: 1px; padding: 4px 0 12px; }
+.msa-team-who strong { font-size: 14px; }
+.msa-team-live { background: var(--msa-brand-soft); color: var(--msa-brand-deep, var(--msa-brand)); font-weight: 700; font-size: 12.5px; padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; }
+.msa-team-feed { display: flex; flex-direction: column; max-height: 220px; overflow-y: auto; }
+.msa-team-row { display: flex; gap: 10px; padding: 7px 2px; border-bottom: 1px solid var(--msa-line); font-size: 12.5px; }
+.msa-team-row:last-child { border-bottom: none; }
+.msa-team-row.partner { background: rgba(224,67,42,0.03); }
+.msa-team-ago { flex-shrink: 0; width: 42px; color: var(--msa-dim); font-weight: 700; }
+.msa-team-act { color: var(--msa-ink2); }
+
+/* Request reply + internal note */
+.msa-rq-reply { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--msa-line); }
+.msa-rq-reply-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.msa-rq-ta { width: 100%; margin-top: 5px; padding: 9px 11px; border: 1px solid var(--msa-line); border-radius: 9px; font: inherit; font-size: 13px; resize: vertical; background: #fff; color: var(--msa-ink); }
+.msa-rq-ta:focus { outline: none; border-color: var(--msa-brand); }
+.msa-rq-reply-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+@media (max-width: 780px) { .msa-rq-reply-grid { grid-template-columns: 1fr; } }

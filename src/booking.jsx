@@ -263,7 +263,9 @@ function TweakItineraryModal({ trip, onClose }) {
     );
   };
 
-  const sendWhatsapp = () => {
+  // Send the customised request straight to the admin console + email.
+  // No WhatsApp hop — it lands in Requests and notifies the team automatically.
+  const sendRequest = () => {
     if (!name.trim() || !email.trim()) return;
     try {
       const reqs = JSON.parse(localStorage.getItem('ms_requests') || '[]');
@@ -274,10 +276,11 @@ function TweakItineraryModal({ trip, onClose }) {
       window.MS_submitForm('tweak', {
         name, email, phone, notes,
         baseTrip: trip.slug, baseTitle: trip.title, baseDuration: trip.duration,
-        startDate: date, duration: days.length, days
-      }, { via: 'whatsapp' });
+        startDate: date, duration: days.length,
+        days: days.map(d => ({ day: d.day, route: d.route, text: d.text, extras: d.extras.map(e => ({ item: L(e.item && e.item.name), tab: e.tab })) })),
+        message: buildMessage()
+      }, { via: 'website' });
     }
-    window.open(whatsappUrl(buildMessage()), '_blank', 'noopener');
     setSent(true);
   };
 
@@ -368,8 +371,8 @@ function TweakItineraryModal({ trip, onClose }) {
             </div>
 
             <div className="ms-qb-cta-row">
-              <button className="btn btn-primary" onClick={sendWhatsapp} disabled={!name.trim() || !email.trim()}>
-                📱 {tx('Send custom trip via WhatsApp', 'Send tilpasset reise via WhatsApp', 'Envoyer via WhatsApp')}
+              <button className="btn btn-primary" onClick={sendRequest} disabled={!name.trim() || !email.trim()}>
+                {tx('Send request', 'Send forespørsel', 'Envoyer la demande')} →
               </button>
             </div>
             <p className="ms-qb-note">{tx(

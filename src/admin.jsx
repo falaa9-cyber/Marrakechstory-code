@@ -11,6 +11,15 @@
   const ADMIN_EMAIL = 'f.alaa9@gmail.com';
   const COMPANY = (window.MS_CTX && window.MS_CTX.COMPANY) || { phone: '+47 457 74 743', whatsapp: '4745774743' };
 
+  // ---- role (admin vs partner/assistant) ----
+  // Single signed-in session, so a module-level value is enough and avoids
+  // threading `role` through every component. Set once when the session loads.
+  let CURRENT_ROLE = null;   // 'admin' | 'partner'
+  let CURRENT_EMAIL = null;
+  let CURRENT_NAME = null;
+  const isAdminRole = () => CURRENT_ROLE === 'admin';   // money/finance gate
+  const canMoney = () => CURRENT_ROLE === 'admin';
+
   // ---- Supabase (persisted admin session) ----
   let SB = null;
   function getSB() {
@@ -24,6 +33,31 @@
   async function dbInsert(t, row) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).insert(row).select(); }
   async function dbUpdate(t, id, patch) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).update(patch).eq('id', id).select(); }
   async function dbDelete(t, id) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).delete().eq('id', id); }
+
+  // ---- audit trail: record what staff change so the admin can monitor ----
+  async function logAudit(action, entity, entityId, detail) {
+    try {
+      const sb = getSB(); if (!sb || !CURRENT_EMAIL) return;
+      await sb.from('admin_audit').insert({ actor_email: CURRENT_EMAIL, actor_role: CURRENT_ROLE, action, entity, entity_id: entityId != null ? String(entityId) : null, detail: detail ? String(detail).slice(0, 300) : null });
+    } catch (e) { /* never block on audit */ }
+  }
+  // ---- presence heartbeat: admin can see if the partner is connected ----
+  async function touchPresence(view) {
+    try {
+      const sb = getSB(); if (!sb || !CURRENT_EMAIL) return;
+      await sb.from('staff_presence').upsert({ email: CURRENT_EMAIL, name: CURRENT_NAME, role: CURRENT_ROLE, current_view: view || null, last_seen: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'email' });
+    } catch (e) { /* ignore */ }
+  }
+  // ---- call an authenticated edge function with the current session JWT ----
+  async function callFn(name, body) {
+    const sb = getSB(); if (!sb) return { ok: false, error: 'no client' };
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session && session.access_token;
+    const base = window.MS_ENV.SUPABASE_URL.replace(/\/$/, '');
+    const r = await fetch(`${base}/functions/v1/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: window.MS_ENV.SUPABASE_KEY }, body: JSON.stringify(body || {}) });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    return j || { ok: r.ok };
+  }
 
   // ---- format ----
   const nf = (n) => (Number(n) || 0).toLocaleString('en-US');
@@ -106,9 +140,10 @@
       e.preventDefault(); setErr(''); setBusy(true);
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
       const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pass });
+      if (error) { setBusy(false); setErr(error.message); return; }
+      const { data: roleData } = await sb.rpc('ms_my_role');
       setBusy(false);
-      if (error) { setErr(error.message); return; }
-      if (!data.user || data.user.email !== ADMIN_EMAIL) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
+      if (!data.user || !roleData) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
       onAuthed(data.user);
     };
     return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submit },
@@ -182,7 +217,35 @@
   // =====================================================================
   // DASHBOARD
   // =====================================================================
+  // Admin-only indicator: is the partner connected, and what are they changing?
+  function TeamActivity() {
+    const [presence, setPresence] = useState([]);
+    const [audit, setAudit] = useState([]);
+    const load = useCallback(async () => {
+      const sb = getSB(); if (!sb) return;
+      const { data: pres } = await sb.from('staff_presence').select('*');
+      const { data: aud } = await sb.from('admin_audit').select('*').order('created_at', { ascending: false }).limit(12);
+      setPresence(pres || []); setAudit(aud || []);
+    }, []);
+    useEffect(() => { load(); const t = setInterval(load, 20000); return () => clearInterval(t); }, [load]);
+    const now = Date.now();
+    const partner = presence.find(p => p.role === 'partner');
+    const online = partner && (now - new Date(partner.last_seen).getTime() < 120000);
+    const editingNow = audit.length && audit[0].actor_role === 'partner' && (now - new Date(audit[0].created_at).getTime() < 120000);
+    return h('div', { className: 'msa-card msa-team' },
+      h('div', { className: 'msa-card-head' }, h('h3', null, ICON.clients(), ' Team activity'),
+        h('span', { className: 'msa-team-status ' + (online ? 'on' : 'off') }, h('span', { className: 'msa-team-dot' }), online ? 'Partner connected' : 'Partner offline')),
+      partner ? h('div', { className: 'msa-team-who' }, h('strong', null, partner.name || partner.email),
+        h('span', { className: 'msa-dim' }, online ? ('Active now · ' + (partner.current_view || 'console')) : ('Last seen ' + (agoOf(partner.last_seen) || '?') + ' ago'))) : h('div', { className: 'msa-dim', style: { padding: '4px 0 10px' } }, 'No partner account yet — set one up in Settings.'),
+      editingNow ? h('div', { className: 'msa-team-live' }, '● ' + (partner && partner.name || 'Partner') + ' is editing now: ' + (audit[0].action || '') + ' ' + (audit[0].entity || '')) : null,
+      h('div', { className: 'msa-team-feed' }, audit.length === 0 ? h('div', { className: 'msa-empty' }, 'No changes logged yet.')
+        : audit.map(a => h('div', { key: a.id, className: 'msa-team-row' + (a.actor_role === 'partner' ? ' partner' : '') },
+            h('span', { className: 'msa-team-ago' }, agoOf(a.created_at)),
+            h('span', { className: 'msa-team-act' }, (a.actor_role === 'partner' ? '👤 ' : '🛡️ ') + (a.action || '') + ' ' + (a.entity || '') + (a.detail ? ' — ' + a.detail : ''))))));
+  }
+
   function Dashboard({ bookings, tasks, leads, clients, go, openBooking, reload }) {
+    const isAdmin = isAdminRole();
     const active = bookings.filter(b => !b.archived && b.arrival_date && b.departure_date && new Date(b.arrival_date) <= startOfToday() && startOfToday() <= new Date(b.departure_date)).length;
     const future = bookings.filter(b => !b.archived && b.arrival_date && new Date(b.arrival_date) > startOfToday() && !['cancelled','completed'].includes(b.status)).sort((a, b) => new Date(a.arrival_date) - new Date(b.arrival_date));
     const past = bookings.filter(b => b.archived || ['completed','cancelled'].includes(b.status) || (b.departure_date && new Date(b.departure_date) < startOfToday())).length;
@@ -218,12 +281,12 @@
             h('div', null, h('span', { className: 'msa-kpi-value' }, future.length), h('span', { className: 'msa-kpi-sub' }, 'Upcoming')),
             h('div', { className: 'msa-kpi-divider' }),
             h('div', null, h('span', { className: 'msa-kpi-value' }, past), h('span', { className: 'msa-kpi-sub' }, 'Past')))),
-        kpi('Total Income', kr(revenue), 'msa-kpi-income', 'finance'),
-        kpi('Total Cost', kr(cost), 'msa-kpi-cost', 'finance'),
-        kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance')),
+        isAdmin ? kpi('Total Income', kr(revenue), 'msa-kpi-income', 'finance') : kpi('Clients', nf(clients.length), 'msa-kpi-plain', 'clients'),
+        isAdmin ? kpi('Total Cost', kr(cost), 'msa-kpi-cost', 'finance') : kpi('Requests', nf(leads.length), 'msa-kpi-plain', 'requests'),
+        isAdmin ? kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance') : kpi('Open tasks', nf(tasks.filter(t => t.status !== 'completed').length), 'msa-kpi-plain', 'tasks')),
 
-      // Top section — 2 equal chart boxes
-      h('div', { className: 'msa-dash-charts' },
+      // Top section — 2 equal chart boxes (money — admin only)
+      isAdmin ? h('div', { className: 'msa-dash-charts' },
         h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Cost breakdown'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
           h('div', { className: 'msa-chart-row' }, h(Donut, { segments: [{ label: 'Accommodation', value: acc, color: '#e0432a' }, { label: 'Transportation', value: tr, color: '#0a84ff' }, { label: 'Activities', value: ac, color: '#34c759' }] }),
             h('div', { className: 'msa-legend' },
@@ -231,7 +294,10 @@
               h('div', null, h('span', { className: 'msa-dot', style: { background: '#0a84ff' } }), 'Transportation ', h('strong', null, kr(tr))),
               h('div', null, h('span', { className: 'msa-dot', style: { background: '#34c759' } }), 'Activities ', h('strong', null, kr(ac)))))),
         h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Revenue by month'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
-          months.length ? h(Bars, { data: months }) : h('div', { className: 'msa-empty' }, 'No dated bookings.'))),
+          months.length ? h(Bars, { data: months }) : h('div', { className: 'msa-empty' }, 'No dated bookings.'))) : null,
+
+      // Team activity — admin-only: is the partner connected & what are they changing
+      isAdmin ? h(TeamActivity, {}) : null,
 
       // Operations calendar — yearly overview
       h('div', { className: 'msa-card' },
@@ -247,7 +313,7 @@
                 return h('button', { key: b.id, className: 'msa-remind', onClick: () => openBooking(b) },
                   h('div', { className: 'msa-remind-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days'))),
                   h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + (b.total_days || '?') + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
-                  h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (+b.balance > 0) && h('span', { className: 'msa-dim' }, 'Bal ' + kr(b.balance)))); })))),
+                  h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-dim' }, 'Bal ' + kr(b.balance)))); })))),
 
         h('div', { className: 'msa-card msa-dash-box' },
           h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Task reminders'), h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Manage →')),
@@ -272,7 +338,7 @@
           h('div', { className: 'msa-dash-scroll' }, clients.length === 0 ? h('div', { className: 'msa-empty' }, 'No clients yet.')
             : clients.slice().sort((a, b) => (+b.total_spent || 0) - (+a.total_spent || 0)).slice(0, 5).map(c => h('button', { key: c.id, className: 'msa-line-item', onClick: () => go('clients') },
                 h('div', null, h('span', { className: 'msa-avatar msa-avatar-sm' }, (c.name || '?').slice(0, 1).toUpperCase()), h('strong', { style: { marginLeft: 8 } }, c.name)),
-                h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(c.total_spent))))))));
+                isAdmin ? h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(c.total_spent)) : h('span', { className: 'msa-dim' }, (c.trips || 0) + ' trips')))))));
   }
 
   // =====================================================================
@@ -307,9 +373,10 @@
       ['selling_price','deposit_amount','paid_amount','balance','cost_transportation','cost_activities','cost_accommodation','total_cost'].forEach(k => row[k] = +row[k] || 0);
       if (!row.arrival_date) delete row.arrival_date; if (!row.departure_date) delete row.departure_date;
       delete row.id; delete row.created_at; delete row.routed_booking_id;
-      const res = b.id ? await dbUpdate('bookings', b.id, row) : await dbInsert('bookings', { ...row, created_by: ADMIN_EMAIL });
+      const res = b.id ? await dbUpdate('bookings', b.id, row) : await dbInsert('bookings', { ...row, created_by: CURRENT_EMAIL || ADMIN_EMAIL });
       setBusy(false);
       if (res.error) { alert('Save failed: ' + res.error.message); return; }
+      logAudit(b.id ? 'updated booking' : 'created booking', 'booking', b.id || (res.data && res.data[0] && res.data[0].id), row.client_name || row.reference);
       onSaved(closeAfter);
     };
 
@@ -320,7 +387,7 @@
         h('h2', null, b.id ? 'Edit Booking' : 'New Booking', b.reference && h('span', { className: 'msa-ref-chip' }, b.reference)),
         h('div', null,
           b.id && onView && h('button', { className: 'msa-btn', onClick: () => onView(b, 'itinerary') }, ICON.doc(), 'Itinerary'),
-          b.id && onView && h('button', { className: 'msa-btn', onClick: () => onView(b, 'invoice') }, ICON.invoice(), 'Invoice'),
+          b.id && onView && isAdminRole() && h('button', { className: 'msa-btn', onClick: () => onView(b, 'invoice') }, ICON.invoice(), 'Invoice'),
           h('button', { className: 'msa-btn', onClick: onClose }, 'Cancel'),
           h('button', { className: 'msa-btn msa-btn-primary', disabled: busy, onClick: () => save(true) }, busy ? 'Saving…' : 'Save'))),
       h('div', { className: 'msa-modal-body' },
@@ -342,20 +409,21 @@
               h('button', { className: 'msa-icon-btn', onClick: () => delAct(di, ai) }, ICON.x())),
             h('input', { className: 'msa-day-in', placeholder: 'Details…', value: a.details, onChange: (e) => setAct(di, ai, 'details', e.target.value) }))),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: () => addAct(di) }, '+ Activity')))),
-        h('h4', { className: 'msa-section' }, 'Costs (internal)'),
-        h('div', { className: 'msa-grid-2' },
+        isAdminRole() ? h('h4', { className: 'msa-section' }, 'Costs (internal)') : null,
+        isAdminRole() ? h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'Transport'), h('input', { type: 'number', value: b.cost_transportation || '', onChange: (e) => setCost('cost_transportation', parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Activities'), h('input', { type: 'number', value: b.cost_activities || '', onChange: (e) => setCost('cost_activities', parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Accommodation'), h('input', { type: 'number', value: b.cost_accommodation || '', onChange: (e) => setCost('cost_accommodation', parseFloat(e.target.value) || 0) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Total Cost'), h('div', { className: 'msa-readout' }, kr(b.total_cost)))),
-        h('h4', { className: 'msa-section' }, 'Pricing, Payment & Status'),
-        h('div', { className: 'msa-grid-2' },
+          h('div', { className: 'msa-field' }, h('label', null, 'Total Cost'), h('div', { className: 'msa-readout' }, kr(b.total_cost)))) : null,
+        h('h4', { className: 'msa-section' }, isAdminRole() ? 'Pricing, Payment & Status' : 'Status'),
+        isAdminRole() ? h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'Selling Price'), h('input', { type: 'number', value: b.selling_price || '', onChange: (e) => setPrice(parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: b.status, onChange: (e) => set('status', e.target.value) }, STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))),
           h('div', { className: 'msa-field' }, h('label', null, 'Paid so far'), h('input', { type: 'number', value: b.paid_amount || '', onChange: (e) => setPaid(parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Balance'), h('div', { className: 'msa-readout' }, kr(b.balance))),
           h('div', { className: 'msa-field' }, h('label', null, 'Payment Method'), h('select', { value: b.payment_method || 'Bank Transfer', onChange: (e) => set('payment_method', e.target.value) }, PAYMENT_METHODS.map(m => h('option', { key: m, value: m }, m)))),
-          h('div', { className: 'msa-field msa-field-profit' }, h('label', null, 'Profit'), h('div', { className: 'msa-readout msa-text-green' }, kr((+b.selling_price || 0) - (+b.total_cost || 0))))),
+          h('div', { className: 'msa-field msa-field-profit' }, h('label', null, 'Profit'), h('div', { className: 'msa-readout msa-text-green' }, kr((+b.selling_price || 0) - (+b.total_cost || 0)))))
+          : h('div', { className: 'msa-grid-2' }, h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: b.status, onChange: (e) => set('status', e.target.value) }, STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))), h('div', { className: 'msa-field' }, h('label', null, 'Payment'), h('div', { className: 'msa-readout msa-dim' }, 'Managed by admin'))),
         h('h4', { className: 'msa-section' }, 'Included / Not included (one per line)'),
         h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'Included'), h('textarea', { rows: 4, value: (b.included || []).join('\n'), onChange: (e) => setList('included', e.target.value) })),
@@ -427,7 +495,7 @@
     const fname = (type === 'itinerary' ? 'Itinerary-' : 'Invoice-') + (b.reference || 'MS') + '.pdf';
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-doc', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head msa-print-hide' },
-        h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice')),
+        h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice')),
         h('div', null, h('button', { className: 'msa-btn msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download PDF'),
           (b.phone) && h('a', { className: 'msa-btn', href: waLink(b.phone), target: '_blank' }, ICON.whatsapp(), 'Send'),
           h('button', { className: 'msa-btn', onClick: () => window.print() }, ICON.print(), 'Print'), h('button', { className: 'msa-btn', onClick: onClose }, ICON.x()))),
@@ -455,7 +523,7 @@
       const lines = [head.join(',')]; rows.forEach(b => lines.push([b.reference, b.client_name, b.email, b.phone, b.arrival_date, b.departure_date, (+b.adults || 0) + (+b.kids || 0), b.selling_price, b.total_cost, (+b.selling_price || 0) - (+b.total_cost || 0), STATUS_LABEL[b.status]].map(esc).join(',')));
       const blob = new Blob([lines.join('\n')], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'marrakechstory-bookings.csv'; a.click(); URL.revokeObjectURL(url); };
 
-    const COLS = [['reference', 'Reference'], ['client_name', 'Client'], ['arrival_date', 'Dates'], ['travelers', 'Travelers'], ['selling_price', 'Price (NOK)'], ['total_cost', 'Cost (NOK)'], ['profit', 'Profit (NOK)'], ['status', 'Status']];
+    const COLS = [['reference', 'Reference'], ['client_name', 'Client'], ['arrival_date', 'Dates'], ['travelers', 'Travelers'], ['selling_price', 'Price (NOK)'], ['total_cost', 'Cost (NOK)'], ['profit', 'Profit (NOK)'], ['status', 'Status']].filter(c => isAdminRole() || !['selling_price', 'total_cost', 'profit'].includes(c[0]));
     const headCell = (k, l) => h('th', { key: k, className: 'msa-th-sort' + (['selling_price','total_cost','profit'].includes(k) ? ' msa-right' : ''), onClick: () => toggleSort(k) }, l, h('span', { className: 'msa-sort-ar' }, sort.k === k ? (sort.d === 'asc' ? ' ↑' : ' ↓') : ''));
     const row = (b) => { const profit = (+b.selling_price || 0) - (+b.total_cost || 0); const n = daysUntil(b.arrival_date); const cd = n == null ? '' : (n === 0 ? 'msa-text-green' : (n > 0 && n <= 14 ? 'msa-text-orange' : n < 0 ? 'msa-dim' : 'msa-text-brand')); const ex = !!expanded[b.id];
       const main = h('tr', { key: b.id, className: 'msa-bt-row' + (ex ? ' open' : ''), onClick: () => setExpanded(s => ({ ...s, [b.id]: !s[b.id] })) },
@@ -464,14 +532,14 @@
         h('td', { 'data-label': 'Client' }, h('strong', null, b.client_name)),
         h('td', { 'data-label': 'Dates' }, h('div', null, (b.arrival_date || '—') + ' to ' + (b.departure_date || '—')), n != null && h('div', { className: 'msa-cd-text ' + cd }, countdownLabel(b.arrival_date))),
         h('td', { 'data-label': 'Travelers' }, h('span', { className: 'msa-trav' }, ICON.clients(), (b.adults || 0) + (b.kids || 0))),
-        h('td', { 'data-label': 'Price', className: 'msa-right' }, kr(b.selling_price)),
-        h('td', { 'data-label': 'Cost', className: 'msa-right msa-text-red' }, kr(b.total_cost)),
-        h('td', { 'data-label': 'Profit', className: 'msa-right' }, h('strong', { className: 'msa-text-green' }, kr(profit))),
+        isAdminRole() && h('td', { 'data-label': 'Price', className: 'msa-right' }, kr(b.selling_price)),
+        isAdminRole() && h('td', { 'data-label': 'Cost', className: 'msa-right msa-text-red' }, kr(b.total_cost)),
+        isAdminRole() && h('td', { 'data-label': 'Profit', className: 'msa-right' }, h('strong', { className: 'msa-text-green' }, kr(profit))),
         h('td', { 'data-label': 'Status' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status])),
         h('td', { 'data-label': '', className: 'msa-right msa-actions' },
           h('button', { className: 'msa-icon-btn', title: 'Edit', onClick: (e) => { e.stopPropagation(); setEdit(b); } }, ICON.edit()),
           h('button', { className: 'msa-icon-btn', title: 'Itinerary PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'itinerary' }); } }, ICON.doc()),
-          h('button', { className: 'msa-icon-btn msa-ic-green', title: 'Invoice PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'invoice' }); } }, ICON.invoice()),
+          isAdminRole() && h('button', { className: 'msa-icon-btn msa-ic-green', title: 'Invoice PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'invoice' }); } }, ICON.invoice()),
           b.phone && h('a', { className: 'msa-icon-btn', title: 'WhatsApp', href: waLink(b.phone), target: '_blank', onClick: (e) => e.stopPropagation() }, ICON.whatsapp())));
       if (!ex) return main;
       const paid = +b.paid_amount || +b.deposit_amount || 0;
@@ -479,12 +547,12 @@
         h('div', { className: 'msa-bt-detail-grid' },
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Route & dates'), h('div', null, (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' nights / ' + (b.total_days || 0) + ' days · ' + countdownLabel(b.arrival_date))),
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Contact'), b.email && h('div', null, h('a', { href: 'mailto:' + b.email }, b.email)), b.phone && h('div', null, h('a', { href: waLink(b.phone), target: '_blank' }, b.phone)), h('div', { className: 'msa-dim' }, 'Source: ' + (b.lead_source || '—'))),
-          h('div', null, h('span', { className: 'msa-fin-k' }, 'Payment'), h('div', null, 'Paid ', h('strong', { className: 'msa-text-green' }, kr(paid))), h('div', null, 'Balance ', h('strong', null, kr(b.balance)))),
+          isAdminRole() ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Payment'), h('div', null, 'Paid ', h('strong', { className: 'msa-text-green' }, kr(paid))), h('div', null, 'Balance ', h('strong', null, kr(b.balance)))) : null,
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Notes'), h('div', { className: 'msa-dim' }, b.internal_notes || b.special_requests || '—'))),
         h('div', { className: 'msa-bt-detail-actions' },
           h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => setEdit(b) }, ICON.edit(), 'Edit booking'),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'itinerary' }) }, ICON.doc(), 'Itinerary PDF'),
-          h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'invoice' }) }, ICON.invoice(), 'Invoice PDF'),
+          isAdminRole() && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'invoice' }) }, ICON.invoice(), 'Invoice PDF'),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => archiveB(b, e) }, b.archived ? 'Unarchive' : 'Archive'),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => del(b, e) }, ICON.trash(), 'Delete'))));
       return [main, detail];
@@ -497,7 +565,7 @@
       h('div', { className: 'msa-searchbar' },
         h('div', { className: 'msa-searchbar-in' }, ICON.search(), h('input', { placeholder: 'Search bookings…', value: q, onChange: (e) => setQ(e.target.value) })),
         h('button', { className: 'msa-btn' + (showFilters ? ' msa-btn-on' : ''), onClick: () => setShowFilters(s => !s) }, ICON.requests(), 'Filters'),
-        h('button', { className: 'msa-btn msa-btn-export', onClick: exportCSV }, ICON.pdf(), 'Export CSV')),
+        isAdminRole() && h('button', { className: 'msa-btn msa-btn-export', onClick: exportCSV }, ICON.pdf(), 'Export CSV')),
       showFilters && h('div', { className: 'msa-filterbar' }, h('label', null, 'Status'), h('select', { value: statusF, onChange: (e) => setStatusF(e.target.value) }, [h('option', { key: 'all', value: 'all' }, 'All statuses')].concat(STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s]))))),
       h('div', { className: 'msa-table-card' }, active.length === 0 ? h('div', { className: 'msa-empty' }, 'No active bookings.') : table(active),
         h('button', { className: 'msa-archive-bar', onClick: () => setArchiveOpen(o => !o) }, h('span', { className: 'msa-archive-count' }, archived.length), 'Past bookings archive', h('span', { className: 'msa-archive-chev' }, archiveOpen ? '⌃' : '⌄'))),
@@ -526,7 +594,7 @@
     const exportCSV = () => { const head = ['Name','Email','Phone','Country','Trips','Total Spent','Profit','Last Trip']; const esc = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
       const lines = [head.join(',')]; list.forEach(c => lines.push([c.name, c.email, c.phone, c.country, tripsFor(c), c.total_spent, profitFor(c), c.last_trip].map(esc).join(',')));
       const blob = new Blob([lines.join('\n')], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'marrakechstory-clients.csv'; a.click(); URL.revokeObjectURL(url); };
-    const COLS = [['name', 'Client'], ['country', 'Country'], ['phone', 'Contact'], ['trips', 'Trips'], ['total_spent', 'Total Spent'], ['profit', 'Profit'], ['last_trip', 'Last Trip']];
+    const COLS = [['name', 'Client'], ['country', 'Country'], ['phone', 'Contact'], ['trips', 'Trips'], ['total_spent', 'Total Spent'], ['profit', 'Profit'], ['last_trip', 'Last Trip']].filter(c => isAdminRole() || !['total_spent', 'profit'].includes(c[0]));
     const headCell = (k, l) => h('th', { key: k, className: 'msa-th-sort' + (['total_spent','profit'].includes(k) ? ' msa-right' : ''), onClick: () => toggleSort(k) }, l, h('span', { className: 'msa-sort-ar' }, sort.k === k ? (sort.d === 'asc' ? ' ↑' : ' ↓') : ''));
     const row = (c) => { const profit = profitFor(c); const trips = tripsFor(c); const ex = !!expanded[c.id]; const cb = bookingsFor(c);
       const main = h('tr', { key: c.id, className: 'msa-bt-row' + (ex ? ' open' : ''), onClick: () => setExpanded(s => ({ ...s, [c.id]: !s[c.id] })) },
@@ -535,8 +603,8 @@
         h('td', { 'data-label': 'Country' }, c.country || '—'),
         h('td', { 'data-label': 'Contact' }, c.phone ? h('a', { href: waLink(c.phone), target: '_blank', onClick: (e) => e.stopPropagation() }, c.phone) : (c.email || '—')),
         h('td', { 'data-label': 'Trips' }, trips),
-        h('td', { 'data-label': 'Total Spent', className: 'msa-right' }, h('strong', { className: 'msa-text-brand' }, kr(c.total_spent))),
-        h('td', { 'data-label': 'Profit', className: 'msa-right' }, h('strong', { className: 'msa-text-green' }, kr(profit))),
+        isAdminRole() && h('td', { 'data-label': 'Total Spent', className: 'msa-right' }, h('strong', { className: 'msa-text-brand' }, kr(c.total_spent))),
+        isAdminRole() && h('td', { 'data-label': 'Profit', className: 'msa-right' }, h('strong', { className: 'msa-text-green' }, kr(profit))),
         h('td', { 'data-label': 'Last Trip' }, fmtDate(c.last_trip)),
         h('td', { 'data-label': '', className: 'msa-right msa-actions' },
           c.phone && h('a', { className: 'msa-icon-btn', title: 'WhatsApp', href: waLink(c.phone), target: '_blank', onClick: (e) => e.stopPropagation() }, ICON.whatsapp()),
@@ -546,8 +614,8 @@
       const detail = h('tr', { key: c.id + '-d', className: 'msa-bt-detail' }, h('td', { colSpan: 9 },
         h('div', { className: 'msa-bt-detail-grid' },
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Contact'), c.email && h('div', null, h('a', { href: 'mailto:' + c.email }, c.email)), c.phone && h('div', null, h('a', { href: waLink(c.phone), target: '_blank' }, c.phone))),
-          h('div', null, h('span', { className: 'msa-fin-k' }, 'Total spent'), h('div', null, h('strong', { className: 'msa-text-brand' }, kr(c.total_spent)))),
-          h('div', null, h('span', { className: 'msa-fin-k' }, 'Profit generated'), h('div', null, h('strong', { className: 'msa-text-green' }, kr(profit)))),
+          isAdminRole() ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Total spent'), h('div', null, h('strong', { className: 'msa-text-brand' }, kr(c.total_spent)))) : null,
+          isAdminRole() ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Profit generated'), h('div', null, h('strong', { className: 'msa-text-green' }, kr(profit)))) : null,
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Trips'), h('div', null, trips + ' booking(s)'))),
         cb.length > 0 && h('div', { className: 'msa-cl-trips' }, cb.map(b => {
           const itin = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
@@ -556,7 +624,7 @@
               h('span', { className: 'msa-ref-chip' }, b.reference || '—'),
               h('span', { className: 'msa-cl-bk-route' }, (b.arrival_city || 'Marrakech') + ' → ' + (b.departure_city || 'Marrakech')),
               h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]),
-              h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(b.selling_price)),
+              isAdminRole() && h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(b.selling_price)),
               itin.length > 0 && h('span', { className: 'msa-cl-bk-chev' }, expanded['itin-' + b.id] ? '⌃' : '⌄')),
             h('div', { className: 'msa-cl-bk-sub' }, fmtDate(b.arrival_date) + ' → ' + fmtDate(b.departure_date) + ' · ' + (b.total_nights || 0) + 'N/' + (b.total_days || 0) + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax' + (itin.length ? '' : ' · no itinerary yet')),
             (itin.length > 0 && expanded['itin-' + b.id]) ? h('div', { className: 'msa-cl-itin' }, itin.map((d, i) => h('div', { key: i, className: 'msa-cl-itin-day' },
@@ -577,7 +645,7 @@
         h('button', { className: 'msa-btn msa-btn-primary', onClick: add }, 'Save Client')),
       h('div', { className: 'msa-searchbar' },
         h('div', { className: 'msa-searchbar-in' }, ICON.search(), h('input', { placeholder: 'Search clients…', value: q, onChange: (e) => setQ(e.target.value) })),
-        h('button', { className: 'msa-btn msa-btn-export', onClick: exportCSV }, ICON.pdf(), 'Export CSV')),
+        isAdminRole() && h('button', { className: 'msa-btn msa-btn-export', onClick: exportCSV }, ICON.pdf(), 'Export CSV')),
       h('div', { className: 'msa-table-card' }, list.length === 0 ? h('div', { className: 'msa-empty' }, 'No clients found.')
         : h('table', { className: 'msa-table msa-btable' }, h('thead', null, h('tr', null, h('th', { className: 'msa-bt-chev' }, ''), COLS.map(([k, l]) => headCell(k, l)), h('th', null, ''))), h('tbody', null, list.map(row)))));
   }
@@ -782,6 +850,40 @@
   function Requests({ leads, bookings, reload, settings }) {
     const [q, setQ] = useState(''); const [expanded, setExpanded] = useState({});
     const [doc, setDoc] = useState(null); const [editBk, setEditBk] = useState(null);
+    const [notes, setNotes] = useState({});    // id -> draft note
+    const [replies, setReplies] = useState({}); // id -> draft reply
+    const [flash, setFlash] = useState({});     // id -> confirmation text
+    const setNote = (id, v) => setNotes(s => ({ ...s, [id]: v }));
+    const setReply = (id, v) => setReplies(s => ({ ...s, [id]: v }));
+    const flashMsg = (id, m) => { setFlash(s => ({ ...s, [id]: m })); setTimeout(() => setFlash(s => ({ ...s, [id]: '' })), 4000); };
+    const saveNote = async (l) => {
+      const note = notes[l.id] != null ? notes[l.id] : (l.admin_note || '');
+      await dbUpdate('form_submissions', l.id, { admin_note: note });
+      logAudit('note', 'request', l.id, (l.name || l.email || '') + ': ' + note.slice(0, 80));
+      flashMsg(l.id, 'Note saved ✓'); reload();
+    };
+    // Relay a reply to the client: in-app profile message, email, or WhatsApp.
+    const replyProfile = async (l) => {
+      const body = (replies[l.id] || '').trim(); if (!body) return;
+      if (!l.email) { flashMsg(l.id, 'No client email — use WhatsApp instead'); return; }
+      const sb = getSB(); const b = bkFor(l);
+      const { error } = await sb.from('messages').insert({ client_email: l.email.toLowerCase(), booking_id: b ? b.id : null, sender: 'admin', body, read_by_admin: true, read_by_client: false });
+      if (error) { flashMsg(l.id, 'Failed: ' + error.message); return; }
+      logAudit('reply', 'request', l.id, 'to ' + l.email + ' (profile)');
+      if (!l.handled) await dbUpdate('form_submissions', l.id, { handled: true });
+      setReply(l.id, ''); flashMsg(l.id, 'Sent to client profile ✓'); reload();
+    };
+    const replyEmail = (l) => {
+      const body = (replies[l.id] || '').trim();
+      const subj = 'Re: your MarrakechStory request' + (reqTitle(l) ? ' — ' + reqTitle(l) : '');
+      window.open('mailto:' + encodeURIComponent(l.email || '') + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body), '_blank');
+      logAudit('reply', 'request', l.id, 'to ' + (l.email || '') + ' (email)');
+    };
+    const replyWhatsapp = (l) => {
+      const body = (replies[l.id] || '').trim();
+      if (l.phone) { window.open(waLink(l.phone) + (body ? '?text=' + encodeURIComponent(body) : ''), '_blank'); logAudit('reply', 'request', l.id, 'via WhatsApp'); }
+      else flashMsg(l.id, 'No phone number on this request');
+    };
     const bkFor = (l) => bookings.find(b => b.id === l.routed_booking_id) || (l.email && bookings.find(b => (b.email || '').toLowerCase() === l.email.toLowerCase())) || null;
     const docBooking = (l, b) => b || ({
       reference: 'REQ-' + String(l.id).replace(/-/g, '').slice(0, 6).toUpperCase(),
@@ -795,7 +897,7 @@
       selling_price: 0, deposit_amount: 0, balance: 0, status: 'new', included: [], excluded: [],
     });
     const del = async (l, e) => { e.stopPropagation(); if (confirm('Delete this request?')) { await dbDelete('form_submissions', l.id); reload(); } };
-    const markHandled = async (l, e) => { e && e.stopPropagation(); await dbUpdate('form_submissions', l.id, { handled: !l.handled }); reload(); };
+    const markHandled = async (l, e) => { e && e.stopPropagation(); await dbUpdate('form_submissions', l.id, { handled: !l.handled }); logAudit(l.handled ? 'reopened' : 'handled', 'request', l.id, l.name || l.email || ''); reload(); };
     const list = leads.filter(l => !q || [l.name, l.email, l.phone, l.kind, l.trip_type, l.country, (l.payload && l.payload.bookingCtx && l.payload.bookingCtx.title)].join(' ').toLowerCase().includes(q.toLowerCase()))
       .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
@@ -819,7 +921,7 @@
         h('td', { 'data-label': '', className: 'msa-right msa-actions' },
           b && h('button', { className: 'msa-icon-btn', title: 'Edit booking', onClick: (e) => { e.stopPropagation(); setEditBk(b); } }, ICON.edit()),
           (b || itin.length) && h('button', { className: 'msa-icon-btn', title: 'Itinerary PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: docBooking(l, b), type: 'itinerary' }); } }, ICON.doc()),
-          b && h('button', { className: 'msa-icon-btn msa-ic-green', title: 'Invoice PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'invoice' }); } }, ICON.invoice()),
+          b && isAdminRole() && h('button', { className: 'msa-icon-btn msa-ic-green', title: 'Invoice PDF', onClick: (e) => { e.stopPropagation(); setDoc({ booking: b, type: 'invoice' }); } }, ICON.invoice()),
           l.phone && h('a', { className: 'msa-icon-btn', title: 'WhatsApp', href: waLink(l.phone), target: '_blank', onClick: (e) => e.stopPropagation() }, ICON.whatsapp())));
       if (!ex) return main;
       const trav = p.travellers || {}; const pax = (+trav.adults || 0) + (+trav.children || 0) + (+trav.infants || 0);
@@ -851,11 +953,26 @@
           h('div', { className: 'msa-rq-day-n' }, d.day || i + 1),
           h('div', null, h('strong', null, (d.city || ('Day ' + (d.day || i + 1))) + (d.date ? ' · ' + fmtDate(d.date) : '')),
             (d.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-dim' }, (a.time ? a.time + ' · ' : '') + (a.type || '') + (a.details ? ' — ' + a.details : ''))))))) : null,
-        b ? h('div', { className: 'msa-rq-booking', style: { marginTop: 12 } }, h('span', { className: 'msa-ref-chip' }, b.reference || '—'), h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(b.selling_price)), (+b.balance > 0) && h('span', { className: 'msa-dim' }, 'Balance ' + kr(b.balance))) : null,
+        b ? h('div', { className: 'msa-rq-booking', style: { marginTop: 12 } }, h('span', { className: 'msa-ref-chip' }, b.reference || '—'), h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), isAdminRole() && h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(b.selling_price)), (isAdminRole() && +b.balance > 0) && h('span', { className: 'msa-dim' }, 'Balance ' + kr(b.balance))) : null,
+        // Answer the client + internal note (relay to profile / email / WhatsApp)
+        h('div', { className: 'msa-rq-reply' },
+          h('div', { className: 'msa-rq-reply-grid' },
+            h('div', null,
+              h('span', { className: 'msa-fin-k' }, 'Internal note (staff only)'),
+              h('textarea', { className: 'msa-rq-ta', rows: 2, placeholder: 'Private note…', value: notes[l.id] != null ? notes[l.id] : (l.admin_note || ''), onChange: (e) => setNote(l.id, e.target.value) }),
+              h('button', { className: 'msa-btn msa-btn-sm', onClick: () => saveNote(l) }, 'Save note')),
+            h('div', null,
+              h('span', { className: 'msa-fin-k' }, 'Answer the client'),
+              h('textarea', { className: 'msa-rq-ta', rows: 2, placeholder: 'Write your reply…', value: replies[l.id] || '', onChange: (e) => setReply(l.id, e.target.value) }),
+              h('div', { className: 'msa-rq-reply-btns' },
+                h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => replyProfile(l), title: 'Save to the client’s logged-in profile' }, 'Send to profile'),
+                h('button', { className: 'msa-btn msa-btn-sm', onClick: () => replyEmail(l), disabled: !l.email }, 'Email'),
+                h('button', { className: 'msa-btn msa-btn-sm', onClick: () => replyWhatsapp(l), disabled: !l.phone }, ICON.whatsapp(), 'WhatsApp')))),
+          flash[l.id] ? h('div', { className: 'msa-savemsg', style: { marginTop: 8 } }, flash[l.id]) : null),
         h('div', { className: 'msa-bt-detail-actions' },
           b && h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => setEditBk(b) }, ICON.edit(), 'Open booking editor'),
           (b || itin.length) && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: docBooking(l, b), type: 'itinerary' }) }, ICON.doc(), 'Itinerary PDF'),
-          b && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'invoice' }) }, ICON.invoice(), 'Invoice PDF'),
+          b && isAdminRole() && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'invoice' }) }, ICON.invoice(), 'Invoice PDF'),
           l.phone && h('a', { className: 'msa-btn msa-btn-sm', href: waLink(l.phone), target: '_blank' }, ICON.whatsapp(), 'WhatsApp'),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => markHandled(l, e) }, l.handled ? 'Mark unread' : 'Mark handled'),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => del(l, e) }, ICON.trash(), 'Delete'))));
@@ -886,7 +1003,7 @@
     return h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Search'), h('p', null, 'Results for “' + q + '”')), h('button', { className: 'msa-btn', onClick: clear }, 'Clear')),
       (bk.length + cl.length + su.length + tk.length + rq.length === 0) && h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'No matches.')),
-      sec('Bookings', bk.map(b => h('button', { key: b.id, className: 'msa-line-item', onClick: () => openBooking(b) }, h('div', null, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, ' · ' + (b.reference || '') + ' · ' + kr(b.selling_price))), h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status])))),
+      sec('Bookings', bk.map(b => h('button', { key: b.id, className: 'msa-line-item', onClick: () => openBooking(b) }, h('div', null, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, ' · ' + (b.reference || '') + (isAdminRole() ? ' · ' + kr(b.selling_price) : ''))), h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status])))),
       sec('Clients', cl.map(c => h('button', { key: c.id, className: 'msa-line-item', onClick: () => route('clients', c.name) }, h('div', null, h('strong', null, c.name), h('span', { className: 'msa-dim' }, ' · ' + (c.phone || '') + ' · ' + kr(c.total_spent))), c.phone && h('span', { className: 'msa-wa-btn' }, ICON.whatsapp())))),
       sec('Collaborators', su.map(s => h('button', { key: s.id, className: 'msa-line-item', onClick: () => route('suppliers') }, h('strong', null, s.name), h('span', { className: 'msa-dim' }, ' · ' + (s.city || ''))))),
       sec('Tasks', tk.map(x => h('button', { key: x.id, className: 'msa-line-item', onClick: () => route('tasks') }, h('strong', null, x.title), h('span', { className: 'msa-dim' }, ' · ' + (x.due || ''))))),
@@ -1141,7 +1258,23 @@
     const [s, setS] = useState(settings || {});
     const [busy, setBusy] = useState(false); const [msg, setMsg] = useState('');
     const [pw, setPw] = useState(''); const [pw2, setPw2] = useState(''); const [pwMsg, setPwMsg] = useState('');
-    useEffect(() => { setS(settings || {}); }, [settings]);
+    const admin = isAdminRole();
+    const [pEmail, setPEmail] = useState(''); const [pName, setPName] = useState(''); const [pPass, setPPass] = useState('');
+    const [pBusy, setPBusy] = useState(false); const [pMsg, setPMsg] = useState('');
+    useEffect(() => { setS(settings || {}); setPEmail((settings && settings.partner_email) || ''); setPName((settings && settings.partner_name) || ''); }, [settings]);
+    const savePartner = async () => {
+      setPMsg(''); if (!pEmail.trim() || pPass.length < 8) { setPMsg('Enter the partner email and a password (min 8 chars).'); return; }
+      setPBusy(true);
+      const r = await callFn('manage-partner', { action: 'set', email: pEmail.trim(), name: pName.trim(), password: pPass });
+      setPBusy(false);
+      setPMsg(r && r.ok ? 'Partner account ready ✓ — they can now sign in with this email & password.' : 'Failed: ' + ((r && r.error) || 'unknown'));
+      if (r && r.ok) { setPPass(''); onSaved && onSaved(); }
+    };
+    const revokePartner = async () => {
+      if (!confirm('Revoke partner access? They will no longer be able to sign in.')) return;
+      setPBusy(true); const r = await callFn('manage-partner', { action: 'revoke' }); setPBusy(false);
+      setPMsg(r && r.ok ? 'Partner access revoked.' : 'Failed.'); if (r && r.ok) { setPEmail(''); setPName(''); onSaved && onSaved(); }
+    };
     const set = (k, v) => setS(p => ({ ...p, [k]: v }));
     const save = async () => { setBusy(true); setMsg('');
       const row = { id: 1, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', terms_conditions: s.terms_conditions, payment_info: s.payment_info, updated_at: new Date().toISOString() };
@@ -1151,18 +1284,28 @@
       const sb = getSB(); const { error } = await sb.auth.updateUser({ password: pw }); setPwMsg(error ? error.message : 'Password updated ✓'); if (!error) { setPw(''); setPw2(''); } };
     const fld = (label, k, ph) => h('div', { className: 'msa-field' }, h('label', null, label), h('input', { value: s[k] == null ? '' : s[k], placeholder: ph || '', onChange: (e) => set(k, e.target.value) }));
     return h('div', { className: 'msa-page msa-narrow' },
-      h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Settings'), h('p', { className: 'msa-subtitle' }, 'Company info, invoices & admin controls')),
-        h('button', { className: 'msa-btn msa-btn-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save changes')),
+      h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Settings'), h('p', { className: 'msa-subtitle' }, admin ? 'Company info, invoices & admin controls' : 'Your account')),
+        admin ? h('button', { className: 'msa-btn msa-btn-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save changes') : null),
       msg && h('div', { className: 'msa-savemsg' }, msg),
-      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Company')),
-        h('div', { className: 'msa-grid-2' }, fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))),
-      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Invoice')),
+      admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Company')),
+        h('div', { className: 'msa-grid-2' }, fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))) : null,
+      admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Invoice & bank (admin only)')),
         h('div', { className: 'msa-grid-2' }, fld('Invoice prefix', 'invoice_prefix', 'INV'), fld('Default deposit %', 'deposit_pct'), fld('Bank name', 'bank_name'), fld('Account name', 'account_name'), fld('RIB', 'rib'), fld('SWIFT', 'swift')),
-        h('div', { className: 'msa-field', style: { marginTop: 12 } }, h('label', null, 'Invoice footer note'), h('textarea', { rows: 2, value: s.invoice_footer || '', onChange: (e) => set('invoice_footer', e.target.value) }))),
-      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Payment Information & Terms')),
+        h('div', { className: 'msa-field', style: { marginTop: 12 } }, h('label', null, 'Invoice footer note'), h('textarea', { rows: 2, value: s.invoice_footer || '', onChange: (e) => set('invoice_footer', e.target.value) }))) : null,
+      admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Payment Information & Terms')),
         h('div', { className: 'msa-field' }, h('label', null, 'Payment information (shown on itinerary & invoice)'), h('textarea', { rows: 3, value: s.payment_info || '', onChange: (e) => set('payment_info', e.target.value) })),
-        h('div', { className: 'msa-field', style: { marginTop: 12 } }, h('label', null, 'Terms & conditions (shown on itinerary & invoice)'), h('textarea', { rows: 7, value: s.terms_conditions || '', onChange: (e) => set('terms_conditions', e.target.value) }))),
-      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Admin password')),
+        h('div', { className: 'msa-field', style: { marginTop: 12 } }, h('label', null, 'Terms & conditions (shown on itinerary & invoice)'), h('textarea', { rows: 7, value: s.terms_conditions || '', onChange: (e) => set('terms_conditions', e.target.value) }))) : null,
+      admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Partner access (assistant account)')),
+        h('p', { className: 'msa-dim', style: { margin: '0 0 12px' } }, 'Create a login for your assistant. They get the full console — bookings, requests, clients, calendar, tasks, insights — but never see Finance, prices, costs or invoices. You can see when they are connected and what they change on the Dashboard.'),
+        h('div', { className: 'msa-grid-2' },
+          h('div', { className: 'msa-field' }, h('label', null, 'Partner name'), h('input', { value: pName, placeholder: 'e.g. Sara', onChange: (e) => setPName(e.target.value) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Partner email'), h('input', { type: 'email', value: pEmail, autoComplete: 'off', placeholder: 'assistant@example.com', onChange: (e) => setPEmail(e.target.value) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Set / reset password'), h('input', { type: 'password', value: pPass, autoComplete: 'new-password', placeholder: 'min 8 characters', onChange: (e) => setPPass(e.target.value) }))),
+        pMsg && h('div', { className: 'msa-savemsg' }, pMsg),
+        h('div', { style: { display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' } },
+          h('button', { className: 'msa-btn msa-btn-primary', disabled: pBusy, onClick: savePartner }, pBusy ? 'Saving…' : (settings && settings.partner_email ? 'Update partner login' : 'Create partner login')),
+          (settings && settings.partner_email) && h('button', { className: 'msa-btn', disabled: pBusy, onClick: revokePartner }, 'Revoke access'))) : null,
+      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Your password')),
         h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'New password'), h('input', { type: 'password', value: pw, autoComplete: 'new-password', onChange: (e) => setPw(e.target.value) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Confirm password'), h('input', { type: 'password', value: pw2, autoComplete: 'new-password', onChange: (e) => setPw2(e.target.value) }))),
@@ -1172,7 +1315,8 @@
 
   const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Tasks', 'tasks'], ['requests', 'Requests', 'requests'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
 
-  function Shell({ user, onLogout }) {
+  function Shell({ user, role, onLogout }) {
+    const isAdmin = role === 'admin';
     const [tab, setTab] = useState('dashboard'); const [navOpen, setNavOpen] = useState(false);
     const [bookings, setBookings] = useState([]); const [clients, setClients] = useState([]); const [suppliers, setSuppliers] = useState([]);
     const [tasks, setTasks] = useState([]); const [leads, setLeads] = useState([]); const [loading, setLoading] = useState(true);
@@ -1187,6 +1331,12 @@
       if (b) return !['fully_paid', 'completed', 'cancelled'].includes(b.status);
       return true; // request with no booking yet — still needs handling
     }).length;
+    // Partners never see the Finance tab (money is admin-only).
+    const visibleTabs = TABS.filter(t => isAdmin || t[0] !== 'finance');
+    // Presence heartbeat so the admin can see when the partner is connected.
+    useEffect(() => { touchPresence(tab); const t = setInterval(() => touchPresence(tab), 30000);
+      const onHide = () => touchPresence(tab); document.addEventListener('visibilitychange', onHide);
+      return () => { clearInterval(t); document.removeEventListener('visibilitychange', onHide); }; }, [tab]);
     const goTab = (id) => { setTab(id); setNavOpen(false); setSearch(''); };
     const NAV_BADGE = { requests: openRequests };
     const currentLabel = (TABS.find(t => t[0] === tab) || [, 'Admin'])[1];
@@ -1210,12 +1360,12 @@
         case 'calendar': return h(CalendarTab, { bookings, openBooking });
         case 'clients': return h(Clients, { clients, bookings, reload: reloadAll, initialQuery: clientQuery });
         case 'suppliers': return h(Suppliers, { suppliers, leads, reload: reloadAll, seed: supSeed, clearSeed: () => setSupSeed(null) });
-        case 'finance': return h(Finance, { bookings });
+        case 'finance': return isAdmin ? h(Finance, { bookings }) : h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
         case 'tasks': return h(Tasks, { tasks, reload: reloadAll });
         case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings });
         case 'insights': return h(Insights, {});
         case 'settings': return h(Settings, { settings, onSaved: reloadAll });
-        default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll });
+        default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
       }
     };
 
@@ -1228,24 +1378,35 @@
       h('div', { className: 'msa-nav-overlay', onClick: () => setNavOpen(false) }),
       h('aside', { className: 'msa-sidebar' },
         h('div', { className: 'msa-brand' }, h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }), h('span', null, 'MarrakechStory'), h('button', { className: 'msa-drawer-close', onClick: () => setNavOpen(false) }, ICON.x())),
-        h('nav', { className: 'msa-nav' }, TABS.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label), (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))),
+        h('nav', { className: 'msa-nav' }, visibleTabs.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label), (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))),
         h('div', { className: 'msa-user' },
           h('a', { className: 'msa-btn msa-btn-block msa-btn-site', href: '#', onClick: () => setNavOpen(false) }, ICON.globe(), 'Back to website'),
-          h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || 'Aladdin faiz'), h('span', { className: 'msa-dim' }, 'Administrator')),
+          h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || (isAdmin ? 'Aladdin faiz' : 'Partner')), h('span', { className: 'msa-dim' }, isAdmin ? 'Administrator' : 'Partner · assistant')),
           h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout }, ICON.logout(), 'Log out'))),
       h('main', { className: 'msa-main' }, body()));
   }
 
   function AdminRoot() {
     const [user, setUser] = useState(undefined);
+    const [role, setRole] = useState(null);
+    const applyUser = useCallback(async (u) => {
+      const sb = getSB();
+      if (!u || !sb) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
+      const { data: r } = await sb.rpc('ms_my_role');
+      if (!r) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
+      CURRENT_ROLE = r; CURRENT_EMAIL = (u.email || '').toLowerCase();
+      CURRENT_NAME = (u.user_metadata && u.user_metadata.name) || (r === 'admin' ? 'Aladdin' : 'Partner');
+      touchPresence('login');
+      setRole(r); setUser(u);
+    }, []);
     useEffect(() => { const sb = getSB(); if (!sb) { setUser(null); return; }
-      sb.auth.getSession().then(({ data }) => { const u = data.session && data.session.user; setUser(u && u.email === ADMIN_EMAIL ? u : null); });
-      const { data: sub } = sb.auth.onAuthStateChange((_e, s) => { const u = s && s.user; setUser(u && u.email === ADMIN_EMAIL ? u : null); });
-      return () => sub && sub.subscription && sub.subscription.unsubscribe && sub.subscription.unsubscribe(); }, []);
-    const logout = async () => { const sb = getSB(); if (sb) await sb.auth.signOut(); setUser(null); location.hash = ''; };
+      sb.auth.getSession().then(({ data }) => { applyUser(data.session && data.session.user); });
+      const { data: sub } = sb.auth.onAuthStateChange((_e, s) => { applyUser(s && s.user); });
+      return () => sub && sub.subscription && sub.subscription.unsubscribe && sub.subscription.unsubscribe(); }, [applyUser]);
+    const logout = async () => { const sb = getSB(); if (sb) await sb.auth.signOut(); CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); location.hash = ''; };
     if (user === undefined) return h('div', { className: 'msa-login' }, h('div', { className: 'msa-empty' }, 'Loading…'));
-    if (!user) return h(Login, { onAuthed: setUser });
-    return h(Shell, { user, onLogout: logout });
+    if (!user) return h(Login, { onAuthed: applyUser });
+    return h(Shell, { user, role, onLogout: logout });
   }
 
   let root = null;
