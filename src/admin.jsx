@@ -9,6 +9,7 @@
   const h = R.createElement;
 
   const ADMIN_EMAIL = 'f.alaa9@gmail.com';
+  const PARTNER_HINT_EMAIL = 'faizsofia20@gmail.com';   // login prefill only — real access is RLS/role-gated
   const COMPANY = (window.MS_CTX && window.MS_CTX.COMPANY) || { phone: '+47 457 74 743', whatsapp: '4745774743' };
 
   // ---- role (admin vs partner/assistant) ----
@@ -134,8 +135,10 @@
   // LOGIN
   // =====================================================================
   function Login({ onAuthed }) {
+    const [mode, setMode] = useState('admin');   // 'admin' | 'partner'
     const [email, setEmail] = useState(ADMIN_EMAIL); const [pass, setPass] = useState('');
     const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
+    const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setEmail(m === 'admin' ? ADMIN_EMAIL : PARTNER_HINT_EMAIL); };
     const submit = async (e) => {
       e.preventDefault(); setErr(''); setBusy(true);
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
@@ -149,6 +152,9 @@
     return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submit },
       h('img', { src: 'assets/logo.png', alt: '', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } }),
       h('h1', null, 'MarrakechStory'), h('p', { className: 'msa-login-sub' }, 'Operations Console'),
+      h('div', { className: 'msa-login-modes' },
+        h('button', { type: 'button', className: 'msa-login-mode' + (mode === 'admin' ? ' active' : ''), onClick: () => pickMode('admin') }, '🛡️ Admin'),
+        h('button', { type: 'button', className: 'msa-login-mode' + (mode === 'partner' ? ' active' : ''), onClick: () => pickMode('partner') }, '👤 Partner')),
       err && h('div', { className: 'msa-login-err' }, err),
       h('label', null, 'Email'), h('input', { type: 'email', autoComplete: 'email', value: email, onChange: (e) => setEmail(e.target.value) }),
       h('label', null, 'Password'), h('input', { type: 'password', autoComplete: 'current-password', value: pass, onChange: (e) => setPass(e.target.value), placeholder: '••••••••' }),
@@ -1271,9 +1277,15 @@
       if (r && r.ok) { setPPass(''); onSaved && onSaved(); }
     };
     const revokePartner = async () => {
-      if (!confirm('Revoke partner access? They will no longer be able to sign in.')) return;
+      if (!confirm('Remove the partner account entirely? They will no longer be able to sign in and you will need to re-create it.')) return;
       setPBusy(true); const r = await callFn('manage-partner', { action: 'revoke' }); setPBusy(false);
-      setPMsg(r && r.ok ? 'Partner access revoked.' : 'Failed.'); if (r && r.ok) { setPEmail(''); setPName(''); onSaved && onSaved(); }
+      setPMsg(r && r.ok ? 'Partner account removed.' : 'Failed.'); if (r && r.ok) { setPEmail(''); setPName(''); onSaved && onSaved(); }
+    };
+    const toggleBlock = async () => {
+      const block = !(settings && settings.partner_blocked);
+      if (block && !confirm('Block this partner? They stay set up but cannot sign in or see anything until you unblock.')) return;
+      setPBusy(true); const r = await callFn('manage-partner', { action: block ? 'block' : 'unblock' }); setPBusy(false);
+      setPMsg(r && r.ok ? (block ? 'Partner blocked — access suspended.' : 'Partner unblocked — access restored.') : 'Failed.'); if (r && r.ok) onSaved && onSaved();
     };
     const set = (k, v) => setS(p => ({ ...p, [k]: v }));
     const save = async () => { setBusy(true); setMsg('');
@@ -1295,16 +1307,18 @@
       admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Payment Information & Terms')),
         h('div', { className: 'msa-field' }, h('label', null, 'Payment information (shown on itinerary & invoice)'), h('textarea', { rows: 3, value: s.payment_info || '', onChange: (e) => set('payment_info', e.target.value) })),
         h('div', { className: 'msa-field', style: { marginTop: 12 } }, h('label', null, 'Terms & conditions (shown on itinerary & invoice)'), h('textarea', { rows: 7, value: s.terms_conditions || '', onChange: (e) => set('terms_conditions', e.target.value) }))) : null,
-      admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Partner access (assistant account)')),
-        h('p', { className: 'msa-dim', style: { margin: '0 0 12px' } }, 'Create a login for your assistant. They get the full console — bookings, requests, clients, calendar, tasks, insights — but never see Finance, prices, costs or invoices. You can see when they are connected and what they change on the Dashboard.'),
+      admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Partner access (assistant account)'),
+          (settings && settings.partner_email) ? h('span', { className: 'msa-team-status ' + (settings.partner_blocked ? 'off' : 'on') }, h('span', { className: 'msa-team-dot' }), settings.partner_blocked ? 'Blocked' : 'Active') : null),
+        h('p', { className: 'msa-dim', style: { margin: '0 0 12px' } }, 'A login for your assistant. They get the full console — bookings, requests, clients, calendar, tasks, insights — but never see Finance, prices, costs or invoices. The Dashboard shows when they are connected and everything they change.'),
         h('div', { className: 'msa-grid-2' },
-          h('div', { className: 'msa-field' }, h('label', null, 'Partner name'), h('input', { value: pName, placeholder: 'e.g. Sara', onChange: (e) => setPName(e.target.value) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Partner name'), h('input', { value: pName, placeholder: 'e.g. Sofia', onChange: (e) => setPName(e.target.value) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Partner email'), h('input', { type: 'email', value: pEmail, autoComplete: 'off', placeholder: 'assistant@example.com', onChange: (e) => setPEmail(e.target.value) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Set / reset password'), h('input', { type: 'password', value: pPass, autoComplete: 'new-password', placeholder: 'min 8 characters', onChange: (e) => setPPass(e.target.value) }))),
+          h('div', { className: 'msa-field' }, h('label', null, 'Set / change password'), h('input', { type: 'password', value: pPass, autoComplete: 'new-password', placeholder: 'min 8 characters', onChange: (e) => setPPass(e.target.value) }))),
         pMsg && h('div', { className: 'msa-savemsg' }, pMsg),
         h('div', { style: { display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' } },
-          h('button', { className: 'msa-btn msa-btn-primary', disabled: pBusy, onClick: savePartner }, pBusy ? 'Saving…' : (settings && settings.partner_email ? 'Update partner login' : 'Create partner login')),
-          (settings && settings.partner_email) && h('button', { className: 'msa-btn', disabled: pBusy, onClick: revokePartner }, 'Revoke access'))) : null,
+          h('button', { className: 'msa-btn msa-btn-primary', disabled: pBusy, onClick: savePartner }, pBusy ? 'Saving…' : (settings && settings.partner_email ? 'Save / change password' : 'Create partner login')),
+          (settings && settings.partner_email) && h('button', { className: 'msa-btn', disabled: pBusy, onClick: toggleBlock }, settings.partner_blocked ? 'Unblock' : 'Block account'),
+          (settings && settings.partner_email) && h('button', { className: 'msa-btn', disabled: pBusy, onClick: revokePartner }, ICON.trash(), 'Remove'))) : null,
       h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Your password')),
         h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'New password'), h('input', { type: 'password', value: pw, autoComplete: 'new-password', onChange: (e) => setPw(e.target.value) })),
