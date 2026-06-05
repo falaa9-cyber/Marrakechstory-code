@@ -74,7 +74,7 @@ const PACKAGES = [
   {
     id: "4d3n", days: 4, nights: 3,
     title: "Marrakech & Agafay Luxury Escape", label: "Lang helg",
-    img: "assets/photos/agafay-pool-08.jpg",
+    img: "assets/photos/agafay-night-dinner-04.jpg",
     tags: ["Riad", "Hammam", "Agafay", "Balloon"],
     description: "Perfectly balanced between cultural immersion and desert wonder. Two nights in a luxury riad in the ancient Medina, one extraordinary night in a tented camp in the Agafay stone desert — with a hot air balloon sunrise above the Atlas in between.",
     included: [
@@ -128,7 +128,7 @@ const PACKAGES = [
   {
     id: "5d4n", days: 5, nights: 4,
     title: "Best of Marrakech", label: "Mest bestilt",
-    img: "assets/photos/marrakech-jardin-majorelle-01.jpg",
+    img: "assets/photos/medina-carpets-39.jpg",
     tags: ["Medina", "Atlas", "Agafay", "Cooking"],
     description: "Five days covering everything Marrakech does best. Guided medina, Moroccan cooking class, a full day into nature (Atlas Mountains, Ourika Valley, or Essaouira Atlantic coast), and one night in the Agafay stone desert under the stars. Our most popular itinerary — perfectly paced for first-timers and returners.",
     included: [
@@ -186,7 +186,7 @@ const PACKAGES = [
   {
     id: "7d6n", days: 7, nights: 6,
     title: "Morocco Highlights", label: "Signaturreise",
-    img: "assets/photos/sahara-dunes-10.jpg",
+    img: "assets/photos/sahara-camel-sunrise-15.jpg",
     tags: ["Sahara", "Atlas", "Kasbah", "Merzouga"],
     description: "Seven days tracing the full arc of southern Morocco. Ancient Marrakech, over the highest mountain pass in Morocco, through a UNESCO kasbah used as a Hollywood film set, into the Sahara for a night under uninterrupted stars, and back over the Atlas. One of the great overland journeys in the world, perfectly paced.",
     included: [
