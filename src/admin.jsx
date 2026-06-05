@@ -255,7 +255,7 @@
     const active = bookings.filter(b => !b.archived && b.arrival_date && b.departure_date && new Date(b.arrival_date) <= startOfToday() && startOfToday() <= new Date(b.departure_date)).length;
     const future = bookings.filter(b => !b.archived && b.arrival_date && new Date(b.arrival_date) > startOfToday() && !['cancelled','completed'].includes(b.status)).sort((a, b) => new Date(a.arrival_date) - new Date(b.arrival_date));
     const past = bookings.filter(b => b.archived || ['completed','cancelled'].includes(b.status) || (b.departure_date && new Date(b.departure_date) < startOfToday())).length;
-    const toggleTask = async (t, e) => { if (e) e.stopPropagation(); await dbUpdate('tasks', t.id, { status: t.status === 'completed' ? 'pending' : 'completed' }); reload && reload(); };
+    const toggleTask = async (t, e) => { if (e) e.stopPropagation(); const done = t.status === 'completed'; await dbUpdate('tasks', t.id, done ? { status: 'pending', done_by: null, done_at: null } : { status: 'completed', done_by: CURRENT_EMAIL, done_at: new Date().toISOString() }); logAudit(done ? 'reopened task' : 'completed task', 'workspace', t.id, t.title); reload && reload(); };
     const revenue = bookings.reduce((s, b) => s + (+b.selling_price || 0), 0);
     const cost = bookings.reduce((s, b) => s + (+b.total_cost || 0), 0);
     const benefit = revenue - cost;
@@ -322,13 +322,13 @@
                   h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-dim' }, 'Bal ' + kr(b.balance)))); })))),
 
         h('div', { className: 'msa-card msa-dash-box' },
-          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Task reminders'), h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Manage →')),
-          h('div', { className: 'msa-dash-scroll' }, openTasks.length === 0 ? h('div', { className: 'msa-empty' }, 'No open tasks.')
+          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Workspace'), h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Open →')),
+          h('div', { className: 'msa-dash-scroll' }, openTasks.length === 0 ? h('div', { className: 'msa-empty' }, 'No shared tasks. Add one in the Workspace.')
             : openTasks.slice(0, 6).map(t => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = n != null && n < 0; const soon = n != null && n >= 0 && n <= 2;
                 return h('div', { key: t.id, className: 'msa-task-mini' },
                   h('button', { className: 'msa-check msa-check-sm', title: 'Mark done', onClick: (e) => toggleTask(t, e) }, ''),
-                  h('div', { className: 'msa-task-mini-body', onClick: () => go('tasks'), style: { cursor: 'pointer' } }, h('span', null, t.title), h('span', { className: 'msa-dim ' + (overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : '') }, (t.due || '') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : ''))),
-                  h('span', { className: 'msa-badge msa-pri-' + t.priority }, t.priority)); }))),
+                  h('div', { className: 'msa-task-mini-body', onClick: () => go('tasks'), style: { cursor: 'pointer' } }, h('span', null, t.title), h('span', { className: 'msa-dim ' + (overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : '') }, (t.due ? fmtDate(t.due) : 'No due') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : ''))),
+                  h('span', { className: 'msa-ws-assignee msa-ws-' + (t.assigned_to || 'team') }, assignLabel(t.assigned_to))); }))),
 
         h('div', { className: 'msa-card msa-dash-box' },
           h('div', { className: 'msa-card-head' }, h('h3', null, ICON.requests(), ' Latest requests'), h('button', { className: 'msa-link', onClick: () => go('requests') }, 'All →')),
@@ -734,38 +734,91 @@
   // =====================================================================
   // TASKS (add/edit/delete + colors)
   // =====================================================================
+  // Who a workspace task is for. 'team' = both; otherwise a specific role.
+  const ASSIGN_OPTS = [['team', 'Both (shared)'], ['admin', 'Admin'], ['partner', 'Partner']];
+  const assignLabel = (a) => ({ team: 'Shared', admin: 'Admin', partner: 'Partner' }[a] || 'Shared');
   function TaskModal({ initial, onClose, onSaved }) {
-    const [t, setT] = useState(() => ({ title: '', due_date: (initial && (initial.due || '').slice(0, 10)) || todayISO(), due_time: (initial && (initial.due || '').slice(11, 16)) || '09:00', priority: 'medium', status: 'pending', ...initial }));
+    const [t, setT] = useState(() => ({ title: '', body: '', assigned_to: 'team', due_date: (initial && (initial.due || '').slice(0, 10)) || todayISO(), due_time: (initial && (initial.due || '').slice(11, 16)) || '09:00', priority: 'medium', status: 'pending', ...initial }));
     const set = (k, v) => setT(p => ({ ...p, [k]: v }));
-    const save = async () => { if (!t.title.trim()) return; const due = (t.due_date || todayISO()) + ' ' + (t.due_time || '09:00'); const row = { title: t.title.trim(), due, priority: t.priority, status: t.status }; if (initial && initial.id) await dbUpdate('tasks', initial.id, row); else await dbInsert('tasks', row); onSaved(); };
+    const save = async () => {
+      if (!t.title.trim()) return;
+      const due = (t.due_date || todayISO()) + ' ' + (t.due_time || '09:00');
+      const row = { title: t.title.trim(), body: (t.body || '').trim() || null, assigned_to: t.assigned_to || 'team', due, priority: t.priority, status: t.status };
+      if (t.status === 'completed' && (!initial || initial.status !== 'completed')) { row.done_by = CURRENT_EMAIL; row.done_at = new Date().toISOString(); }
+      if (initial && initial.id) { await dbUpdate('tasks', initial.id, row); logAudit('updated task', 'workspace', initial.id, row.title + ' → ' + assignLabel(row.assigned_to)); }
+      else { await dbInsert('tasks', { ...row, created_by: CURRENT_EMAIL }); logAudit('added task', 'workspace', null, row.title + ' → ' + assignLabel(row.assigned_to)); }
+      onSaved();
+    };
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head' }, h('h2', null, (initial && initial.id) ? 'Edit Task' : 'New Task'), h('div', null, h('button', { className: 'msa-btn', onClick: onClose }, 'Cancel'), h('button', { className: 'msa-btn msa-btn-primary', onClick: save }, 'Save'))),
       h('div', { className: 'msa-modal-body' },
         h('div', { className: 'msa-field' }, h('label', null, 'Task'), h('input', { value: t.title, onChange: (e) => set('title', e.target.value), placeholder: 'What needs to be done?', autoFocus: true })),
+        h('div', { className: 'msa-field' }, h('label', null, 'Details / note (optional)'), h('textarea', { rows: 2, value: t.body || '', onChange: (e) => set('body', e.target.value), placeholder: 'Anything the other person should know…' })),
         h('div', { className: 'msa-grid-2' },
+          h('div', { className: 'msa-field' }, h('label', null, 'Assign to'), h('select', { value: t.assigned_to || 'team', onChange: (e) => set('assigned_to', e.target.value) }, ASSIGN_OPTS.map(([v, l]) => h('option', { key: v, value: v }, l)))),
+          h('div', { className: 'msa-field' }, h('label', null, 'Priority'), h('select', { value: t.priority, onChange: (e) => set('priority', e.target.value) }, ['low','medium','high'].map(p => h('option', { key: p, value: p }, p)))),
           h('div', { className: 'msa-field' }, h('label', null, 'Due date'), h('input', { type: 'date', value: t.due_date, onChange: (e) => set('due_date', e.target.value) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Due time'), h('input', { type: 'time', value: t.due_time, onChange: (e) => set('due_time', e.target.value) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Priority'), h('select', { value: t.priority, onChange: (e) => set('priority', e.target.value) }, ['low','medium','high'].map(p => h('option', { key: p, value: p }, p)))),
           h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: t.status, onChange: (e) => set('status', e.target.value) }, ['pending','in_progress','completed'].map(s => h('option', { key: s, value: s }, s.replace('_', ' ')))))))));
   }
-  function Tasks({ tasks, reload }) {
+  // =====================================================================
+  // WORKSPACE — shared task board between admin & partner (assignments)
+  // =====================================================================
+  function Workspace({ tasks, reload }) {
+    const role = isAdminRole() ? 'admin' : 'partner';
+    const meName = CURRENT_NAME || (role === 'admin' ? 'Admin' : 'Partner');
     const [edit, setEdit] = useState(null); const [q, setQ] = useState('');
-    const toggle = async (t) => { await dbUpdate('tasks', t.id, { status: t.status === 'completed' ? 'pending' : 'completed' }); reload(); };
-    const del = async (t) => { if (confirm('Delete task?')) { await dbDelete('tasks', t.id); reload(); } };
-    const list = tasks.filter(t => !q || t.title.toLowerCase().includes(q.toLowerCase()));
-    const open = list.filter(t => t.status !== 'completed'); const done = list.filter(t => t.status === 'completed');
-    const row = (t) => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = t.status !== 'completed' && n != null && n < 0; const soon = t.status !== 'completed' && n != null && n >= 0 && n <= 2;
-      return h('div', { key: t.id, className: 'msa-task' + (t.status === 'completed' ? ' done' : '') + (overdue ? ' overdue' : soon ? ' soon' : '') },
+    const [seg, setSeg] = useState('mine');   // mine | all | done
+    const [quick, setQuick] = useState(''); const [quickTo, setQuickTo] = useState(role === 'admin' ? 'partner' : 'admin');
+    const mineFor = (t) => t.assigned_to === 'team' || t.assigned_to === role || !t.assigned_to;
+    const toggle = async (t) => {
+      const done = t.status === 'completed';
+      await dbUpdate('tasks', t.id, done ? { status: 'pending', done_by: null, done_at: null } : { status: 'completed', done_by: CURRENT_EMAIL, done_at: new Date().toISOString() });
+      logAudit(done ? 'reopened task' : 'completed task', 'workspace', t.id, t.title); reload();
+    };
+    const del = async (t) => { if (confirm('Delete this task?')) { await dbDelete('tasks', t.id); logAudit('deleted task', 'workspace', t.id, t.title); reload(); } };
+    const quickAdd = async () => {
+      if (!quick.trim()) return;
+      await dbInsert('tasks', { title: quick.trim(), assigned_to: quickTo, status: 'pending', priority: 'medium', due: todayISO() + ' 09:00', created_by: CURRENT_EMAIL });
+      logAudit('added task', 'workspace', null, quick.trim() + ' → ' + assignLabel(quickTo));
+      setQuick(''); reload();
+    };
+    const matchQ = (t) => !q || (t.title || '').toLowerCase().includes(q.toLowerCase()) || (t.body || '').toLowerCase().includes(q.toLowerCase());
+    const all = tasks.filter(matchQ);
+    const open = all.filter(t => t.status !== 'completed');
+    const visible = seg === 'done' ? all.filter(t => t.status === 'completed')
+      : seg === 'mine' ? open.filter(mineFor)
+      : open;
+    const whoName = (email) => email === CURRENT_EMAIL ? 'you' : (email === ADMIN_EMAIL ? 'Admin' : 'Partner');
+
+    const card = (t) => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = t.status !== 'completed' && n != null && n < 0; const soon = t.status !== 'completed' && n != null && n >= 0 && n <= 2;
+      return h('div', { key: t.id, className: 'msa-ws-task' + (t.status === 'completed' ? ' done' : '') + (overdue ? ' overdue' : soon ? ' soon' : '') },
         h('button', { className: 'msa-check', onClick: () => toggle(t) }, t.status === 'completed' ? '✓' : ''),
-        h('div', { className: 'msa-task-body', onClick: () => setEdit(t) }, h('span', { className: 'msa-task-title' }, t.title),
-          h('span', { className: 'msa-dim' }, (t.due || '—') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : '') + (t.status === 'in_progress' ? ' · In progress' : ''))),
-        h('span', { className: 'msa-badge msa-pri-' + t.priority }, t.priority),
-        h('button', { className: 'msa-icon-btn', onClick: () => setEdit(t) }, ICON.edit()), h('button', { className: 'msa-icon-btn', onClick: () => del(t) }, ICON.trash())); };
+        h('div', { className: 'msa-ws-body', onClick: () => setEdit(t) },
+          h('div', { className: 'msa-ws-line1' },
+            h('span', { className: 'msa-ws-title' }, t.title),
+            h('span', { className: 'msa-ws-assignee msa-ws-' + (t.assigned_to || 'team') }, assignLabel(t.assigned_to)),
+            h('span', { className: 'msa-badge msa-pri-' + t.priority }, t.priority)),
+          t.body ? h('div', { className: 'msa-ws-note' }, t.body) : null,
+          h('div', { className: 'msa-ws-meta' },
+            h('span', { className: overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : 'msa-dim' }, (t.due ? fmtDate(t.due) : 'No due date') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : '')),
+            t.created_by ? h('span', { className: 'msa-dim' }, ' · added by ' + whoName(t.created_by)) : null,
+            (t.status === 'completed' && t.done_by) ? h('span', { className: 'msa-dim' }, ' · done by ' + whoName(t.done_by)) : null)),
+        h('button', { className: 'msa-icon-btn', onClick: () => setEdit(t) }, ICON.edit()),
+        h('button', { className: 'msa-icon-btn', onClick: () => del(t) }, ICON.trash())); };
+
     return h('div', { className: 'msa-page msa-narrow' },
-      h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Tasks'), h('p', null, open.length + ' open · ' + done.length + ' done')), h('button', { className: 'msa-btn msa-btn-primary', onClick: () => setEdit({}) }, ICON.plus(), 'Add Task')),
-      h('div', { className: 'msa-toolbar' }, h('input', { className: 'msa-search', placeholder: 'Search tasks…', value: q, onChange: (e) => setQ(e.target.value) })),
-      h('div', { className: 'msa-card' }, open.length === 0 ? h('div', { className: 'msa-empty' }, 'All caught up!') : open.map(row)),
-      done.length > 0 && h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Completed')), done.map(row)),
+      h('header', { className: 'msa-page-head msa-row' }, h('div', null, h('h1', null, 'Workspace'), h('p', { className: 'msa-subtitle' }, 'Shared to-dos for the team · ' + open.length + ' open')),
+        h('button', { className: 'msa-btn msa-btn-primary', onClick: () => setEdit({ assigned_to: role === 'admin' ? 'partner' : 'admin' }) }, ICON.plus(), 'New task')),
+      h('div', { className: 'msa-ws-quick' },
+        h('input', { className: 'msa-ws-quick-in', value: quick, placeholder: 'Quick add a task…', onChange: (e) => setQuick(e.target.value), onKeyDown: (e) => { if (e.key === 'Enter') quickAdd(); } }),
+        h('span', { className: 'msa-dim', style: { fontSize: 12 } }, 'for'),
+        h('select', { className: 'msa-ws-quick-sel', value: quickTo, onChange: (e) => setQuickTo(e.target.value) }, ASSIGN_OPTS.map(([v, l]) => h('option', { key: v, value: v }, l))),
+        h('button', { className: 'msa-btn msa-btn-primary', onClick: quickAdd }, 'Add')),
+      h('div', { className: 'msa-toolbar', style: { gap: 10 } },
+        h('div', { className: 'msa-seg msa-seg-sm' }, [['mine', 'For me'], ['all', 'All open'], ['done', 'Done']].map(([k, l]) => h('button', { key: k, className: seg === k ? 'active' : '', onClick: () => setSeg(k) }, l))),
+        h('input', { className: 'msa-search', placeholder: 'Search…', value: q, onChange: (e) => setQ(e.target.value) })),
+      h('div', { className: 'msa-card' }, visible.length === 0 ? h('div', { className: 'msa-empty' }, seg === 'done' ? 'Nothing completed yet.' : 'All caught up! 🎉') : visible.map(card)),
       edit && h(TaskModal, { initial: edit, onClose: () => setEdit(null), onSaved: () => { setEdit(null); reload(); } }));
   }
 
@@ -1327,7 +1380,7 @@
         h('button', { className: 'msa-btn', style: { marginTop: 12 }, onClick: changePw }, 'Update password')));
   }
 
-  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Tasks', 'tasks'], ['requests', 'Requests', 'requests'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
+  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Workspace', 'tasks'], ['requests', 'Requests', 'requests'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
 
   function Shell({ user, role, onLogout }) {
     const isAdmin = role === 'admin';
@@ -1375,7 +1428,7 @@
         case 'clients': return h(Clients, { clients, bookings, reload: reloadAll, initialQuery: clientQuery });
         case 'suppliers': return h(Suppliers, { suppliers, leads, reload: reloadAll, seed: supSeed, clearSeed: () => setSupSeed(null) });
         case 'finance': return isAdmin ? h(Finance, { bookings }) : h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
-        case 'tasks': return h(Tasks, { tasks, reload: reloadAll });
+        case 'tasks': return h(Workspace, { tasks, reload: reloadAll });
         case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings });
         case 'insights': return h(Insights, {});
         case 'settings': return h(Settings, { settings, onSaved: reloadAll });

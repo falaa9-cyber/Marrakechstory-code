@@ -839,3 +839,26 @@
 .msa-login-mode { flex: 1; padding: 10px 12px; border: 1px solid var(--msa-line); background: #fff; border-radius: 11px; font-size: 13.5px; font-weight: 700; color: var(--msa-dim); cursor: pointer; transition: all .15s; }
 .msa-login-mode:hover { border-color: var(--msa-brand); color: var(--msa-ink); }
 .msa-login-mode.active { background: var(--msa-brand); border-color: var(--msa-brand); color: #fff; box-shadow: 0 6px 18px rgba(224,67,42,.28); }
+
+/* ════════════════════════════════════════════════════════════════
+   v215 — Workspace: shared task board (admin + partner)
+   ════════════════════════════════════════════════════════════════ */
+.msa-ws-quick { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.msa-ws-quick-in { flex: 1; min-width: 180px; padding: 11px 14px; border: 1px solid var(--msa-line); border-radius: 11px; font: inherit; font-size: 14px; background: #fff; }
+.msa-ws-quick-in:focus { outline: none; border-color: var(--msa-brand); }
+.msa-ws-quick-sel { padding: 10px 12px; border: 1px solid var(--msa-line); border-radius: 10px; font: inherit; font-size: 13px; background: #fff; }
+
+.msa-ws-task { display: flex; align-items: flex-start; gap: 12px; padding: 13px 4px; border-bottom: 1px solid var(--msa-line); }
+.msa-ws-task:last-child { border-bottom: none; }
+.msa-ws-task.done { opacity: .55; }
+.msa-ws-task.done .msa-ws-title { text-decoration: line-through; }
+.msa-ws-task.overdue { background: rgba(224,67,42,.035); }
+.msa-ws-body { flex: 1; min-width: 0; cursor: pointer; }
+.msa-ws-line1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.msa-ws-title { font-size: 14px; font-weight: 600; color: var(--msa-ink); }
+.msa-ws-note { font-size: 12.5px; color: var(--msa-ink2); margin-top: 3px; white-space: pre-wrap; }
+.msa-ws-meta { font-size: 11.5px; margin-top: 3px; }
+.msa-ws-assignee { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; padding: 2px 8px; border-radius: 999px; }
+.msa-ws-team { background: #eef0ff; color: #4a4ad6; }
+.msa-ws-admin { background: var(--msa-brand-soft); color: var(--msa-brand-deep, var(--msa-brand)); }
+.msa-ws-partner { background: var(--msa-green-soft); color: #1c7a3f; }
