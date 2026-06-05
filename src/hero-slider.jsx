@@ -250,12 +250,6 @@ function HeroSlider() {
       </div>
 
       <div className="ms-hero-content ms-hero-content-centered">
-        <span className="ms-hero-eyebrow">
-          {tx('Boutique travel · Marrakech, Morocco',
-              'Skreddersydde reiser · Marrakech, Marokko',
-              'Voyages sur mesure · Marrakech, Maroc',
-              'Skräddarsydda resor · Marrakech, Marocko')}
-        </span>
         <h1 className="ms-hero-h1 ms-hero-brand">
           <span className="ms-hero-h1-line">
             {tx('Hello &', 'Hei &', 'Bonjour &', 'Hej &')}
@@ -277,6 +271,13 @@ function HeroSlider() {
             {tx('Chat on WhatsApp', 'Chat på WhatsApp', 'WhatsApp', 'Chatta på WhatsApp')}
           </a>
         </div>
+
+        <span className="ms-hero-eyebrow ms-hero-eyebrow-below">
+          {tx('Boutique travel · Marrakech, Morocco',
+              'Skreddersydde reiser · Marrakech, Marokko',
+              'Voyages sur mesure · Marrakech, Maroc',
+              'Skräddarsydda resor · Marrakech, Marocko')}
+        </span>
       </div>
 
       <div className="ms-hero-credibility">

@@ -744,3 +744,54 @@
 /* v205 — dashboard task quick-check */
 .msa-check-sm { width: 22px; height: 22px; border-width: 2px; font-size: 13px; flex-shrink: 0; }
 .msa-check-sm:hover { border-color: var(--msa-green); background: var(--msa-green-soft); }
+
+/* ════════════════════════════════════════════════════════════════
+   v207 — Insights analytics console (period bar, KPI deltas,
+   funnel, busiest-times, live feed, smart insights)
+   ════════════════════════════════════════════════════════════════ */
+.msa-insights-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.msa-seg-sm button { padding: 5px 12px; font-size: 12px; }
+
+/* KPI delta + footer */
+.msa-kpi-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 16px; }
+.msa-kpi-delta { font-size: 11.5px; font-weight: 800; letter-spacing: .01em; }
+.msa-kpi-delta.up { color: #1c7a3f; }
+.msa-kpi-delta.down { color: #c0392b; }
+.msa-kpi-cost .msa-kpi-delta.up { color: #d6ffe6; }
+.msa-kpi-cost .msa-kpi-delta.down { color: #ffd7cf; }
+.msa-kpi-cost .msa-kpi-sub { color: rgba(255,255,255,.8); }
+.msa-kpi-income .msa-kpi-delta, .msa-kpi-benefit .msa-kpi-delta { opacity: .92; }
+
+/* 3-up column grid */
+.msa-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* Conversion funnel */
+.msa-funnel { display: flex; flex-direction: column; gap: 14px; padding: 4px 2px; }
+.msa-funnel-row { display: flex; flex-direction: column; gap: 6px; }
+.msa-funnel-top { display: flex; align-items: baseline; justify-content: space-between; font-size: 13px; color: var(--msa-ink2); }
+.msa-funnel-top strong { color: var(--msa-ink); font-size: 13px; }
+.msa-funnel-track { height: 16px; background: #f0f0f3; border-radius: 8px; overflow: hidden; }
+.msa-funnel-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--msa-brand), var(--msa-brand-deep, var(--msa-brand))); transition: width .5s ease; min-width: 2px; }
+
+/* Live visitor feed */
+.msa-feed { display: flex; flex-direction: column; }
+.msa-feed-row { display: flex; align-items: center; gap: 12px; padding: 9px 2px; border-bottom: 1px solid var(--msa-line); }
+.msa-feed-row:last-child { border-bottom: none; }
+.msa-feed-flag { font-size: 20px; line-height: 1; width: 24px; text-align: center; flex-shrink: 0; }
+.msa-feed-main { flex: 1; min-width: 0; }
+.msa-feed-l1 { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--msa-ink); }
+.msa-feed-l1 strong { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msa-feed-l2 { font-size: 11.5px; color: var(--msa-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: capitalize; }
+.msa-feed-live { font-size: 10px; font-weight: 800; color: #1c7a3f; text-transform: uppercase; letter-spacing: .03em; flex-shrink: 0; }
+.msa-feed-ago { font-size: 11.5px; font-weight: 700; color: var(--msa-dim); flex-shrink: 0; }
+.msa-feed-count { display: block; margin-top: 10px; text-align: right; }
+
+/* Smart insights bullets */
+.msa-smart { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.msa-smart li { position: relative; padding-left: 22px; font-size: 13px; line-height: 1.5; color: var(--msa-ink2); }
+.msa-smart li::before { content: '◆'; position: absolute; left: 0; top: 1px; color: var(--msa-brand); font-size: 11px; }
+
+@media (max-width: 780px) {
+  .msa-cols-3 { grid-template-columns: 1fr !important; }
+  .msa-insights-bar { gap: 8px; }
+}

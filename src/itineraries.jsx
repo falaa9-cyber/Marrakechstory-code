@@ -210,7 +210,7 @@ const ITINS = [
     duration: "5D4N", days: 5, nights: 4,
     route: "Marrakech → Nature Day → Agafay → Marrakech",
     priceFromEUR: 890,
-    img: "assets/photos/chefchaouen-blue-alley-01.jpg",
+    img: "assets/photos/marrakech-jardin-majorelle-01.jpg",
     badge: { en: "MOST POPULAR", no: "MEST POPULÆR", fr: "PLUS POPULAIRE" },
     themeTags: ["Medina", "Cooking Class", "Agafay", "Nature"],
     teaser: { en: "Five days covering everything Marrakech does best — medina, cooking class, your choice of nature day, and a night in the stone desert.", no: "Fem dager med alt Marrakech gjør best — medina, matkurs, din naturdag, og en natt i steinørkenen.", fr: "Cinq jours pour tout ce que Marrakech fait de mieux — médina, cours de cuisine, votre journée nature, et une nuit dans le désert de pierres." },

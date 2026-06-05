@@ -2318,6 +2318,12 @@ h2.itin-modal-title {
   margin-right: auto !important;
   justify-content: center;
 }
+/* v207 — tagline relocated to sit just under the "Plan my trip" CTA */
+.ms-hero-eyebrow-below {
+  display: inline-block !important;
+  margin-top: 22px !important;
+  margin-bottom: 0 !important;
+}
 
 /* Search bar — fully transparent except for a hairline border */
 .ms-hero-search {

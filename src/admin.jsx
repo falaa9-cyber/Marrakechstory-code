@@ -857,66 +857,243 @@
       sec('Requests', rq.map(l => h('button', { key: l.id, className: 'msa-line-item', onClick: () => route('requests') }, h('strong', null, l.name || l.email || '—'), h('span', { className: 'msa-dim' }, ' · ' + (l.kind || ''))))));
   }
 
+  // ---- analytics helpers ----
+  function uaParse(ua) {
+    ua = ua || ''; var b = 'Other';
+    if (/Edg\//.test(ua)) b = 'Edge';
+    else if (/OPR\/|Opera/.test(ua)) b = 'Opera';
+    else if (/SamsungBrowser/.test(ua)) b = 'Samsung';
+    else if (/CriOS/.test(ua)) b = 'Chrome';
+    else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) b = 'Chrome';
+    else if (/Firefox\//.test(ua) || /FxiOS/.test(ua)) b = 'Firefox';
+    else if (/Version\/.*Safari/.test(ua) || /Safari\//.test(ua)) b = 'Safari';
+    var o = 'Other';
+    if (/iPhone|iPad|iPod/.test(ua)) o = 'iOS';
+    else if (/Android/.test(ua)) o = 'Android';
+    else if (/Windows/.test(ua)) o = 'Windows';
+    else if (/Mac OS X|Macintosh/.test(ua)) o = 'macOS';
+    else if (/Linux/.test(ua)) o = 'Linux';
+    return { browser: b, os: o };
+  }
+  function flagOf(cc) {
+    if (!cc || cc.length !== 2 || !/^[a-zA-Z]{2}$/.test(cc)) return '🌍';
+    return cc.toUpperCase().replace(/./g, function (c) { return String.fromCodePoint(127397 + c.charCodeAt(0)); });
+  }
+  function agoOf(d) {
+    var t = new Date(d).getTime(); if (isNaN(t)) return '';
+    var s = Math.max(0, Math.round((Date.now() - t) / 1000));
+    if (s < 60) return s + 's'; var m = Math.floor(s / 60);
+    if (m < 60) return m + 'm'; var hh = Math.floor(m / 60);
+    if (hh < 24) return hh + 'h'; return Math.floor(hh / 24) + 'd';
+  }
+  function fmtDur(sec) { sec = Math.round(sec || 0); return sec >= 60 ? (Math.floor(sec / 60) + 'm ' + (sec % 60) + 's') : (sec + 's'); }
+  var LANG_LABEL = { no: 'Norwegian', nb: 'Norwegian', nn: 'Norwegian', en: 'English', fr: 'French', sv: 'Swedish', de: 'German', es: 'Spanish', ar: 'Arabic', da: 'Danish', nl: 'Dutch', it: 'Italian', pt: 'Portuguese' };
+  var SEC_LABEL = { home: 'Home', itineraries: 'Trips', catalog: 'Experiences', plan: 'Trip planner', planner: 'Trip planner', contact: 'Contact', instagram: 'Instagram', collaborate: 'Collaborate', reviews: 'Reviews', about: 'About', faq: 'FAQ', gallery: 'Gallery' };
+  var WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   // =====================================================================
-  // =====================================================================
-  // INSIGHTS — website analytics (visits, countries, devices, sections)
+  // INSIGHTS — full website analytics console (real-time)
   // =====================================================================
   function Insights() {
     const [rows, setRows] = useState(null);
     const [updatedAt, setUpdatedAt] = useState(null);
-    const load = useCallback(() => { const sb = getSB(); if (!sb) { setRows([]); return; } sb.from('page_views').select('*').order('created_at', { ascending: false }).limit(5000).then(({ data }) => { setRows(data || []); setUpdatedAt(new Date()); }); }, []);
-    useEffect(() => { load(); const t = setInterval(load, 30000); return () => clearInterval(t); }, [load]);
+    const [period, setPeriod] = useState('7d');
+    const [tick, setTick] = useState(0);
+    const load = useCallback(() => {
+      const sb = getSB(); if (!sb) { setRows([]); return; }
+      sb.from('page_views').select('*').order('created_at', { ascending: false }).limit(8000)
+        .then(({ data }) => { setRows(data || []); setUpdatedAt(new Date()); });
+    }, []);
+    useEffect(() => { load(); const t = setInterval(load, 20000); return () => clearInterval(t); }, [load]);
+    // 1s ticker so "active now" + relative times stay live between reloads.
+    useEffect(() => { const t = setInterval(() => setTick(x => x + 1), 1000); return () => clearInterval(t); }, []);
     if (rows === null) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading analytics…'));
-    const visits = rows.length;
-    const uniq = new Set(rows.map(r => r.session_id)).size;
-    const dev = {}; rows.forEach(r => { const d = r.device || 'desktop'; dev[d] = (dev[d] || 0) + 1; });
-    const mobilePct = visits ? Math.round(((dev.mobile || 0) + (dev.tablet || 0)) / visits * 100) : 0;
-    const cc = {}; rows.forEach(r => { if (r.country) cc[r.country] = (cc[r.country] || 0) + 1; });
-    const countries = Object.entries(cc).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    const maxC = Math.max(1, ...countries.map(c => c[1]));
-    const durs = rows.filter(r => r.duration_seconds > 0).map(r => r.duration_seconds);
-    const avg = durs.length ? Math.round(durs.reduce((s, x) => s + x, 0) / durs.length) : 0;
-    const avgLabel = avg >= 60 ? (Math.floor(avg / 60) + 'm ' + (avg % 60) + 's') : (avg + 's');
-    const SEC = { home: 'Home', itineraries: 'Trips', catalog: 'Catalog', plan: 'Trip planner', contact: 'Contact', instagram: 'Instagram', collaborate: 'Collaborate', reviews: 'Reviews' };
-    const sec = {}; rows.forEach(r => { (Array.isArray(r.sections) ? r.sections : []).forEach(s => { sec[s] = (sec[s] || 0) + 1; }); });
-    const sections = Object.entries(sec).sort((a, b) => b[1] - a[1]);
-    const secTotal = sections.reduce((s, x) => s + x[1], 0) || 1;
-    const byDay = {}; rows.forEach(r => { const k = (r.created_at || '').slice(0, 10); if (k) byDay[k] = (byDay[k] || 0) + 1; });
-    const days = Object.keys(byDay).sort().slice(-14).map(k => ({ label: k.slice(8) + '/' + k.slice(5, 7), value: byDay[k] }));
-    const refc = {}; rows.forEach(r => { const k = r.referrer || 'direct'; refc[k] = (refc[k] || 0) + 1; });
-    const refs = Object.entries(refc).sort((a, b) => b[1] - a[1]).slice(0, 6);
-    const kpi = (label, value, cls) => h('div', { className: 'msa-kpi ' + (cls || 'msa-kpi-plain') }, h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, value));
+
+    const now = Date.now();
+    const PMAP = { '24h': 1, '7d': 7, '30d': 30, 'all': 0 };
+    const pdays = PMAP[period];
+    const span = pdays * 86400000;
+    const curStart = pdays ? now - span : 0;
+    const prevStart = pdays ? now - 2 * span : 0, prevEnd = curStart;
+    const ts = (r) => { const t = new Date(r.created_at).getTime(); return isNaN(t) ? 0 : t; };
+    const cur = pdays ? rows.filter(r => ts(r) >= curStart) : rows;
+    const prev = pdays ? rows.filter(r => ts(r) >= prevStart && ts(r) < prevEnd) : [];
+
+    function metrics(list) {
+      const visits = list.length;
+      const uniq = new Set(list.map(r => r.session_id)).size;
+      const durs = list.filter(r => r.duration_seconds > 0).map(r => r.duration_seconds);
+      const avg = durs.length ? Math.round(durs.reduce((s, x) => s + x, 0) / durs.length) : 0;
+      const bounces = list.filter(r => { const sl = Array.isArray(r.sections) ? r.sections.length : 0; return (r.duration_seconds || 0) < 10 || sl <= 1; }).length;
+      const bounce = visits ? Math.round(bounces / visits * 100) : 0;
+      const mob = list.filter(r => r.device === 'mobile' || r.device === 'tablet').length;
+      const mobilePct = visits ? Math.round(mob / visits * 100) : 0;
+      const secCount = list.reduce((s, r) => s + (Array.isArray(r.sections) ? r.sections.length : 0), 0);
+      const ppv = visits ? (secCount / visits) : 0;
+      return { visits, uniq, avg, bounce, mobilePct, ppv };
+    }
+    const M = metrics(cur), Mp = metrics(prev);
+    const dPct = (c, p) => (period === 'all' || !prev.length) ? null : (p ? Math.round((c - p) / p * 100) : (c ? 100 : 0));
+
+    // active now — sessions touched in the last 5 minutes
+    const active = new Set(rows.filter(r => { const t = new Date(r.updated_at || r.created_at).getTime(); return now - t < 5 * 60000; }).map(r => r.session_id)).size;
+
+    // tally helper
+    const tally = (list, fn) => { const m = {}; list.forEach(r => { const k = fn(r); if (k != null && k !== '') m[k] = (m[k] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
+    const countries = tally(cur, r => r.country).slice(0, 8);
+    const ccByName = {}; cur.forEach(r => { if (r.country && r.country_code) ccByName[r.country] = r.country_code; });
+    const cities = tally(cur, r => r.city).slice(0, 8);
+    const langs = tally(cur, r => (r.lang || '').slice(0, 2).toLowerCase()).slice(0, 6);
+    const browsers = tally(cur, r => uaParse(r.user_agent).browser).slice(0, 6);
+    const oses = tally(cur, r => uaParse(r.user_agent).os).slice(0, 6);
+    const landings = tally(cur, r => { let l = (r.landing || '/').split('?')[0]; return l || '/'; }).slice(0, 6);
+    const refs = tally(cur, r => r.referrer || 'direct').slice(0, 6);
+    const dev = { desktop: 0, mobile: 0, tablet: 0 }; cur.forEach(r => { const d = r.device || 'desktop'; dev[d] = (dev[d] || 0) + 1; });
+
+    // sections
+    const secEntries = (function () { const m = {}; cur.forEach(r => (Array.isArray(r.sections) ? r.sections : []).forEach(s => { m[s] = (m[s] || 0) + 1; })); return Object.entries(m).sort((a, b) => b[1] - a[1]); })();
+    const secTotal = secEntries.reduce((s, x) => s + x[1], 0) || 1;
+
+    // time series
+    let series;
+    if (period === '24h') {
+      const byH = new Array(24).fill(0);
+      cur.forEach(r => { const hh = new Date(r.created_at).getHours(); if (!isNaN(hh)) byH[hh]++; });
+      series = byH.map((v, i) => ({ label: i % 4 === 0 ? (i + 'h') : '', value: v }));
+    } else {
+      const byDay = {}; cur.forEach(r => { const k = (r.created_at || '').slice(0, 10); if (k) byDay[k] = (byDay[k] || 0) + 1; });
+      const keys = Object.keys(byDay).sort(); const n = period === '30d' ? 30 : (period === '7d' ? 7 : keys.length);
+      series = keys.slice(-n).map(k => ({ label: k.slice(8) + '/' + k.slice(5, 7), value: byDay[k] }));
+    }
+
+    // peak hours + weekday (over current window)
+    const byHour = new Array(24).fill(0); cur.forEach(r => { const hh = new Date(r.created_at).getHours(); if (!isNaN(hh)) byHour[hh]++; });
+    const hourBars = byHour.map((v, i) => ({ label: i % 4 === 0 ? (i + '') : '', value: v }));
+    const peakHour = byHour.indexOf(Math.max(...byHour));
+    const byWd = new Array(7).fill(0); cur.forEach(r => { const d = new Date(r.created_at); if (!isNaN(d.getTime())) { byWd[(d.getDay() + 6) % 7]++; } });
+    const wdBars = byWd.map((v, i) => ({ label: WD[i], value: v }));
+
+    // conversion funnel (session level)
+    const sess = {}; cur.forEach(r => { const sid = r.session_id || r.id; const set = sess[sid] || (sess[sid] = new Set()); (Array.isArray(r.sections) ? r.sections : []).forEach(s => set.add(s)); });
+    const sessArr = Object.keys(sess).map(k => sess[k]);
+    const reached = (fn) => sessArr.filter(fn).length;
+    const funnel = [
+      { label: 'Visited the site', n: sessArr.length },
+      { label: 'Browsed trips / experiences', n: reached(s => s.has('itineraries') || s.has('catalog')) },
+      { label: 'Opened the trip planner', n: reached(s => s.has('plan') || s.has('planner')) },
+      { label: 'Reached contact', n: reached(s => s.has('contact')) },
+    ];
+    const funnelTop = funnel[0].n || 1;
+
+    // recent live feed
+    const feed = rows.slice(0, 14);
+
+    // smart insights
+    const smart = [];
+    if (countries[0]) smart.push('Most visitors come from ' + flagOf(ccByName[countries[0][0]]) + ' ' + countries[0][0] + ' (' + Math.round(countries[0][1] / (M.visits || 1) * 100) + '% of traffic).');
+    if (M.visits) smart.push('Peak browsing time is around ' + peakHour + ':00–' + ((peakHour + 1) % 24) + ':00.');
+    if (secEntries[0]) smart.push('“' + (SEC_LABEL[secEntries[0][0]] || secEntries[0][0]) + '” is the most-viewed section of the site.');
+    smart.push(M.mobilePct + '% of visits are on mobile or tablet, ' + (100 - M.mobilePct) + '% on desktop.');
+    if (period !== 'all' && prev.length) { const dv = dPct(M.visits, Mp.visits); smart.push('Traffic is ' + (dv >= 0 ? 'up' : 'down') + ' ' + Math.abs(dv) + '% versus the previous ' + period + '.'); }
+    smart.push('Bounce rate is ' + M.bounce + '% — ' + (100 - M.bounce) + '% of visitors engage beyond the first view.');
+    if (langs[0]) smart.push('Top audience language: ' + (LANG_LABEL[langs[0][0]] || langs[0][0] || '—') + '.');
+
+    // ---- render helpers ----
+    const deltaEl = (d) => d == null ? null : h('span', { className: 'msa-kpi-delta ' + (d >= 0 ? 'up' : 'down') }, (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d) + '%');
+    const kpi = (label, value, d, cls, sub) => h('div', { className: 'msa-kpi ' + (cls || 'msa-kpi-plain') },
+      h('span', { className: 'msa-kpi-label' }, label),
+      h('span', { className: 'msa-kpi-value' }, value),
+      h('div', { className: 'msa-kpi-foot' }, deltaEl(d), sub ? h('span', { className: 'msa-kpi-sub' }, sub) : null));
+    const srcBars = (entries, opt) => {
+      opt = opt || {}; if (!entries || !entries.length) return h('div', { className: 'msa-empty' }, 'No data yet.');
+      const max = Math.max(1, ...entries.map(e => e[1])); const tot = entries.reduce((s, e) => s + e[1], 0) || 1;
+      return h('div', { className: 'msa-srcbars' }, entries.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' },
+        h('span', { className: 'msa-srcbar-l' }, opt.label ? opt.label(k) : k),
+        h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / max * 100) + '%', background: opt.color || undefined } })),
+        h('span', { className: 'msa-srcbar-v' }, opt.pct ? Math.round(v / tot * 100) + '%' : nf(v)))));
+    };
+    const barChart = (data, color) => { const max = Math.max(1, ...data.map(d => d.value)); return h('div', { className: 'msa-bars' }, data.map((d, i) => h('div', { key: i, className: 'msa-bar-col' }, h('div', { className: 'msa-bar-track' }, h('div', { className: 'msa-bar-fill', style: { height: Math.round(d.value / max * 100) + '%', background: color || 'var(--brand)' }, title: d.value + ' visits' })), h('span', { className: 'msa-bar-label' }, d.label)))); };
+    const card = (title, body, extra) => h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, title), extra || null), body);
+
+    const periodSeg = h('div', { className: 'msa-seg msa-seg-sm' },
+      [['24h', 'Today'], ['7d', '7 days'], ['30d', '30 days'], ['all', 'All time']].map(([k, lbl]) =>
+        h('button', { key: k, className: period === k ? 'active' : '', onClick: () => setPeriod(k) }, lbl)));
 
     return h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' },
-        h('div', null, h('h1', null, 'Insights'), h('p', { className: 'msa-subtitle' }, 'Website analytics — visits, audience, behaviour')),
+        h('div', null, h('h1', null, 'Insights'), h('p', { className: 'msa-subtitle' }, 'Live website analytics — audience, behaviour & conversion')),
         h('div', { className: 'msa-live-wrap' },
-          h('span', { className: 'msa-live' }, h('span', { className: 'msa-live-dot' }), 'Live'),
+          h('span', { className: 'msa-live' }, h('span', { className: 'msa-live-dot' }), active > 0 ? (active + ' active now') : 'Live'),
           updatedAt && h('span', { className: 'msa-dim', style: { marginRight: 8 } }, 'Updated ' + updatedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: load }, 'Refresh'))),
-      visits === 0 ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'No visits recorded yet. Data appears here as people browse the public site.')) : h('div', null,
-        h('div', { className: 'msa-dash-top' },
-          kpi('Total visits', nf(visits), 'msa-kpi-income'),
-          kpi('Unique visitors', nf(uniq), 'msa-kpi-benefit'),
-          kpi('Avg. time on site', avgLabel),
-          kpi('Mobile share', mobilePct + '%', 'msa-kpi-cost')),
+
+      h('div', { className: 'msa-insights-bar' }, periodSeg,
+        h('span', { className: 'msa-dim' }, M.visits + ' visits · ' + M.uniq + ' unique in this period')),
+
+      rows.length === 0 ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'No visits recorded yet. Data appears here automatically as people browse the public site.')) : h('div', null,
+
+        // KPI ROW
+        h('div', { className: 'msa-kpi-grid' },
+          kpi('Total visits', nf(M.visits), dPct(M.visits, Mp.visits), 'msa-kpi-income'),
+          kpi('Unique visitors', nf(M.uniq), dPct(M.uniq, Mp.uniq), 'msa-kpi-benefit'),
+          kpi('Avg. time on site', fmtDur(M.avg), dPct(M.avg, Mp.avg), 'msa-kpi-plain'),
+          kpi('Pages / visit', M.ppv.toFixed(1), dPct(Math.round(M.ppv * 10), Math.round(Mp.ppv * 10)), 'msa-kpi-plain'),
+          kpi('Bounce rate', M.bounce + '%', dPct(M.bounce, Mp.bounce) == null ? null : -dPct(M.bounce, Mp.bounce), 'msa-kpi-cost', 'lower is better'),
+          kpi('Mobile share', M.mobilePct + '%', dPct(M.mobilePct, Mp.mobilePct), 'msa-kpi-plain')),
+
+        // TREND + DEVICE
         h('div', { className: 'msa-dash-charts' },
-          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Device')),
-            h('div', { className: 'msa-chart-row' }, h(Donut, { segments: [{ label: 'Desktop', value: dev.desktop || 0, color: '#0a84ff' }, { label: 'Mobile', value: dev.mobile || 0, color: '#e0432a' }, { label: 'Tablet', value: dev.tablet || 0, color: '#34c759' }] }),
-              h('div', { className: 'msa-legend' },
-                h('div', null, h('span', { className: 'msa-dot', style: { background: '#0a84ff' } }), 'Desktop ', h('strong', null, (dev.desktop || 0))),
-                h('div', null, h('span', { className: 'msa-dot', style: { background: '#e0432a' } }), 'Mobile ', h('strong', null, (dev.mobile || 0))),
-                h('div', null, h('span', { className: 'msa-dot', style: { background: '#34c759' } }), 'Tablet ', h('strong', null, (dev.tablet || 0)))))),
-          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Visits — last 14 days')), days.length ? h(Bars, { data: days }) : h('div', { className: 'msa-empty' }, 'Not enough data.'))),
+          card(period === '24h' ? 'Visits by hour (today)' : ('Visits — ' + (period === 'all' ? 'all time' : 'last ' + period)),
+            series.length ? barChart(series) : h('div', { className: 'msa-empty' }, 'Not enough data.')),
+          card('Device mix', h('div', { className: 'msa-chart-row' },
+            h(Donut, { segments: [{ label: 'Desktop', value: dev.desktop, color: '#0a84ff' }, { label: 'Mobile', value: dev.mobile, color: '#e0432a' }, { label: 'Tablet', value: dev.tablet, color: '#34c759' }] }),
+            h('div', { className: 'msa-legend' },
+              h('div', null, h('span', { className: 'msa-dot', style: { background: '#0a84ff' } }), 'Desktop ', h('strong', null, dev.desktop)),
+              h('div', null, h('span', { className: 'msa-dot', style: { background: '#e0432a' } }), 'Mobile ', h('strong', null, dev.mobile)),
+              h('div', null, h('span', { className: 'msa-dot', style: { background: '#34c759' } }), 'Tablet ', h('strong', null, dev.tablet))))) ),
+
+        // AUDIENCE GEO
         h('div', { className: 'msa-cols msa-cols-12' },
-          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Top countries')),
-            countries.length === 0 ? h('div', { className: 'msa-empty' }, 'No country data yet.')
-            : h('div', { className: 'msa-srcbars' }, countries.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' }, h('span', { className: 'msa-srcbar-l' }, k), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / maxC * 100) + '%' } })), h('span', { className: 'msa-srcbar-v' }, Math.round(v / visits * 100) + '%'))))),
-          h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Most-visited sections')),
-            sections.length === 0 ? h('div', { className: 'msa-empty' }, 'No section data yet.')
-            : h('div', { className: 'msa-srcbars' }, sections.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' }, h('span', { className: 'msa-srcbar-l' }, SEC[k] || k), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / sections[0][1] * 100) + '%' } })), h('span', { className: 'msa-srcbar-v' }, Math.round(v / secTotal * 100) + '%'))))) ),
-        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Traffic sources')),
-          h('div', { className: 'msa-srcbars' }, refs.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' }, h('span', { className: 'msa-srcbar-l' }, k === 'direct' ? 'Direct' : k), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / refs[0][1] * 100) + '%' } })), h('span', { className: 'msa-srcbar-v' }, v))))) ));
+          card('Top countries', srcBars(countries, { pct: true, label: (k) => h('span', null, flagOf(ccByName[k]), ' ', k) })),
+          card('Top cities', srcBars(cities, { pct: true }))),
+
+        // AUDIENCE TECH
+        h('div', { className: 'msa-cols msa-cols-3' },
+          card('Languages', srcBars(langs, { pct: true, label: (k) => LANG_LABEL[k] || (k || '—').toUpperCase() })),
+          card('Browsers', srcBars(browsers, { pct: true })),
+          card('Operating system', srcBars(oses, { pct: true }))),
+
+        // BEHAVIOUR
+        h('div', { className: 'msa-cols msa-cols-12' },
+          card('Most-visited sections', srcBars(secEntries.map(([k, v]) => [SEC_LABEL[k] || k, v]), { pct: true })),
+          card('Conversion funnel', h('div', { className: 'msa-funnel' }, funnel.map((f, i) => h('div', { key: i, className: 'msa-funnel-row' },
+            h('div', { className: 'msa-funnel-top' }, h('span', null, f.label), h('strong', null, f.n + ' · ' + Math.round(f.n / funnelTop * 100) + '%')),
+            h('div', { className: 'msa-funnel-track' }, h('div', { className: 'msa-funnel-fill', style: { width: (f.n / funnelTop * 100) + '%' } }))))))),
+
+        // SOURCES + LANDINGS
+        h('div', { className: 'msa-cols msa-cols-12' },
+          card('Traffic sources', srcBars(refs, { label: (k) => k === 'direct' ? 'Direct / app' : k })),
+          card('Top landing pages', srcBars(landings))),
+
+        // PEAK TIMES
+        h('div', { className: 'msa-dash-charts' },
+          card('Busiest hours', byHour.some(v => v) ? barChart(hourBars, '#5e5ce6') : h('div', { className: 'msa-empty' }, 'Not enough data.')),
+          card('Busiest days', byWd.some(v => v) ? barChart(wdBars, '#ff9f0a') : h('div', { className: 'msa-empty' }, 'Not enough data.'))),
+
+        // LIVE FEED + SMART INSIGHTS
+        h('div', { className: 'msa-cols msa-cols-12' },
+          card('Live visitor feed', h('div', { className: 'msa-feed' }, feed.map((r, i) => {
+            const u = uaParse(r.user_agent); const liveOn = (now - new Date(r.updated_at || r.created_at).getTime()) < 5 * 60000;
+            const where = [r.city, r.country].filter(Boolean).join(', ') || 'Unknown location';
+            const secs = (Array.isArray(r.sections) ? r.sections : []).map(s => SEC_LABEL[s] || s).slice(0, 4).join(' · ');
+            return h('div', { key: r.id || i, className: 'msa-feed-row' },
+              h('span', { className: 'msa-feed-flag' }, flagOf(r.country_code)),
+              h('div', { className: 'msa-feed-main' },
+                h('div', { className: 'msa-feed-l1' }, h('strong', null, where), liveOn ? h('span', { className: 'msa-feed-live' }, '● live') : null),
+                h('div', { className: 'msa-feed-l2' }, (r.device || 'desktop') + ' · ' + u.browser + ' · ' + fmtDur(r.duration_seconds) + (secs ? ' · ' + secs : ''))),
+              h('span', { className: 'msa-feed-ago' }, agoOf(r.updated_at || r.created_at)));
+          })), h('span', { className: 'msa-dim msa-feed-count' }, rows.length + ' total')),
+          card('Smart insights', h('ul', { className: 'msa-smart' }, smart.map((t, i) => h('li', { key: i }, t))))) ));
   }
 
   // SHELL
