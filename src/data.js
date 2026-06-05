@@ -128,7 +128,7 @@ const PACKAGES = [
   {
     id: "5d4n", days: 5, nights: 4,
     title: "Best of Marrakech", label: "Mest bestilt",
-    img: "assets/photos/medina-carpets-39.jpg",
+    img: "assets/photos/agafay-pool-08.jpg",
     tags: ["Medina", "Atlas", "Agafay", "Cooking"],
     description: "Five days covering everything Marrakech does best. Guided medina, Moroccan cooking class, a full day into nature (Atlas Mountains, Ourika Valley, or Essaouira Atlantic coast), and one night in the Agafay stone desert under the stars. Our most popular itinerary — perfectly paced for first-timers and returners.",
     included: [
