@@ -74,7 +74,7 @@ const PACKAGES = [
   {
     id: "4d3n", days: 4, nights: 3,
     title: "Marrakech & Agafay Luxury Escape", label: "Lang helg",
-    img: "assets/photos/agafay-night-dinner-04.jpg",
+    img: "assets/photos/food-garden-restaurant-05.jpg",
     tags: ["Riad", "Hammam", "Agafay", "Balloon"],
     description: "Perfectly balanced between cultural immersion and desert wonder. Two nights in a luxury riad in the ancient Medina, one extraordinary night in a tented camp in the Agafay stone desert — with a hot air balloon sunrise above the Atlas in between.",
     included: [
