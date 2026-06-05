@@ -7657,3 +7657,23 @@ section.hero-v2 { display: none; }
 .cat-reserve-done h3 { font-size: 18px; margin: 0 0 6px; }
 .cat-reserve-done p { font-size: 13.5px; color: var(--ink-3); margin: 0; }
 @media (max-width: 600px) { .cat-reserve-grid { grid-template-columns: 1fr; } }
+
+/* ════════════════════════════════════════════════════════════════
+   v219 — rebuilt client auth (tabs) + profile bookings actions
+   ════════════════════════════════════════════════════════════════ */
+.auth-tabs { display: flex; gap: 4px; background: rgba(0,0,0,.05); border-radius: 12px; padding: 4px; margin: 0 0 18px; }
+.auth-tab { flex: 1; border: 0; background: transparent; padding: 10px; border-radius: 9px; font-size: 14px; font-weight: 700; color: var(--ink-3, #8a7d70); cursor: pointer; font-family: inherit; transition: all .15s; }
+.auth-tab.active { background: #fff; color: var(--ink, #1a1310); box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.auth-msg { color: #1c7a3f; font-size: 13px; margin: 2px 0 0; }
+.auth-forgot { display: block; margin: 10px auto 0; background: none; border: 0; color: var(--brand, #e0432a); font-size: 13px; cursor: pointer; font-family: inherit; text-decoration: underline; }
+.auth-fineprint { font-size: 11.5px; color: var(--ink-3, #8a7d70); text-align: center; margin: 10px 0 0; line-height: 1.4; }
+
+/* profile overview cards are now buttons */
+.ms-profile-card { text-align: left; cursor: pointer; font-family: inherit; transition: transform .14s, box-shadow .14s; }
+button.ms-profile-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+.ms-profile-card-cta { cursor: default; }
+
+/* booking action buttons (itinerary / invoice) */
+.ms-cp-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.btn.btn-sm { padding: 7px 13px; font-size: 12.5px; border-radius: 9px; }
+.ms-cp-itin { margin-top: 12px; }
