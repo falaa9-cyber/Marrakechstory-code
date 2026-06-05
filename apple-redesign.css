@@ -1143,63 +1143,69 @@ textarea { border-radius: 14px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
-   v207 — Compact, professional pop-ups (~40% smaller), dark text.
-   Tighter widths, smaller hero, condensed padding & type,
-   high-contrast dark copy so everything is easy to read.
+   v209 — Trip info pop-ups: wider (+20%) but more compact (shorter
+   hero + tighter padding ≈ 40% less vertical bulk) with smaller text
+   so a wide format fits the content cleanly. Dark, high-contrast copy.
    ════════════════════════════════════════════════════════════════ */
 .cat-modal,
 .ag-modal,
 .itin-modal,
 .ms-qb-modal,
 .ms-tweak-modal {
-  width: min(720px, 100%) !important;
-  max-width: min(720px, 100%) !important;
+  width: min(864px, 100%) !important;   /* +20% wider than the 720 compact size */
+  max-width: min(864px, 100%) !important;
   border-radius: 18px !important;
 }
-/* Smaller, still-cinematic hero */
+/* Shorter hero — the main driver of the ~40% smaller vertical footprint */
 .cat-modal-img,
 .itin-modal-hero,
 .ag-modal-img {
-  height: clamp(150px, 22vh, 230px) !important;
+  height: clamp(120px, 16vh, 175px) !important;
   border-radius: 18px 18px 0 0 !important;
 }
-/* Condensed body padding */
+/* Tighter body padding */
 .cat-modal-body,
 .itin-modal-body,
 .ag-modal-body,
 .ms-qb-body,
 .ms-tweak-body {
-  padding: clamp(18px, 2.2vw, 26px) !important;
+  padding: clamp(16px, 1.8vw, 22px) clamp(20px, 2.4vw, 30px) !important;
 }
-/* Dark, readable text everywhere in the pop-ups */
+/* Dark, readable, smaller text everywhere in the pop-ups */
 .cat-modal, .cat-modal-body,
 .itin-modal, .itin-modal-body,
 .ag-modal, .ag-modal-body,
 .ms-qb-modal, .ms-qb-body,
 .ms-tweak-modal, .ms-tweak-body {
   color: #1d1d1f !important;
-  font-size: 14px !important;
-  line-height: 1.55 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
 }
 .cat-modal-body p, .itin-modal-body p,
 .cat-modal-body li, .itin-modal-body li,
 .cat-modal-desc, .itin-modal-overview,
 .cat-modal-area, .cat-modal-atmosphere {
   color: #2c2c2e !important;
-  font-size: 13.5px !important;
-  line-height: 1.55 !important;
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
 }
 .cat-modal-body h1, .cat-modal-body h2, .cat-modal-body h3, .cat-modal-body h4,
 .itin-modal-body h1, .itin-modal-body h2, .itin-modal-body h3, .itin-modal-body h4,
 .cat-modal-title, .itin-modal-title {
   color: #111113 !important;
 }
-.cat-modal-title, .itin-modal-title { font-size: 22px !important; line-height: 1.2 !important; margin-bottom: 6px !important; }
+.cat-modal-body h3, .itin-modal-body h3 { font-size: 14px !important; }
+.cat-modal-title, .itin-modal-title { font-size: 19px !important; line-height: 1.2 !important; margin-bottom: 5px !important; }
+/* Two-column day grid kicks in earlier so the wider modal stays short */
+@media (min-width: 720px) {
+  .itin-modal-days { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px 24px !important; }
+  .itin-modal-day { padding-bottom: 0 !important; border-bottom: 0 !important; }
+}
 /* Tighten the vertical rhythm so condensed content stays organised */
 .cat-modal-body > *, .itin-modal-body > * { margin-top: 0 !important; }
-.cat-modal-body > * + *, .itin-modal-body > * + * { margin-top: 14px !important; }
-.itin-modal-day { padding: 10px 0 !important; }
-.cat-modal-pill, .itin-modal-tags > * { font-size: 12px !important; }
+.cat-modal-body > * + *, .itin-modal-body > * + * { margin-top: 11px !important; }
+.itin-modal-day { padding: 8px 0 !important; }
+.cat-modal-pill, .itin-modal-tags > * { font-size: 11.5px !important; padding: 4px 10px !important; }
 
 /* ════════════════════════════════════════════════════════════════
    APPLE REDESIGN — Phase 7 · Partner trip (Happy Surfers)
