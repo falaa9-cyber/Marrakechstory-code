@@ -297,6 +297,7 @@ function AppInner() {
       <Footer />
       <window.MS_WhatsApp />
       {window.MS_QuickBookHost && <window.MS_QuickBookHost />}
+      {window.MS_TweakHost && <window.MS_TweakHost />}
       {window.MS_Chatbot && <window.MS_Chatbot />}
       <window.MS_InstagramWidget />
       {window.MS_Weather && <window.MS_Weather />}

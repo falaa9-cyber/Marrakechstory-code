@@ -547,4 +547,19 @@ function QuickBookHost() {
 
 window.MS_QuickBookHost = QuickBookHost;
 window.MS_TweakItineraryModal = TweakItineraryModal;
+
+// Globally expose the Tweak opener so the itinerary modal can fire it.
+// Renders inside the main app tree (shared providers / context / z-index),
+// exactly like QuickBookHost — far more reliable than a detached React root.
+window.MS_OpenTweak = null;  // wired below via the host component
+function TweakHost() {
+  const [trip, setTrip] = useStateB(null);
+  useEffectB(() => {
+    window.MS_OpenTweak = (t) => setTrip(t);
+    return () => { window.MS_OpenTweak = null; };
+  }, []);
+  if (!trip) return null;
+  return <TweakItineraryModal trip={trip} onClose={() => setTrip(null)} />;
+}
+window.MS_TweakHost = TweakHost;
 window.MS_FavouritesQuickAdd = FavouritesQuickAdd;

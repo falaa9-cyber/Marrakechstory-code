@@ -1143,24 +1143,25 @@ textarea { border-radius: 14px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
-   v209 — Trip info pop-ups: wider (+20%) but more compact (shorter
-   hero + tighter padding ≈ 40% less vertical bulk) with smaller text
-   so a wide format fits the content cleanly. Dark, high-contrast copy.
+   v210 — Trip info pop-ups: ~40% smaller overall. Narrower card,
+   shorter hero, tighter padding, smaller text — a compact floating
+   panel rather than a full-screen sheet. Dark, high-contrast copy.
    ════════════════════════════════════════════════════════════════ */
 .cat-modal,
 .ag-modal,
 .itin-modal,
 .ms-qb-modal,
 .ms-tweak-modal {
-  width: min(864px, 100%) !important;   /* +20% wider than the 720 compact size */
-  max-width: min(864px, 100%) !important;
+  width: min(520px, 100%) !important;   /* ~40% smaller than the previous 864 */
+  max-width: min(520px, 100%) !important;
+  max-height: min(86vh, 86dvh) !important;
   border-radius: 18px !important;
 }
-/* Shorter hero — the main driver of the ~40% smaller vertical footprint */
+/* Shorter hero */
 .cat-modal-img,
 .itin-modal-hero,
 .ag-modal-img {
-  height: clamp(120px, 16vh, 175px) !important;
+  height: clamp(105px, 14vh, 150px) !important;
   border-radius: 18px 18px 0 0 !important;
 }
 /* Tighter body padding */
@@ -1169,7 +1170,7 @@ textarea { border-radius: 14px; }
 .ag-modal-body,
 .ms-qb-body,
 .ms-tweak-body {
-  padding: clamp(16px, 1.8vw, 22px) clamp(20px, 2.4vw, 30px) !important;
+  padding: 16px 18px !important;
 }
 /* Dark, readable, smaller text everywhere in the pop-ups */
 .cat-modal, .cat-modal-body,
@@ -1196,11 +1197,9 @@ textarea { border-radius: 14px; }
 }
 .cat-modal-body h3, .itin-modal-body h3 { font-size: 14px !important; }
 .cat-modal-title, .itin-modal-title { font-size: 19px !important; line-height: 1.2 !important; margin-bottom: 5px !important; }
-/* Two-column day grid kicks in earlier so the wider modal stays short */
-@media (min-width: 720px) {
-  .itin-modal-days { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px 24px !important; }
-  .itin-modal-day { padding-bottom: 0 !important; border-bottom: 0 !important; }
-}
+/* Single-column day list — the narrow card reads better stacked
+   (overrides the earlier ≥960px two-column rule) */
+.itin-modal-days { display: block !important; grid-template-columns: none !important; }
 /* Tighten the vertical rhythm so condensed content stays organised */
 .cat-modal-body > *, .itin-modal-body > * { margin-top: 0 !important; }
 .cat-modal-body > * + *, .itin-modal-body > * + * { margin-top: 11px !important; }

@@ -884,18 +884,11 @@ function ItinModal({ trip, onClose, lang, fmt }) {
               </button>
               <button className="btn btn-outline"
                 onClick={() => {
+                  const t = trip;
                   onClose();
                   setTimeout(() => {
-                    if (window.MS_TweakItineraryModal) {
-                      const div = document.createElement('div');
-                      div.className = 'ms-tweak-root';
-                      document.body.appendChild(div);
-                      const root = ReactDOM.createRoot(div);
-                      const TweakModal = window.MS_TweakItineraryModal;
-                      const close = () => { root.unmount(); div.remove(); };
-                      root.render(React.createElement(window.MS_CTX.MSProvider, null,
-                        React.createElement(TweakModal, { trip, onClose: close })));
-                    }
+                    if (window.MS_OpenTweak) window.MS_OpenTweak(t);
+                    else { window.location.hash = '#plan'; }
                   }, 60);
                 }}>
                 ✏️ {tx('Tweak this trip','Tilpass denne reisen','Personnaliser ce voyage')}
