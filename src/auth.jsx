@@ -39,7 +39,7 @@ function nameFromEmail(mail) {
 function AuthModal({ view: initView, onClose, onLogin }) {
   const ctx = window.MS_CTX?.useMS?.() || {};
   const lang = ctx.lang || 'en';
-  const T = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : en;
+  const T = (en, no, fr) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'da' ? (no || en) : en;
 
   const [view, setView] = useSA(initView === 'login' ? 'login' : 'register');
   const [name, setName] = useSA('');

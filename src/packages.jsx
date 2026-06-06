@@ -58,7 +58,7 @@ function Packages() {
   const { useT, useMS } = window.MS_CTX;
   const t = useT();
   const { lang } = useMS();
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   const [active, setActive] = useStateP(PKGS[1].id);
   const [view, setView] = useStateP('timeline'); // 'timeline' | 'included' | 'terms'
   const isCustom = active === 'custom';

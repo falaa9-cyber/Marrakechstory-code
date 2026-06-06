@@ -135,7 +135,7 @@ function localizeList(arr, lang) {
 }
 
 function CatalogModal({ item, tab, onClose, lang }) {
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   useEffectC(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -459,7 +459,7 @@ function Catalog() {
   const t = useT();
   const price = usePrice();
   const ctx = useMS();
-  const tx = (en, no, fr, sv) => ctx.lang === 'no' ? no : ctx.lang === 'fr' ? fr : ctx.lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => ctx.lang === 'no' ? no : ctx.lang === 'fr' ? fr : ctx.lang === 'sv' ? (sv || no || en) : ctx.lang === 'da' ? (no || en) : en;
   const [tab, setTab] = useStateC('activities');
   const [filter, setFilter] = useStateC('All');
   const [favs, setFavs] = useStateC({});

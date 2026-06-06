@@ -628,7 +628,7 @@ function ItinModal({ trip, onClose, lang, fmt }) {
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, []);
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   const s = (field) => typeof field === 'object' && field !== null ? (field[lang] || field.en || field) : field;
   const terms = STANDARD_TERMS[lang === 'no' ? 'no' : lang === 'fr' ? 'fr' : lang === 'sv' ? 'sv' : 'en'];
 
@@ -923,7 +923,7 @@ function Itineraries() {
   const ctx = useMS();
   const price = usePrice();
   const lang = ctx.lang || 'en';
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   const [filter, setFilter] = useStateIt('4D3N');
   const [sliderDir, setSliderDir] = useStateIt('next');
   const [openTrip, setOpenTrip] = useStateIt(null);

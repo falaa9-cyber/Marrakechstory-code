@@ -225,7 +225,7 @@ function Flights() {
   const fromList = reversed ? MOROCCAN_AIRPORTS : NORWEGIAN_AIRPORTS;
   const toList = reversed ? NORWEGIAN_AIRPORTS : MOROCCAN_AIRPORTS;
 
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
 
   const swap = () => {
     setReversed(r => !r);

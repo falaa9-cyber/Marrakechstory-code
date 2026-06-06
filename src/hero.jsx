@@ -85,7 +85,7 @@ function FlightHelpBox() {
   const [people, setPeople] = useState(ctx.travellers?.adults || 2);
 
   const lang = ctx.lang || 'en';
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   const label = tx('Need help with flights?', 'Trenger du hjelp med fly?', "Besoin d'aide pour le vol ?", 'Behöver du hjälp med flyg?');
 
   const syncContext = (d, r, p) => {

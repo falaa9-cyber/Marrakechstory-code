@@ -37,7 +37,7 @@ function QuickBookModal({ item, tab, onClose }) {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   const prefill = readUserPrefill();
   const [date, setDate] = useStateB(todayPlusBk(14));
   const [people, setPeople] = useStateB(2);
@@ -209,7 +209,7 @@ function TweakItineraryModal({ trip, onClose }) {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   // Localize {en,no,fr,sv} objects (or pass strings through). Trip titles,
   // day routes/text and catalog item names all arrive as localized objects —
   // rendering one raw as a React child crashes the whole page.
@@ -399,7 +399,7 @@ function TweakItineraryModal({ trip, onClose }) {
 // CATALOG PICKER — used by TweakItineraryModal and FavouritesQuickAdd
 // ──────────────────────────────────────────────────────────────
 function CatalogPicker({ onClose, onPick, lang }) {
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   const D = window.MS_DATA || {};
   const [tab, setTab] = useStateB('activities');
   const [q, setQ] = useStateB('');
@@ -461,7 +461,7 @@ function FavouritesQuickAdd() {
   const { useMS } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
-  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : en;
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
   const L = (v) => v == null ? '' : (typeof v === 'string' ? v : (v[lang] || v.en || v.no || v.nb || v.fr || v.sv || (Object.values(v).find((x) => typeof x === 'string')) || ''));
   const [favs, setFavs] = useStateB([]);
   const [tweakTrip, setTweakTrip] = useStateB(null);
