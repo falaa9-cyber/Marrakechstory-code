@@ -62,7 +62,8 @@
 
   // ---- format ----
   const nf = (n) => (Number(n) || 0).toLocaleString('en-US');
-  const kr = (n) => nf(n) + ' kr';
+  // Money: always show 2 decimals, Norwegian style (e.g. "12 075,00 kr").
+  const kr = (n) => (Number(n) || 0).toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' kr';
   // ---- request/lead display helpers (used by Dashboard + Requests) ----
   const CAT_LABEL = { experiences: 'Experience', activities: 'Experience', transport: 'Transport', stays: 'Stay', riads: 'Stay', tours: 'Tour', desert: 'Desert trip', wellness: 'Wellness', food: 'Food & dining', day: 'Day trip', daytrips: 'Day trip' };
   // Localized values arrive as {en,no,fr,sv} objects OR plain strings.
