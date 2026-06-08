@@ -18,10 +18,10 @@ function buildSiteSearchIndex(lang) {
   (window.MS_ITINERARIES || []).forEach((t) => {
     items.push({
       kind: 'trip', id: 'trip-' + t.slug, slug: t.slug,
-      title: t.title,
-      subtitle: `${t.duration || ''} · ${t.route || ''}`.trim(),
-      tags: [...(t.themeTags || []), t.idealFor || ''].filter(Boolean),
-      teaser: t.teaser || t.overview || '',
+      title: L(t.title),
+      subtitle: `${L(t.duration) || ''} · ${L(t.route) || ''}`.trim().replace(/^· |· $/, ''),
+      tags: [...(t.themeTags || []), L(t.idealFor)].filter(Boolean),
+      teaser: L(t.teaser) || L(t.overview) || '',
       icon: '🗺️',
       action: () => {
         window.dispatchEvent(new CustomEvent('ms:open-trip', { detail: { slug: t.slug } }));
@@ -87,15 +87,16 @@ function buildSiteSearchIndex(lang) {
 
 function scoreMatch(item, qLower) {
   // Match priority: title startsWith > word-boundary in title > substring in title > substring in tags/subtitle > substring in teaser
-  const t = (item.title || '').toLowerCase();
+  // String() guards against any value that slipped through as an object.
+  const t = String(item.title || '').toLowerCase();
   if (t.startsWith(qLower)) return 100;
   if (new RegExp('(?:^|\\s)' + qLower.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).test(t)) return 80;
   if (t.includes(qLower)) return 60;
-  const sub = (item.subtitle || '').toLowerCase();
+  const sub = String(item.subtitle || '').toLowerCase();
   if (sub.includes(qLower)) return 45;
   const tags = (item.tags || []).map(x => String(x).toLowerCase()).join(' ');
   if (tags.includes(qLower)) return 35;
-  const teaser = (item.teaser || '').toLowerCase();
+  const teaser = String(item.teaser || '').toLowerCase();
   if (teaser.includes(qLower)) return 20;
   return 0;
 }
