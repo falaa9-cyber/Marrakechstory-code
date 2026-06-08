@@ -211,6 +211,8 @@ function ProfilePanel({ user, onClose, onLogout }) {
   const ctx = useMS();
   const lang = ctx.lang || 'no';
   const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
+  // Localize {en,no,fr,sv} objects (saved trips/catalog items carry these).
+  const L = (v) => v == null ? '' : (typeof v === 'object' && !Array.isArray(v) ? (v[lang] || v.en || v.no || v.fr || '') : v);
   const [profile, setProfile] = useStateE2(() => ({
     name: user?.name || '',
     email: user?.email || '',
@@ -486,8 +488,8 @@ function ProfilePanel({ user, onClose, onLogout }) {
                       <div className="ms-profile-trip-img" style={{ backgroundImage: `url(${t.img})` }} />
                       <div className="ms-profile-trip-body">
                         <div className="ms-profile-trip-chapter">CHAPTER {t.chapter} · {t.duration}</div>
-                        <h3>{t.title}</h3>
-                        <p>{t.teaser}</p>
+                        <h3>{L(t.title)}</h3>
+                        <p>{L(t.teaser)}</p>
                       </div>
                     </article>
                   ))}
@@ -500,9 +502,9 @@ function ProfilePanel({ user, onClose, onLogout }) {
                     <article key={`${it.tab}-${i}`} className="ms-profile-trip">
                       <div className="ms-profile-trip-img" style={{ backgroundImage: `url(${it.img})` }} />
                       <div className="ms-profile-trip-body">
-                        <div className="ms-profile-trip-chapter">{it.tab.toUpperCase()} · {it.filter || it.tag || ''}</div>
-                        <h3>{it.name}</h3>
-                        <p>{it.desc}</p>
+                        <div className="ms-profile-trip-chapter">{String(it.tab || '').toUpperCase()} · {L(it.filter || it.tag) || ''}</div>
+                        <h3>{L(it.name)}</h3>
+                        <p>{L(it.desc)}</p>
                       </div>
                     </article>
                   ))}

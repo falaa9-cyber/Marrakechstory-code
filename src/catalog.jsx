@@ -87,7 +87,7 @@ function ModalGallery({ tab, item, lang }) {
     return (
       <div className="cat-modal-img cat-img-resolved">
         <ResolvedImg tab={tab} item={item} alt={item.name} />
-        <span className="cat-modal-tag">{item.tag || item.style || item.cuisine}</span>
+        <span className="cat-modal-tag">{localize(item.tag || item.style || item.cuisine, lang)}</span>
       </div>
     );
   }
@@ -98,7 +98,7 @@ function ModalGallery({ tab, item, lang }) {
     <div className="cat-modal-gallery">
       <div className="cat-modal-img cat-img-resolved">
         <ResolvedImg tab={tab} item={item} alt={`${item.name} ${active + 1}/${total}`} srcOverride={images[active]} />
-        <span className="cat-modal-tag">{item.tag || item.style || item.cuisine}</span>
+        <span className="cat-modal-tag">{localize(item.tag || item.style || item.cuisine, lang)}</span>
         {total > 1 && (
           <>
             <button className="cat-modal-nav prev" onClick={prev} aria-label="Previous"><Ic.Arrow s={16} /></button>
@@ -208,25 +208,25 @@ function CatalogModal({ item, tab, onClose, lang }) {
           {item.slogan && <p className="cat-modal-slogan">{localize(item.slogan, lang)}</p>}
           {tab === 'restaurants' && item.cuisine && (
             <div className="cat-modal-meta">
-              <span className="cat-modal-pill"><Ic.Utensils s={13} /> {item.cuisine}</span>
-              {item.price && <span className="cat-modal-pill">{item.price}</span>}
+              <span className="cat-modal-pill"><Ic.Utensils s={13} /> {localize(item.cuisine, lang)}</span>
+              {item.price && <span className="cat-modal-pill">{localize(item.price, lang)}</span>}
             </div>
           )}
           {item.style && tab !== 'restaurants' && (
             <div className="cat-modal-meta">
-              <span className="cat-modal-pill">{item.style}</span>
+              <span className="cat-modal-pill">{localize(item.style, lang)}</span>
             </div>
           )}
           {item.atmosphere && (
-            <p className="cat-modal-atmosphere"><Ic.Sparkle s={12} /> {item.atmosphere}</p>
+            <p className="cat-modal-atmosphere"><Ic.Sparkle s={12} /> {localize(item.atmosphere, lang)}</p>
           )}
           {item.whatToOrder && (
-            <p className="cat-modal-wto"><strong>{tx('What to order:', 'Bestill:', 'À commander :', 'Beställ:')}</strong> {item.whatToOrder}</p>
+            <p className="cat-modal-wto"><strong>{tx('What to order:', 'Bestill:', 'À commander :', 'Beställ:')}</strong> {localize(item.whatToOrder, lang)}</p>
           )}
           {item.perk && (
             <div className="cat-modal-perk">
               <span className="cat-modal-perk-label">{tx('Marrakechstory perk', 'Marrakechstory-fordel', 'Avantage Marrakechstory', 'Marrakechstory-fördel')}</span>
-              <span className="cat-modal-perk-text">{item.perk}</span>
+              <span className="cat-modal-perk-text">{localize(item.perk, lang)}</span>
             </div>
           )}
           {(() => {
@@ -296,7 +296,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
             <div className="cat-modal-included">
               <div className="cat-modal-offers-title">{tx('Included', 'Inkludert', 'Inclus', 'Ingår')}</div>
               <ul className="cat-modal-included-list">
-                {item.included.map((inc, i) => <li key={i}><Ic.Check s={13} /> {inc}</li>)}
+                {item.included.map((inc, i) => <li key={i}><Ic.Check s={13} /> {localize(inc, lang)}</li>)}
               </ul>
             </div>
           )}
@@ -594,7 +594,7 @@ function Catalog() {
                   style={{ cursor: 'pointer' }}>
                   <ResolvedImg tab={tab} item={it} alt={it.name} />
                   <div className="cat-img-content">
-                    <span className="cat-tag brand">{it.tag || it.style || it.cuisine}</span>
+                    <span className="cat-tag brand">{localize(it.tag || it.style || it.cuisine, ctx.lang)}</span>
                   </div>
                   <button className={`cat-fav ${favs[key] ? 'active' : ''}`} onClick={e => { e.stopPropagation(); toggleFav(key); }}>
                     <Ic.Heart s={16} filled={favs[key]} />
