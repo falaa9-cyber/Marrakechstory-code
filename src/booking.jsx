@@ -400,6 +400,9 @@ function TweakItineraryModal({ trip, onClose }) {
 // ──────────────────────────────────────────────────────────────
 function CatalogPicker({ onClose, onPick, lang }) {
   const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
+  // Catalog fields (name/area/desc) can be {en,no,fr} objects (e.g. the La Bohème
+  // camp) — localize before rendering or string-matching, else React crashes.
+  const L = (v) => v == null ? '' : (typeof v === 'object' && !Array.isArray(v) ? (v[lang] || v.en || v.no || v.fr || '') : v);
   const D = window.MS_DATA || {};
   const [tab, setTab] = useStateB('activities');
   const [q, setQ] = useStateB('');
@@ -416,7 +419,7 @@ function CatalogPicker({ onClose, onPick, lang }) {
   const items = useMemoB(() => {
     if (!q.trim()) return current.data.slice(0, 30);
     const lq = q.toLowerCase();
-    return current.data.filter(i => (i.name + ' ' + (i.desc || '') + ' ' + (i.area || '')).toLowerCase().includes(lq)).slice(0, 30);
+    return current.data.filter(i => (L(i.name) + ' ' + L(i.desc) + ' ' + L(i.area)).toLowerCase().includes(lq)).slice(0, 30);
   }, [tab, q, current]);
 
   return (
@@ -439,8 +442,8 @@ function CatalogPicker({ onClose, onPick, lang }) {
             <button key={i} className="ms-picker-item" onClick={() => onPick(it, tab)}>
               <div className="ms-picker-thumb" style={{ backgroundImage: `url(${it.img})` }} />
               <div className="ms-picker-meta">
-                <strong>{it.name}</strong>
-                <span>{it.area}</span>
+                <strong>{L(it.name)}</strong>
+                <span>{L(it.area)}</span>
               </div>
               <span className="ms-picker-add">+</span>
             </button>
