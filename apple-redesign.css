@@ -4838,3 +4838,18 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   .ms-hero::before, .ms-hero::after, .wa-widget, .ms-chat-fab { animation: none !important; }
   .cat-card, .trip-feature, .trip-card, .reiseplaner-card, .btn-primary, .btn-ink { transition: none !important; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   v224 — Hero tidy-up. The absolutely-positioned credibility strip only
+   lays out cleanly as a single row on wide desktop. Below ~900px it
+   wrapped and collided with the CTAs / floating buttons (messy on phone
+   AND tablet). Show it only on wide screens; tidy the phone hero.
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .ms-hero .ms-hero-credibility,
+  .ms-hero > .ms-hero-credibility { display: none !important; }
+}
+@media (max-width: 640px) {
+  .ms-hero-eyebrow-below { margin-top: 16px !important; }
+  .ms-hero.ms-hero-static .ms-hero-content-centered { padding-bottom: 8px !important; }
+}
