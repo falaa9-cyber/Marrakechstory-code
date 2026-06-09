@@ -171,7 +171,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
         <button className="auth-close" onClick={() => onClose(false)} aria-label="Close">✕</button>
 
         {/* Left — Marrakech welcome panel with the value proposition */}
-        <aside className="auth-aside" style={{ backgroundImage: "url(assets/photos/marrakech-jardin-majorelle-01.jpg)" }}>
+        <aside className="auth-aside" style={{ backgroundImage: "url(assets/photos/riad-pool-dusk-15.jpg)" }}>
           <div className="auth-aside-inner">
             <div className="auth-aside-logo"><img src="assets/logo.png" alt="MarrakechStory" onError={(e) => { e.target.style.display = 'none'; }} /></div>
             <h2 className="auth-aside-title">{T('Join MarrakechStory', 'Bli med i MarrakechStory', 'Rejoignez MarrakechStory')}</h2>
