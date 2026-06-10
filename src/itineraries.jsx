@@ -624,6 +624,127 @@ const ITINS = [
   },
 ];
 
+// ── PER-TRIP IMAGE GALLERIES ─────────────────────────────────────
+// Content-matched, hand-verified photos for each trip's stops/cities/
+// activities. Bare names live in assets/photos/; "web/…" are landmark
+// shots sourced from Wikimedia Commons (freely licensed). Every image
+// was visually checked — never trust a filename.
+const MS_TRIP_GALLERIES = {
+  'merzouga-sahara-escape': [
+    'medina-koutoubia-dusk-18.jpg', 'atlas-mountains-20.jpg', 'web/aitbenhaddou.jpg',
+    'web/ouarzazate-kasbah.jpg', 'web/dades-valley.jpg', 'web/todra-gorge.jpg',
+    'sahara-camel-caravan-16.jpg', 'sahara-dunes-ripples-13.jpg', 'sahara-dunes-10.jpg',
+    'sahara-dunes-12.jpg', 'sahara-camel-sunrise-15.jpg', 'food-tagine-09.webp',
+  ],
+  'marrakech-agafay': [
+    'medina-jemaa-el-fna-10.webp', 'medina-souk-spices-19.jpg', 'medina-koutoubia-04.jpg',
+    'riad-courtyard-pool-03.jpg', 'food-garden-restaurant-05.jpg', 'food-cooking-class-13.jpg',
+    'agafay-camp-aerial-06.jpg', 'agafay-pool-08.jpg', 'agafay-camel-palmeraie-20.jpg',
+    'agafay-dinner-table-03.jpg', 'agafay-night-fire-show-02.avif', 'agafay-dome-night-09.webp',
+  ],
+  'best-of-marrakech': [
+    'medina-rooftop-cafe-14.jpg', 'medina-jemaa-el-fna-night-11.jpg', 'medina-carpet-souk-30.jpg',
+    'marrakech-jardin-majorelle-01.jpg', 'riad-pool-dusk-15.jpg', 'atlas-setti-fatma-falls-12.jpg',
+    'atlas-azzaden-valley-03.jpg', 'essaouira-blue-boats-02.jpg', 'agafay-pool-08.jpg',
+    'agafay-camp-aerial-06.jpg', 'agafay-night-lounge-05.jpg', 'food-tagine-09.webp',
+  ],
+  'morocco-highlights': [
+    'medina-koutoubia-04.jpg', 'atlas-mountains-20.jpg', 'web/aitbenhaddou.jpg',
+    'web/dades-valley.jpg', 'web/todra-gorge.jpg', 'sahara-camel-caravan-16.jpg',
+    'sahara-dunes-ripples-13.jpg', 'sahara-dunes-10.jpg', 'sahara-camel-sunrise-15.jpg',
+    'agafay-night-fire-show-02.avif', 'food-mechoui-lamb-03.webp',
+  ],
+  'grand-morocco-journey': [
+    'web/tangier-medina.jpg', 'web/chefchaouen-2.jpg', 'chefchaouen-blue-alley-01.jpg',
+    'web/fez-bab.jpg', 'web/fez-tannery.jpg', 'sahara-camel-caravan-16.jpg',
+    'sahara-dunes-ripples-13.jpg', 'sahara-dunes-10.jpg', 'medina-koutoubia-dusk-18.jpg',
+    'medina-jemaa-el-fna-night-11.jpg', 'riad-courtyard-pool-03.jpg',
+  ],
+  'full-morocco-honeymoon': [
+    'web/agadir-bay.jpg', 'riad-suite-honeymoon-22.jpg', 'medina-koutoubia-dusk-18.jpg',
+    'riad-pool-dusk-01.jpg', 'agafay-night-dinner-04.jpg', 'sahara-camel-caravan-16.jpg',
+    'sahara-dunes-ripples-13.jpg', 'web/fez-bab.jpg', 'web/chefchaouen-2.jpg',
+    'web/tangier-medina.jpg', 'hammam-spa-room-01.avif', 'balloon-marrakech-01.jpg',
+  ],
+  'romance-4d3n': [
+    'riad-suite-honeymoon-22.jpg', 'riad-pool-dusk-15.jpg', 'medina-lanterns-25.jpg',
+    'agafay-night-dinner-04.jpg', 'agafay-dome-night-09.webp', 'agafay-night-fire-show-02.avif',
+    'agafay-pool-08.jpg', 'hammam-spa-room-01.avif', 'balloon-marrakech-01.jpg',
+  ],
+  'romance-5d4n': [
+    'riad-suite-honeymoon-22.jpg', 'medina-rooftop-cafe-14.jpg', 'agafay-night-lounge-05.jpg',
+    'agafay-dome-night-09.webp', 'essaouira-beach-horse-01.jpg', 'essaouira-horse-sunset-03.jpg',
+    'essaouira-blue-boats-02.jpg', 'riad-pool-dusk-15.jpg', 'balloon-marrakech-01.jpg',
+  ],
+  'family-4d3n': [
+    'medina-jemaa-el-fna-10.webp', 'medina-storks-03.jpg', 'riad-courtyard-pool-03.jpg',
+    'agafay-camel-palmeraie-20.jpg', 'agafay-buggy-desert-19.jpg', 'agafay-quad-desert-18.jpg',
+    'agafay-pool-08.jpg', 'food-cooking-class-13.jpg', 'balloon-marrakech-01.jpg',
+  ],
+  'family-5d4n': [
+    'medina-jemaa-el-fna-10.webp', 'atlas-setti-fatma-falls-12.jpg', 'atlas-azzaden-valley-03.jpg',
+    'atlas-valley-14.jpg', 'agafay-camel-palmeraie-20.jpg', 'agafay-buggy-desert-19.jpg',
+    'agafay-pool-08.jpg', 'riad-courtyard-pool-03.jpg', 'food-tagine-09.webp',
+  ],
+};
+function msGalleryFor(trip) {
+  const g = MS_TRIP_GALLERIES[trip.slug];
+  const list = (g && g.length) ? g : [trip.img];
+  return list.map(p => (/^(assets\/|https?:)/.test(p) ? p : 'assets/photos/' + p));
+}
+
+// ── HERO CAROUSEL — auto-advancing, arrows, dots, swipe ──────────
+function TripCarousel({ images, alt, children }) {
+  const [idx, setIdx] = useStateIt(0);
+  const [paused, setPaused] = useStateIt(false);
+  const touch = useRefIt(null);
+  const n = images.length;
+  useEffectIt(() => {
+    if (paused || n <= 1) return;
+    const t = setInterval(() => setIdx(i => (i + 1) % n), 4200);
+    return () => clearInterval(t);
+  }, [paused, n]);
+  useEffectIt(() => { if (idx >= n) setIdx(0); }, [n]);
+  const go = (d) => setIdx(i => (i + d + n) % n);
+  const onTouchStart = (e) => { touch.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touch.current == null) return;
+    const dx = e.changedTouches[0].clientX - touch.current;
+    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    touch.current = null;
+  };
+  return (
+    <div className="itin-carousel"
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
+      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div className="itin-carousel-track">
+        {images.map((src, i) => (
+          <div key={i}
+            className={'itin-carousel-slide' + (i === idx ? ' is-active' : '')}
+            style={{ backgroundImage: `url(${src})` }}
+            role="img" aria-label={alt ? alt + ' — ' + (i + 1) : undefined} />
+        ))}
+      </div>
+      {children}
+      {n > 1 && (
+        <>
+          <button className="itin-carousel-arrow prev" onClick={(e) => { e.stopPropagation(); go(-1); }} aria-label="Previous image">‹</button>
+          <button className="itin-carousel-arrow next" onClick={(e) => { e.stopPropagation(); go(1); }} aria-label="Next image">›</button>
+          <div className="itin-carousel-count">{idx + 1} / {n}</div>
+          <div className="itin-carousel-dots">
+            {images.map((_, i) => (
+              <button key={i}
+                className={'itin-carousel-dot' + (i === idx ? ' is-active' : '')}
+                onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+                aria-label={'Go to image ' + (i + 1)} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── DETAIL MODAL — single scrollable page ───────────────────────
 function ItinModal({ trip, onClose, lang, fmt }) {
   useEffectIt(() => {
@@ -656,19 +777,21 @@ function ItinModal({ trip, onClose, lang, fmt }) {
       <div className="itin-modal itin-modal-v2" onClick={e => e.stopPropagation()}>
         <button className="itin-modal-close" onClick={onClose} aria-label="Close">✕</button>
 
-        {/* Hero */}
-        <div className="itin-modal-hero" style={{ backgroundImage: `url(${trip.img})` }}>
-          <div className="itin-modal-hero-overlay">
-            <div className="itin-modal-eyebrow">— {tx('Chapter','Kapittel','Chapitre')} {trip.chapter} · {trip.duration}</div>
-            <h2 className="itin-modal-title">{s(trip.title)}</h2>
-            <div className="itin-modal-route">{trip.route}</div>
-            {trip.idealFor && (
-              <span className="itin-modal-hero-pill">
-                <span className="itin-modal-hero-pill-label">{tx('Ideal for','Perfekt for','Idéal pour')}</span>
-                {s(trip.idealFor)}
-              </span>
-            )}
-          </div>
+        {/* Hero — image carousel of this trip's stops */}
+        <div className="itin-modal-hero">
+          <TripCarousel images={msGalleryFor(trip)} alt={s(trip.title)}>
+            <div className="itin-modal-hero-overlay">
+              <div className="itin-modal-eyebrow">— {tx('Chapter','Kapittel','Chapitre')} {trip.chapter} · {trip.duration}</div>
+              <h2 className="itin-modal-title">{s(trip.title)}</h2>
+              <div className="itin-modal-route">{trip.route}</div>
+              {trip.idealFor && (
+                <span className="itin-modal-hero-pill">
+                  <span className="itin-modal-hero-pill-label">{tx('Ideal for','Perfekt for','Idéal pour')}</span>
+                  {s(trip.idealFor)}
+                </span>
+              )}
+            </div>
+          </TripCarousel>
         </div>
 
         {/* Single scrollable body */}
