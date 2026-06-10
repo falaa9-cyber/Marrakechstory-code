@@ -92,6 +92,7 @@ function QuickBookModal({ item, tab, onClose }) {
     persistQuickBook('whatsapp');
     window.open(whatsappUrl(buildMessage()), '_blank', 'noopener');
     setSent(true);
+    if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
   };
 
   const sendEmail = () => {
@@ -101,6 +102,7 @@ function QuickBookModal({ item, tab, onClose }) {
     window.location.href = `mailto:marrakechstory@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     persistQuickBook('email');
     setSent(true);
+    if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
   };
 
   return (
@@ -282,6 +284,7 @@ function TweakItineraryModal({ trip, onClose }) {
       }, { via: 'website' });
     }
     setSent(true);
+    if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
   };
 
   return (

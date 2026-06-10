@@ -4617,8 +4617,8 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   color: var(--brand, #e0432a) !important;
   font-weight: 600 !important;
   border: none !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
+  padding: 8px 14px !important;       /* match the other nav links so it aligns */
+  border-radius: 999px !important;
   background: none !important;
   white-space: nowrap;
 }

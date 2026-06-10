@@ -188,6 +188,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
       localStorage.setItem('ms_profile_data', JSON.stringify({ ...prev, name: r.name || prev.name, email: r.email || prev.email, phone: r.phone || prev.phone }));
     } catch (e) {}
     setBusy(false); setSent(true);
+    if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
   };
 
   return (

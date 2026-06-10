@@ -644,13 +644,15 @@ function ItineraryBuilder() {
     submitReservation('email');
     saveToProfile('email');
     setSent(true);
+    if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
   };
 
   // Send the request AND open the account creation modal (so the client can
   // track the booking). Safe now that send() no longer navigates away.
   const sendAndRegister = () => {
     send();
-    if (window.MS_Auth_Prompt) setTimeout(() => window.MS_Auth_Prompt('register'), 350);
+    // Explicit "create an account" button — force the modal for logged-out users.
+    if (!window.MS_Auth_User && window.MS_Auth_Prompt) setTimeout(() => window.MS_Auth_Prompt('register'), 350);
   };
 
   const OptCard = ({ field, value, ttl, sub, ico, multi }) => {

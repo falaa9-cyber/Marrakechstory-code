@@ -319,16 +319,9 @@ function AuthSystem() {
     return () => sub?.subscription?.unsubscribe?.();
   }, []);
 
-  // Auto-suggest sign-up shortly after the page opens (after the logo intro),
-  // once per browser session, only while logged out and not already dismissed.
-  useEA(() => {
-    if (getStoredUser()) return;
-    if (sessionStorage.getItem('ms_auth_seen')) return;
-    const t = setTimeout(() => {
-      if (!getStoredUser()) { sessionStorage.setItem('ms_auth_seen', '1'); setModalView('register'); setShowModal(true); }
-    }, 3500);
-    return () => clearTimeout(t);
-  }, []);
+  // NOTE: we no longer pop the sign-up modal on page load. Instead we propose
+  // creating an account at the moment it's useful — right after a reservation
+  // is sent — via window.MS_Auth_PromptAfterBooking(). See below.
 
   const handleLogin = (u) => { setUser(u); setShowProfile(true); };
   const handleLogout = async () => {
@@ -338,6 +331,15 @@ function AuthSystem() {
   const openModal = (view = 'register') => { setModalView(view); setShowModal(true); };
 
   window.MS_Auth_Prompt = (view) => openModal(view || 'register');
+  // Called right after a booking/reservation is sent. Proposes creating an
+  // account (only while logged out) so the booking lands in their profile,
+  // with their invoice, itinerary and history. Fires once per session so we
+  // never nag a user who has already dismissed it this visit.
+  window.MS_Auth_PromptAfterBooking = () => {
+    if (getStoredUser()) return;
+    try { if (sessionStorage.getItem('ms_auth_booked')) return; sessionStorage.setItem('ms_auth_booked', '1'); } catch {}
+    setTimeout(() => { if (!getStoredUser()) openModal('register'); }, 600);
+  };
   window.MS_Auth_User = user;
   window.MS_OpenProfile = () => { if (user) setShowProfile(true); else openModal('login'); };
 
