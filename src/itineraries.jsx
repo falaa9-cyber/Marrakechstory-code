@@ -107,64 +107,11 @@ const MOST_BOOKED = (function() {
   });
 })();
 
-// ── ITINERARIES (11 chapters — Marrakech Story collection) ──────
+// ── ITINERARIES (10 chapters — Marrakech Story collection) ──────
 const ITINS = [
-  // ===== Chapter 01 — 3D2N — Marrakech City Escape =====
+  // ===== Chapter 01 — 3D2N — Merzouga Sahara Expedition =====
   {
-    slug: "marrakech-city-escape", chapter: "01",
-    title: { en: "Marrakech City Escape", no: "Marrakech Byopphold", fr: "Escapade à Marrakech" },
-    duration: "3D2N", days: 3, nights: 2,
-    route: "Marrakech",
-    priceFromEUR: 107,  // ×1.4 display ≈ €150 / person — accommodation now included (final price TBC by owner)
-    img: "assets/photos/medina-jemaa-el-fna-night-11.jpg",
-    badge: { en: "NEW · CITY BREAK", no: "NY · BYOPPHOLD", fr: "NOUVEAU · CITY BREAK" },
-    themeTags: ["Medina", "Souks", "Jemaa el-Fna", "Riad"],
-    teaser: { en: "Three days in the Red City — the medina and souks with a certified guide, rooftop sunsets and the nightly theatre of Jemaa el-Fna. The perfect short break or add-on.", no: "Tre dager i Den røde byen — medina og souker med sertifisert guide, solnedganger fra taket og kveldsteateret på Jemaa el-Fna. Det perfekte korte oppholdet eller tillegget.", fr: "Trois jours dans la Ville Rouge — la médina et les souks avec un guide certifié, couchers de soleil sur les toits et le théâtre nocturne de Jemaa el-Fna. L'escapade ou l'extension idéale." },
-    overview: { en: "A short, elegant first taste of Marrakech — built for couples, first-timers and anyone adding a few days onto a longer trip. A full guided day through the medina and souks, free time for the hammam, Majorelle Garden or shopping, and two nights in a luxury riad in the heart of the old city. No long drives — just the Red City at its own rhythm. Group size 1–10. Best any time of year; spring and autumn are loveliest.", no: "En kort, elegant første smak av Marrakech — laget for par, førstegangsreisende og alle som legger noen dager til en lengre reise. En hel guidet dag gjennom medina og souker, fritid til hammam, Majorelle-hagen eller shopping, og to netter i et luksuriøst riad i hjertet av gamlebyen. Ingen lange kjøreturer — bare Den røde byen i sitt eget tempo. Gruppestørrelse 1–10. Fint hele året; vår og høst er vakrest.", fr: "Un premier aperçu court et élégant de Marrakech — pensé pour les couples, les primo-visiteurs et tous ceux qui ajoutent quelques jours à un voyage plus long. Une journée guidée complète dans la médina et les souks, du temps libre pour le hammam, le Jardin Majorelle ou le shopping, et deux nuits dans un riad de luxe au cœur de la vieille ville. Aucune longue route — juste la Ville Rouge à son propre rythme. Groupe de 1 à 10. Agréable toute l'année ; le printemps et l'automne sont les plus beaux." },
-    idealFor: { en: "Short breaks · couples · first-timers · add-on to a longer trip", no: "Korte opphold · par · førstegangsreisende · tillegg til en lengre reise", fr: "Courts séjours · couples · primo-visiteurs · extension d'un voyage plus long" },
-    highlights: [
-      { en: "Certified guided medina & souk tour — spice, carpet & leather souks, artisan workshops", no: "Sertifisert guidet medina- & souk-tur — krydder-, teppe- & lærsouker, håndverksverksteder", fr: "Visite guidée certifiée de la médina & des souks — souks des épices, tapis & cuir, ateliers d'artisans" },
-      { en: "Jemaa el-Fna by night — storytellers, musicians, food stalls", no: "Jemaa el-Fna om natten — historiefortellere, musikere, matboder", fr: "Jemaa el-Fna la nuit — conteurs, musiciens, étals de nourriture" },
-      { en: "Bahia Palace & Saadian Tombs · optional Majorelle Garden", no: "Bahia-palasset & Saadier-gravene · valgfri Majorelle-hagen", fr: "Palais Bahia & Tombeaux Saadiens · Jardin Majorelle en option" },
-      { en: "Rooftop sunset drinks over the medina", no: "Solnedgangsdrinker på taket over medina", fr: "Apéritif au coucher du soleil sur les toits de la médina" },
-      { en: "Two nights in a luxury riad in the heart of the old city", no: "To netter i et luksuriøst riad i hjertet av gamlebyen", fr: "Deux nuits dans un riad de luxe au cœur de la vieille ville" },
-    ],
-    itinerary: [
-      { day: 1, route: { en: "Arrival & First Impressions", no: "Ankomst & Første inntrykk", fr: "Arrivée & Premières impressions" }, text: {
-        en: "Upon arrival ~~ Driver at the arrivals hall with your personalised Marrakech Story sign || Transfer ~~ Private car to your luxury riad (15–30 min) || 14:00–16:00 ~~ Riad check-in · welcome mint tea · freshen up || 17:00–19:00 ~~ Free time — explore the streets around the riad || 19:00 ~~ Rooftop sunset drinks || 20:00 ~~ Dinner at a traditional medina restaurant (our recommendation) || Evening ~~ Jemaa el-Fna square — storytellers, musicians, food stalls",
-        no: "Ved ankomst ~~ Sjåfør i ankomsthallen med ditt personlige Marrakech Story-skilt || Transfer ~~ Privat bil til ditt luksuriøse riad (15–30 min) || 14:00–16:00 ~~ Innsjekk riad · velkomst myntete · friske opp || 17:00–19:00 ~~ Fritid — utforsk gatene rundt riaden || 19:00 ~~ Solnedgangsdrinker på taket || 20:00 ~~ Middag på en tradisjonell medina-restaurant (vår anbefaling) || Kveld ~~ Jemaa el-Fna-plassen — historiefortellere, musikere, matboder",
-        fr: "À l'arrivée ~~ Chauffeur dans le hall d'arrivée avec votre pancarte personnalisée Marrakech Story || Transfert ~~ Voiture privée vers votre riad de luxe (15–30 min) || 14h00–16h00 ~~ Enregistrement riad · thé à la menthe de bienvenue · rafraîchissement || 17h00–19h00 ~~ Temps libre — explorez les ruelles autour du riad || 19h00 ~~ Apéritif au coucher du soleil sur le toit || 20h00 ~~ Dîner dans un restaurant traditionnel de la médina (notre recommandation) || Soir ~~ Place Jemaa el-Fna — conteurs, musiciens, étals de nourriture" } },
-      { day: 2, route: { en: "The Medina", no: "Medinaen", fr: "La Médina" }, text: {
-        en: "07:30 ~~ Breakfast at the riad || 10:00 ~~ Certified guide pickup at riad reception || 10:00–13:00 ~~ Guided medina & souk tour (3h) — spice market, carpet souk, leather tanneries, artisan workshops, Bahia Palace & Saadian Tombs exteriors || 13:00–15:00 ~~ Lunch at leisure || 15:00–18:00 ~~ Free afternoon: hammam & spa (€25–60/p, optional) · Majorelle Garden · shopping || 18:30 ~~ Jemaa el-Fna at golden hour || 20:00 ~~ Dinner on the square or a rooftop",
-        no: "07:30 ~~ Frokost i riaden || 10:00 ~~ Sertifisert guide henter i riad-resepsjonen || 10:00–13:00 ~~ Guidet medina- & souk-tur (3t) — kryddermarked, teppesouk, lærgarverier, håndverksverksteder, Bahia-palasset & Saadier-gravene utvendig || 13:00–15:00 ~~ Lunsj etter eget valg || 15:00–18:00 ~~ Fri ettermiddag: hammam & spa (€25–60/p, valgfritt) · Majorelle-hagen · shopping || 18:30 ~~ Jemaa el-Fna i gylden time || 20:00 ~~ Middag på plassen eller et tak",
-        fr: "07h30 ~~ Petit-déjeuner au riad || 10h00 ~~ Prise en charge par le guide certifié à la réception du riad || 10h00–13h00 ~~ Visite guidée de la médina & des souks (3h) — marché aux épices, souk des tapis, tanneries, ateliers d'artisans, extérieurs du Palais Bahia & des Tombeaux Saadiens || 13h00–15h00 ~~ Déjeuner libre || 15h00–18h00 ~~ Après-midi libre : hammam & spa (€25–60/p, optionnel) · Jardin Majorelle · shopping || 18h30 ~~ Jemaa el-Fna à l'heure dorée || 20h00 ~~ Dîner sur la place ou sur un toit-terrasse" } },
-      { day: 3, route: { en: "Departure", no: "Avreise", fr: "Départ" }, text: {
-        en: "07:30 ~~ Breakfast || 09:00–11:00 ~~ Leisure morning · final walk · optional Majorelle Garden || Flight −3h ~~ Private transfer to Marrakech Menara Airport",
-        no: "07:30 ~~ Frokost || 09:00–11:00 ~~ Rolig morgen · siste tur · valgfri Majorelle-hagen || Fly −3t ~~ Privat transfer til Marrakech Menara lufthavn",
-        fr: "07h30 ~~ Petit-déjeuner || 09h00–11h00 ~~ Matinée tranquille · dernière balade · Jardin Majorelle en option || Vol −3h ~~ Transfert privé vers l'aéroport Marrakech Menara" } },
-    ],
-    included: [
-      { en: "2 nights in a luxury riad in the Marrakech medina", no: "2 netter i et luksuriøst riad i Marrakech-medina", fr: "2 nuits dans un riad de luxe dans la médina de Marrakech" },
-      { en: "Private transport (airport transfers + guide pickup)", no: "Privat transport (flyplasstransfer + guide-henting)", fr: "Transport privé (transferts aéroport + prise en charge guide)" },
-      { en: "Certified medina & souk guide (3h)", no: "Sertifisert medina- & souk-guide (3t)", fr: "Guide certifié médina & souks (3h)" },
-      { en: "Welcome mint tea on arrival", no: "Velkomst myntete ved ankomst", fr: "Thé à la menthe de bienvenue à l'arrivée" },
-      { en: "2 breakfasts", no: "2 frokoster", fr: "2 petits-déjeuners" },
-      { en: "24/7 WhatsApp support — Aladdin & Marte", no: "24/7 WhatsApp-støtte — Aladdin & Marte", fr: "Assistance WhatsApp 24h/24 — Aladdin & Marte" },
-      { en: "Personalised itinerary PDF", no: "Personlig reiseplan-PDF", fr: "Itinéraire PDF personnalisé" },
-    ],
-    excluded: [
-      { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
-      { en: "All meals except breakfast", no: "Alle måltider unntatt frokost", fr: "Tous les repas sauf le petit-déjeuner" },
-      { en: "Museum tickets (Majorelle ~70 MAD · Bahia ~70 MAD)", no: "Museumsbilletter (Majorelle ~70 MAD · Bahia ~70 MAD)", fr: "Billets de musée (Majorelle ~70 MAD · Bahia ~70 MAD)" },
-      { en: "Hammam & spa (€25–60/p, optional)", no: "Hammam & spa (€25–60/p, valgfritt)", fr: "Hammam & spa (€25–60/p, optionnel)" },
-      { en: "Drinks, personal expenses and tips", no: "Drikke, personlige utgifter og tips", fr: "Boissons, dépenses personnelles et pourboires" },
-      { en: "Travel insurance (strongly recommended)", no: "Reiseforsikring (sterkt anbefalt)", fr: "Assurance voyage (fortement recommandée)" },
-    ],
-  },
-
-  // ===== Chapter 02 — 3D2N — Merzouga Sahara Expedition =====
-  {
-    slug: "merzouga-sahara-escape", chapter: "02",
+    slug: "merzouga-sahara-escape", chapter: "01",
     title: { en: "Merzouga Sahara Expedition", no: "Merzouga Sahara-ekspedisjon", fr: "Expédition Sahara Merzouga" },
     duration: "3D2N", days: 3, nights: 2,
     route: "Marrakech → Tizi n'Tichka → Aït Ben Haddou → Ouarzazate → Dades → Todra → Merzouga → Marrakech",
@@ -212,7 +159,7 @@ const ITINS = [
 
   // ===== 4D3N — Marrakech & Agafay Luxury Escape =====
   {
-    slug: "marrakech-agafay", chapter: "03",
+    slug: "marrakech-agafay", chapter: "02",
     title: { en: "Marrakech & Agafay Luxury Escape", no: "Marrakech & Agafay Luksusopphold", fr: "Évasion Luxe Marrakech & Agafay" },
     duration: "4D3N", days: 4, nights: 3,
     route: "Marrakech → Agafay → Marrakech",
@@ -261,7 +208,7 @@ const ITINS = [
 
   // ===== 5D4N — Best of Marrakech =====
   {
-    slug: "best-of-marrakech", chapter: "04",
+    slug: "best-of-marrakech", chapter: "03",
     title: { en: "Best of Marrakech", no: "Det beste av Marrakech", fr: "Le Meilleur de Marrakech" },
     duration: "5D4N", days: 5, nights: 4,
     route: "Marrakech → Nature Day → Agafay → Marrakech",
@@ -312,7 +259,7 @@ const ITINS = [
 
   // ===== 7D6N — Morocco Highlights =====
   {
-    slug: "morocco-highlights", chapter: "05",
+    slug: "morocco-highlights", chapter: "04",
     title: { en: "Morocco Highlights", no: "Marokko-høydepunkter", fr: "Les Incontournables du Maroc" },
     duration: "7D6N", days: 7, nights: 6,
     route: "Marrakech → Dades → Merzouga → Marrakech",
@@ -386,7 +333,7 @@ const ITINS = [
 
   // ===== 10D9N — Grand Morocco Journey =====
   {
-    slug: "grand-morocco-journey", chapter: "06",
+    slug: "grand-morocco-journey", chapter: "05",
     title: { en: "Grand Morocco Journey", no: "Den store Marokko-reisen", fr: "Le Grand Voyage Maroc" },
     duration: "10D9N", days: 10, nights: 9,
     route: "Tangier → Chefchaouen → Fez → Sahara → Marrakech",
@@ -470,7 +417,7 @@ const ITINS = [
 
   // ===== 14D13N — Full Morocco Honeymoon =====
   {
-    slug: "full-morocco-honeymoon", chapter: "07",
+    slug: "full-morocco-honeymoon", chapter: "06",
     title: { en: "Full Morocco Honeymoon", no: "Fullt Marokko-bryllupsreise", fr: "Lune de Miel Maroc Complet" },
     duration: "14D13N", days: 14, nights: 13,
     route: "Agadir → Marrakech → Sahara → Fes → Chefchaouen → Tangier",
@@ -575,7 +522,7 @@ const ITINS = [
   // ===== 4D3N — Romance Package =====
   {
     __special: true,
-    slug: "romance-4d3n", chapter: "08",
+    slug: "romance-4d3n", chapter: "07",
     title: { en: "Romance Package", no: "Romance-pakke", fr: "Forfait Romance" },
     duration: "4D3N", days: 4, nights: 3,
     route: "Marrakech → Agafay → Marrakech",
@@ -624,7 +571,7 @@ const ITINS = [
   // ===== 5D4N — Romance Package =====
   {
     __special: true,
-    slug: "romance-5d4n", chapter: "09",
+    slug: "romance-5d4n", chapter: "08",
     title: { en: "Romance Package", no: "Romance-pakke", fr: "Forfait Romance" },
     duration: "5D4N", days: 5, nights: 4,
     route: "Marrakech → Agafay → Essaouira → Marrakech",
@@ -674,7 +621,7 @@ const ITINS = [
   // ===== 4D3N — Family Package =====
   {
     __special: true,
-    slug: "family-4d3n", chapter: "10",
+    slug: "family-4d3n", chapter: "09",
     title: { en: "Family Package", no: "Familiepakke", fr: "Forfait Famille" },
     duration: "4D3N", days: 4, nights: 3,
     route: "Marrakech → Agafay → Marrakech",
@@ -722,7 +669,7 @@ const ITINS = [
   // ===== 5D4N — Family Package =====
   {
     __special: true,
-    slug: "family-5d4n", chapter: "11",
+    slug: "family-5d4n", chapter: "10",
     title: { en: "Family Package", no: "Familiepakke", fr: "Forfait Famille" },
     duration: "5D4N", days: 5, nights: 4,
     route: "Marrakech → High Atlas → Agafay → Marrakech",
@@ -775,12 +722,6 @@ const ITINS = [
 // shots sourced from Wikimedia Commons (freely licensed). Every image
 // was visually checked — never trust a filename.
 const MS_TRIP_GALLERIES = {
-  'marrakech-city-escape': [
-    'medina-jemaa-el-fna-night-11.jpg', 'medina-rooftop-cafe-14.jpg', 'medina-koutoubia-dusk-18.jpg',
-    'medina-souk-spices-19.jpg', 'medina-carpet-souk-30.jpg', 'medina-lanterns-25.jpg',
-    'marrakech-jardin-majorelle-01.jpg', 'medina-blue-door-26.jpg', 'riad-courtyard-pool-03.jpg',
-    'riad-pool-dusk-15.jpg', 'medina-rooftop-view-45.jpg', 'food-tagine-09.webp',
-  ],
   'merzouga-sahara-escape': [
     'medina-koutoubia-dusk-18.jpg', 'atlas-mountains-20.jpg', 'web/aitbenhaddou.jpg',
     'web/ouarzazate-kasbah.jpg', 'web/dades-valley.jpg', 'web/todra-gorge.jpg',
@@ -925,7 +866,7 @@ function ItinModal({ trip, onClose, lang, fmt }) {
 
   return (
     <div className="itin-modal-backdrop" onClick={onClose}>
-      <div className="itin-modal itin-modal-v2" onClick={e => e.stopPropagation()}>
+      <div className="itin-modal itin-modal-v2 itin-modal-split" onClick={e => e.stopPropagation()}>
         <button className="itin-modal-close" onClick={onClose} aria-label="Close">✕</button>
 
         {/* Hero — image carousel of this trip's stops */}
@@ -1474,11 +1415,13 @@ function Itineraries() {
                     <div key={t.slug} className="trip-feature reveal"
                       onClick={handleOpen} role="button" tabIndex={0}
                       onKeyDown={e => e.key === 'Enter' && handleOpen()}>
-                      <div className="trip-feature-img" style={{ backgroundImage: `url(${t.img})` }}>
-                        <span className="trip-feature-badge">
-                          {(typeof t.badge === 'object' ? (t.badge[lang] || t.badge.en) : t.badge) || tx('Best pick', 'Best i klassen', 'Notre coup de cœur')}
-                        </span>
-                        <span className="trip-feature-duration">{t.duration}</span>
+                      <div className="trip-feature-img">
+                        <TripCarousel images={msGalleryFor(t)} alt={typeof t.title === 'object' ? (t.title[lang] || t.title.en) : t.title}>
+                          <span className="trip-feature-badge">
+                            {(typeof t.badge === 'object' ? (t.badge[lang] || t.badge.en) : t.badge) || tx('Best pick', 'Best i klassen', 'Notre coup de cœur')}
+                          </span>
+                          <span className="trip-feature-duration">{t.duration}</span>
+                        </TripCarousel>
                       </div>
                       <div className="trip-feature-body">
                         <div className="trip-feature-eyebrow">

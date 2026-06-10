@@ -2147,6 +2147,54 @@ textarea { border-radius: 14px; }
 @media (prefers-reduced-motion: reduce) {
   .itin-carousel-slide.is-active { animation: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   SPLIT-SCREEN TRIP MODAL — images left, info right (desktop)
+   ════════════════════════════════════════════════════════════════ */
+@media (min-width: 860px) {
+  .itin-modal-backdrop .itin-modal.itin-modal-split {
+    display: grid !important;
+    grid-template-columns: 0.82fr 1fr !important;
+    grid-template-rows: 100% !important;        /* one full-height row */
+    width: min(1120px, 96vw) !important;
+    max-width: min(1120px, 96vw) !important;
+    height: min(86vh, 86dvh) !important;
+    max-height: min(86vh, 86dvh) !important;
+    overflow: hidden !important;
+    border-radius: 22px !important;
+  }
+  /* close button stays out of the grid flow, pinned to the modal corner */
+  .itin-modal-backdrop .itin-modal.itin-modal-split > .itin-modal-close { position: absolute !important; z-index: 30 !important; }
+  /* Left column — carousel fills the full height of the modal
+     (high-specificity selector to beat .itin-modal.itin-modal-v2 .itin-modal-hero) */
+  .itin-modal-backdrop .itin-modal.itin-modal-split > .itin-modal-hero {
+    grid-column: 1 !important; grid-row: 1 !important;
+    height: 100% !important; min-height: 0 !important; align-self: stretch !important;
+    border-radius: 22px 0 0 22px !important;
+    margin: 0 !important;
+  }
+  .itin-modal-split .itin-carousel,
+  .itin-modal-split .itin-carousel-track { position: absolute; inset: 0; }
+  /* Right column — info scrolls independently */
+  .itin-modal-backdrop .itin-modal.itin-modal-split > .itin-modal-body {
+    grid-column: 2 !important; grid-row: 1 !important;
+    height: 100% !important; min-height: 0 !important; max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* dots sit a touch higher so they clear the title overlay on the tall image */
+  .itin-modal-split .itin-carousel-dots { bottom: 14px; }
+}
+
+/* ── Carousel inside the homepage feature card ── */
+.trip-feature-img { overflow: hidden; }
+.trip-feature-img .itin-carousel { position: absolute; inset: 0; z-index: 0; }
+.trip-feature-img .itin-carousel-count { display: none; }      /* declutter the card */
+.trip-feature-img .itin-carousel-arrow { width: 34px; height: 34px; font-size: 20px; }
+.trip-feature-img .itin-carousel-dots { bottom: 14px; }
+/* keep the badge / duration chips above the slides */
+.trip-feature-img .trip-feature-badge,
+.trip-feature-img .trip-feature-duration { z-index: 4; }
 .itin-modal-hero-overlay .itin-modal-eyebrow,
 .itin-modal-hero-overlay .itin-modal-title,
 .itin-modal-hero-overlay .itin-modal-route,
