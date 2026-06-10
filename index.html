@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=231" />
-  <link rel="stylesheet" href="apple-redesign.css?v=231" />
-  <link rel="stylesheet" href="admin.css?v=231" />
+  <link rel="stylesheet" href="styles.css?v=234" />
+  <link rel="stylesheet" href="apple-redesign.css?v=234" />
+  <link rel="stylesheet" href="admin.css?v=234" />
 
   <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -57,8 +57,27 @@
       font-size: 14px; font-weight: 600; cursor: pointer;
     }
   </style>
+  <style id="ms-intro-style">
+    #ms-intro { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 50% 45%, #2a1813 0%, #160d0a 68%, #0d0807 100%);
+      transition: opacity .6s ease, visibility .6s ease; }
+    #ms-intro.ms-intro-hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    #ms-intro .ms-intro-logo { width: min(40vw, 190px); height: auto; filter: drop-shadow(0 12px 44px rgba(0,0,0,.55));
+      animation: msIntroZoom 1.6s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes msIntroZoom { 0% { opacity: 0; transform: scale(.42); } 55% { opacity: 1; transform: scale(1.07); } 100% { opacity: 1; transform: scale(1); } }
+    @media (prefers-reduced-motion: reduce) { #ms-intro .ms-intro-logo { animation: none; } }
+  </style>
 </head>
 <body>
+  <div id="ms-intro" aria-hidden="true"><img class="ms-intro-logo" src="assets/logo.png" alt="MarrakechStory" /></div>
+  <script>
+    (function () {
+      var el = document.getElementById('ms-intro'); if (!el) return;
+      try { if (sessionStorage.getItem('ms_intro_seen')) { el.parentNode.removeChild(el); return; } sessionStorage.setItem('ms_intro_seen', '1'); } catch (e) {}
+      setTimeout(function () { el.classList.add('ms-intro-hide'); setTimeout(function () { el.parentNode && el.parentNode.removeChild(el); }, 750); }, 1900);
+    })();
+  </script>
+
   <div id="root"></div>
 
   <!-- Boot-error fallback shown by the guard below if React never paints -->
@@ -93,32 +112,32 @@
   <script>if (!window.supabase) { document.write('<scr'+'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>'); }</script>
 
   <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
-  <script src="src/env.js?v=231"></script>
-  <script src="src/supabase.js?v=231"></script>
-  <script src="src/data.js?v=231"></script>
+  <script src="src/env.js?v=234"></script>
+  <script src="src/supabase.js?v=234"></script>
+  <script src="src/data.js?v=234"></script>
 
   <!--
     JSX modules. All bumped to the same cache version on every release
     so a stale CDN copy never co-exists with a fresh one.
   -->
-  <script type="text/babel" src="src/i18n.jsx?v=231"></script>
-  <script type="text/babel" src="src/icons.jsx?v=231"></script>
-  <script type="text/babel" src="src/motion.jsx?v=231"></script>
-  <script type="text/babel" src="src/hero.jsx?v=231"></script>
-  <script type="text/babel" src="src/insta-phone.jsx?v=231"></script>
-  <script type="text/babel" src="src/hero-tabs.jsx?v=231"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=231"></script>
-  <script type="text/babel" src="src/itineraries.jsx?v=231"></script>
-  <script type="text/babel" src="src/booking.jsx?v=231"></script>
-  <script type="text/babel" src="src/catalog.jsx?v=231"></script>
-  <script type="text/babel" src="src/form.jsx?v=231"></script>
-  <script type="text/babel" src="src/extras.jsx?v=231"></script>
-  <script type="text/babel" src="src/extras2.jsx?v=231"></script>
-  <script type="text/babel" src="src/weather.jsx?v=231"></script>
-  <script type="text/babel" src="src/auth.jsx?v=231"></script>
-  <script type="text/babel" src="src/app.jsx?v=231"></script>
-  <script type="text/babel" src="src/admin.jsx?v=231"></script>
-  <script type="text/babel" src="src/apple-fx.jsx?v=231"></script>
+  <script type="text/babel" src="src/i18n.jsx?v=234"></script>
+  <script type="text/babel" src="src/icons.jsx?v=234"></script>
+  <script type="text/babel" src="src/motion.jsx?v=234"></script>
+  <script type="text/babel" src="src/hero.jsx?v=234"></script>
+  <script type="text/babel" src="src/insta-phone.jsx?v=234"></script>
+  <script type="text/babel" src="src/hero-tabs.jsx?v=234"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=234"></script>
+  <script type="text/babel" src="src/itineraries.jsx?v=234"></script>
+  <script type="text/babel" src="src/booking.jsx?v=234"></script>
+  <script type="text/babel" src="src/catalog.jsx?v=234"></script>
+  <script type="text/babel" src="src/form.jsx?v=234"></script>
+  <script type="text/babel" src="src/extras.jsx?v=234"></script>
+  <script type="text/babel" src="src/extras2.jsx?v=234"></script>
+  <script type="text/babel" src="src/weather.jsx?v=234"></script>
+  <script type="text/babel" src="src/auth.jsx?v=234"></script>
+  <script type="text/babel" src="src/app.jsx?v=234"></script>
+  <script type="text/babel" src="src/admin.jsx?v=234"></script>
+  <script type="text/babel" src="src/apple-fx.jsx?v=234"></script>
 
   <!--
     Boot-watchdog: gives the app 6 seconds to paint anything inside #root.

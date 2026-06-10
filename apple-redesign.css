@@ -4616,22 +4616,21 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 .nav-links .nav-collab-link {
   color: var(--brand, #e0432a) !important;
   font-weight: 600 !important;
-  border: 1.5px solid rgba(224, 67, 42, 0.35) !important;
-  padding: 4px 12px !important;
-  border-radius: 999px !important;
-  transition: background 0.2s, border-color 0.2s !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
   white-space: nowrap;
 }
 .nav-links .nav-collab-link:hover {
-  background: rgba(224, 67, 42, 0.08) !important;
-  border-color: rgba(224, 67, 42, 0.65) !important;
+  background: none !important;
+  opacity: .8;
 }
 .nav.over-hero .nav-links .nav-collab-link {
   color: #fff !important;
-  border-color: rgba(255,255,255,0.4) !important;
 }
 .nav.over-hero .nav-links .nav-collab-link:hover {
-  background: rgba(255,255,255,0.15) !important;
+  background: none !important;
 }
 
 /* Collab band in footer */
@@ -4852,4 +4851,31 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 @media (max-width: 640px) {
   .ms-hero-eyebrow-below { margin-top: 16px !important; }
   .ms-hero.ms-hero-static .ms-hero-content-centered { padding-bottom: 8px !important; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   v232 — round hero search button + trip-info modal (wider +40%,
+   shorter −30%) + 2-col day grid on the wider modal
+   ════════════════════════════════════════════════════════════════ */
+.ms-hero-search-btn.ms-hero-search-btn-round {
+  width: 46px !important; height: 46px !important; min-width: 46px;
+  padding: 0 !important; border-radius: 50% !important;
+  display: inline-flex !important; align-items: center; justify-content: center;
+}
+@media (max-width: 600px) {
+  .ms-hero-search-btn.ms-hero-search-btn-round { width: 42px !important; height: 42px !important; min-width: 42px; padding: 0 !important; font-size: 0 !important; }
+}
+
+/* Trip-information pop-up only (not the catalogue modals) */
+.itin-modal-backdrop .itin-modal {
+  width: min(1020px, 100%) !important; max-width: min(1020px, 100%) !important;
+  max-height: min(62vh, 62dvh) !important;   /* ~30% shorter than full-height */
+}
+.itin-modal-hero { height: clamp(110px, 16vh, 180px) !important; }
+@media (min-width: 820px) {
+  .itin-modal .itin-modal-days { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px 26px !important; }
+  .itin-modal .itin-modal-day { padding-bottom: 4px !important; border-bottom: 0 !important; }
+}
+@media (max-width: 820px) {
+  .itin-modal-backdrop .itin-modal { max-height: min(82vh, 82dvh) !important; }
 }

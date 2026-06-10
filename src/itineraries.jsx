@@ -115,7 +115,8 @@ const ITINS = [
     title: { en: "Merzouga Sahara Escape", no: "Merzouga Sahara-flukt", fr: "Escapade Sahara Merzouga" },
     duration: "3D2N", days: 3, nights: 2,
     route: "Marrakech → Merzouga → Marrakech",
-    priceFromEUR: 590,
+    priceFromEUR: 279.5,  // ×1.4 display markup × 11.5 NOK ≈ kr 4 500 / person (all-inclusive)
+    priceAllIn: true,
     img: "assets/photos/sahara-dunes-ripples-13.jpg",
     badge: { en: "SAHARA", no: "SAHARA", fr: "SAHARA" },
     themeTags: ["Sahara", "Merzouga", "Camel", "Dunes"],
@@ -136,19 +137,18 @@ const ITINS = [
       { day: 3, route: { en: "Merzouga → Atlas → Marrakech", no: "Merzouga → Atlas → Marrakech", fr: "Merzouga → Atlas → Marrakech" }, text: { en: "Sunrise from outside your tent. Berber breakfast at camp. Return from the dunes by camel (30 min) or 4x4. Drive back to Marrakech (~9 hours with stops): Todra Gorge morning light stop, Ouarzazate lunch, Tizi n'Tichka pass. Private transfer to RAK if your flight departs the same day.", no: "Soloppgang fra utsiden av teltet ditt. Berberfrokost i leiren. Tilbake fra dynene med kamel (30 min) eller 4x4. Kjøring tilbake til Marrakech (~9 timer med stopp): Todra-kløftene morgenlysstopp, Ouarzazate lunsj, Tizi n'Tichka-passet. Privat transfer til RAK hvis flyet avgår samme dag.", fr: "Lever de soleil depuis l'extérieur de votre tente. Petit-déjeuner berbère au camp. Retour des dunes à dos de chameau (30 min) ou en 4x4. Route de retour vers Marrakech (~9 heures avec arrêts) : arrêt lumière matinale aux gorges du Todra, déjeuner à Ouarzazate, col du Tizi n'Tichka. Transfert privé vers RAK si votre vol part le même jour." } },
     ],
     included: [
-      { en: "Private transport throughout (Marrakech ⇄ Merzouga round-trip) with English-speaking driver", no: "Privat transport gjennom hele reisen (Marrakech ⇄ Merzouga tur-retur) med engelsktalende sjåfør", fr: "Transport privé tout au long (aller-retour Marrakech ⇄ Merzouga) avec chauffeur anglophone" },
-      { en: "2 nights luxury Merzouga desert camp (private en-suite tent, dinners included)", no: "2 netter luksus Merzouga-ørkenleir (privat telt med bad, middager inkludert)", fr: "2 nuits camp désertique de luxe Merzouga (tente privative avec salle de bain, dîners inclus)" },
-      { en: "Daily breakfast", no: "Daglig frokost", fr: "Petit-déjeuner quotidien" },
+      { en: "ALL-INCLUSIVE — 4 500 NOK per person, no hidden extras", no: "ALT INKLUDERT — 4 500 NOK per person, ingen skjulte tillegg", fr: "TOUT INCLUS — 4 500 NOK par personne, sans extras cachés" },
+      { en: "Private transportation throughout (Marrakech ⇄ Merzouga round-trip) with English-speaking driver", no: "Privat transport gjennom hele reisen (Marrakech ⇄ Merzouga tur-retur) med engelsktalende sjåfør", fr: "Transport privé tout au long (aller-retour Marrakech ⇄ Merzouga) avec chauffeur anglophone" },
+      { en: "1 night luxury hotel/riad + 1 night luxury Merzouga desert camp (private en-suite tents)", no: "1 natt luksushotell/riad + 1 natt luksus Merzouga-ørkenleir (private telt med bad)", fr: "1 nuit hôtel/riad de luxe + 1 nuit camp désertique de luxe Merzouga (tentes privatives avec salle de bain)" },
+      { en: "Daily breakfast + dinner every evening", no: "Daglig frokost + middag hver kveld", fr: "Petit-déjeuner quotidien + dîner chaque soir" },
+      { en: "Camel trek into Erg Chebbi at sunset — included", no: "Kamelritt inn i Erg Chebbi ved solnedgang — inkludert", fr: "Randonnée à dos de chameau vers l'Erg Chebbi au coucher du soleil — incluse" },
       { en: "Aït Ben Haddou guided visit (1–1.5h)", no: "Aït Ben Haddou guidet besøk (1–1,5t)", fr: "Visite guidée d'Aït Ben Haddou (1–1h30)" },
-      { en: "Camel trek into Erg Chebbi at sunset — 1 hour", no: "Kamelritt inn i Erg Chebbi ved solnedgang — 1 time", fr: "Randonnée à dos de chameau vers l'Erg Chebbi au coucher du soleil — 1 heure" },
       { en: "Live Berber music & entertainment at the camp", no: "Levende berbermusikk & underholdning i leiren", fr: "Musique berbère en direct & divertissements au camp" },
       { en: "24/7 WhatsApp support — Aladdin & Marte", no: "24/7 WhatsApp-støtte — Aladdin & Marte", fr: "Assistance WhatsApp 24h/24 — Aladdin & Marte" },
     ],
     excluded: [
       { en: "International flights to/from Marrakech", no: "Internasjonale flyreiser til/fra Marrakech", fr: "Vols internationaux vers/depuis Marrakech" },
       { en: "Lunches en route (guide recommends)", no: "Lunsjer underveis (guiden anbefaler)", fr: "Déjeuners en route (le guide recommande)" },
-      { en: "Aït Ben Haddou local guide fee (~100 MAD/p)", no: "Aït Ben Haddou lokal guide honorar (~100 MAD/p)", fr: "Honoraire du guide local d'Aït Ben Haddou (~100 MAD/p)" },
-      { en: "Optional activities: camel (€30/p) · quad (€40/p) · jeep · sandboarding", no: "Valgfrie aktiviteter: kamel (€30/p) · quad (€40/p) · jeep · sandboarding", fr: "Activités optionnelles : chameau (€30/p) · quad (€40/p) · jeep · sandboard" },
       { en: "Travel insurance (strongly recommended)", no: "Reiseforsikring (sterkt anbefalt)", fr: "Assurance voyage (fortement recommandée)" },
       { en: "Tips for driver, guide and camp staff", no: "Tips til sjåfør, guide og leirpersonale", fr: "Pourboires pour le chauffeur, le guide et le personnel du camp" },
     ],
@@ -953,6 +953,7 @@ function Itineraries() {
     if (f === 'Themes')           return tx('Themes', 'Temaer', 'Thèmes');
     if (f === 'Romance & Family') return tx('Romance & Family', 'Romantikk & Familie', 'Romance & Famille');
     if (f === 'Most booked')      return tx('Most booked', 'Mest bestilt', 'Plus réservé');
+    if (f === '3D2N')             return tx('3 days', '3 dager', '3 jours');
     if (f === '4D3N')             return tx('4 days', '4 dager', '4 jours');
     if (f === '5D4N')             return tx('5 days', '5 dager', '5 jours');
     if (f === '7D6N')             return tx('7 days', '7 dager', '7 jours');
@@ -960,9 +961,9 @@ function Itineraries() {
     if (f === '14D13N')           return tx('14 days', '14 dager', '14 jours');
     return f;
   };
-  const filters = ['4D3N', '5D4N', '7D6N', '10D9N', '14D13N', 'Romance & Family'];
+  const filters = ['3D2N', '4D3N', '5D4N', '7D6N', '10D9N', '14D13N', 'Romance & Family'];
   // Only ship trips with the allowed durations
-  const ALLOWED_DURATIONS = new Set(['4D3N','5D4N','7D6N','10D9N','14D13N']);
+  const ALLOWED_DURATIONS = new Set(['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N']);
 
   // ─── THEME cards: mixed straight into the trips grid. Clicking one
   // routes to the planner form (no detail modal).
@@ -1182,7 +1183,7 @@ function Itineraries() {
                   {/* Feature mode: arrows step through the 6 duration buckets */}
                   <button className="trip-slider-arrow prev" aria-label={tx('Shorter trip', 'Kortere reise', 'Plus court')}
                     onClick={() => {
-                      const order = ['4D3N','5D4N','7D6N','10D9N','14D13N','Romance & Family'];
+                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N','Romance & Family'];
                       const idx = Math.max(0, order.indexOf(filter));
                       setSliderDir('prev');
                       setFilter(order[(idx - 1 + order.length) % order.length]);
@@ -1191,7 +1192,7 @@ function Itineraries() {
                   </button>
                   <button className="trip-slider-arrow next" aria-label={tx('Longer trip', 'Lengre reise', 'Plus long')}
                     onClick={() => {
-                      const order = ['4D3N','5D4N','7D6N','10D9N','14D13N','Romance & Family'];
+                      const order = ['3D2N','4D3N','5D4N','7D6N','10D9N','14D13N','Romance & Family'];
                       const idx = Math.max(0, order.indexOf(filter));
                       setSliderDir('next');
                       setFilter(order[(idx + 1) % order.length]);

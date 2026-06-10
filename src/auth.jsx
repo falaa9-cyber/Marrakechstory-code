@@ -8,6 +8,11 @@ const { useState: useSA, useEffect: useEA, useRef: useRA } = React;
 const If2 = window.MS_I;
 
 const AUTH_KEY = 'ms_user';
+// Social sign-in (Google/Facebook/Apple) only works once the provider is enabled
+// in Supabase → Authentication → Providers (needs OAuth credentials). Until then
+// the buttons would 400 ("provider is not enabled"), so keep them hidden. Flip to
+// true the moment a provider is configured.
+const SOCIAL_LOGIN_ENABLED = false;
 
 function getStoredUser() {
   try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
@@ -190,7 +195,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
           <h2 className="auth-title">{isLogin ? T('Welcome back', 'Velkommen tilbake', 'Bon retour') : T('Create your account', 'Opprett konto', 'Créer un compte')}</h2>
           <p className="auth-sub">{isLogin ? T('Sign in to see your trips & offers.', 'Logg inn for å se reiser og tilbud.', 'Connectez-vous pour vos voyages et offres.') : T('One account for offers, bookings & itineraries.', 'Én konto for tilbud, bestillinger og reiseplaner.', 'Un compte pour offres, réservations et itinéraires.')}</p>
 
-          <div className="auth-social">
+          {SOCIAL_LOGIN_ENABLED && <div className="auth-social">
             <button type="button" className="auth-google-btn" onClick={() => doOAuth('google')} disabled={busy}>
               <svg width="18" height="18" viewBox="0 0 48 48"><path d="M47.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h13.2c-.6 3-2.3 5.5-4.9 7.2v6h7.9c4.6-4.3 7.3-10.6 7.3-17.5z" fill="#4285F4"/><path d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.1 1.4-4.8 2.3-7.9 2.3-6.1 0-11.3-4.1-13.1-9.7H2.8v6.1C6.8 42.6 14.9 48 24 48z" fill="#34A853"/><path d="M10.9 28.8c-.5-1.4-.8-2.8-.8-4.3s.3-3 .8-4.3v-6.1H2.8C1 17.4 0 20.6 0 24s1 6.6 2.8 9.9l8.1-5.1z" fill="#FBBC05"/><path d="M24 9.5c3.4 0 6.5 1.2 8.9 3.5l6.6-6.6C35.9 2.6 30.4 0 24 0 14.9 0 6.8 5.4 2.8 13.2l8.1 6.1C12.7 13.6 17.9 9.5 24 9.5z" fill="#EA4335"/></svg>
               {T('Continue with Google', 'Fortsett med Google', 'Continuer avec Google')}
@@ -205,9 +210,9 @@ function AuthModal({ view: initView, onClose, onLogin }) {
                 Apple
               </button>
             </div>
-          </div>
+          </div>}
 
-          <div className="auth-divider"><span>{T('or with email', 'eller med e-post', 'ou par e-mail')}</span></div>
+          {SOCIAL_LOGIN_ENABLED && <div className="auth-divider"><span>{T('or with email', 'eller med e-post', 'ou par e-mail')}</span></div>}
 
           <div className="auth-tabs">
             <button className={`auth-tab ${isLogin ? 'active' : ''}`} onClick={() => { setErr(''); setMsg(''); setView('login'); }}>{T('Sign in', 'Logg inn', 'Connexion')}</button>
@@ -312,6 +317,17 @@ function AuthSystem() {
       }
     });
     return () => sub?.subscription?.unsubscribe?.();
+  }, []);
+
+  // Auto-suggest sign-up shortly after the page opens (after the logo intro),
+  // once per browser session, only while logged out and not already dismissed.
+  useEA(() => {
+    if (getStoredUser()) return;
+    if (sessionStorage.getItem('ms_auth_seen')) return;
+    const t = setTimeout(() => {
+      if (!getStoredUser()) { sessionStorage.setItem('ms_auth_seen', '1'); setModalView('register'); setShowModal(true); }
+    }, 2800);
+    return () => clearTimeout(t);
   }, []);
 
   const handleLogin = (u) => { setUser(u); setShowProfile(true); };
