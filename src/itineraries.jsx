@@ -747,7 +747,7 @@ const MS_TRIP_GALLERIES = {
     'agafay-night-fire-show-02.avif', 'food-mechoui-lamb-03.webp',
   ],
   'grand-morocco-journey': [
-    'web/tangier-medina.jpg', 'web/chefchaouen-2.jpg', 'chefchaouen-blue-alley-01.jpg',
+    'web/chefchaouen-2.jpg', 'chefchaouen-blue-alley-01.jpg',
     'web/fez-bab.jpg', 'web/fez-tannery.jpg', 'sahara-camel-caravan-16.jpg',
     'sahara-dunes-ripples-13.jpg', 'sahara-dunes-10.jpg', 'medina-koutoubia-dusk-18.jpg',
     'medina-jemaa-el-fna-night-11.jpg', 'riad-courtyard-pool-03.jpg',
