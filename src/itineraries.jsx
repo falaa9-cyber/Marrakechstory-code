@@ -115,7 +115,7 @@ const ITINS = [
     title: { en: "Marrakech City Escape", no: "Marrakech Byopphold", fr: "Escapade à Marrakech" },
     duration: "3D2N", days: 3, nights: 2,
     route: "Marrakech",
-    priceFromEUR: 107,  // ×1.4 display ≈ €150 / person (activities + transport, excl. accommodation)
+    priceFromEUR: 107,  // ×1.4 display ≈ €150 / person — accommodation now included (final price TBC by owner)
     img: "assets/photos/medina-jemaa-el-fna-night-11.jpg",
     badge: { en: "NEW · CITY BREAK", no: "NY · BYOPPHOLD", fr: "NOUVEAU · CITY BREAK" },
     themeTags: ["Medina", "Souks", "Jemaa el-Fna", "Riad"],
@@ -144,6 +144,7 @@ const ITINS = [
         fr: "07h30 ~~ Petit-déjeuner || 09h00–11h00 ~~ Matinée tranquille · dernière balade · Jardin Majorelle en option || Vol −3h ~~ Transfert privé vers l'aéroport Marrakech Menara" } },
     ],
     included: [
+      { en: "2 nights in a luxury riad in the Marrakech medina", no: "2 netter i et luksuriøst riad i Marrakech-medina", fr: "2 nuits dans un riad de luxe dans la médina de Marrakech" },
       { en: "Private transport (airport transfers + guide pickup)", no: "Privat transport (flyplasstransfer + guide-henting)", fr: "Transport privé (transferts aéroport + prise en charge guide)" },
       { en: "Certified medina & souk guide (3h)", no: "Sertifisert medina- & souk-guide (3t)", fr: "Guide certifié médina & souks (3h)" },
       { en: "Welcome mint tea on arrival", no: "Velkomst myntete ved ankomst", fr: "Thé à la menthe de bienvenue à l'arrivée" },
@@ -153,7 +154,6 @@ const ITINS = [
     ],
     excluded: [
       { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
-      { en: "Accommodation (quoted separately — luxury riad)", no: "Overnatting (tilbys separat — luksusriad)", fr: "Hébergement (devis séparé — riad de luxe)" },
       { en: "All meals except breakfast", no: "Alle måltider unntatt frokost", fr: "Tous les repas sauf le petit-déjeuner" },
       { en: "Museum tickets (Majorelle ~70 MAD · Bahia ~70 MAD)", no: "Museumsbilletter (Majorelle ~70 MAD · Bahia ~70 MAD)", fr: "Billets de musée (Majorelle ~70 MAD · Bahia ~70 MAD)" },
       { en: "Hammam & spa (€25–60/p, optional)", no: "Hammam & spa (€25–60/p, valgfritt)", fr: "Hammam & spa (€25–60/p, optionnel)" },
@@ -201,7 +201,6 @@ const ITINS = [
     ],
     excluded: [
       { en: "International flights", no: "Internasjonale flyreiser", fr: "Vols internationaux" },
-      { en: "Accommodation in Marrakech before/after (quoted separately if needed)", no: "Overnatting i Marrakech før/etter (prises separat ved behov)", fr: "Hébergement à Marrakech avant/après (devis séparé si besoin)" },
       { en: "Lunches (Days 1–3) and any meals not listed", no: "Lunsjer (dag 1–3) og måltider som ikke er nevnt", fr: "Déjeuners (Jours 1–3) et repas non mentionnés" },
       { en: "Site entrances — Aït Ben Haddou guide ~100 MAD · Atlas Studios ~40 MAD", no: "Inngangsbilletter — Aït Ben Haddou-guide ~100 MAD · Atlas Studios ~40 MAD", fr: "Entrées des sites — guide Aït Ben Haddou ~100 MAD · Atlas Studios ~40 MAD" },
       { en: "Drinks, beverages and alcohol", no: "Drikke og alkohol", fr: "Boissons et alcool" },
