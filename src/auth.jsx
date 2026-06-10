@@ -326,7 +326,7 @@ function AuthSystem() {
     if (sessionStorage.getItem('ms_auth_seen')) return;
     const t = setTimeout(() => {
       if (!getStoredUser()) { sessionStorage.setItem('ms_auth_seen', '1'); setModalView('register'); setShowModal(true); }
-    }, 2800);
+    }, 3500);
     return () => clearTimeout(t);
   }, []);
 

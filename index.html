@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=234" />
-  <link rel="stylesheet" href="apple-redesign.css?v=234" />
-  <link rel="stylesheet" href="admin.css?v=234" />
+  <link rel="stylesheet" href="styles.css?v=235" />
+  <link rel="stylesheet" href="apple-redesign.css?v=235" />
+  <link rel="stylesheet" href="admin.css?v=235" />
 
   <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -58,23 +58,47 @@
     }
   </style>
   <style id="ms-intro-style">
-    #ms-intro { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(circle at 50% 45%, #2a1813 0%, #160d0a 68%, #0d0807 100%);
-      transition: opacity .6s ease, visibility .6s ease; }
+    #ms-intro { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; overflow: hidden;
+      background: radial-gradient(120% 120% at 50% 38%, #3a2017 0%, #1c100b 55%, #0a0504 100%);
+      transition: opacity .8s cubic-bezier(.4,0,.2,1), visibility .8s; }
+    /* soft drifting brand-colour orbs */
+    #ms-intro::before, #ms-intro::after { content: ""; position: absolute; border-radius: 50%; filter: blur(64px); opacity: .45; pointer-events: none; }
+    #ms-intro::before { width: 48vmax; height: 48vmax; left: -14vmax; top: -14vmax; background: radial-gradient(circle, #e0432a 0%, transparent 70%); animation: msOrbA 7s ease-in-out infinite; }
+    #ms-intro::after  { width: 42vmax; height: 42vmax; right: -12vmax; bottom: -12vmax; background: radial-gradient(circle, #d2901f 0%, transparent 70%); animation: msOrbB 8s ease-in-out infinite; }
     #ms-intro.ms-intro-hide { opacity: 0; visibility: hidden; pointer-events: none; }
-    #ms-intro .ms-intro-logo { width: min(40vw, 190px); height: auto; filter: drop-shadow(0 12px 44px rgba(0,0,0,.55));
-      animation: msIntroZoom 1.6s cubic-bezier(.2,.7,.2,1) both; }
-    @keyframes msIntroZoom { 0% { opacity: 0; transform: scale(.42); } 55% { opacity: 1; transform: scale(1.07); } 100% { opacity: 1; transform: scale(1); } }
-    @media (prefers-reduced-motion: reduce) { #ms-intro .ms-intro-logo { animation: none; } }
+    #ms-intro.ms-intro-hide .ms-intro-stage { transform: scale(1.09); }
+    .ms-intro-stage { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 16px; transition: transform .8s cubic-bezier(.4,0,.2,1); }
+    .ms-intro-logo-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .ms-intro-glow { position: absolute; width: 150%; height: 150%; border-radius: 50%; background: radial-gradient(circle, rgba(224,67,42,.55) 0%, rgba(224,67,42,0) 62%); filter: blur(26px); opacity: 0; animation: msGlow 1.8s ease-out .25s both; }
+    .ms-intro-logo { position: relative; display: block; width: min(34vw, 152px); height: auto; filter: drop-shadow(0 16px 54px rgba(0,0,0,.6)); animation: msLogoIn 1.25s cubic-bezier(.16,.72,.18,1) both; }
+    .ms-intro-word { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: clamp(26px, 5vw, 46px); letter-spacing: .045em; color: #fff; opacity: 0; white-space: nowrap; animation: msWordIn 1.05s cubic-bezier(.2,.7,.2,1) .7s both; }
+    .ms-intro-word em { font-style: italic; font-weight: 500; color: #ef6a4f; }
+    .ms-intro-line { height: 2px; width: 0; border-radius: 2px; background: linear-gradient(90deg, transparent, #e0432a 50%, transparent); animation: msLineIn .9s cubic-bezier(.2,.7,.2,1) 1.2s both; }
+    @keyframes msLogoIn { 0% { opacity: 0; transform: scale(.5); filter: blur(18px) drop-shadow(0 16px 54px rgba(0,0,0,.6)); } 62% { opacity: 1; transform: scale(1.07); filter: blur(0) drop-shadow(0 16px 54px rgba(0,0,0,.6)); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes msGlow { 0% { opacity: 0; transform: scale(.55); } 55% { opacity: .95; transform: scale(1.06); } 100% { opacity: .5; transform: scale(1); } }
+    @keyframes msWordIn { 0% { opacity: 0; letter-spacing: .55em; transform: translateY(10px); } 100% { opacity: 1; letter-spacing: .045em; transform: translateY(0); } }
+    @keyframes msLineIn { 0% { width: 0; opacity: 0; } 100% { width: 170px; opacity: 1; } }
+    @keyframes msOrbA { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(6vmax,4vmax) scale(1.1); } }
+    @keyframes msOrbB { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5vmax,-4vmax) scale(1.12); } }
+    @media (prefers-reduced-motion: reduce) {
+      .ms-intro-logo, .ms-intro-word, .ms-intro-line, .ms-intro-glow, #ms-intro::before, #ms-intro::after { animation: none !important; }
+      .ms-intro-word { opacity: 1; letter-spacing: .045em; } .ms-intro-line { width: 170px; opacity: 1; } .ms-intro-glow { opacity: .5; }
+    }
   </style>
 </head>
 <body>
-  <div id="ms-intro" aria-hidden="true"><img class="ms-intro-logo" src="assets/logo.png" alt="MarrakechStory" /></div>
+  <div id="ms-intro" aria-hidden="true">
+    <div class="ms-intro-stage">
+      <div class="ms-intro-logo-wrap"><span class="ms-intro-glow"></span><img class="ms-intro-logo" src="assets/logo.png" alt="MarrakechStory" /></div>
+      <div class="ms-intro-word">Marrakech<em>Story</em></div>
+      <div class="ms-intro-line"></div>
+    </div>
+  </div>
   <script>
     (function () {
       var el = document.getElementById('ms-intro'); if (!el) return;
       try { if (sessionStorage.getItem('ms_intro_seen')) { el.parentNode.removeChild(el); return; } sessionStorage.setItem('ms_intro_seen', '1'); } catch (e) {}
-      setTimeout(function () { el.classList.add('ms-intro-hide'); setTimeout(function () { el.parentNode && el.parentNode.removeChild(el); }, 750); }, 1900);
+      setTimeout(function () { el.classList.add('ms-intro-hide'); setTimeout(function () { el.parentNode && el.parentNode.removeChild(el); }, 850); }, 2500);
     })();
   </script>
 
@@ -112,32 +136,32 @@
   <script>if (!window.supabase) { document.write('<scr'+'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>'); }</script>
 
   <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
-  <script src="src/env.js?v=234"></script>
-  <script src="src/supabase.js?v=234"></script>
-  <script src="src/data.js?v=234"></script>
+  <script src="src/env.js?v=235"></script>
+  <script src="src/supabase.js?v=235"></script>
+  <script src="src/data.js?v=235"></script>
 
   <!--
     JSX modules. All bumped to the same cache version on every release
     so a stale CDN copy never co-exists with a fresh one.
   -->
-  <script type="text/babel" src="src/i18n.jsx?v=234"></script>
-  <script type="text/babel" src="src/icons.jsx?v=234"></script>
-  <script type="text/babel" src="src/motion.jsx?v=234"></script>
-  <script type="text/babel" src="src/hero.jsx?v=234"></script>
-  <script type="text/babel" src="src/insta-phone.jsx?v=234"></script>
-  <script type="text/babel" src="src/hero-tabs.jsx?v=234"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=234"></script>
-  <script type="text/babel" src="src/itineraries.jsx?v=234"></script>
-  <script type="text/babel" src="src/booking.jsx?v=234"></script>
-  <script type="text/babel" src="src/catalog.jsx?v=234"></script>
-  <script type="text/babel" src="src/form.jsx?v=234"></script>
-  <script type="text/babel" src="src/extras.jsx?v=234"></script>
-  <script type="text/babel" src="src/extras2.jsx?v=234"></script>
-  <script type="text/babel" src="src/weather.jsx?v=234"></script>
-  <script type="text/babel" src="src/auth.jsx?v=234"></script>
-  <script type="text/babel" src="src/app.jsx?v=234"></script>
-  <script type="text/babel" src="src/admin.jsx?v=234"></script>
-  <script type="text/babel" src="src/apple-fx.jsx?v=234"></script>
+  <script type="text/babel" src="src/i18n.jsx?v=235"></script>
+  <script type="text/babel" src="src/icons.jsx?v=235"></script>
+  <script type="text/babel" src="src/motion.jsx?v=235"></script>
+  <script type="text/babel" src="src/hero.jsx?v=235"></script>
+  <script type="text/babel" src="src/insta-phone.jsx?v=235"></script>
+  <script type="text/babel" src="src/hero-tabs.jsx?v=235"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=235"></script>
+  <script type="text/babel" src="src/itineraries.jsx?v=235"></script>
+  <script type="text/babel" src="src/booking.jsx?v=235"></script>
+  <script type="text/babel" src="src/catalog.jsx?v=235"></script>
+  <script type="text/babel" src="src/form.jsx?v=235"></script>
+  <script type="text/babel" src="src/extras.jsx?v=235"></script>
+  <script type="text/babel" src="src/extras2.jsx?v=235"></script>
+  <script type="text/babel" src="src/weather.jsx?v=235"></script>
+  <script type="text/babel" src="src/auth.jsx?v=235"></script>
+  <script type="text/babel" src="src/app.jsx?v=235"></script>
+  <script type="text/babel" src="src/admin.jsx?v=235"></script>
+  <script type="text/babel" src="src/apple-fx.jsx?v=235"></script>
 
   <!--
     Boot-watchdog: gives the app 6 seconds to paint anything inside #root.
