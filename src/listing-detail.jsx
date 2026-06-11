@@ -106,6 +106,51 @@
     );
   }
 
+  /* ---- Geo gazetteer + route → stops resolver ---- */
+  const MS_GEO = {
+    'marrakech': [31.6295, -7.9811], 'agafay': [31.47, -8.16], "tizi n'tichka": [31.29, -7.37], 'tizi': [31.29, -7.37],
+    'ait ben haddou': [31.047, -7.13], 'aït ben haddou': [31.047, -7.13], 'ouarzazate': [30.92, -6.91],
+    'dades': [31.36, -5.99], 'dadès': [31.36, -5.99], 'todra': [31.52, -5.53], 'todgha': [31.52, -5.53], 'tinghir': [31.51, -5.53],
+    'merzouga': [31.10, -4.01], 'sahara': [31.10, -4.01], 'erg chebbi': [31.10, -4.01],
+    'tangier': [35.76, -5.83], 'tanger': [35.76, -5.83], 'chefchaouen': [35.17, -5.27],
+    'fes': [34.04, -4.99], 'fez': [34.04, -4.99], 'fès': [34.04, -4.99],
+    'agadir': [30.42, -9.60], 'essaouira': [31.51, -9.77], 'ourika': [31.36, -7.76],
+    'high atlas': [31.13, -7.92], 'atlas': [31.13, -7.92], 'volubilis': [34.07, -5.55],
+    'rissani': [31.28, -4.26], 'midelt': [32.68, -4.74], 'azrou': [33.43, -5.22], 'ifrane': [33.53, -5.11], 'taroudant': [30.47, -8.88],
+  };
+  function resolveStops(route, single) {
+    if (!route) return [];
+    const frags = String(route).split(/→|->|—|·|>|\//).map(x => x.trim()).filter(Boolean);
+    const out = [];
+    frags.forEach(fr => {
+      const low = fr.toLowerCase(); let best = null, key = null;
+      for (const k in MS_GEO) { if (low.indexOf(k) > -1 && (!key || k.length > key.length)) { key = k; best = MS_GEO[k]; } }
+      if (best) { const last = out[out.length - 1]; if (!last || last.lat !== best[0] || last.lng !== best[1]) out.push({ name: fr, lat: best[0], lng: best[1] }); }
+    });
+    return single ? out.slice(0, 1) : out;
+  }
+
+  /* ---- Leaflet map of the itinerary stops (OpenStreetMap, no key) ---- */
+  function StopMap({ stops }) {
+    const ref = useRef(null); const mapRef = useRef(null);
+    useEffect(() => {
+      if (!window.L || !ref.current || !stops.length) return;
+      const map = window.L.map(ref.current, { scrollWheelZoom: false, zoomControl: true });
+      mapRef.current = map;
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
+      const pts = stops.map(s => [s.lat, s.lng]);
+      if (pts.length > 1) window.L.polyline(pts, { color: '#e0432a', weight: 3, opacity: .85, dashArray: '7 7' }).addTo(map);
+      stops.forEach((s, i) => {
+        window.L.circleMarker([s.lat, s.lng], { radius: 8, color: '#fff', weight: 2, fillColor: '#e0432a', fillOpacity: 1 })
+          .addTo(map).bindTooltip((stops.length > 1 ? (i + 1) + '. ' : '') + s.name, { direction: 'top', offset: [0, -6] });
+      });
+      if (pts.length > 1) map.fitBounds(pts, { padding: [34, 34] }); else map.setView(pts[0], 11);
+      setTimeout(() => map.invalidateSize(), 120);
+      return () => { try { map.remove(); } catch (e) {} };
+    }, []);
+    return <div className="ms-ld-map" ref={ref} />;
+  }
+
   /* ---- Main listing-detail modal ---- */
   function MS_ListingDetail(L) {
     const lang = L.lang || 'en'; const tx = T(lang); const loc = locale(lang);
@@ -115,7 +160,7 @@
     const [sel, setSel] = useState({ in: null, out: null });
     const [guests, setGuests] = useState(2);
     const [saved, setSaved] = useState(false);
-    const [form, setForm] = useState({ name: '', email: '', phone: '' });
+    const [form, setForm] = useState({ name: '', email: '', phone: '', notes: '' });
     const [sent, setSent] = useState(false);
     const bookRef = useRef(null);
 
@@ -150,7 +195,7 @@
       }
     };
 
-    const BookingInner = () => (
+    const bookingCard = (
       <div className="ms-ld-book" ref={bookRef}>
         {L.banner && <div className="ms-ld-book-pill">{L.banner}</div>}
         <div className="ms-ld-book-price">
@@ -167,8 +212,8 @@
           <>
             <div className="ms-ld-book-fields">
               <div className="ms-ld-book-dates">
-                <div className="ms-ld-book-cell"><span>{tx('Check-in', 'Innsjekk', 'Arrivée')}</span><b>{sel.in ? fmtDate(sel.in, loc) : tx('Add date', 'Velg dato', 'Ajouter')}</b></div>
-                <div className="ms-ld-book-cell"><span>{tx('Check-out', 'Utsjekk', 'Départ')}</span><b>{sel.out ? fmtDate(sel.out, loc) : tx('Add date', 'Velg dato', 'Ajouter')}</b></div>
+                <div className="ms-ld-book-cell"><span>{tx('Check-in', 'Innsjekk', 'Arrivée')}</span><b>{sel.in ? fmtDate(sel.in, loc) : tx('Add date', 'Legg til dato', 'Ajouter une date')}</b></div>
+                <div className="ms-ld-book-cell"><span>{tx('Check-out', 'Utsjekk', 'Départ')}</span><b>{sel.out ? fmtDate(sel.out, loc) : tx('Add date', 'Legg til dato', 'Ajouter une date')}</b></div>
               </div>
               <div className="ms-ld-book-guests">
                 <span>{tx('Guests', 'Gjester', 'Voyageurs')}</span>
@@ -181,6 +226,7 @@
                   <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder={tx('Full name', 'Fullt navn', 'Nom complet')} autoComplete="name" />
                   <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder={tx('Email', 'E-post', 'E-mail')} type="email" autoComplete="email" />
                   <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder={tx('Phone (optional)', 'Telefon (valgfritt)', 'Téléphone (optionnel)')} autoComplete="tel" />
+                  <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder={tx('Anything we should know? (optional)', 'Noe vi bør vite? (valgfritt)', 'Quelque chose à signaler ? (optionnel)')} rows="2" />
                 </div>
               )}
             </div>
@@ -294,18 +340,21 @@
                   <Calendar lang={lang} sel={sel} setSel={setSel} />
                 </div>
 
-                {/* map */}
-                {L.mapQuery && (
-                  <div className="ms-ld-sec ms-ld-divtop">
-                    <h3 className="ms-ld-h3">{tx('Where you’ll be', 'Hvor du skal', 'Où vous serez')}</h3>
-                    {L.locationLabel && <div className="ms-ld-avail-sub">{L.locationLabel}</div>}
-                    <div className="ms-ld-map">
-                      <div className="ms-ld-map-fallback"><span aria-hidden="true">📍</span> {L.locationLabel || L.mapQuery}</div>
-                      <iframe title="map" loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={'https://www.google.com/maps?q=' + encodeURIComponent(L.mapQuery) + '&z=6&output=embed'} />
+                {/* map — itinerary stops on OpenStreetMap. Hidden entirely if it can't render. */}
+                {(() => {
+                  const stops = L.mapRoute ? resolveStops(L.mapRoute) : (L.mapPlace ? resolveStops(L.mapPlace, true) : []);
+                  if (!window.L || stops.length === 0) return null;
+                  return (
+                    <div className="ms-ld-sec ms-ld-divtop">
+                      <h3 className="ms-ld-h3">{stops.length > 1 ? tx('Your route', 'Din rute', 'Votre itinéraire') : tx('Where you’ll be', 'Hvor du skal', 'Où vous serez')}</h3>
+                      {L.locationLabel && <div className="ms-ld-avail-sub">{L.locationLabel}</div>}
+                      <StopMap stops={stops} />
+                      {stops.length > 1 && (
+                        <div className="ms-ld-maplegend">{stops.map((s, i) => <span key={i} className="ms-ld-maplegend-item"><b>{i + 1}</b> {s.name}</span>)}</div>
+                      )}
                     </div>
-                    <a className="ms-ld-link" href={'https://www.google.com/maps?q=' + encodeURIComponent(L.mapQuery)} target="_blank" rel="noopener">{tx('Open in Google Maps', 'Åpne i Google Maps', 'Ouvrir dans Google Maps')} ›</a>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* things to know */}
                 {L.thingsToKnow && (
@@ -330,7 +379,7 @@
               {/* sticky booking card */}
               <aside className="ms-ld-aside">
                 <div className="ms-ld-aside-sticky">
-                  <BookingInner />
+                  {bookingCard}
                   <button className="ms-ld-report" type="button" onClick={() => { window.open('https://wa.me/4745774743', '_blank', 'noopener'); }}>
                     <span aria-hidden="true">⚑</span> {tx('Report this listing', 'Rapporter denne oppføringen', 'Signaler cette annonce')}
                   </button>

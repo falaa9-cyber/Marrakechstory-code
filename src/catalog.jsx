@@ -219,7 +219,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
     amenitiesTitle: tx("What this place offers","Dette tilbys","Ce que propose ce lieu"),
     amenities: localizeList(item.perfectFor, lang),
     description: localize(item.description || item.desc, lang),
-    mapQuery: area ? area.split("·")[0].trim() + ", Morocco" : "Marrakech, Morocco",
+    mapPlace: area || "Marrakech",
     locationLabel: area,
     thingsToKnow: (item.practical && item.practical.length) ? {
       rules: { title: tx("Good to know","Verdt å vite","Bon à savoir"), items: localizeList(item.practical, lang) },

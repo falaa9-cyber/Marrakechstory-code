@@ -889,7 +889,7 @@ function ItinModal({ trip, onClose, lang, fmt }) {
     amenities: (trip.included || []).map(s),
     excluded: (trip.excluded || []).map(s),
     timeline: trip.itinerary.map(d => ({ day: d.day, route: s(d.route), rows: parseRows(s(d.text)) })),
-    mapQuery: region, locationLabel: trip.route,
+    mapRoute: trip.route, locationLabel: trip.route,
     thingsToKnow: {
       cancellation: { title: tx("Cancellation","Avbestilling","Annulation"), items: [tx("20% deposit to confirm, 80% on arrival.","20% depositum for å bekrefte, 80% ved ankomst.","Acompte de 20% pour confirmer, 80% à l’arrivée."), tx("Free changes up to 30 days before.","Gratis endringer inntil 30 dager før.","Modifications gratuites jusqu’à 30 jours avant.")] },
       rules: { title: tx("Good to know","Verdt å vite","Bon à savoir"), items: [groupTxt, tx("Private vehicle & driver throughout.","Privat bil & sjåfør hele veien.","Véhicule privé & chauffeur tout au long."), tx("Best season: spring & autumn.","Beste sesong: vår & høst.","Meilleure saison : printemps & automne.")] },
@@ -899,9 +899,24 @@ function ItinModal({ trip, onClose, lang, fmt }) {
     banner: tx("VAT & taxes included","MVA & avgifter inkludert","TVA & taxes incluses"),
     breadcrumb: ["Morocco", region.split(",")[0], s(trip.title)],
     reserveLabel: tx("Reserve","Reserver","Réserver"),
-    tweakLabel: tx("Tweak this trip","Tilpass denne reisen","Personnaliser"),
-    onReserve: () => goPlan("asis"),
-    onTweak: () => { const t = trip; onClose(); setTimeout(() => { if (window.MS_OpenTweak) window.MS_OpenTweak(t); else window.location.hash = "#plan"; }, 60); },
+    reserveForm: true,
+    onReserve: ({ sel, guests, name, email, phone, notes }) => {
+      const iso = (d) => { try { return d.toISOString().slice(0, 10); } catch (e) { return ""; } };
+      const start = sel && sel.in ? iso(sel.in) : "";
+      try {
+        if (window.MS_submitForm) {
+          window.MS_submitForm("itinerary", {
+            item: s(trip.title), trip: trip.slug, tripDuration: trip.duration,
+            name, email, phone, people: guests, notes: notes || "",
+            startDate: start, endDate: sel && sel.out ? iso(sel.out) : start, duration: trip.days,
+            summary: s(trip.title) + " · " + trip.route,
+          }, { via: "trip-modal" });
+        }
+        const prev = JSON.parse(localStorage.getItem("ms_profile_data") || "{}");
+        localStorage.setItem("ms_profile_data", JSON.stringify({ ...prev, name: name || prev.name, email: email || prev.email, phone: phone || prev.phone }));
+      } catch (e) {}
+      if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
+    },
   };
   return LD ? <LD {...L} /> : null;
 }
