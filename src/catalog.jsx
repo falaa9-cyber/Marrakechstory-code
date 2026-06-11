@@ -193,7 +193,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
 
   return (
     <div className="cat-modal-backdrop" onClick={onClose}>
-      <div className="cat-modal" onClick={e => e.stopPropagation()}>
+      <div className="cat-modal cat-modal-split" onClick={e => e.stopPropagation()}>
         <button className="cat-modal-close" onClick={onClose} aria-label={tx('Close', 'Lukk', 'Fermer', 'Stäng')}>✕</button>
         <ModalGallery tab={tab} item={item} lang={lang} />
         <div className="cat-modal-body">
