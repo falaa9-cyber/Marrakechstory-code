@@ -35,19 +35,22 @@
     const lang = ctx.lang || 'en';
     const tx = (en, no, fr, de) => lang === 'no' ? no : lang === 'da' ? no : lang === 'fr' ? fr : lang === 'de' ? (de || en) : en;
     const [showAll, setShowAll] = useState(false);
+    const [showAllRev, setShowAllRev] = useState(false);
     const galRef = useRef(null);
+    const revRef = useRef(null);
     const visible = showAll ? IMAGES : IMAGES.slice(0, 4);
+    const visibleRev = showAllRev ? REVIEWS : REVIEWS.slice(0, 4);
 
     return (
       <section className="ms-rev-section" id="reviews">
         {/* Reviews */}
-        <div className="ms-rev-inner">
+        <div className="ms-rev-inner" ref={revRef}>
           <h2 className="ms-rev-h">{tx('What Our Travellers Say', 'Hva våre reisende sier', 'Ce que disent nos voyageurs', 'Was unsere Reisenden sagen')}</h2>
           <div className="ms-rev-sub">
             <span className="ms-rev-stars">★</span> 5.0 · 28 {tx('Google reviews', 'Google-anmeldelser', 'avis Google', 'Google-Bewertungen')} · MarrakechStory Tours
           </div>
           <div className="ms-rev-grid">
-            {REVIEWS.map((r, i) => (
+            {visibleRev.map((r, i) => (
               <article className="ms-rev-card" key={i}>
                 <div className="ms-rev-top">
                   <div className="ms-rev-ava" aria-hidden="true">{initials(r.name)}</div>
@@ -60,6 +63,16 @@
               </article>
             ))}
           </div>
+          {REVIEWS.length > 4 && (
+            <div className="ms-gal-more-row">
+              <button className="ms-gal-more" type="button" onClick={() => {
+                if (showAllRev) { setShowAllRev(false); setTimeout(() => { revRef.current && revRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30); }
+                else setShowAllRev(true);
+              }}>
+                {showAllRev ? tx('Show less', 'Vis mindre', 'Voir moins', 'Weniger anzeigen') : tx('Show more', 'Vis mer', 'Voir plus', 'Mehr anzeigen')}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Gallery */}
