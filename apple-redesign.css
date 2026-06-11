@@ -5257,3 +5257,48 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 .ms-ld-maplegend-item b { width: 18px; height: 18px; border-radius: 50%; background: var(--brand, #e0432a); color: #fff; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
 .ms-ld-book-contact textarea { border: none; padding: 11px 12px; font-size: 13.5px; outline: none; resize: vertical; font-family: inherit; }
 .ms-ld-map .leaflet-container { height: 100%; width: 100%; border-radius: 14px; }
+
+/* ════════════════════════════════════════════════════════════════
+   MS REVIEWS + PHOTO GALLERY (ms-rev- / ms-gal-) — below contact
+   ════════════════════════════════════════════════════════════════ */
+.ms-rev-section { background: #faf7f2; padding: 64px 20px 72px; }
+.ms-rev-inner, .ms-gal-inner { max-width: 1200px; margin: 0 auto; }
+.ms-gal-inner { margin-top: 64px; }
+.ms-rev-h {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 600 !important; text-align: center;
+  font-size: clamp(28px, 4vw, 44px) !important; line-height: 1.1 !important; letter-spacing: -0.02em !important;
+  color: #2b2620 !important; margin: 0 0 10px !important;
+}
+.ms-rev-sub { text-align: center; color: #7a7368; font-size: 15px; margin-bottom: 34px; }
+.ms-rev-stars { color: #fbbc04; letter-spacing: 1px; }
+.ms-rev-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.ms-rev-card {
+  background: #fff; border: 1px solid #ece7df; border-radius: 16px; padding: 22px;
+  display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 16px rgba(0,0,0,.04);
+}
+.ms-rev-top { display: flex; align-items: center; gap: 12px; }
+.ms-rev-ava {
+  width: 44px; height: 44px; border-radius: 50%; flex: none;
+  background: #c1440e; color: #fff; font-weight: 700; font-size: 15px;
+  display: flex; align-items: center; justify-content: center; letter-spacing: .02em;
+}
+.ms-rev-name { font-weight: 600; font-size: 14.5px; color: #2b2620; }
+.ms-rev-meta .ms-rev-stars { font-size: 13px; }
+.ms-rev-text { font-size: 13.5px; line-height: 1.6; color: #5a544c; margin: 0; }
+/* gallery */
+.ms-gal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.ms-gal-item { display: block; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: #eee; }
+.ms-gal-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .45s ease; }
+.ms-gal-item:hover img { transform: scale(1.07); }
+.ms-gal-more-row { text-align: center; margin-top: 28px; }
+.ms-gal-more {
+  border: 1px solid #c1440e; background: #fff; color: #c1440e; border-radius: 999px;
+  padding: 12px 30px; font-size: 14.5px; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.ms-gal-more:hover { background: #c1440e; color: #fff; }
+@media (max-width: 760px) {
+  .ms-rev-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .ms-gal-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ms-rev-card { padding: 16px; }
+  .ms-rev-section { padding: 44px 14px 52px; }
+}

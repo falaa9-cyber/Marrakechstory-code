@@ -294,6 +294,7 @@ function AppInner() {
       <window.MS_Catalog />
       <window.MS_Form />
       <window.MS_Contact />
+      {window.MS_ReviewsGallery && <window.MS_ReviewsGallery />}
       <Footer />
       <window.MS_WhatsApp />
       {window.MS_QuickBookHost && <window.MS_QuickBookHost />}
