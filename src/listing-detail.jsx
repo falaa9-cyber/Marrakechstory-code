@@ -12,19 +12,20 @@
 
   /* ---- Photo mosaic (desktop) ---- */
   function Mosaic({ images, alt, onShowAll, tx }) {
-    const imgs = images.slice(0, 5);
-    while (imgs.length < 5) imgs.push(images[imgs.length % images.length] || images[0]);
+    const imgs = images.slice(0, 5);          // use only the real images — never duplicate to pad
+    const n = imgs.length;
     return (
       <div className="ms-ld-mosaic">
-        <div className="ms-ld-mosaic-grid">
-          <div className="ms-ld-mo ms-ld-mo-main" style={{ backgroundImage: `url(${imgs[0]})` }} onClick={() => onShowAll(0)} role="button" aria-label={alt} />
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="ms-ld-mo" style={{ backgroundImage: `url(${imgs[i]})` }} onClick={() => onShowAll(i)} role="button" />
+        <div className={'ms-ld-mosaic-grid ms-ld-mg-' + n}>
+          {imgs.map((src, i) => (
+            <div key={i} className={'ms-ld-mo' + (i === 0 ? ' ms-ld-mo-main' : '')} style={{ backgroundImage: `url(${src})` }} onClick={() => onShowAll(i)} role="button" aria-label={alt} />
           ))}
         </div>
-        <button className="ms-ld-showall" onClick={() => onShowAll(0)}>
-          <span className="ms-ld-showall-ico" aria-hidden="true">▦</span> {tx('Show all photos', 'Vis alle bilder', 'Voir toutes les photos')}
-        </button>
+        {images.length > 1 && (
+          <button className="ms-ld-showall" onClick={() => onShowAll(0)}>
+            <span className="ms-ld-showall-ico" aria-hidden="true">▦</span> {tx('Show all photos', 'Vis alle bilder', 'Voir toutes les photos')}
+          </button>
+        )}
       </div>
     );
   }
@@ -154,6 +155,8 @@
   /* ---- Main listing-detail modal ---- */
   function MS_ListingDetail(L) {
     const lang = L.lang || 'en'; const tx = T(lang); const loc = locale(lang);
+    // De-duplicate the photo set (same URL never shown twice).
+    const images = (L.images || []).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
     const [lightbox, setLightbox] = useState(null);
     const [showAllAmen, setShowAllAmen] = useState(false);
     const [descOpen, setDescOpen] = useState(false);
@@ -252,8 +255,8 @@
 
           <div className="ms-ld-scroll">
             <h1 className="ms-ld-title">{L.title}</h1>
-            <Mosaic images={L.images} alt={L.title} tx={tx} onShowAll={(i) => setLightbox(i)} />
-            <MobileCarousel images={L.images} alt={L.title} />
+            <Mosaic images={images} alt={L.title} tx={tx} onShowAll={(i) => setLightbox(i)} />
+            <MobileCarousel images={images} alt={L.title} />
 
             <div className="ms-ld-grid">
               <div className="ms-ld-main">
@@ -396,7 +399,7 @@
             </button>
           </div>
 
-          {lightbox != null && <Lightbox images={L.images} alt={L.title} start={lightbox} onClose={() => setLightbox(null)} />}
+          {lightbox != null && <Lightbox images={images} alt={L.title} start={lightbox} onClose={() => setLightbox(null)} />}
         </div>
       </div>
     );

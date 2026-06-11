@@ -5090,12 +5090,18 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 /* mosaic */
 .ms-ld-mosaic { position: relative; margin: 0 40px; }
 .ms-ld-mosaic-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);
-  gap: 8px; height: min(54vh, 440px); border-radius: 16px; overflow: hidden;
+  display: grid; gap: 8px; height: min(54vh, 440px); border-radius: 16px; overflow: hidden;
 }
 .ms-ld-mo { background-size: cover; background-position: center; cursor: pointer; transition: filter .2s; background-color: #eee; }
 .ms-ld-mo:hover { filter: brightness(.93); }
-.ms-ld-mo-main { grid-column: 1 / 3; grid-row: 1 / 3; }
+/* adaptive layouts by photo count — only real images, never duplicated */
+.ms-ld-mg-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.ms-ld-mg-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.ms-ld-mg-3 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; }
+.ms-ld-mg-3 .ms-ld-mo-main { grid-row: 1 / 3; }
+.ms-ld-mg-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.ms-ld-mg-5 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); }
+.ms-ld-mg-5 .ms-ld-mo-main { grid-column: 1 / 3; grid-row: 1 / 3; }
 .ms-ld-showall {
   position: absolute; right: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 7px;
   background: #fff; border: 1px solid #222; border-radius: 9px; padding: 8px 14px;
