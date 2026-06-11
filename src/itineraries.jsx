@@ -864,255 +864,46 @@ function ItinModal({ trip, onClose, lang, fmt }) {
 
   const priceTxt = trip.priceFromEUR ? (fmt ? fmt(trip.priceFromEUR) : `€${trip.priceFromEUR}`) : null;
 
-  return (
-    <div className="itin-modal-backdrop" onClick={onClose}>
-      <div className="itin-modal itin-modal-v2 itin-modal-split" onClick={e => e.stopPropagation()}>
-        <button className="itin-modal-close" onClick={onClose} aria-label="Close">✕</button>
-
-        {/* Hero — image carousel of this trip's stops */}
-        <div className="itin-modal-hero">
-          <TripCarousel images={msGalleryFor(trip)} alt={s(trip.title)}>
-            <div className="itin-modal-hero-overlay">
-              <div className="itin-modal-eyebrow">— {tx('Chapter','Kapittel','Chapitre')} {trip.chapter} · {trip.duration}</div>
-              <h2 className="itin-modal-title">{s(trip.title)}</h2>
-              <div className="itin-modal-route">{trip.route}</div>
-              {trip.idealFor && (
-                <span className="itin-modal-hero-pill">
-                  <span className="itin-modal-hero-pill-label">{tx('Ideal for','Perfekt for','Idéal pour')}</span>
-                  {s(trip.idealFor)}
-                </span>
-              )}
-            </div>
-          </TripCarousel>
-        </div>
-
-        {/* Single scrollable body */}
-        <div className="itin-modal-body">
-
-          {/* ── Overview ── */}
-          <p className="itin-modal-overview">{s(trip.overview)}</p>
-
-          <div className="itin-stat-row">
-            <div className="itin-stat">
-              <span className="itin-stat-label">{tx('Duration','Varighet','Durée')}</span>
-              <span className="itin-stat-value">{trip.duration}</span>
-            </div>
-            <div className="itin-stat">
-              <span className="itin-stat-label">{tx('From','Fra','À partir de')}</span>
-              <span className="itin-stat-value itin-stat-price">{priceTxt || tx('On request','På forespørsel','Sur demande')}</span>
-            </div>
-            <div className="itin-stat">
-              <span className="itin-stat-label">{tx('Route','Rute','Itinéraire')}</span>
-              <span className="itin-stat-value itin-stat-route">{trip.route}</span>
-            </div>
-          </div>
-
-          {trip.partner && (
-            <div className="itin-partner-strip">
-              <div className="itin-partner-head">
-                <div>
-                  <div className="itin-partner-eyebrow">{tx('In partnership with','I samarbeid med','En partenariat avec')}</div>
-                  <div className="itin-partner-name">{trip.partner.name}</div>
-                  <div className="itin-partner-tag">{trip.partner.tagline} · {trip.partner.location}</div>
-                </div>
-                <a className="itin-partner-link" href={trip.partner.website} target="_blank" rel="noopener">
-                  {tx('Visit site →','Besøk siden →','Voir le site →')}
-                </a>
-              </div>
-              {trip.partner.gallery && trip.partner.gallery.length > 0 && (
-                <div className="itin-partner-gallery">
-                  {trip.partner.gallery.map((src, i) => (
-                    <div key={i} className="itin-partner-thumb" style={{ backgroundImage: `url(${src})` }} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="itin-modal-grid">
-            <div>
-              <h3 className="itin-modal-h3">{tx('Highlights','Høydepunkter','Temps forts')}</h3>
-              <ul className="itin-modal-ul">
-                {trip.highlights.map((h, i) => <li key={i}>{s(h)}</li>)}
-              </ul>
-            </div>
-            <div>
-              <h3 className="itin-modal-h3">{tx('Theme','Tema','Thèmes')}</h3>
-              <div className="itin-modal-tags">
-                {trip.themeTags.map((t, i) => <span key={i} className="itin-modal-tag">{t}</span>)}
-              </div>
-            </div>
-          </div>
-
-          {trip.formulas && trip.formulas.length > 0 && (
-            <div className="itin-formulas">
-              <h3 className="itin-modal-h3">{tx('Choose your formula','Velg din formel','Choisissez votre formule')}</h3>
-              <div className="itin-formula-grid">
-                {trip.formulas.map((f) => {
-                  const name = f.name[lang] || f.name.en;
-                  const tagline = f.tagline[lang] || f.tagline.en;
-                  const fromEUR = f.prices ? Math.min(...Object.values(f.prices)) : null;
-                  return (
-                    <div key={f.id} className="itin-formula-card">
-                      <div className="itin-formula-name">{name}</div>
-                      <div className="itin-formula-tag">{tagline}</div>
-                      {fromEUR
-                        ? <div className="itin-formula-price">{tx('From','Fra','À partir de')} {fmt ? fmt(fromEUR) : `€${fromEUR}`} <span>/ {tx('week / person','uke / person','semaine / pers.')}</span></div>
-                        : <div className="itin-formula-price">{tx('Custom quote','Skreddersydd','Sur mesure')}</div>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {trip.extras && trip.extras.length > 0 && (
-            <div className="itin-extras">
-              <h3 className="itin-modal-h3">{tx('Optional extras','Valgfrie tillegg','Extras optionnels')}</h3>
-              <div className="itin-extra-grid">
-                {trip.extras.map((x) => (
-                  <div key={x.id} className="itin-extra-card">
-                    <div className="itin-extra-name">{x.name[lang] || x.name.en}</div>
-                    <div className="itin-extra-desc">{x.desc[lang] || x.desc.en}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── Day by day ── */}
-          <div className="itin-section-divider" />
-          <div className="itin-timeline">
-            <div className="itin-timeline-header">
-              <h3 className="itin-modal-h3 itin-timeline-h">{tx('Day by day','Dag for dag','Jour par jour')}</h3>
-              <span className="itin-timeline-count">{trip.days} {tx('days','dager','jours')}</span>
-            </div>
-            <ol className="itin-timeline-list">
-              {trip.itinerary.map((d, i) => {
-                const rawText = s(d.text);
-                // Parse into clean {time, activity} rows. Preferred authoring format:
-                //   "07:00 ~~ Activity || 07:15–09:30 ~~ Next activity || …"
-                // Fallback for older trips: split sentences and detect a leading time/label.
-                let rows;
-                if (rawText.indexOf('||') > -1 || rawText.indexOf('~~') > -1) {
-                  rows = rawText.split('||').map(seg => {
-                    const p = seg.split('~~');
-                    return p.length > 1
-                      ? { t: p[0].trim(), a: p.slice(1).join('~~').trim() }
-                      : { t: '', a: seg.trim() };
-                  }).filter(r => r.a);
-                } else {
-                  const TIME_RE = /^((?:\d{1,2}[:.]\d{2})(?:\s*[–-]\s*\d{1,2}[:.]\d{2})?|Upon arrival|On arrival|Flight\s*[−–-]?\s*\d+\s*h?|Pre-dawn|Evening|Nightly|Night|Morning|Afternoon|All day)\b[\s.,—–-]*/i;
-                  rows = rawText.split('. ').map(seg => seg.replace(/\.\s*$/, '').trim()).filter(Boolean).map(seg => {
-                    const m = seg.match(TIME_RE);
-                    return m ? { t: m[1], a: seg.slice(m[0].length).trim() } : { t: '', a: seg };
-                  });
-                }
-                return (
-                  <li key={i} className="itin-timeline-item">
-                    <div className="itin-timeline-marker">
-                      <span className="itin-tl-badge" aria-hidden="true">{d.day}</span>
-                    </div>
-                    <div className="itin-timeline-card">
-                      <div className="itin-timeline-route">{s(d.route)}</div>
-                      <div className="itin-tl-rows">
-                        {rows.map((r, ri) => (
-                          <div key={ri} className="itin-tl-row">
-                            <span className={'itin-tl-time' + (r.t ? '' : ' itin-tl-time-none')}>{r.t || '•'}</span>
-                            <span className="itin-tl-act">{r.a}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-
-          {/* ── Included / Not included ── */}
-          <div className="itin-section-divider" />
-          <div className="itin-inex">
-            {trip.included && trip.included.length > 0 && (
-              <div className="itin-inex-col">
-                <div className="itin-inex-header itin-inex-header-yes">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6.5" fill="#2a9d5c" fillOpacity=".15"/><path d="M3.5 6.5l2 2 4-4" stroke="#2a9d5c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  {tx('Included','Inkludert','Inclus')}
-                </div>
-                <ul className="itin-inex-list">
-                  {trip.included.map((x, i) => (
-                    <li key={i} className="itin-inex-item">
-                      <span className="itin-inex-dot itin-inex-dot-yes">✓</span>
-                      <span>{s(x)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {trip.excluded && trip.excluded.length > 0 && (
-              <div className="itin-inex-col itin-inex-col-no">
-                <div className="itin-inex-header itin-inex-header-no">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6.5" fill="#86868b" fillOpacity=".12"/><path d="M4.5 4.5l4 4M8.5 4.5l-4 4" stroke="#86868b" strokeWidth="1.4" strokeLinecap="round"/></svg>
-                  {tx('Not included','Ikke inkludert','Non inclus')}
-                </div>
-                <ul className="itin-inex-list">
-                  {trip.excluded.map((x, i) => (
-                    <li key={i} className="itin-inex-item">
-                      <span className="itin-inex-dot itin-inex-dot-no">—</span>
-                      <span>{s(x)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* ── Booking ── */}
-          <div className="itin-section-divider" />
-          <div className="itin-booking">
-            <div className="itin-booking-price-card">
-              <span className="itin-booking-from">{tx('From','Fra','À partir de')}</span>
-              <span className="itin-booking-amount">{priceTxt || tx('On request','På forespørsel','Sur demande')}</span>
-              <span className="itin-booking-per">{tx('/ person — tailored to your dates','/ person — tilpasset dine datoer','/ personne — sur mesure')}</span>
-            </div>
-
-            <div className="itin-booking-cta-row">
-              <button className="btn btn-primary itin-booking-btn-primary" onClick={() => goPlan('asis')}>
-                {tx('Take as-is →','Ta som den er →','Prendre tel quel →')}
-              </button>
-              <button className="btn btn-outline"
-                onClick={() => {
-                  const t = trip;
-                  onClose();
-                  setTimeout(() => {
-                    if (window.MS_OpenTweak) window.MS_OpenTweak(t);
-                    else { window.location.hash = '#plan'; }
-                  }, 60);
-                }}>
-                ✏️ {tx('Tweak this trip','Tilpass denne reisen','Personnaliser ce voyage')}
-              </button>
-              <a className="btn btn-outline" href="https://wa.me/4745774743" target="_blank" rel="noopener">
-                {tx('WhatsApp us','WhatsApp oss','WhatsApp')}
-              </a>
-            </div>
-
-            <details className="itin-modal-terms itin-terms-collapsible">
-              <summary>
-                <span className="itin-terms-eyebrow">{tx('Rules & conditions','Regler og vilkår','Règles et conditions','Regler & villkor')}</span>
-                <span className="itin-terms-chev" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </span>
-              </summary>
-              <ul className="itin-modal-terms-list">
-                {terms.map((t, i) => <li key={i}>{t}</li>)}
-              </ul>
-            </details>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  );
+  const parseRows = (rawText) => {
+    if (rawText.indexOf("||") > -1 || rawText.indexOf("~~") > -1) {
+      return rawText.split("||").map(seg => { const p = seg.split("~~"); return p.length > 1 ? { t: p[0].trim(), a: p.slice(1).join("~~").trim() } : { t: "", a: seg.trim() }; }).filter(r => r.a);
+    }
+    const TIME_RE = /^((?:\d{1,2}[:.]\d{2})(?:\s*[–-]\s*\d{1,2}[:.]\d{2})?|Upon arrival|On arrival|Flight\s*[−–-]?\s*\d+\s*h?|Pre-dawn|Evening|Nightly|Night|Morning|Afternoon|All day)\b[\s.,—–-]*/i;
+    return rawText.split(". ").map(seg => seg.replace(/\.\s*$/, "").trim()).filter(Boolean).map(seg => { const m = seg.match(TIME_RE); return m ? { t: m[1], a: seg.slice(m[0].length).trim() } : { t: "", a: seg }; });
+  };
+  const groupTxt = trip.days >= 7 ? tx("Group 2–8","Gruppe 2–8","Groupe 2–8") : tx("Group 1–10","Gruppe 1–10","Groupe 1–10");
+  const region = /Merzouga|Sahara/i.test(trip.route) ? "Merzouga, Morocco" : /Tangier|Chefchaouen|Fes|Fez/i.test(trip.route) ? "Chefchaouen, Morocco" : /Agadir/i.test(trip.route) ? "Agadir, Morocco" : "Marrakech, Morocco";
+  const LD = window.MS_ListingDetail;
+  const L = {
+    id: "trip-" + trip.slug, lang, onClose,
+    title: s(trip.title),
+    subtitle: tx("Private guided journey in Morocco","Privat guidet reise i Marokko","Voyage privé guidé au Maroc"),
+    metaDots: [trip.days + " " + tx("days","dager","jours"), trip.nights + " " + tx("nights","netter","nuits"), groupTxt, (priceTxt ? tx("from","fra","dès") + " " + priceTxt : tx("On request","På forespørsel","Sur demande"))],
+    badge: s(trip.badge),
+    trust: tx("Licensed Moroccan-Norwegian agency · private & tailor-made · 24/7 support","Lisensiert marokkansk-norsk byrå · privat & skreddersydd · 24/7 støtte","Agence maroco-norvégienne agréée · privé & sur mesure · assistance 24/7"),
+    images: msGalleryFor(trip),
+    highlightsTitle: tx("Trip highlights","Reisens høydepunkter","Points forts"),
+    highlights: trip.highlights.map(s),
+    description: s(trip.overview),
+    amenitiesTitle: tx("What’s included","Dette er inkludert","Ce qui est inclus"),
+    amenities: (trip.included || []).map(s),
+    excluded: (trip.excluded || []).map(s),
+    timeline: trip.itinerary.map(d => ({ day: d.day, route: s(d.route), rows: parseRows(s(d.text)) })),
+    mapQuery: region, locationLabel: trip.route,
+    thingsToKnow: {
+      cancellation: { title: tx("Cancellation","Avbestilling","Annulation"), items: [tx("20% deposit to confirm, 80% on arrival.","20% depositum for å bekrefte, 80% ved ankomst.","Acompte de 20% pour confirmer, 80% à l’arrivée."), tx("Free changes up to 30 days before.","Gratis endringer inntil 30 dager før.","Modifications gratuites jusqu’à 30 jours avant.")] },
+      rules: { title: tx("Good to know","Verdt å vite","Bon à savoir"), items: [groupTxt, tx("Private vehicle & driver throughout.","Privat bil & sjåfør hele veien.","Véhicule privé & chauffeur tout au long."), tx("Best season: spring & autumn.","Beste sesong: vår & høst.","Meilleure saison : printemps & automne.")] },
+      safety: { title: tx("Safety & trust","Sikkerhet & trygghet","Sécurité & confiance"), items: [tx("Licensed tourism agency.","Lisensiert turismebyrå.","Agence de tourisme agréée."), tx("24/7 WhatsApp support — Aladdin & Marte.","24/7 WhatsApp-støtte — Aladdin & Marte.","Assistance WhatsApp 24/7 — Aladdin & Marte."), tx("VAT included in the price.","MVA inkludert i prisen.","TVA incluse dans le prix.")] },
+    },
+    price: { from: priceTxt || tx("On request","På forespørsel","Sur demande"), per: tx("/ person — tailored to your dates","/ person — tilpasset dine datoer","/ personne — sur mesure") },
+    banner: tx("VAT & taxes included","MVA & avgifter inkludert","TVA & taxes incluses"),
+    breadcrumb: ["Morocco", region.split(",")[0], s(trip.title)],
+    reserveLabel: tx("Reserve","Reserver","Réserver"),
+    tweakLabel: tx("Tweak this trip","Tilpass denne reisen","Personnaliser"),
+    onReserve: () => goPlan("asis"),
+    onTweak: () => { const t = trip; onClose(); setTimeout(() => { if (window.MS_OpenTweak) window.MS_OpenTweak(t); else window.location.hash = "#plan"; }, 60); },
+  };
+  return LD ? <LD {...L} /> : null;
 }
 
 // ── CATALOG-STYLE GRID + RIGHT-SIDE PLAN CTA ────────────────────

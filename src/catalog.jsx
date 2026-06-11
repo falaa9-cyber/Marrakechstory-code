@@ -191,267 +191,49 @@ function CatalogModal({ item, tab, onClose, lang }) {
     if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
   };
 
-  return (
-    <div className="cat-modal-backdrop" onClick={onClose}>
-      <div className="cat-modal cat-modal-split" onClick={e => e.stopPropagation()}>
-        <button className="cat-modal-close" onClick={onClose} aria-label={tx('Close', 'Lukk', 'Fermer', 'Stäng')}>✕</button>
-        <ModalGallery tab={tab} item={item} lang={lang} />
-        <div className="cat-modal-body">
-          <div className="cat-modal-rating">
-            <span className="stars"><Ic.Star /></span>
-            <strong>{item.rating}</strong>
-            <span className="cat-modal-reviews">({(item.reviews || 0).toLocaleString()} {tx('reviews', 'anmeldelser', 'avis', 'recensioner')})</span>
-          </div>
-          <h2 className="cat-modal-title">{localize(item.name, lang)}</h2>
-          <div className="cat-modal-area"><Ic.Pin s={13} /> {localize(item.area, lang)}</div>
-          {item.duration && <div className="cat-modal-duration"><Ic.Clock s={13} /> {localize(item.duration, lang)}</div>}
-          <p className="cat-modal-desc">{localize(item.description || item.desc, lang)}</p>
-          {item.slogan && <p className="cat-modal-slogan">{localize(item.slogan, lang)}</p>}
-          {tab === 'restaurants' && item.cuisine && (
-            <div className="cat-modal-meta">
-              <span className="cat-modal-pill"><Ic.Utensils s={13} /> {localize(item.cuisine, lang)}</span>
-              {item.price && <span className="cat-modal-pill">{localize(item.price, lang)}</span>}
-            </div>
-          )}
-          {item.style && tab !== 'restaurants' && (
-            <div className="cat-modal-meta">
-              <span className="cat-modal-pill">{localize(item.style, lang)}</span>
-            </div>
-          )}
-          {item.atmosphere && (
-            <p className="cat-modal-atmosphere"><Ic.Sparkle s={12} /> {localize(item.atmosphere, lang)}</p>
-          )}
-          {item.whatToOrder && (
-            <p className="cat-modal-wto"><strong>{tx('What to order:', 'Bestill:', 'À commander :', 'Beställ:')}</strong> {localize(item.whatToOrder, lang)}</p>
-          )}
-          {item.perk && (
-            <div className="cat-modal-perk">
-              <span className="cat-modal-perk-label">{tx('Marrakechstory perk', 'Marrakechstory-fordel', 'Avantage Marrakechstory', 'Marrakechstory-fördel')}</span>
-              <span className="cat-modal-perk-text">{localize(item.perk, lang)}</span>
-            </div>
-          )}
-          {(() => {
-            // Marrakechstory policy: transport is NEVER included in catalog
-            // bookings except for two activities — hot-air balloons and
-            // paragliding — where the operator round-trips you from your
-            // riad as part of the safety / weather window.
-            const nameStr = (typeof item.name === 'string' ? item.name : (item.name?.en || item.name?.no || '')).toLowerCase();
-            const slugStr = (item.slug || '').toLowerCase();
-            const isAirActivity = /balloon|paragl|montgolfi[èe]re|para.?pente|luftbal/.test(nameStr + ' ' + slugStr);
-            const hasTransport = isAirActivity;
-            const transportTab = tab === 'transport';
-            if (transportTab) return null;
-            if (hasTransport) {
-              return (
-                <div className="cat-modal-transport included">
-                  <div className="cat-modal-transport-icon"><Ic.Check s={16} /></div>
-                  <div className="cat-modal-transport-body">
-                    <strong>{tx('Transport included', 'Transport inkludert', 'Transport inclus', 'Transport ingår')}</strong>
-                    <p>{tx('We pick you up at your hotel and drive you back safely.', 'Vi henter deg på hotellet og kjører deg trygt hjem.', 'Nous vous prenons à l\'hôtel et vous ramenons en toute sécurité.', 'Vi hämtar dig på hotellet och kör dig hem säkert.')}</p>
-                  </div>
-                </div>
-              );
-            }
-            // Toggle for "need transport" — handed to the booking form
-            return (
-              <div className="cat-modal-transport not-included">
-                <div className="cat-modal-transport-icon"><Ic.Plane s={16} /></div>
-                <div className="cat-modal-transport-body">
-                  <strong>{tx('Need transport?', 'Trenger du transport?', 'Besoin d\'un transport ?', 'Behöver du transport?')}</strong>
-                  <p>{tx('Toggle on and we\'ll add a private driver to your reservation.', 'Skru på, så legger vi privat sjåfør til i reservasjonen.', 'Activez et nous ajoutons un chauffeur privé à la réservation.', 'Aktivera så lägger vi till en privatförare i din bokning.')}</p>
-                  <label className="cat-transport-toggle">
-                    <input
-                      type="checkbox"
-                      checked={!!needTransport}
-                      onChange={(e) => setNeedTransport(e.target.checked)}
-                    />
-                    <span className="cat-transport-switch" aria-hidden="true"></span>
-                    <span className="cat-transport-label">
-                      {needTransport
-                        ? tx('Yes, add transport', 'Ja, legg til transport', 'Oui, ajouter le transport', 'Ja, lägg till transport')
-                        : tx('No, I\'ll handle it', 'Nei, jeg ordner selv', 'Non, je m\'en occupe', 'Nej, jag ordnar själv')}
-                    </span>
-                  </label>
-                  {needTransport && (
-                    <a className="cat-modal-transport-cta" href="#plan"
-                       onClick={(e) => {
-                         e.preventDefault();
-                         window.MS_BookingContext = {
-                           mode: 'catalog-transport',
-                           title: item.name,
-                           needTransport: true,
-                           transportItem: item.name,
-                         };
-                         window.dispatchEvent(new CustomEvent('ms:booking-context'));
-                         onClose();
-                         setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-                       }}>
-                      {tx('Go to reservation →', 'Til reservasjon →', 'Vers la réservation →', 'Till bokning →')}
-                    </a>
-                  )}
-                </div>
-              </div>
-            );
-          })()}
-          {item.included && item.included.length > 0 && (
-            <div className="cat-modal-included">
-              <div className="cat-modal-offers-title">{tx('Included', 'Inkludert', 'Inclus', 'Ingår')}</div>
-              <ul className="cat-modal-included-list">
-                {item.included.map((inc, i) => <li key={i}><Ic.Check s={13} /> {localize(inc, lang)}</li>)}
-              </ul>
-            </div>
-          )}
-          {tab === 'transport' && item.prices && item.prices.length > 0 && (
-            <div className="cat-modal-offers">
-              <div className="cat-modal-offers-title">{tx('Price', 'Pris', 'Tarif', 'Pris')}</div>
-              <div className="cat-modal-offers-list">
-                <div className="cat-modal-offer-row">
-                  <span>{item.prices[0].label}</span>
-                  <span className="cat-modal-offer-price">{item.prices[0].price}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {item.perfectFor && item.perfectFor.length > 0 && (
-            <div className="cat-modal-perfect">
-              <div className="cat-modal-offers-title">{tx('Perfect for', 'Perfekt for', 'Idéal pour', 'Perfekt för')}</div>
-              <div className="cat-modal-perfect-chips">
-                {(Array.isArray(item.perfectFor) ? item.perfectFor : localizeList(item.perfectFor, lang)).map((pf, i) => <span key={i} className="cat-modal-perfect-chip">{localize(pf, lang)}</span>)}
-              </div>
-            </div>
-          )}
-          {/* Sub-packages — used for consolidated partner cards like La Bohème */}
-          {item.subPackages && item.subPackages.length > 0 && (() => {
-            const groups = {};
-            for (const sp of item.subPackages) {
-              const key = localize(sp.section, lang) || 'Offres';
-              if (!groups[key]) groups[key] = [];
-              groups[key].push(sp);
-            }
-            const groupOrder = Object.keys(groups);
-            return (
-              <div className="cat-sub-pkg">
-                <div className="cat-modal-offers-title">{tx('Offers', 'Tilbud', 'Offres', 'Erbjudanden')}</div>
-                {groupOrder.map((g) => (
-                  <div key={g} className="cat-sub-pkg-group">
-                    <div className="cat-sub-pkg-group-h">{g}</div>
-                    <div className="cat-sub-pkg-grid">
-                      {groups[g].map((sp, i) => (
-                        <div key={i} className="cat-sub-pkg-card">
-                          {sp.image && (
-                            <div className="cat-sub-pkg-img" style={{ backgroundImage: `url(${sp.image})` }}>
-                              {sp.badge && <span className="cat-sub-pkg-badge">{localize(sp.badge, lang)}</span>}
-                            </div>
-                          )}
-                          <div className="cat-sub-pkg-body">
-                            <div className="cat-sub-pkg-name">{localize(sp.name, lang)}</div>
-                            {sp.duration && <div className="cat-sub-pkg-duration">{localize(sp.duration, lang)}</div>}
-                            {sp.description && <p className="cat-sub-pkg-desc">{localize(sp.description, lang)}</p>}
-                            {sp.includes && (Array.isArray(sp.includes) ? sp.includes.length > 0 : true) && (
-                              <ul className="cat-sub-pkg-list">
-                                {(Array.isArray(sp.includes) ? sp.includes : localizeList(sp.includes, lang)).map((line, j) => <li key={j}>{localize(line, lang)}</li>)}
-                              </ul>
-                            )}
-                            {/* Prices intentionally hidden — partner offers are quoted on request */}
-                            {sp.note && <div className="cat-sub-pkg-note">{localize(sp.note, lang)}</div>}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
-          {item.practical && item.practical.length > 0 && (
-            <div className="cat-modal-practical">
-              <div className="cat-modal-offers-title">{tx('Good to know', 'Praktisk info', 'Infos pratiques', 'Bra att veta')}</div>
-              <ul className="cat-modal-practical-list">
-                {(Array.isArray(item.practical) ? item.practical : localizeList(item.practical, lang)).map((p, i) => <li key={i}>{localize(p, lang)}</li>)}
-              </ul>
-            </div>
-          )}
-          {tab === 'transport' && (
-            <div className="cat-rental-book">
-              <div className="cat-rental-book-h">
-                {tx('Reserve this car', 'Reservér denne bilen', 'Réserver cette voiture', 'Reservera den här bilen')}
-              </div>
-              <div className="cat-rental-book-grid">
-                <label className="cat-rental-fld">
-                  <span>{tx('Pickup', 'Henting', 'Prise en charge', 'Upphämtning')}</span>
-                  <input type="date" value={pickupDate} min={_today(0)}
-                    onChange={(e) => {
-                      setPickupDate(e.target.value);
-                      if (returnDate && returnDate <= e.target.value) {
-                        const d = new Date(e.target.value); d.setDate(d.getDate() + 1);
-                        setReturnDate(d.toISOString().slice(0, 10));
-                      }
-                    }} />
-                </label>
-                <label className="cat-rental-fld">
-                  <span>{tx('Return', 'Retur', 'Retour', 'Återlämning')}</span>
-                  <input type="date" value={returnDate} min={pickupDate}
-                    onChange={(e) => setReturnDate(e.target.value)} />
-                </label>
-                <div className="cat-rental-summary">
-                  <div className="cat-rental-summary-row">
-                    <span>{rentalDays} {lang === 'no' ? (rentalDays === 1 ? 'dag' : 'dager') : lang === 'fr' ? 'jours' : lang === 'sv' ? (rentalDays === 1 ? 'dag' : 'dagar') : (rentalDays === 1 ? 'day' : 'days')}</span>
-                    <strong>€{Math.round(rentalSubtotal)}</strong>
-                  </div>
-                  <div className="cat-rental-summary-meta">
-                    €{baseRate}/{tx('day', 'dag', 'jour', 'dag')}
-                  </div>
-                </div>
-              </div>
-              <div className="cat-rental-perks">
-                <span className="cat-rental-perks-h">✓ {tx('No hidden costs', 'Ingen skjulte kostnader', 'Aucun frais caché', 'Inga dolda kostnader')}</span>
-                <span>{tx('Unlimited mileage', 'Ubegrenset kjørelengde', 'Kilométrage illimité', 'Obegränsat antal mil')}</span>
-                <span>·</span>
-                <span>{tx('Free hotel / airport delivery', 'Gratis levering på hotell / flyplass', 'Livraison gratuite hôtel / aéroport', 'Gratis leverans hotell / flygplats')}</span>
-                <span>·</span>
-                <span>{tx('Insurance available', 'Forsikring tilgjengelig', 'Assurance disponible', 'Försäkring tillgänglig')}</span>
-              </div>
-            </div>
-          )}
-          <div className="cat-reserve">
-            {sent ? (
-              <div className="cat-reserve-done">
-                <div className="cat-reserve-check">✓</div>
-                <h3>{tx('Reservation sent!', 'Reservasjon sendt!', 'Réservation envoyée !', 'Bokning skickad!')}</h3>
-                <p>{tx('We received your request and will confirm by email shortly.', 'Vi har mottatt forespørselen din og bekrefter på e-post snart.', 'Nous avons bien reçu votre demande et confirmerons par e-mail.', 'Vi har mottagit din förfrågan och bekräftar via e-post.')}</p>
-              </div>
-            ) : (
-              <>
-                <h3 className="cat-reserve-h">{tx('Send a reservation', 'Send reservasjon', 'Envoyer une réservation', 'Skicka en bokning')}</h3>
-                <div className="cat-reserve-grid">
-                  <input placeholder={tx('Full name', 'Fullt navn', 'Nom complet', 'Namn')} value={r.name} autoComplete="name" onChange={e => setR1('name', e.target.value)} />
-                  <input type="email" placeholder={tx('Email', 'E-post', 'E-mail', 'E-post')} value={r.email} autoComplete="email" onChange={e => setR1('email', e.target.value)} />
-                  <input type="tel" placeholder={tx('Phone', 'Telefon', 'Téléphone', 'Telefon')} value={r.phone} autoComplete="tel" onChange={e => setR1('phone', e.target.value)} />
-                  {tab !== 'transport' && <input type="date" value={r.date} min={_today(0)} onChange={e => setR1('date', e.target.value)} />}
-                  {tab !== 'transport' && <input type="number" min="1" placeholder={tx('People', 'Antall', 'Personnes', 'Antal')} value={r.people} onChange={e => setR1('people', e.target.value)} />}
-                </div>
-                <textarea rows="2" className="cat-reserve-notes" value={r.notes} onChange={e => setR1('notes', e.target.value)}
-                  placeholder={tx('Notes — date flexibility, preferences…', 'Notater — fleksibilitet, ønsker …', 'Notes — flexibilité, préférences…', 'Anteckningar')} />
-                {tab === 'transport' && <div className="cat-reserve-note">{tx('Using the pickup/return dates above.', 'Bruker hente-/leveringsdatoene over.', 'Avec les dates choisies ci-dessus.', 'Använder datumen ovan.')}</div>}
-                <div className="cat-reserve-foot">
-                  {item.sourceUrl && (
-                    <a className="cat-modal-source" href={item.sourceUrl} target="_blank" rel="noopener"
-                       style={{ fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.08em', alignSelf: 'center' }}>
-                      {tx('Source', 'Kilde', 'Source', 'Källa')}
-                    </a>
-                  )}
-                  <button className="btn btn-primary cat-reserve-btn" onClick={sendReservation}
-                    disabled={busy || !r.name.trim() || !r.email.trim() || (tab === 'transport' && rentalDays < 1)}>
-                    {busy ? tx('Sending…', 'Sender…', 'Envoi…', 'Skickar…') : tx('Send reservation', 'Send reservasjon', 'Envoyer la réservation', 'Skicka bokning')} →
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const price = window.MS_CTX.usePrice();
+  const slug = item.slug || msSlugify(item.name);
+  const imgs = (Array.isArray(item.images) && item.images.length ? item.images : [item.img]).filter(Boolean);
+  const priceFrom = item.startingPriceEur ? price(item.startingPriceEur) : null;
+  const area = localize(item.area, lang);
+  const toISO = (d) => { try { return d.toISOString().slice(0,10); } catch(e){ return _today(7); } };
+  const onReserveCat = async ({ sel, guests, name, email, phone }) => {
+    try {
+      if (window.MS_submitForm) {
+        const start = sel.in ? toISO(sel.in) : _today(7);
+        await window.MS_submitForm("quickbook", { item: item.name, tab, name, email, phone, people: guests, date: start, notes: "", startDate: start, endDate: sel.out ? toISO(sel.out) : start, duration: 1 }, { via: "catalog" });
+      }
+      const prev = JSON.parse(localStorage.getItem("ms_profile_data") || "{}");
+      localStorage.setItem("ms_profile_data", JSON.stringify({ ...prev, name: name || prev.name, email: email || prev.email, phone: phone || prev.phone }));
+    } catch (e) {}
+    if (window.MS_Auth_PromptAfterBooking) window.MS_Auth_PromptAfterBooking();
+  };
+  const L = {
+    id: "cat-" + tab + "-" + slug, lang, onClose,
+    title: localize(item.name, lang),
+    subtitle: [area, localize(item.style, lang)].filter(Boolean).join(" · "),
+    metaDots: [localize(item.tag, lang), priceFrom ? tx("from","fra","dès") + " " + priceFrom : null].filter(Boolean),
+    badge: localize(item.tag || item.style, lang),
+    trust: tx("Hand-picked by Marrakech Story · we book & confirm for you · 24/7 support","Håndplukket av Marrakech Story · vi booker & bekrefter for deg · 24/7 støtte","Sélectionné par Marrakech Story · nous réservons & confirmons pour vous · assistance 24/7"),
+    images: imgs.length ? imgs : ["assets/act-sahara.jpg"],
+    amenitiesTitle: tx("What this place offers","Dette tilbys","Ce que propose ce lieu"),
+    amenities: localizeList(item.perfectFor, lang),
+    description: localize(item.description || item.desc, lang),
+    mapQuery: area ? area.split("·")[0].trim() + ", Morocco" : "Marrakech, Morocco",
+    locationLabel: area,
+    thingsToKnow: (item.practical && item.practical.length) ? {
+      rules: { title: tx("Good to know","Verdt å vite","Bon à savoir"), items: localizeList(item.practical, lang) },
+      safety: { title: tx("Booking & trust","Booking & trygghet","Réservation & confiance"), items: [tx("We confirm availability directly with the venue.","Vi bekrefter tilgjengelighet direkte med stedet.","Nous confirmons la disponibilité directement avec l’établissement."), tx("No online payment — pay on site or as agreed.","Ingen nettbetaling — betal på stedet eller som avtalt.","Pas de paiement en ligne — sur place ou comme convenu."), tx("24/7 WhatsApp support — Aladdin & Marte.","24/7 WhatsApp-støtte — Aladdin & Marte.","Assistance WhatsApp 24/7 — Aladdin & Marte.")] },
+    } : null,
+    price: { from: priceFrom || tx("On request","På forespørsel","Sur demande"), per: tx("/ person","/ person","/ personne") },
+    banner: tx("We book it for you","Vi booker for deg","Nous réservons pour vous"),
+    breadcrumb: ["Morocco", area ? area.split("·")[0].trim() : "Marrakech", localize(item.name, lang)],
+    reserveLabel: tx("Send reservation","Send reservasjon","Envoyer la réservation"),
+    reserveForm: true,
+    onReserve: onReserveCat,
+  };
+  const LD = window.MS_ListingDetail;
+  return LD ? <LD {...L} /> : null;
 }
 
 function Catalog() {

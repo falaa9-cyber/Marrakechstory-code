@@ -5040,3 +5040,215 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
   .itin-tl-time { font-size: 11px; }
   .itin-tl-act { font-size: 13px; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   MS LISTING DETAIL — Airbnb-style trip/catalogue modal (ms-ld-*)
+   ════════════════════════════════════════════════════════════════ */
+.ms-ld-backdrop {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(20,16,13,0.55);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 24px; overflow-y: auto; animation: fadeIn .2s ease;
+}
+.ms-ld-card {
+  position: relative; background: #fff; color: #222;
+  width: min(1280px, 100%); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,.4);
+  font-family: var(--apple-font, -apple-system, "Segoe UI", Roboto, sans-serif);
+  animation: slideUp .25s ease; display: flex; flex-direction: column;
+  max-height: calc(100vh - 80px);
+}
+.ms-ld-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* sticky top bar */
+.ms-ld-topbar {
+  position: sticky; top: 0; z-index: 6; display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; background: rgba(255,255,255,.92);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-bottom: 1px solid #ececec;
+}
+.ms-ld-close {
+  width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent;
+  font-size: 16px; color: #222; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.ms-ld-close:hover { background: #f1f1f1; }
+.ms-ld-actions { display: flex; gap: 6px; }
+.ms-ld-iconbtn {
+  display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent;
+  font-size: 13.5px; font-weight: 600; color: #222; cursor: pointer; padding: 8px 12px; border-radius: 10px;
+  transition: background .15s;
+}
+.ms-ld-iconbtn span { font-size: 15px; }
+.ms-ld-iconbtn:hover { background: #f1f1f1; }
+.ms-ld-iconbtn.on { color: var(--brand, #e0432a); }
+/* title */
+.ms-ld-title {
+  margin: 22px 40px 14px; font-size: clamp(22px, 2.4vw, 30px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.15; color: #1d1d1f;
+}
+/* mosaic */
+.ms-ld-mosaic { position: relative; margin: 0 40px; }
+.ms-ld-mosaic-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);
+  gap: 8px; height: min(54vh, 440px); border-radius: 16px; overflow: hidden;
+}
+.ms-ld-mo { background-size: cover; background-position: center; cursor: pointer; transition: filter .2s; background-color: #eee; }
+.ms-ld-mo:hover { filter: brightness(.93); }
+.ms-ld-mo-main { grid-column: 1 / 3; grid-row: 1 / 3; }
+.ms-ld-showall {
+  position: absolute; right: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 7px;
+  background: #fff; border: 1px solid #222; border-radius: 9px; padding: 8px 14px;
+  font-size: 13px; font-weight: 600; color: #222; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.ms-ld-showall:hover { background: #f7f7f7; }
+.ms-ld-showall-ico { font-size: 13px; }
+/* mobile carousel (hidden on desktop) */
+.ms-ld-mcar { display: none; }
+/* two-column body */
+.ms-ld-grid {
+  display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 56px;
+  padding: 28px 40px 56px; align-items: start;
+}
+.ms-ld-main { min-width: 0; }
+.ms-ld-sec { padding-top: 26px; }
+.ms-ld-divtop { border-top: 1px solid #ebebeb; margin-top: 26px; }
+.ms-ld-card .ms-ld-h2 { font-size: 21px !important; font-weight: 600 !important; letter-spacing: -0.01em !important; line-height: 1.25 !important; margin: 0 0 8px !important; color: #1d1d1f !important; }
+.ms-ld-card .ms-ld-h3 { font-size: 19px !important; font-weight: 600 !important; letter-spacing: -0.01em !important; line-height: 1.25 !important; margin: 0 0 16px !important; color: #1d1d1f !important; }
+.ms-ld-dots { color: #555; font-size: 14.5px; }
+.ms-ld-dots span:not(:last-child)::after { content: "·"; margin: 0 7px; color: #999; }
+/* trust badge card */
+.ms-ld-badgecard {
+  display: flex; align-items: center; gap: 14px; border: 1px solid #e2e2e2; border-radius: 14px;
+  padding: 16px 18px; margin-top: 20px;
+}
+.ms-ld-badgecard-ico { font-size: 24px; color: var(--brand, #e0432a); line-height: 1; }
+.ms-ld-badgecard-label { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brand, #e0432a); margin-bottom: 3px; }
+.ms-ld-badgecard-sub { font-size: 14px; color: #444; line-height: 1.45; }
+/* listing highlights */
+.ms-ld-hl-list { display: flex; flex-direction: column; gap: 12px; }
+.ms-ld-hl { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #333; line-height: 1.5; }
+.ms-ld-hl-ico { color: var(--brand, #e0432a); font-weight: 700; flex: none; }
+/* description */
+.ms-ld-desc { font-size: 15.5px; line-height: 1.65; color: #333; white-space: pre-line; margin: 0; }
+.ms-ld-desc.clamp { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.ms-ld-link { background: none; border: none; padding: 6px 0 0; font-size: 14.5px; font-weight: 600; color: #1d1d1f; text-decoration: underline; cursor: pointer; }
+.ms-ld-link:hover { color: var(--brand, #e0432a); }
+/* amenities */
+.ms-ld-amen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
+.ms-ld-amen { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; color: #333; line-height: 1.45; }
+.ms-ld-amen-ico { color: #2a9d5c; font-weight: 700; flex: none; }
+.ms-ld-amen-no { color: #888; }
+.ms-ld-amen-no .ms-ld-amen-ico { color: #aaa; }
+.ms-ld-outline {
+  margin-top: 22px; display: inline-block; background: #fff; border: 1px solid #222; border-radius: 9px;
+  padding: 11px 20px; font-size: 14px; font-weight: 600; color: #222; cursor: pointer;
+}
+.ms-ld-outline:hover { background: #f7f7f7; }
+.ms-ld-notinc { margin-top: 24px; }
+.ms-ld-notinc-h { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 12px; }
+/* timeline reuse */
+.ms-ld-timeline { margin-top: 4px; }
+/* calendar */
+.ms-ld-avail-sub { font-size: 14px; color: #666; margin-bottom: 16px; }
+.ms-ld-cal { position: relative; }
+.ms-ld-cal-head { position: absolute; top: 2px; right: 0; display: flex; gap: 6px; }
+.ms-ld-cal-arrow { width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; cursor: pointer; font-size: 17px; color: #222; }
+.ms-ld-cal-arrow:hover:not(:disabled) { background: #f1f1f1; }
+.ms-ld-cal-arrow:disabled { color: #ccc; cursor: not-allowed; }
+.ms-ld-cal-months { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.ms-ld-cal-mn { text-align: center; font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.ms-ld-cal-dows { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 6px; }
+.ms-ld-cal-dows span { text-align: center; font-size: 11px; color: #999; font-weight: 600; }
+.ms-ld-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.ms-ld-cal-d {
+  aspect-ratio: 1; border: none; background: transparent; border-radius: 50%; cursor: pointer;
+  font-size: 13.5px; color: #222; transition: background .12s;
+}
+.ms-ld-cal-d:hover:not(:disabled) { background: #f0f0f0; outline: 1px solid #222; }
+.ms-ld-cal-d.past { color: #ccc; text-decoration: line-through; cursor: not-allowed; }
+.ms-ld-cal-d.sel { background: var(--brand, #e0432a); color: #fff; }
+.ms-ld-cal-d.range { background: rgba(224,67,42,.12); border-radius: 0; }
+/* map */
+.ms-ld-map { border-radius: 14px; overflow: hidden; border: 1px solid #e6e6e6; height: 340px; }
+.ms-ld-map { position: relative; }
+.ms-ld-map-fallback { position: absolute; inset: 0; z-index: 0; display: flex; align-items: center; justify-content: center; gap: 8px; color: #9a948c; font-size: 14px; background: linear-gradient(135deg, #f3f1ec, #e8ece8); }
+.ms-ld-map iframe { position: relative; z-index: 1; width: 100%; height: 100%; border: 0; display: block; }
+/* things to know */
+.ms-ld-ttk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.ms-ld-ttk-h { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.ms-ld-ttk-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.ms-ld-ttk-col li { font-size: 13.5px; color: #555; line-height: 1.45; }
+/* breadcrumb */
+.ms-ld-crumb { margin-top: 36px; padding-top: 22px; border-top: 1px solid #ebebeb; font-size: 13px; color: #888; }
+/* sticky booking card */
+.ms-ld-aside-sticky { position: sticky; top: 80px; }
+.ms-ld-book { border: 1px solid #e0e0e0; border-radius: 16px; padding: 22px; box-shadow: 0 6px 22px rgba(0,0,0,.08); }
+.ms-ld-book-pill { display: inline-block; background: #f3ede2; color: #7a5e2e; font-size: 11.5px; font-weight: 700; letter-spacing: .03em; padding: 4px 11px; border-radius: 999px; margin-bottom: 14px; }
+.ms-ld-book-price { display: flex; align-items: baseline; gap: 7px; margin-bottom: 18px; }
+.ms-ld-book-amt { font-size: 24px; font-weight: 700; color: #1d1d1f; }
+.ms-ld-book-per { font-size: 13.5px; color: #666; }
+.ms-ld-book-fields { border: 1px solid #c9c9c9; border-radius: 12px; overflow: hidden; }
+.ms-ld-book-dates { display: grid; grid-template-columns: 1fr 1fr; }
+.ms-ld-book-cell { padding: 10px 12px; border-bottom: 1px solid #c9c9c9; }
+.ms-ld-book-cell:first-child { border-right: 1px solid #c9c9c9; }
+.ms-ld-book-cell span { display: block; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #444; }
+.ms-ld-book-cell b { font-size: 13.5px; font-weight: 500; color: #222; }
+.ms-ld-book-guests { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; }
+.ms-ld-book-guests span { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #444; }
+.ms-ld-book-guests select { border: none; background: transparent; font-size: 13.5px; color: #222; padding: 6px 0; cursor: pointer; }
+.ms-ld-book-contact { display: flex; flex-direction: column; border-top: 1px solid #c9c9c9; }
+.ms-ld-book-contact input { border: none; border-bottom: 1px solid #ededed; padding: 11px 12px; font-size: 13.5px; outline: none; }
+.ms-ld-book-contact input:last-child { border-bottom: none; }
+.ms-ld-book-cta {
+  width: 100%; margin-top: 16px; border: none; border-radius: 11px; padding: 14px;
+  background: var(--brand, #e0432a); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: filter .15s;
+}
+.ms-ld-book-cta:hover { filter: brightness(1.06); }
+.ms-ld-book-note { text-align: center; font-size: 13px; color: #888; margin-top: 12px; }
+.ms-ld-book-2nd { width: 100%; margin-top: 12px; border: 1px solid #ccc; background: #fff; border-radius: 11px; padding: 12px; font-size: 14px; font-weight: 600; color: #222; cursor: pointer; }
+.ms-ld-book-2nd:hover { background: #f7f7f7; }
+.ms-ld-book-sent { text-align: center; padding: 14px 0; }
+.ms-ld-book-sent-ic { width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: #e8f6ee; color: #2a9d5c; font-size: 22px; display: flex; align-items: center; justify-content: center; }
+.ms-ld-book-sent strong { display: block; font-size: 16px; margin-bottom: 4px; }
+.ms-ld-book-sent span { font-size: 13.5px; color: #666; }
+.ms-ld-report { display: block; margin: 18px auto 0; background: none; border: none; color: #888; font-size: 13px; text-decoration: underline; cursor: pointer; }
+.ms-ld-report:hover { color: var(--brand, #e0432a); }
+/* mobile bottom bar (hidden on desktop) */
+.ms-ld-mbar { display: none; }
+/* lightbox */
+.ms-ld-lb { position: fixed; inset: 0; z-index: 10010; background: rgba(0,0,0,.94); display: flex; align-items: center; justify-content: center; }
+.ms-ld-lb-img { max-width: 92vw; max-height: 88vh; border-radius: 8px; }
+.ms-ld-lb-close { position: absolute; top: 20px; left: 20px; width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(255,255,255,.12); color: #fff; font-size: 18px; cursor: pointer; }
+.ms-ld-lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; border: none; background: rgba(255,255,255,.14); color: #fff; font-size: 26px; cursor: pointer; }
+.ms-ld-lb-nav.prev { left: 24px; } .ms-ld-lb-nav.next { right: 24px; }
+.ms-ld-lb-nav:hover, .ms-ld-lb-close:hover { background: rgba(255,255,255,.26); }
+.ms-ld-lb-count { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; }
+
+/* ── Responsive: single column, mobile carousel, fixed bottom bar ── */
+@media (max-width: 860px) {
+  .ms-ld-backdrop { padding: 0; align-items: stretch; }
+  .ms-ld-card { width: 100%; max-height: 100dvh; border-radius: 0; }
+  .ms-ld-title { margin: 16px 18px 12px; }
+  .ms-ld-mosaic { display: none; }
+  .ms-ld-mcar { display: block; position: relative; margin: 0; }
+  .ms-ld-mcar-img { height: 56vw; max-height: 360px; background-size: cover; background-position: center; }
+  .ms-ld-mcar-count { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,.5); color: #fff; font-size: 12px; padding: 3px 9px; border-radius: 999px; }
+  .ms-ld-mcar-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
+  .ms-ld-mcar-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.55); }
+  .ms-ld-mcar-dot.on { background: #fff; }
+  .ms-ld-grid { grid-template-columns: 1fr; gap: 0; padding: 18px 18px 90px; }
+  .ms-ld-aside-sticky { position: static; }
+  .ms-ld-aside { border-top: 1px solid #ebebeb; margin-top: 26px; padding-top: 26px; }
+  .ms-ld-cal-months { grid-template-columns: 1fr; gap: 24px; }
+  .ms-ld-ttk { grid-template-columns: 1fr; gap: 22px; }
+  .ms-ld-amen-grid { grid-template-columns: 1fr; }
+  .ms-ld-mbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    position: sticky; bottom: 0; z-index: 7; background: #fff; border-top: 1px solid #e6e6e6;
+    padding: 12px 18px; box-shadow: 0 -4px 16px rgba(0,0,0,.06);
+  }
+  .ms-ld-mbar-price b { font-size: 17px; } .ms-ld-mbar-price span { font-size: 12px; color: #666; }
+  .ms-ld-mbar-cta { border: none; border-radius: 10px; padding: 13px 26px; background: var(--brand, #e0432a); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+}
