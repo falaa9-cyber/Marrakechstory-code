@@ -3020,7 +3020,6 @@ const CAMPS = [
     img: "assets/catalog/camps/mia-agafay-resort.jpg",
     images: [
       "assets/catalog/camps/mia-agafay-resort-3.jpg",
-      "assets/catalog/camps/mia-agafay-resort-4.jpg",
     ],
     practical: [
       "Overnight from ~€140–225/night (B&B).",
