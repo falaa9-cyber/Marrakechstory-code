@@ -318,6 +318,26 @@
                   </div>
                 )}
 
+                {/* rooms & tents (camps) */}
+                {L.rooms && L.rooms.length > 0 && (
+                  <div className="ms-ld-sec ms-ld-divtop">
+                    <h3 className="ms-ld-h3">{tx('Rooms & tents', 'Rom & telt', 'Chambres & tentes')} <span className="ms-ld-rooms-n">({L.rooms.length})</span></h3>
+                    <div className="ms-ld-rooms">
+                      {L.rooms.map((r, i) => (
+                        <div key={i} className="ms-ld-room">
+                          {r.img && <a className="ms-ld-room-img" style={{ backgroundImage: `url(${r.img})` }} role="img" aria-label={r.name} href={r.img} target="_blank" rel="noopener" />}
+                          <div className="ms-ld-room-info">
+                            <div className="ms-ld-room-name">{r.name}</div>
+                            {r.desc && <div className="ms-ld-room-desc">{r.desc}</div>}
+                            {r.price && <div className="ms-ld-room-price">{r.price}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="ms-ld-rooms-note">{tx('Room rates are indicative and vary by season — we confirm the exact price for your dates.', 'Romprisene er veiledende og varierer med sesong — vi bekrefter nøyaktig pris for dine datoer.', 'Tarifs indicatifs selon la saison — nous confirmons le prix exact pour vos dates.')}</div>
+                  </div>
+                )}
+
                 {/* day by day (trips) */}
                 {L.timeline && L.timeline.length > 0 && (
                   <div className="ms-ld-sec ms-ld-divtop">

@@ -2475,6 +2475,32 @@ const CAMPS = [
   // ── DAY PASSES ──────────────────────────────────────────────────────────────
   {
     name: "Orion Dome",
+    rooms: [
+          {
+                "name": "Single Dome",
+                "desc": "Cosy stargazing dome for two.",
+                "price": "From ~€265/night",
+                "img": "assets/catalog/camps/rooms/orion-r1.jpg"
+          },
+          {
+                "name": "Single Dome with Private Pool",
+                "desc": "Single dome with a private plunge pool.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/orion-r2.jpg"
+          },
+          {
+                "name": "Double Dome",
+                "desc": "Spacious dome with mountain views.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/orion-r3.jpg"
+          },
+          {
+                "name": "Double Dome with Private Pool",
+                "desc": "Double dome with private pool and terrace.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/orion-r4.jpg"
+          }
+    ],
     area: "Agafay Desert · 50 min from Marrakech",
     style: "Day Pass",
     rating: 4.4,
@@ -2537,6 +2563,32 @@ const CAMPS = [
   },
   {
     name: "Be Agafay",
+    rooms: [
+          {
+                "name": "Agafay Yurt",
+                "desc": "50 m², 8 m diameter. Double or twin beds, lounge corner, private bathroom, star-gazing window, terrace, kitchenette, A/C.",
+                "price": "From €420/night (dinner + breakfast for 2)",
+                "img": "assets/catalog/camps/rooms/be-agafay-r1.jpg"
+          },
+          {
+                "name": "Agafay Yurt Family & Friends",
+                "desc": "50 m². Mezzanine double bed under the star window + lounge that converts to 2 extra beds. Ideal for families.",
+                "price": "From €420/night",
+                "img": "assets/catalog/camps/rooms/be-agafay-r2.jpg"
+          },
+          {
+                "name": "Agafay Bungalow",
+                "desc": "38.5 m², 7 m diameter. Twin beds, lounge corner, private bathroom, terrace, kitchenette, A/C.",
+                "price": "From €320/night",
+                "img": "assets/catalog/camps/rooms/be-agafay-r3.jpg"
+          },
+          {
+                "name": "Superior Suite Bungalow",
+                "desc": "69.9 m². Two connected bungalows, king bed, freestanding bathtub, private jacuzzi pool, Atlas views.",
+                "price": "€1,200/night incl. private dinner, hammam & massage, sunset apéro, champagne",
+                "img": "assets/catalog/camps/rooms/be-agafay-r4.jpg"
+          }
+    ],
     area: "Agafay Desert · 1 h drive from Marrakech",
     style: "Day Pass",
     rating: 4.6,
@@ -2567,6 +2619,43 @@ const CAMPS = [
   },
   {
     name: "The White Camel",
+    rooms: [
+          {
+                "name": "Oasis Lodge",
+                "desc": "Luxury desert tent experience.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/white-camel-r1.jpg"
+          },
+          {
+                "name": "View Lodge",
+                "desc": "Scenic desert retreat with panoramic views.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/white-camel-r2.jpg"
+          },
+          {
+                "name": "Pool Lodge",
+                "desc": "Luxury tent with private pool.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/white-camel-r3.jpg"
+          },
+          {
+                "name": "Canyon Lodge",
+                "desc": "Lodge with canyon views.",
+                "price": "On request"
+          },
+          {
+                "name": "Master Lodge",
+                "desc": "Spacious premium lodge.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/white-camel-r5.jpg"
+          },
+          {
+                "name": "Royal Suite with Private Pool",
+                "desc": "Expansive glass wall with sunrise/sunset views, king bed, high canopy ceilings, Berber textiles, private pool.",
+                "price": "From ~2,612 MAD/night",
+                "img": "assets/catalog/camps/rooms/white-camel-r6.jpg"
+          }
+    ],
     area: "Agafay Desert · 45 min from Marrakech",
     style: "Day Pass",
     rating: 4.5,
@@ -2632,6 +2721,18 @@ const CAMPS = [
   // ── OVERNIGHT / DESERT CAMPS ────────────────────────────────────────────────
   {
     name: "Stellar Agafay Desert Camp",
+    rooms: [
+          {
+                "name": "Double Tent",
+                "desc": "Contemporary-traditional design, king bed, private bathroom, desert views.",
+                "price": "~3,000 MAD (€300)/night"
+          },
+          {
+                "name": "Triple Tent",
+                "desc": "Same elegant design with an extra bed for three guests.",
+                "price": "~3,500 MAD (€350)/night"
+          }
+    ],
     area: "Heart of the Agafay · 50 min from Marrakech",
     style: "Overnight",
     rating: 5.0,
@@ -2662,6 +2763,14 @@ const CAMPS = [
   },
   {
     name: "The Seven Saints",
+    rooms: [
+          {
+                "name": "Luxury Lodge / Tent",
+                "desc": "Refined tented lodge with desert and mountain views.",
+                "price": "From ~5,182 MAD/night",
+                "img": "assets/catalog/camps/rooms/seven-saints-r1.jpg"
+          }
+    ],
     area: "Heart of the Agafay · adults only",
     style: "Overnight",
     rating: 5.0,
@@ -2697,6 +2806,20 @@ const CAMPS = [
   // ── LA BOHÈME MARRAKECH (consolidated card with sub-packages) ──────────────
   {
     name: "La Bohème Marrakech",
+    rooms: [
+          {
+                "name": "Dome Tent",
+                "desc": "Luxury glass dome with desert views.",
+                "price": "From ~3,000 MAD/night",
+                "img": "assets/catalog/camps/rooms/boheme-r1.jpg"
+          },
+          {
+                "name": "Suite",
+                "desc": "Decorated tented suite.",
+                "price": "On request",
+                "img": "assets/agafay/boheme/suite.jpg"
+          }
+    ],
     area: { en: "Agafay Desert · partner camp", no: "Agafay-ørkenen · partnerleir", fr: "Désert d'Agafay · camp partenaire" },
     style: "Day Pass · Events · Overnight",
     rating: 4.6,
@@ -2927,6 +3050,20 @@ const CAMPS = [
   // ── Added June 2026 — locally-hosted, visually-verified images ───────────────
   {
     name: "Caravan Agafay by Our Habitas",
+    rooms: [
+          {
+                "name": "Explorer Tent",
+                "desc": "Solar-powered Berber canvas tent with desert views.",
+                "price": "From €225/night",
+                "img": "assets/catalog/camps/rooms/caravan-r1.jpg"
+          },
+          {
+                "name": "Desert / Dune / Atlas Lodge",
+                "desc": "Premium lodge tiers with elevated comfort and views.",
+                "price": "Up to ~€500/night",
+                "img": "assets/catalog/camps/rooms/caravan-r2.jpg"
+          }
+    ],
     slug: "caravan-agafay-habitas",
     area: "Agafay Desert · 45 min from Marrakech",
     style: "Overnight & Day Pass",
@@ -2953,6 +3090,18 @@ const CAMPS = [
   },
   {
     name: "Les Terrasses d'Agafay",
+    rooms: [
+          {
+                "name": "Explorer Tent (25 m²)",
+                "desc": "Comfortable nature-focused tent with private facilities.",
+                "price": "From ~€75/night"
+          },
+          {
+                "name": "Luxury Renovated Tent",
+                "desc": "Recently renovated tent with private terrace and refined décor.",
+                "price": "From ~€105/night"
+          }
+    ],
     slug: "les-terrasses-dagafay",
     area: "Agafay Desert · El Karia / Chouirij",
     style: "Overnight & Day Pass",
@@ -2980,6 +3129,38 @@ const CAMPS = [
   },
   {
     name: "Inara Camp",
+    rooms: [
+          {
+                "name": "Discovery Tent",
+                "desc": "Freshly renovated; private bathroom, separate toilet, reversible A/C.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/inara-r1.jpg"
+          },
+          {
+                "name": "Emotion Tent",
+                "desc": "Cosy insulated tent with tadelakt shower, for two.",
+                "price": "€250–320/night",
+                "img": "assets/catalog/camps/rooms/inara-r2.jpg"
+          },
+          {
+                "name": "Emotion Suite",
+                "desc": "Open-air shower, tadelakt bathroom, sun terrace with views.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/inara-r3.jpg"
+          },
+          {
+                "name": "Inara Suite",
+                "desc": "Spacious suite, private bathroom, A/C.",
+                "price": "€355–385/night",
+                "img": "assets/catalog/camps/rooms/inara-r4.jpg"
+          },
+          {
+                "name": "n°19 Suite",
+                "desc": "Signature suite with open-air shower, tadelakt bathroom and sun terrace.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/inara-r5.jpg"
+          }
+    ],
     slug: "inara-camp",
     area: "Agafay Desert · El Karia",
     style: "Overnight & Dinner Show",
@@ -3006,6 +3187,18 @@ const CAMPS = [
   },
   {
     name: "Mia Agafay Resort",
+    rooms: [
+          {
+                "name": "Premium Glamping Tent",
+                "desc": "Stylish desert tent with modern comforts.",
+                "price": "From ~€140/night (B&B)"
+          },
+          {
+                "name": "Private-Pool Tent / Villa",
+                "desc": "Tent or villa with private pool and terrace.",
+                "price": "From ~€225/night"
+          }
+    ],
     slug: "mia-agafay-resort",
     area: "Agafay Desert · El Karia",
     style: "Overnight",
@@ -3030,6 +3223,18 @@ const CAMPS = [
   },
   {
     name: "Oxygen Lodge Agafay",
+    rooms: [
+          {
+                "name": "Tente Lodge",
+                "desc": "Comfortable eco tent — A/C in summer, wood stove in winter.",
+                "price": "From ~€220/night"
+          },
+          {
+                "name": "Suite Lodge",
+                "desc": "Larger premium suite tent with enhanced comfort.",
+                "price": "Up to ~€350/night"
+          }
+    ],
     slug: "oxygen-lodge-agafay",
     area: "Agafay Desert · El Karia",
     style: "Overnight & Day Pass",
@@ -3056,6 +3261,20 @@ const CAMPS = [
   },
   {
     name: "Kal Tenere Agafay",
+    rooms: [
+          {
+                "name": "Luxury Tent",
+                "desc": "Spacious tent with king bed, private bathroom and terrace.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/kaltenere-r1.jpg"
+          },
+          {
+                "name": "Executive Tent with Private Pool",
+                "desc": "Premium tent with its own private pool and panoramic views.",
+                "price": "~€140–160/night",
+                "img": "assets/catalog/camps/rooms/kaltenere-r2.jpg"
+          }
+    ],
     slug: "kal-tenere-agafay",
     area: "Agafay Desert · Douar Tagafayt",
     style: "Overnight",
@@ -3082,6 +3301,20 @@ const CAMPS = [
   },
   {
     name: "Yes We Camps",
+    rooms: [
+          {
+                "name": "Tente Lodge",
+                "desc": "Stylish safari tent with private facilities.",
+                "price": "From ~€180/night",
+                "img": "assets/catalog/camps/rooms/yeswecamps-r1.jpg"
+          },
+          {
+                "name": "Tente Prestige",
+                "desc": "Upgraded premium tent with enhanced amenities.",
+                "price": "On request",
+                "img": "assets/catalog/camps/rooms/yeswecamps-r2.jpg"
+          }
+    ],
     slug: "yes-we-camps",
     area: "Agafay Desert · El Karia · 35 min from Marrakech",
     style: "Overnight & Spa",
@@ -3109,6 +3342,14 @@ const CAMPS = [
   },
   {
     name: "Alkamar Camp Agafay",
+    rooms: [
+          {
+                "name": "Luxury Lodge",
+                "desc": "A/C tent with private bathroom, terrace and infinity-pool views.",
+                "price": "From ~€320/night",
+                "img": "assets/catalog/camps/rooms/alkamar-r1.jpg"
+          }
+    ],
     slug: "alkamar-camp-agafay",
     area: "Agafay Desert · KM30, El Karia",
     style: "Overnight & Day Pass",

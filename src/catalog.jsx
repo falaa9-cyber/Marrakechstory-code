@@ -218,6 +218,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
     images: imgs.length ? imgs : ["assets/act-sahara.jpg"],
     amenitiesTitle: tx("What this place offers","Dette tilbys","Ce que propose ce lieu"),
     amenities: localizeList(item.perfectFor, lang),
+    rooms: Array.isArray(item.rooms) ? item.rooms : null,
     description: localize(item.description || item.desc, lang),
     mapPlace: area || "Marrakech",
     locationLabel: area,
