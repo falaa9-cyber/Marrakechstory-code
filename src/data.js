@@ -2475,30 +2475,55 @@ const CAMPS = [
   // ── DAY PASSES ──────────────────────────────────────────────────────────────
   {
     name: "Orion Dome",
+    passes: {
+          "day": "Lunch & Pool €45 · Dinner & Pool €45 · Full Day (Lunch+Dinner+Pool) €80",
+          "evening": "Dinner & Pool €45",
+          "spa": "Pool & wellness on site"
+    },
     rooms: [
           {
                 "name": "Single Dome",
-                "desc": "Cosy stargazing dome for two.",
-                "price": "From ~€265/night",
+                "desc": "40 m², private bath, A/C, terrace, mountain views.",
+                "price": "From €250/night",
                 "img": "assets/catalog/camps/rooms/orion-r1.jpg"
           },
           {
                 "name": "Single Dome with Private Pool",
                 "desc": "Single dome with a private plunge pool.",
-                "price": "On request",
+                "price": "From €320/night",
                 "img": "assets/catalog/camps/rooms/orion-r2.jpg"
           },
           {
                 "name": "Double Dome",
                 "desc": "Spacious dome with mountain views.",
-                "price": "On request",
+                "price": "From €330/night",
                 "img": "assets/catalog/camps/rooms/orion-r3.jpg"
           },
           {
                 "name": "Double Dome with Private Pool",
                 "desc": "Double dome with private pool and terrace.",
-                "price": "On request",
+                "price": "From €400/night",
                 "img": "assets/catalog/camps/rooms/orion-r4.jpg"
+          },
+          {
+                "name": "Triple Dome (Family)",
+                "desc": "Family triple dome, 40 m².",
+                "price": "From €420/night"
+          },
+          {
+                "name": "Triple Dome (Adults)",
+                "desc": "Triple dome for adults.",
+                "price": "From €450/night"
+          },
+          {
+                "name": "Quadruple Dome (Family)",
+                "desc": "Family quadruple dome.",
+                "price": "From €500/night"
+          },
+          {
+                "name": "Quadruple Dome (Adults)",
+                "desc": "Quadruple dome for adults.",
+                "price": "From €570/night"
           }
     ],
     area: "Agafay Desert · 50 min from Marrakech",
@@ -2514,6 +2539,9 @@ const CAMPS = [
     perfectFor: ["Pool access", "Lunch", "Free fresh juice"],
     img: "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.29-1-1600x1092.jpeg",
     images: [
+      "assets/catalog/camps/orion-dome-1.jpg",
+      "assets/catalog/camps/orion-dome-2.jpg",
+      "assets/catalog/camps/orion-dome-3.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.29-1-1600x1092.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.31.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-16-at-11.11.26-1.jpeg",
@@ -2532,6 +2560,10 @@ const CAMPS = [
   },
   {
     name: "Sunset Agafay",
+    passes: {
+          "day": "Pool + Lunch (11:00–18:00) 450 MAD / €45 per person",
+          "evening": "Pool + Dinner (16:00–22:00) 560 MAD / €56 · free for children under 5"
+    },
     area: "Agafay Desert · 50 min from Marrakech",
     style: "Day Pass",
     rating: 4.3,
@@ -2545,6 +2577,7 @@ const CAMPS = [
     perfectFor: ["Pool access", "Lunch", "Sunset views"],
     img: "https://marrakechbestof.com/wp-content/uploads/2024/10/20241207_140616_IMG_5091-1860x1092.jpg",
     images: [
+      "assets/catalog/camps/sunset-agafay-1.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2024/10/20241207_140616_IMG_5091-1860x1092.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2024/10/20241207_142749_IMG_5105.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2024/10/Screenshot_20260405_114533_Gallery.jpg",
@@ -2563,6 +2596,11 @@ const CAMPS = [
   },
   {
     name: "Be Agafay",
+    passes: {
+          "day": "Pool & Lunch (11:30–17:30, 2-course) €50 per person",
+          "evening": "Pool & Dinner (16:00–22:30, 3-course) €75 · Sunset Apéro & Dinner (18:00–22:30) €75",
+          "spa": "Traditional Hammam 30min €30 · Royal Hammam 45min €45 · Massages 30/60/90min from €40 · Hot Stone from €60 · Facial 60min €60 · Private Yoga from €30 · Hammam+Massage package €80–90 · Couple Getaway 3h €400/couple"
+    },
     rooms: [
           {
                 "name": "Agafay Yurt",
@@ -2602,6 +2640,9 @@ const CAMPS = [
     perfectFor: ["Pool access", "Heated pool", "Jacuzzi", "Lunch", "Free mocktail"],
     img: "https://marrakechbestof.com/wp-content/uploads/2022/10/DSCF2641-1860x1092.jpg",
     images: [
+      "assets/catalog/camps/be-agafay-spa.jpg",
+      "assets/catalog/camps/be-agafay-yoga.jpg",
+      "assets/catalog/camps/be-agafay-bar.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2022/10/DSCF2641-1860x1092.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2022/10/A69C3C69-7982-4D90-8BE4-1010EEA62D6F.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2022/10/PHLOW_PHOTO_20240908_2103_0001.jpg",
@@ -2619,41 +2660,46 @@ const CAMPS = [
   },
   {
     name: "The White Camel",
+    passes: {
+          "day": "Pool & Lunch €55 · Full Day (Lunch+Dinner) €110",
+          "evening": "Pool & Dinner €55",
+          "spa": "Wet Treatments €40 · À la carte €40 · Beauty €40 · Individual packages €85 · Family & Kids (2+2) €100 · Replenishment packages €260"
+    },
     rooms: [
           {
                 "name": "Oasis Lodge",
-                "desc": "Luxury desert tent experience.",
-                "price": "On request",
+                "desc": "30 m² nomadic tent.",
+                "price": "From €359/night",
                 "img": "assets/catalog/camps/rooms/white-camel-r1.jpg"
           },
           {
                 "name": "View Lodge",
-                "desc": "Scenic desert retreat with panoramic views.",
-                "price": "On request",
+                "desc": "40 m², panoramic desert views.",
+                "price": "From €459/night",
                 "img": "assets/catalog/camps/rooms/white-camel-r2.jpg"
           },
           {
+                "name": "Canyon Lodge",
+                "desc": "54 m² with private pool, canyon views.",
+                "price": "From €559/night"
+          },
+          {
                 "name": "Pool Lodge",
-                "desc": "Luxury tent with private pool.",
-                "price": "On request",
+                "desc": "40 m² with private pool.",
+                "price": "From €589/night",
                 "img": "assets/catalog/camps/rooms/white-camel-r3.jpg"
           },
           {
-                "name": "Canyon Lodge",
-                "desc": "Lodge with canyon views.",
-                "price": "On request"
-          },
-          {
-                "name": "Master Lodge",
-                "desc": "Spacious premium lodge.",
-                "price": "On request",
-                "img": "assets/catalog/camps/rooms/white-camel-r5.jpg"
-          },
-          {
-                "name": "Royal Suite with Private Pool",
-                "desc": "Expansive glass wall with sunrise/sunset views, king bed, high canopy ceilings, Berber textiles, private pool.",
-                "price": "From ~2,612 MAD/night",
+                "name": "Royal Lodge",
+                "desc": "64 m² with private pool.",
+                "price": "From €1,099/night",
                 "img": "assets/catalog/camps/rooms/white-camel-r6.jpg"
+          },
+          {
+                "name": "Master Royal Lodge",
+                "desc": "70 m² flagship lodge.",
+                "price": "From €1,999/night",
+                "img": "assets/catalog/camps/rooms/white-camel-r5.jpg"
           }
     ],
     area: "Agafay Desert · 45 min from Marrakech",
@@ -2669,6 +2715,8 @@ const CAMPS = [
     perfectFor: ["Pool access", "Lunch", "Sunset views", "Camel rides"],
     img: "https://marrakechbestof.com/wp-content/uploads/2019/05/1E8EC2F8-E977-459A-85E4-0E8D35BE265E.jpeg",
     images: [
+      "assets/catalog/camps/white-camel-spa-1.jpg",
+      "assets/catalog/camps/white-camel-spa-2.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2019/05/1E8EC2F8-E977-459A-85E4-0E8D35BE265E.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2019/05/661096EE-ED06-4966-886C-EE0D0F65B299.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2019/05/4A68FEC8-9BF9-4B43-BD38-FB07DFEE7CB1.jpeg",
@@ -2687,6 +2735,24 @@ const CAMPS = [
   },
   {
     name: "Agafay Valley",
+    passes: {
+          "day": "Pool + Lunch (11:00–20:00) 450 MAD / €45 per person",
+          "evening": "Pool + Dinner on request"
+    },
+    rooms: [
+          {
+                "name": "Chambre Double / Twin",
+                "desc": "Double or twin room in the dome camp.",
+                "price": "From ~€185/night",
+                "img": "assets/catalog/camps/agafay-valley-2.jpg"
+          },
+          {
+                "name": "Dôme Suite",
+                "desc": "Luxury dome suite with terrace and garden view.",
+                "price": "From ~€185/night",
+                "img": "assets/catalog/camps/agafay-valley-1.jpg"
+          }
+    ],
     area: "Agafay Desert · 45 min from Marrakech",
     style: "Day Pass",
     rating: 4.2,
@@ -2700,6 +2766,9 @@ const CAMPS = [
     perfectFor: ["Pool access", "Lunch", "Sunset horse ride", "Free lemonade"],
     img: "https://marrakechbestof.com/wp-content/uploads/2024/04/IMG_4913-1170x1092.jpg",
     images: [
+      "assets/catalog/camps/agafay-valley-1.jpg",
+      "assets/catalog/camps/agafay-valley-2.jpg",
+      "assets/catalog/camps/agafay-valley-3.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2024/04/IMG_4913-1170x1092.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2024/04/PHOTO-2024-04-16-19-27-59-2.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2024/04/PHOTO-2024-04-16-19-27-59-3.jpg",
@@ -2721,16 +2790,22 @@ const CAMPS = [
   // ── OVERNIGHT / DESERT CAMPS ────────────────────────────────────────────────
   {
     name: "Stellar Agafay Desert Camp",
+    passes: {
+          "day": "Pool & Lunch 480 MAD (~€48) per person",
+          "evening": "Pool & Dinner 590 MAD (~€59) · Full Day (Lunch+Dinner) 1,000 MAD (~€100)",
+          "spa": "Yoga & wellness experiences"
+    },
     rooms: [
           {
                 "name": "Double Tent",
                 "desc": "Contemporary-traditional design, king bed, private bathroom, desert views.",
-                "price": "~3,000 MAD (€300)/night"
+                "price": "~3,000 MAD (€300)/night peak",
+                "img": "assets/catalog/camps/stellar-2.jpg"
           },
           {
                 "name": "Triple Tent",
                 "desc": "Same elegant design with an extra bed for three guests.",
-                "price": "~3,500 MAD (€350)/night"
+                "price": "~3,500 MAD (€350)/night peak"
           }
     ],
     area: "Heart of the Agafay · 50 min from Marrakech",
@@ -2745,6 +2820,9 @@ const CAMPS = [
     perfectFor: ["Pool access", "Lunch", "Dinner under the stars", "Desert camp"],
     img: "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.42-2-1600x1092.jpeg",
     images: [
+      "assets/catalog/camps/stellar-1.jpg",
+      "assets/catalog/camps/stellar-2.jpg",
+      "assets/catalog/camps/stellar-3.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.42-2-1600x1092.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.42-2.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2025/11/WhatsApp-Image-2025-10-30-at-12.41.43-1.jpeg",
@@ -2763,6 +2841,10 @@ const CAMPS = [
   },
   {
     name: "The Seven Saints",
+    passes: {
+          "day": "Pool + Lunch (11:30–17:30) 550 MAD / €55 per adult · adults only (18+)",
+          "evening": "Pool + Dinner (from 17:30) 550 MAD / €55 · Full Day (Lunch+Dinner) 1,150 MAD / €115"
+    },
     rooms: [
           {
                 "name": "Luxury Lodge / Tent",
@@ -2784,6 +2866,8 @@ const CAMPS = [
     perfectFor: ["Adults only", "Pool access", "Lunch", "Dinner under the stars", "Free mocktail"],
     img: "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.56-2.jpeg",
     images: [
+      "assets/catalog/camps/seven-saints-2.jpg",
+      "assets/catalog/camps/seven-saints-3.jpg",
       "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.56-2.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.57-2.jpeg",
       "https://marrakechbestof.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-28-at-18.11.57.jpeg",
@@ -2806,17 +2890,21 @@ const CAMPS = [
   // ── LA BOHÈME MARRAKECH (consolidated card with sub-packages) ──────────────
   {
     name: "La Bohème Marrakech",
+    passes: {
+          "day": "Pool & Lunch 450 MAD · Day Pass + Quad pack 650 MAD",
+          "evening": "Night Pass Sunset & Dinner 450 MAD · Day + Night pack 750 MAD"
+    },
     rooms: [
           {
                 "name": "Dome Tent",
                 "desc": "Luxury glass dome with desert views.",
-                "price": "From ~3,000 MAD/night",
+                "price": "3,000 MAD/night",
                 "img": "assets/catalog/camps/rooms/boheme-r1.jpg"
           },
           {
-                "name": "Suite",
-                "desc": "Decorated tented suite.",
-                "price": "On request",
+                "name": "Panoramic Terrace Suite",
+                "desc": "Decorated tented suite with panoramic terrace.",
+                "price": "3,000 MAD/night",
                 "img": "assets/agafay/boheme/suite.jpg"
           }
     ],
@@ -2851,6 +2939,7 @@ const CAMPS = [
     ],
     img: "assets/agafay/boheme/hero-day-night.jpg",
     images: [
+      "assets/catalog/camps/boheme-pool.jpg",
       "assets/agafay/boheme/hero-day-night.jpg",
       "assets/agafay/boheme/day-pass-pool.jpg",
       "assets/agafay/boheme/night-dinner.jpg",
@@ -3050,18 +3139,33 @@ const CAMPS = [
   // ── Added June 2026 — locally-hosted, visually-verified images ───────────────
   {
     name: "Caravan Agafay by Our Habitas",
+    passes: {
+          "day": "Pool Day Pass (11:00–20:00) €49 — incl. meal at Olivar, mocktail & water",
+          "evening": "Dinner pass from €70",
+          "spa": "Wellness treatments (Desert Discovery package)"
+    },
     rooms: [
           {
                 "name": "Explorer Tent",
-                "desc": "Solar-powered Berber canvas tent with desert views.",
-                "price": "From €225/night",
+                "desc": "22 m² solar-powered Berber canvas tent for 2.",
+                "price": "From ~€190/night",
                 "img": "assets/catalog/camps/rooms/caravan-r1.jpg"
           },
           {
-                "name": "Desert / Dune / Atlas Lodge",
-                "desc": "Premium lodge tiers with elevated comfort and views.",
-                "price": "Up to ~€500/night",
+                "name": "Dune Lodge",
+                "desc": "32 m² lodge for 3.",
+                "price": "On request"
+          },
+          {
+                "name": "Desert Lodge",
+                "desc": "32 m² lodge for 3 with private terrace.",
+                "price": "On request",
                 "img": "assets/catalog/camps/rooms/caravan-r2.jpg"
+          },
+          {
+                "name": "Atlas Lodge",
+                "desc": "60 m² lodge with private deck.",
+                "price": "Up to ~€460/night"
           }
     ],
     slug: "caravan-agafay-habitas",
@@ -3070,13 +3174,14 @@ const CAMPS = [
     rating: 4.3, reviews: 410,
     tag: "ECO-LUXURY · POOL · SPA",
     filter: "Agafay",
-    startingPriceEur: 35,
+    startingPriceEur: 49,
     desc: "Design-led eco-luxury Berber tents with solar power, spa, pool and a strong wellness focus.",
     slogan: "Design-led eco-luxury Berber tents with solar power, spa, pool and a strong wellness focus.",
     description: "Caravan Agafay by Our Habitas is an eco-luxury, design-led tented hotel of 40 solar-powered Berber tents set against Atlas Mountain views. The wellness focus runs through everything — spa, pool, yoga and mindful desert living. Available as a day pass or an overnight stay.",
     perfectFor: ["Eco-luxury", "Spa & wellness", "Pool", "Yoga", "Atlas views"],
     img: "assets/catalog/camps/caravan-agafay-habitas.jpg",
     images: [
+      "assets/catalog/camps/caravan-agafay-habitas-4.jpg",
       "assets/catalog/camps/caravan-agafay-habitas-3.jpg",
       "assets/catalog/camps/caravan-agafay-habitas-1.jpg",
       "assets/catalog/camps/caravan-agafay-habitas-2.jpg",
@@ -3090,6 +3195,10 @@ const CAMPS = [
   },
   {
     name: "Les Terrasses d'Agafay",
+    passes: {
+          "day": "Journée Piscine — 3-course lunch, heated pool, towel & sunbed, 550 MAD per person",
+          "evening": "Dîner Piscine — 3-course dinner, heated pool, Gnaoua & fire show, 650 MAD per person"
+    },
     rooms: [
           {
                 "name": "Explorer Tent (25 m²)",
@@ -3108,7 +3217,7 @@ const CAMPS = [
     rating: 4.3, reviews: 520,
     tag: "HEATED INFINITY POOL",
     filter: "Agafay",
-    startingPriceEur: 75,
+    startingPriceEur: 55,
     desc: "Slow-travel camp of 52 tents framed by rocky dunes and the Atlas, with a heated infinity pool.",
     slogan: "Slow-travel camp of 52 tents framed by rocky dunes and the Atlas, with a heated infinity pool.",
     description: "Les Terrasses d'Agafay is a slow-travel camp of 52 tents bordered by rocky dunes and the Atlas Mountains. A heated infinity pool, a relaxed restaurant and wide desert terraces make it a calm base for a day pass with dinner or an overnight escape.",
@@ -3129,6 +3238,11 @@ const CAMPS = [
   },
   {
     name: "Inara Camp",
+    passes: {
+          "day": "Pool & restaurant access — lunch served (confirm rate)",
+          "evening": "Dinner served at the camp",
+          "spa": "Wellness & activities: quad, e-bike, pottery, camel, “Magic of the desert”"
+    },
     rooms: [
           {
                 "name": "Discovery Tent",
@@ -3187,16 +3301,25 @@ const CAMPS = [
   },
   {
     name: "Mia Agafay Resort",
+    passes: {
+          "evening": "Dining available at the resort",
+          "spa": "Yoga & wellness on site"
+    },
     rooms: [
           {
-                "name": "Premium Glamping Tent",
+                "name": "Premium Glamping",
                 "desc": "Stylish desert tent with modern comforts.",
-                "price": "From ~€140/night (B&B)"
+                "price": "From ~€153/night (B&B)"
           },
           {
-                "name": "Private-Pool Tent / Villa",
-                "desc": "Tent or villa with private pool and terrace.",
-                "price": "From ~€225/night"
+                "name": "Comfort Suite",
+                "desc": "Suite with enhanced comfort.",
+                "price": "On request"
+          },
+          {
+                "name": "Oasis Suite",
+                "desc": "Top suite tier with terrace.",
+                "price": "On request"
           }
     ],
     slug: "mia-agafay-resort",
@@ -3212,6 +3335,11 @@ const CAMPS = [
     perfectFor: ["Private-pool villas", "Two pools", "Spa", "Yoga", "Fine dining"],
     img: "assets/catalog/camps/mia-agafay-resort.jpg",
     images: [
+      "assets/catalog/camps/mia-agafay-resort-5.jpg",
+      "assets/catalog/camps/mia-agafay-resort-6.jpg",
+      "assets/catalog/camps/mia-agafay-resort-7.jpg",
+      "assets/catalog/camps/mia-agafay-resort-8.jpg",
+      "assets/catalog/camps/mia-agafay-resort-9.jpg",
       "assets/catalog/camps/mia-agafay-resort-3.jpg",
     ],
     practical: [
@@ -3223,16 +3351,23 @@ const CAMPS = [
   },
   {
     name: "Oxygen Lodge Agafay",
+    passes: {
+          "day": "Pool + 3-course lunch + sunbed & towel 650 MAD",
+          "evening": "Dinner available · hammam + dinner formula",
+          "spa": "On-site spa & massage"
+    },
     rooms: [
           {
                 "name": "Tente Lodge",
                 "desc": "Comfortable eco tent — A/C in summer, wood stove in winter.",
-                "price": "From ~€220/night"
+                "price": "From ~€220/night",
+                "img": "assets/catalog/camps/rooms/oxygen-r1.jpg"
           },
           {
                 "name": "Suite Lodge",
                 "desc": "Larger premium suite tent with enhanced comfort.",
-                "price": "Up to ~€350/night"
+                "price": "Up to ~€350/night",
+                "img": "assets/catalog/camps/rooms/oxygen-r2.jpg"
           }
     ],
     slug: "oxygen-lodge-agafay",
@@ -3241,7 +3376,7 @@ const CAMPS = [
     rating: 4.8, reviews: 240,
     tag: "WELLNESS · TWO POOLS",
     filter: "Agafay",
-    startingPriceEur: 45,
+    startingPriceEur: 65,
     desc: "Eco-minded wellness lodge pairing comfort with a low footprint — two pools and Berber-music dinners.",
     slogan: "Eco-minded wellness lodge pairing comfort with a low footprint — two pools and Berber-music dinners.",
     description: "Oxygen Lodge Agafay is an eco-minded wellness desert lodge that pairs real comfort with a low ecological footprint. Two pools, an afternoon pack with dinner, and Berber-music evenings make it a relaxed, conscious choice in the Agafay.",
@@ -3261,6 +3396,11 @@ const CAMPS = [
   },
   {
     name: "Kal Tenere Agafay",
+    passes: {
+          "day": "Pool & Lunch (11:00–16:00, 3-course) €45 per person · 50% off children under 5",
+          "evening": "Pool & Dinner (16:00–22:00) €45 — dinner, Gnawa music & fire show at sunset",
+          "spa": "Yoga · wellness on request"
+    },
     rooms: [
           {
                 "name": "Luxury Tent",
@@ -3281,13 +3421,14 @@ const CAMPS = [
     rating: 4.4, reviews: 190,
     tag: "EXECUTIVE TENTS · PRIVATE POOLS",
     filter: "Agafay",
-    startingPriceEur: 140,
+    startingPriceEur: 45,
     desc: "Spacious tents and suites with private terraces, panoramic views and Executive Tents with private pools.",
     slogan: "Spacious tents and suites with private terraces and Executive Tents with private pools.",
     description: "Kal Tenere Agafay (Tenere Luxury Camp) offers spacious tents and suites with private terraces and panoramic desert views, including Executive Tents with their own private pools. Sunset loungers, camel rides and some of the best stargazing in the Agafay.",
     perfectFor: ["Private-pool tents", "Panoramic views", "Camel rides", "Stargazing"],
     img: "assets/catalog/camps/kal-tenere-agafay.jpg",
     images: [
+      "assets/catalog/camps/kal-tenere-agafay-2.jpg",
       "assets/catalog/camps/kal-tenere-agafay-1.jpg",
       "assets/catalog/camps/kal-tenere-agafay-3.jpg",
       "assets/catalog/camps/kal-tenere-agafay-4.jpg",
@@ -3301,6 +3442,11 @@ const CAMPS = [
   },
   {
     name: "Yes We Camps",
+    passes: {
+          "day": "Pool day pass ~€45 (pool + lunch)",
+          "evening": "Pool + evening meal ~€40",
+          "spa": "Argan-oil & verveine relaxing massage 50min"
+    },
     rooms: [
           {
                 "name": "Tente Lodge",
@@ -3321,7 +3467,7 @@ const CAMPS = [
     rating: 4.2, reviews: 210,
     tag: "SAFARI LODGE · SPA",
     filter: "Agafay",
-    startingPriceEur: 165,
+    startingPriceEur: 45,
     desc: "Stylish safari-tent lodge with a spa and restaurant in the heart of the Agafay.",
     slogan: "Stylish safari-tent lodge with a spa and restaurant in the heart of the Agafay.",
     description: "Yes We Camps is a stylish safari-tent lodge set in the heart of the Agafay, pairing a relaxed restaurant and a spa with camel encounters and palm-shaded desert lounges. A comfortable, design-minded overnight option.",
@@ -3342,12 +3488,27 @@ const CAMPS = [
   },
   {
     name: "Alkamar Camp Agafay",
+    passes: {
+          "day": "Pool + Lunch (11:00–17:00) 450 MAD / €45 adults · 350 MAD kids — 3-course, sunbed & towel",
+          "evening": "Pool + Dinner + Show (17:00–23:00) 450 MAD / €45 · Dinner + Show only 350 MAD / €35",
+          "spa": "Moroccan spa treatments & yoga"
+    },
     rooms: [
           {
-                "name": "Luxury Lodge",
-                "desc": "A/C tent with private bathroom, terrace and infinity-pool views.",
-                "price": "From ~€320/night",
+                "name": "Single Lodge",
+                "desc": "1 person · private bath, robe & slippers, fridge, Nespresso, private pool, fireplace, A/C. Half-board (dinner + breakfast + pool).",
+                "price": "2,900 MAD/night",
                 "img": "assets/catalog/camps/rooms/alkamar-r1.jpg"
+          },
+          {
+                "name": "Double Bed Lodge",
+                "desc": "2 people · same amenities, half-board.",
+                "price": "3,400 MAD/night"
+          },
+          {
+                "name": "Family Lodge",
+                "desc": "3 people (double + single bed) · half-board.",
+                "price": "4,100 MAD/night"
           }
     ],
     slug: "alkamar-camp-agafay",

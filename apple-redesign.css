@@ -5327,3 +5327,18 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 @media (max-width: 600px) {
   .ms-ld-room-img { width: 92px; height: 70px; }
 }
+
+/* ── Passes & offers rows (camps) ── */
+.ms-ld-passes { display: flex; flex-direction: column; gap: 10px; }
+.ms-ld-pass {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: #faf7f1; border: 1px solid #efe9dd; border-radius: 12px; padding: 12px 14px;
+}
+.ms-ld-pass-tag {
+  flex: none; font-size: 12px; font-weight: 700; color: #7a5e2e;
+  background: #f0e9dd; border-radius: 999px; padding: 4px 11px; white-space: nowrap;
+}
+.ms-ld-pass-txt { font-size: 13.5px; line-height: 1.55; color: #4a443c; }
+@media (max-width: 600px) {
+  .ms-ld-pass { flex-direction: column; gap: 7px; }
+}

@@ -318,6 +318,33 @@
                   </div>
                 )}
 
+                {/* passes & offers (camps) */}
+                {L.passes && (L.passes.day || L.passes.evening || L.passes.spa) && (
+                  <div className="ms-ld-sec ms-ld-divtop">
+                    <h3 className="ms-ld-h3">{tx('Passes & offers', 'Pass & tilbud', 'Pass & offres')}</h3>
+                    <div className="ms-ld-passes">
+                      {L.passes.day && (
+                        <div className="ms-ld-pass">
+                          <span className="ms-ld-pass-tag">☀️ {tx('Day pass', 'Dagpass', 'Pass journée')}</span>
+                          <span className="ms-ld-pass-txt">{L.passes.day}</span>
+                        </div>
+                      )}
+                      {L.passes.evening && (
+                        <div className="ms-ld-pass">
+                          <span className="ms-ld-pass-tag">🌙 {tx('Evening pass', 'Kveldspass', 'Pass soirée')}</span>
+                          <span className="ms-ld-pass-txt">{L.passes.evening}</span>
+                        </div>
+                      )}
+                      {L.passes.spa && (
+                        <div className="ms-ld-pass">
+                          <span className="ms-ld-pass-tag">💆 {tx('Spa & wellness', 'Spa & velvære', 'Spa & bien-être')}</span>
+                          <span className="ms-ld-pass-txt">{L.passes.spa}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* rooms & tents (camps) */}
                 {L.rooms && L.rooms.length > 0 && (
                   <div className="ms-ld-sec ms-ld-divtop">

@@ -219,6 +219,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
     amenitiesTitle: tx("What this place offers","Dette tilbys","Ce que propose ce lieu"),
     amenities: localizeList(item.perfectFor, lang),
     rooms: Array.isArray(item.rooms) ? item.rooms : null,
+    passes: item.passes || null,
     description: localize(item.description || item.desc, lang),
     mapPlace: area || "Marrakech",
     locationLabel: area,
