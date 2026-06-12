@@ -210,12 +210,17 @@ function CatalogModal({ item, tab, onClose, lang }) {
   };
   const L = {
     id: "cat-" + tab + "-" + slug, lang, onClose,
-    title: localize(item.name, lang),
+    title: localize(item.name, lang) + (tab === 'camps' && Array.isArray(item.rooms) && item.rooms.length ? ' · ' + tx('Accommodation', 'Overnatting', 'Hébergement', 'Boende') : ''),
     subtitle: [area, localize(item.style, lang)].filter(Boolean).join(" · "),
     metaDots: [localize(item.tag, lang), priceFrom ? tx("from","fra","dès") + " " + priceFrom : null].filter(Boolean),
     badge: localize(item.tag || item.style, lang),
     trust: tx("Hand-picked by Marrakech Story · we book & confirm for you · 24/7 support","Håndplukket av Marrakech Story · vi booker & bekrefter for deg · 24/7 støtte","Sélectionné par Marrakech Story · nous réservons & confirmons pour vous · assistance 24/7"),
-    images: imgs.length ? imgs : ["assets/act-sahara.jpg"],
+    // Camp galleries also include the room/tent photos (hero mosaic + lightbox).
+    images: (() => {
+      const roomImgs = Array.isArray(item.rooms) ? item.rooms.map(r => r.img).filter(Boolean) : [];
+      const all = [...imgs, ...roomImgs];
+      return all.length ? all : ["assets/act-sahara.jpg"];
+    })(),
     amenitiesTitle: tx("What this place offers","Dette tilbys","Ce que propose ce lieu"),
     amenities: localizeList(item.perfectFor, lang),
     rooms: Array.isArray(item.rooms) ? item.rooms : null,
@@ -285,18 +290,16 @@ function Catalog() {
   const tabs = [
     { id: 'activities', label: t('cat_activities'), icon: <Ic.Compass s={16} />, data: D.ACTIVITIES,
       filters: ['All', 'Discover', 'In the Air', 'Nautical', 'Outdoor'], priceLabel: t('cat_per_person') },
-    { id: 'restaurants', label: t('cat_restaurants'), icon: <Ic.Utensils s={16} />, data: D.RESTAURANTS,
-      filters: ['All', 'Fine Dining', 'Traditional Moroccan', 'Rooftop', 'Festive', 'International', 'Asian', 'Brunch', 'Café', 'Bar & Lounge', 'Nightclub'], priceLabel: '' },
-    { id: 'excursions', label: t('cat_excursions'), icon: <Ic.Mountain s={16} />, data: D.EXCURSIONS,
-      filters: ['All', 'Day-trip', 'Half-day', 'Multi-day'], priceLabel: t('cat_per_person') },
-    { id: 'spa', label: t('cat_spa'), icon: <Ic.Sparkle s={16} />, data: D.SPAS,
-      filters: ['All', 'Palace Spa', 'Boutique', 'Medina Hammam', 'Wellness House', 'Medical'], priceLabel: t('cat_per_person') },
-    { id: 'camps', label: t('cat_camps'), icon: <Ic.Tent s={16} />, data: D.CAMPS,
+    { id: 'camps', label: 'Agafay', icon: <Ic.Tent s={16} />, data: D.CAMPS,
       filters: ['All', 'Day Pass', 'Overnight', 'Events'], priceLabel: t('cat_per_person') },
-    { id: 'pools', label: t('cat_pools'), icon: <Ic.Sun s={16} />, data: D.POOLS,
-      filters: ['All', 'Palace', 'Boutique', 'Agafay', 'Beach Club', 'Festive', 'Family', 'Women Only', 'Water Park'], priceLabel: t('cat_per_person') },
     { id: 'transport', label: t('cat_transport'), icon: <Ic.Plane s={16} />, data: D.TRANSPORT,
       filters: ['All', 'Compact', 'Compact SUV', 'Sedan', 'SUV'], priceLabel: tx('/ day', '/ dag', '/ jour', '/ dag') },
+    { id: 'restaurants', label: t('cat_restaurants'), icon: <Ic.Utensils s={16} />, data: D.RESTAURANTS,
+      filters: ['All', 'Fine Dining', 'Traditional Moroccan', 'Rooftop', 'Festive', 'International', 'Asian', 'Brunch', 'Café', 'Bar & Lounge', 'Nightclub'], priceLabel: '' },
+    { id: 'spa', label: t('cat_spa'), icon: <Ic.Sparkle s={16} />, data: D.SPAS,
+      filters: ['All', 'Palace Spa', 'Boutique', 'Medina Hammam', 'Wellness House', 'Medical'], priceLabel: t('cat_per_person') },
+    { id: 'pools', label: t('cat_pools'), icon: <Ic.Sun s={16} />, data: D.POOLS,
+      filters: ['All', 'Palace', 'Boutique', 'Agafay', 'Beach Club', 'Festive', 'Family', 'Women Only', 'Water Park'], priceLabel: t('cat_per_person') },
   ];
 
   const current = tabs.find(x => x.id === tab);
@@ -392,13 +395,27 @@ function Catalog() {
                     <strong>{it.rating}</strong>
                     <span style={{ color: 'var(--ink-3)' }}>({(it.reviews || 0).toLocaleString()} {tx('reviews', 'anmeldelser', 'avis', 'recensioner')})</span>
                   </div>
-                  <h3 className="cat-title">{localize(it.name, ctx.lang)}</h3>
+                  <h3 className="cat-title">
+                    {localize(it.name, ctx.lang)}
+                    {tab === 'camps' && it.rooms && it.rooms.length > 0 && (
+                      <span className="cat-title-acc"> · {tx('Accommodation', 'Overnatting', 'Hébergement', 'Boende')}</span>
+                    )}
+                  </h3>
                   <span className="cat-area"><Ic.Pin s={12} /> {localize(it.area, ctx.lang)}</span>
                   {it.duration && <span className="cat-duration"><Ic.Clock s={12} /> {localize(it.duration, ctx.lang)}</span>}
                   <p className="cat-desc">{localize(it.desc, ctx.lang)}</p>
                   <div className="cat-foot">
                     <div className="cat-price">
                       {(() => {
+                        // Camps: no price on the card — visitors see prices in
+                        // the popup's passes & rooms ("check offers").
+                        if (tab === 'camps') {
+                          return (
+                            <span className="cat-price-offers">
+                              {tx('Check offers', 'Se tilbud', 'Voir les offres', 'Se erbjudanden')} →
+                            </span>
+                          );
+                        }
                         // Sensible per-tab default so every offer shows a from-price even
                         // when the data file doesn't carry one. Tweaked per item index
                         // (small ± so the grid doesn't read like a single number).

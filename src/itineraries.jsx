@@ -731,14 +731,14 @@ const MS_TRIP_GALLERIES = {
   'marrakech-agafay': [
     'medina-jemaa-el-fna-10.webp', 'medina-souk-spices-19.jpg', 'medina-koutoubia-04.jpg',
     'riad-courtyard-pool-03.jpg', 'food-garden-restaurant-05.jpg', 'food-cooking-class-13.jpg',
-    'agafay-camp-aerial-06.jpg', 'agafay-pool-08.jpg', 'agafay-camel-palmeraie-20.jpg',
+    'agafay-pool-08.jpg', 'agafay-camel-palmeraie-20.jpg',
     'agafay-dinner-table-03.jpg', 'agafay-night-fire-show-02.avif', 'agafay-dome-night-09.webp',
   ],
   'best-of-marrakech': [
     'medina-rooftop-cafe-14.jpg', 'medina-jemaa-el-fna-night-11.jpg', 'medina-carpet-souk-30.jpg',
     'marrakech-jardin-majorelle-01.jpg', 'riad-pool-dusk-15.jpg', 'atlas-setti-fatma-falls-12.jpg',
     'atlas-azzaden-valley-03.jpg', 'essaouira-blue-boats-02.jpg', 'agafay-pool-08.jpg',
-    'agafay-camp-aerial-06.jpg', 'agafay-night-lounge-05.jpg', 'food-tagine-09.webp',
+    'agafay-night-lounge-05.jpg', 'food-tagine-09.webp',
   ],
   'morocco-highlights': [
     'medina-koutoubia-04.jpg', 'atlas-mountains-20.jpg', 'web/aitbenhaddou.jpg',
@@ -878,7 +878,7 @@ function ItinModal({ trip, onClose, lang, fmt }) {
     id: "trip-" + trip.slug, lang, onClose,
     title: s(trip.title),
     subtitle: tx("Private guided journey in Morocco","Privat guidet reise i Marokko","Voyage privé guidé au Maroc"),
-    metaDots: [trip.days + " " + tx("days","dager","jours"), trip.nights + " " + tx("nights","netter","nuits"), groupTxt, (priceTxt ? tx("from","fra","dès") + " " + priceTxt : tx("On request","På forespørsel","Sur demande"))],
+    metaDots: [trip.days + " " + tx("days","dager","jours"), trip.nights + " " + tx("nights","netter","nuits"), groupTxt],
     badge: s(trip.badge),
     trust: tx("Licensed Moroccan-Norwegian agency · private & tailor-made · 24/7 support","Lisensiert marokkansk-norsk byrå · privat & skreddersydd · 24/7 støtte","Agence maroco-norvégienne agréée · privé & sur mesure · assistance 24/7"),
     images: msGalleryFor(trip),
@@ -895,10 +895,11 @@ function ItinModal({ trip, onClose, lang, fmt }) {
       rules: { title: tx("Good to know","Verdt å vite","Bon à savoir"), items: [groupTxt, tx("Private vehicle & driver throughout.","Privat bil & sjåfør hele veien.","Véhicule privé & chauffeur tout au long."), tx("Best season: spring & autumn.","Beste sesong: vår & høst.","Meilleure saison : printemps & automne.")] },
       safety: { title: tx("Safety & trust","Sikkerhet & trygghet","Sécurité & confiance"), items: [tx("Licensed tourism agency.","Lisensiert turismebyrå.","Agence de tourisme agréée."), tx("24/7 WhatsApp support — Aladdin & Marte.","24/7 WhatsApp-støtte — Aladdin & Marte.","Assistance WhatsApp 24/7 — Aladdin & Marte."), tx("VAT included in the price.","MVA inkludert i prisen.","TVA incluse dans le prix.")] },
     },
-    price: { from: priceTxt || tx("On request","På forespørsel","Sur demande"), per: tx("/ person — tailored to your dates","/ person — tilpasset dine datoer","/ personne — sur mesure") },
+    // No price shown for trips — every journey is quoted after an inquiry.
+    price: { from: tx("Price on request","Pris på forespørsel","Prix sur demande"), per: tx("— tailored to your dates","— tilpasset dine datoer","— selon vos dates") },
     banner: tx("VAT & taxes included","MVA & avgifter inkludert","TVA & taxes incluses"),
     breadcrumb: ["Morocco", region.split(",")[0], s(trip.title)],
-    reserveLabel: tx("Reserve","Reserver","Réserver"),
+    reserveLabel: tx("Send inquiry","Send forespørsel","Envoyer une demande"),
     reserveForm: true,
     onReserve: ({ sel, guests, name, email, phone, notes }) => {
       const iso = (d) => { try { return d.toISOString().slice(0, 10); } catch (e) { return ""; } };

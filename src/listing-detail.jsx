@@ -352,7 +352,10 @@
                     <div className="ms-ld-rooms">
                       {L.rooms.map((r, i) => (
                         <div key={i} className="ms-ld-room">
-                          {r.img && <a className="ms-ld-room-img" style={{ backgroundImage: `url(${r.img})` }} role="img" aria-label={r.name} href={r.img} target="_blank" rel="noopener" />}
+                          {r.img && (
+                            <button type="button" className="ms-ld-room-img" style={{ backgroundImage: `url(${r.img})` }} aria-label={r.name}
+                              onClick={() => { const k = images.indexOf(r.img); if (k >= 0) setLightbox(k); }} />
+                          )}
                           <div className="ms-ld-room-info">
                             <div className="ms-ld-room-name">{r.name}</div>
                             {r.desc && <div className="ms-ld-room-desc">{r.desc}</div>}

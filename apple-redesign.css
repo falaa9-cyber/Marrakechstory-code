@@ -5342,3 +5342,7 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 @media (max-width: 600px) {
   .ms-ld-pass { flex-direction: column; gap: 7px; }
 }
+/* ms-ld-room-img is now a button — reset chrome */
+button.ms-ld-room-img { border: none; padding: 0; cursor: pointer; }
+.cat-title-acc { color: #8a8378; font-weight: 500; font-size: 0.85em; }
+.cat-price-offers { font-size: 13.5px; font-weight: 700; color: var(--brand, #e0432a); }
