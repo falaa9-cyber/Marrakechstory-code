@@ -1146,14 +1146,6 @@ function Itineraries() {
             <span className="trip-filter-sep" aria-hidden="true" />
             <button className="trip-filter-chip trip-filter-cta"
               onClick={() => {
-                window.MS_BookingContext = { mode: 'team', title: tx('Team building', 'Team building', 'Team building'), duration: 5, tripType: 'team' };
-                window.dispatchEvent(new CustomEvent('ms:booking-context'));
-                setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-              }}>
-              🤝 {tx('Team building', 'Team building', 'Team building')}
-            </button>
-            <button className="trip-filter-chip trip-filter-cta"
-              onClick={() => {
                 window.MS_BookingContext = { mode: 'wedding', title: tx('Wedding planner', 'Bryllup', 'Mariage'), duration: 7, tripType: 'wedding' };
                 window.dispatchEvent(new CustomEvent('ms:booking-context'));
                 setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
