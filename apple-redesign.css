@@ -377,12 +377,18 @@ body, html { background: #fbfbfd !important; }
   display: flex !important;
   gap: 6px !important;
   flex-wrap: wrap !important;
+  justify-content: center !important;
   padding: 6px !important;
   border-radius: 999px !important;
   background: rgba(0, 0, 0, 0.04) !important;
   border: none !important;
   box-shadow: none !important;
   margin-bottom: 18px !important;
+  /* hug the tabs — no trailing empty space in the pill */
+  width: fit-content !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 .cat-tabs-v2 .cat-tab-v2 {
   flex: 0 1 auto !important;
@@ -5346,3 +5352,5 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 button.ms-ld-room-img { border: none; padding: 0; cursor: pointer; }
 .cat-title-acc { color: #8a8378; font-weight: 500; font-size: 0.85em; }
 .cat-price-offers { font-size: 13.5px; font-weight: 700; color: var(--brand, #e0432a); }
+/* gallery anchor clears the sticky nav */
+#gallery { scroll-margin-top: 86px; }

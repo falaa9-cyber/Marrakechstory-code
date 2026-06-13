@@ -76,7 +76,7 @@
         </div>
 
         {/* Gallery */}
-        <div className="ms-gal-inner" ref={galRef}>
+        <div className="ms-gal-inner" id="gallery" ref={galRef}>
           <h2 className="ms-rev-h">{tx('Moments From Our Tours', 'Øyeblikk fra våre turer', 'Instants de nos circuits', 'Momente von unseren Touren')}</h2>
           <div className="ms-rev-sub ms-gal-sub">{tx('Real photos from our travellers across Marrakech & beyond', 'Ekte bilder fra våre reisende i Marrakech og videre', 'De vraies photos de nos voyageurs à Marrakech et au-delà', 'Echte Fotos unserer Reisenden in Marrakesch und darüber hinaus')}</div>
           <div className="ms-gal-grid">

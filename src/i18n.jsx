@@ -18,7 +18,7 @@ const TRANSLATIONS = {
     nav_packages: "Reiser",
     nav_catalog: "Katalog",
     nav_plan: "Skreddersy",
-    nav_contact: "Kontakt",
+    nav_contact: "Kontakt", nav_gallery: "Galleri",
     nav_cta: "Start planlegging",
     nav_lang: "Språk",
     nav_curr: "Valuta",
@@ -236,7 +236,7 @@ const TRANSLATIONS = {
     nav_packages: "Trip packages",
     nav_catalog: "Catalogue",
     nav_plan: "Plan your trip",
-    nav_contact: "Contact",
+    nav_contact: "Contact", nav_gallery: "Gallery",
     nav_cta: "Start planning",
     nav_lang: "Language",
     nav_curr: "Currency",
@@ -447,7 +447,7 @@ const TRANSLATIONS = {
     nav_packages: "Voyages",
     nav_catalog: "Catalogue",
     nav_plan: "Planifier",
-    nav_contact: "Contact",
+    nav_contact: "Contact", nav_gallery: "Galerie",
     nav_cta: "Commencer",
     nav_lang: "Langue",
     nav_curr: "Devise",
@@ -707,7 +707,7 @@ TRANSLATIONS.sv = {
   nav_packages: "Resor",
   nav_catalog: "Katalog",
   nav_plan: "Skräddarsy",
-  nav_contact: "Kontakt",
+  nav_contact: "Kontakt", nav_gallery: "Galleri",
   nav_cta: "Börja planera",
   nav_lang: "Språk",
   nav_curr: "Valuta",
@@ -936,7 +936,7 @@ TRANSLATIONS.sv = {
 // not overridden falls back through Norwegian → English via useT().
 TRANSLATIONS.da = {
   ...(TRANSLATIONS.no || {}),
-  nav_packages: "Rejser", nav_catalog: "Katalog", nav_plan: "Skræddersy", nav_contact: "Kontakt",
+  nav_packages: "Rejser", nav_catalog: "Katalog", nav_plan: "Skræddersy", nav_contact: "Kontakt", nav_gallery: "Galleri",
   nav_cta: "Begynd planlægning", nav_lang: "Sprog", nav_curr: "Valuta",
   hero_eyebrow: "Eksklusive rejser · siden 2022", hero_hello: "Hej, og velkommen til",
   hero_sub: "Håndplukkede riads, Atlasbjergene, Sahara og Agafay – rejser skræddersyet af folk, der faktisk bor her.",
@@ -960,7 +960,7 @@ TRANSLATIONS.da = {
 
 // German — full translation. Keys not present fall back to English via useT().
 TRANSLATIONS.de = {
-  nav_packages: "Reisepakete", nav_catalog: "Katalog", nav_plan: "Reise planen", nav_contact: "Kontakt",
+  nav_packages: "Reisepakete", nav_catalog: "Katalog", nav_plan: "Reise planen", nav_contact: "Kontakt", nav_gallery: "Galerie",
   nav_cta: "Planung starten", nav_lang: "Sprache", nav_curr: "Währung",
   hero_eyebrow: "Exklusive Reisen · seit 2022", hero_hello: "Hallo und willkommen bei", hero_brand: "Marrakechstory",
   hero_sub: "Handverlesene Riads, das Hohe Atlasgebirge, die Sahara-Dünen und die Agafay-Steinwüste — maßgeschneiderte Reisen von Menschen, die wirklich hier leben.",

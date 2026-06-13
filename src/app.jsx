@@ -114,6 +114,7 @@ function Nav() {
           <a href="#itineraries">{t('nav_packages')}</a>
           <a href="#catalog">{t('nav_catalog')}</a>
           <a href="#plan">{t('nav_plan')}</a>
+          <a href="#gallery">{t('nav_gallery')}</a>
           <a href="#contact">{t('nav_contact')}</a>
           <a href="#collaborate" className="nav-collab-link">{t('nav_collab')}</a>
         </div>
