@@ -227,6 +227,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
     passes: item.passes || null,
     description: localize(item.description || item.desc, lang),
     mapPlace: area || "Marrakech",
+    mapName: localize(item.name, lang),
     locationLabel: area,
     thingsToKnow: (item.practical && item.practical.length) ? {
       rules: { title: tx("Good to know","Verdt å vite","Bon à savoir"), items: localizeList(item.practical, lang) },

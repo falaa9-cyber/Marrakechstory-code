@@ -118,7 +118,22 @@
     'agadir': [30.42, -9.60], 'essaouira': [31.51, -9.77], 'ourika': [31.36, -7.76],
     'high atlas': [31.13, -7.92], 'atlas': [31.13, -7.92], 'volubilis': [34.07, -5.55],
     'rissani': [31.28, -4.26], 'midelt': [32.68, -4.74], 'azrou': [33.43, -5.22], 'ifrane': [33.53, -5.11], 'taroudant': [30.47, -8.88],
+    // Marrakech districts & nearby spots used in catalogue "area" fields
+    'medina': [31.6258, -7.9806], 'médina': [31.6258, -7.9806],
+    'gueliz': [31.6383, -8.0086], 'guéliz': [31.6383, -8.0086],
+    'hivernage': [31.6228, -8.0090], 'agdal': [31.6010, -7.9810],
+    'palmeraie': [31.6650, -7.9430], 'menara': [31.6120, -8.0240],
+    'amizmiz': [31.2200, -8.2400], 'asni': [31.2470, -7.9700], 'imlil': [31.1370, -7.9190],
+    'setti fatma': [31.2230, -7.6760], 'kik': [31.30, -8.05], 'lalla takerkoust': [31.3580, -8.1320],
+    'takerkoust': [31.3580, -8.1320], 'oukaimeden': [31.2050, -7.8590],
+    'zagora': [30.3320, -5.8380], 'draa': [30.95, -6.45], 'erfoud': [31.4360, -4.2330],
+    'casablanca': [33.5731, -7.5898], 'rabat': [34.0209, -6.8416], 'ouzoud': [32.0150, -6.7200],
+    'al haouz': [31.30, -7.90], 'morocco': [31.6295, -7.9811], 'marrakesh': [31.6295, -7.9811],
+    'targa': [31.6520, -8.0470], 'golf royal': [31.6010, -7.9300], 'route du golf': [31.6010, -7.9300],
+    'barrage': [31.4200, -8.0800], 'aéroport': [31.6050, -8.0360], 'aeroport': [31.6050, -8.0360],
+    'amizmiz': [31.2200, -8.2400], "route d'amizmiz": [31.40, -8.10],
   };
+  const MARRAKECH = { name: 'Marrakech', lat: 31.6295, lng: -7.9811 };
   function resolveStops(route, single) {
     if (!route) return [];
     const frags = String(route).split(/→|->|—|·|>|\//).map(x => x.trim()).filter(Boolean);
@@ -395,7 +410,17 @@
 
                 {/* map — itinerary stops on OpenStreetMap. Hidden entirely if it can't render. */}
                 {(() => {
-                  const stops = L.mapRoute ? resolveStops(L.mapRoute) : (L.mapPlace ? resolveStops(L.mapPlace, true) : []);
+                  let stops;
+                  if (L.mapRoute) {
+                    stops = resolveStops(L.mapRoute);                       // trip route → ordered pins
+                  } else if (L.mapPlace || L.mapName) {
+                    // single venue: try its area, then its name, else default to Marrakech
+                    stops = resolveStops(L.mapPlace, true);
+                    if (!stops.length && L.mapName) stops = resolveStops(L.mapName, true);
+                    if (!stops.length) stops = [{ ...MARRAKECH }];
+                  } else {
+                    stops = [];
+                  }
                   if (!window.L || stops.length === 0) return null;
                   return (
                     <div className="ms-ld-sec ms-ld-divtop">
