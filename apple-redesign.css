@@ -2419,12 +2419,25 @@ h2.itin-modal-title {
 .trip-slider-feature {
   position: relative;
 }
-.trip-slider-feature .trip-slider-arrow.prev { left: -22px; }
-.trip-slider-feature .trip-slider-arrow.next { right: -22px; }
-@media (max-width: 900px) {
-  .trip-slider-feature .trip-slider-arrow.prev { left: 8px; }
-  .trip-slider-feature .trip-slider-arrow.next { right: 8px; }
+/* push the slider arrows out into the gutter so they don't overlap the card's
+   own image carousel arrows */
+.trip-slider-feature .trip-slider-arrow.prev { left: -54px; }
+.trip-slider-feature .trip-slider-arrow.next { right: -54px; }
+@media (max-width: 1240px) {
+  .trip-slider-feature .trip-slider-arrow.prev { left: -20px; }
+  .trip-slider-feature .trip-slider-arrow.next { right: -20px; }
 }
+@media (max-width: 900px) {
+  /* no room in the gutter — drop the slider arrows to the bottom corners,
+     clear of the centred image arrows */
+  .trip-slider-feature .trip-slider-arrow { top: auto; bottom: 12px; transform: none; }
+  .trip-slider-feature .trip-slider-arrow:hover { transform: scale(1.08); }
+  .trip-slider-feature .trip-slider-arrow.prev { left: 10px; }
+  .trip-slider-feature .trip-slider-arrow.next { right: 10px; }
+}
+/* belt-and-braces: every slider / carousel / nav arrow is fully round */
+.trip-slider-arrow, .itin-carousel-arrow, .cat-modal-nav,
+.ms-ld-lb-nav, .ms-ld-cal-arrow, .ms-hero-search-btn-round { border-radius: 50% !important; }
 
 /* ════════════════════════════════════════════════════════════════
    APPLE REDESIGN — Phase 19
