@@ -674,7 +674,7 @@ const ITINS = [
     duration: "5D4N", days: 5, nights: 4,
     route: "Marrakech → High Atlas → Agafay → Marrakech",
     priceFromEUR: 650,
-    img: "assets/photos/atlas-azzaden-valley-03.jpg",
+    img: "assets/photos/atlas-setti-fatma-falls-12.jpg",
     badge: { en: "FAMILY FAVOURITE", no: "FAMILIEFAVORITT", fr: "FAVORI FAMILLE" },
     themeTags: ["Family", "Medina", "High Atlas", "Agafay", "Kids"],
     teaser: { en: "The full family adventure — medina magic, a Berber village in the mountains, and a night under the stars in the stone desert.", no: "Det fullstendige familieeventyret — medinmagi, en berberlandsby i fjellene og en natt under stjernene i steinørkenen.", fr: "La grande aventure familiale — magie de la médina, village berbère en montagne et nuit sous les étoiles dans le désert de pierres." },
@@ -716,6 +716,34 @@ const ITINS = [
   },
 ];
 
+// ── ITINERARY → CATALOGUE LINKS ──────────────────────────────────
+// When a trip itinerary mentions an experience we sell in the catalogue,
+// we surface a clickable "#hashtag" that opens that catalogue item's popup.
+const MS_TRIP_LINKS = [
+  { re: /camel|kamel|chameau/i,                                            tab: 'activities', name: 'Camel Ride in Agafay' },
+  { re: /\bquad\b/i,                                                        tab: 'activities', name: 'Quad Ride in Agafay' },
+  { re: /\bbuggy\b/i,                                                       tab: 'activities', name: 'Buggy in Agafay' },
+  { re: /balloon|ballong|montgolf/i,                                        tab: 'activities', name: 'Hot Air Balloon' },
+  { re: /cooking class|matkurs|cours de cuisine|cooking/i,                  tab: 'activities', name: 'Cooking Class in a Riad' },
+  { re: /paraglid|parapente/i,                                             tab: 'activities', name: 'Paragliding over the Atlas' },
+  { re: /horse ?rid|horseback|ridning|cheval|équitation/i,                  tab: 'activities', name: 'Horseback Riding in Agafay' },
+  { re: /hammam|spa\b/i,                                                    tab: 'spa',        name: 'Hammam de la rose' },
+  { re: /medina (tour|& souk|and souk)|souk|guided medina|medinaomvisning|medina-omvisning|médina/i, tab: 'activities', name: 'Souks & Jamaa el Fna Guided Tour' },
+  { re: /bahia|saadian|koutoubia/i,                                         tab: 'activities', name: 'Bahia & Badii Palaces + Koutoubia Tour' },
+  { re: /ourika/i,                                                          tab: 'excursions', name: "Vallée de l'Ourika" },
+  { re: /essaouira/i,                                                       tab: 'excursions', name: 'Essaouira' },
+  { re: /ouzoud/i,                                                          tab: 'excursions', name: "Cascades d'Ouzoud" },
+  { re: /a[iï]t ben haddou|ouarzazate/i,                                    tab: 'excursions', name: 'Ouarzazate & Kasbah Ait Ben Haddou' },
+  { re: /dinner ?& ?show|dinner show|middag & show|d[îi]ner & spectacle|agafay dinner|gnawa/i, tab: 'camps', name: 'La Bohème Marrakech' },
+];
+function msTripRelated(trip, s) {
+  const text = (trip.itinerary || []).map(d => s(d.text) + ' ' + s(d.route)).join(' ') +
+    ' ' + (trip.included || []).map(s).join(' ') + ' ' + s(trip.overview || '');
+  const out = []; const seen = new Set();
+  MS_TRIP_LINKS.forEach(l => { if (l.re.test(text) && !seen.has(l.name)) { seen.add(l.name); out.push({ label: l.name, tab: l.tab, name: l.name }); } });
+  return out;
+}
+
 // ── PER-TRIP IMAGE GALLERIES ─────────────────────────────────────
 // Content-matched, hand-verified photos for each trip's stops/cities/
 // activities. Bare names live in assets/photos/; "web/…" are landmark
@@ -741,7 +769,7 @@ const MS_TRIP_GALLERIES = {
     'agafay-night-lounge-05.jpg', 'food-tagine-09.webp',
   ],
   'morocco-highlights': [
-    'medina-koutoubia-04.jpg', 'atlas-mountains-20.jpg', 'web/aitbenhaddou.jpg',
+    'web/aitbenhaddou.jpg', 'atlas-mountains-20.jpg', 'medina-koutoubia-04.jpg',
     'web/dades-valley.jpg', 'web/todra-gorge.jpg', 'sahara-camel-caravan-16.jpg',
     'sahara-dunes-ripples-13.jpg', 'sahara-dunes-10.jpg', 'sahara-camel-sunrise-15.jpg',
     'agafay-night-fire-show-02.avif', 'food-mechoui-lamb-03.webp',
@@ -891,6 +919,7 @@ function ItinModal({ trip, onClose, lang, fmt }) {
     amenities: (trip.included || []).map(s),
     excluded: (trip.excluded || []).map(s),
     timeline: trip.itinerary.map(d => ({ day: d.day, route: s(d.route), rows: parseRows(s(d.text)) })),
+    related: msTripRelated(trip, s),
     mapRoute: trip.route, locationLabel: trip.route,
     thingsToKnow: {
       cancellation: { title: tx("Cancellation","Avbestilling","Annulation"), items: [tx("20% deposit to confirm, 80% on arrival.","20% depositum for å bekrefte, 80% ved ankomst.","Acompte de 20% pour confirmer, 80% à l’arrivée."), tx("Free changes up to 30 days before.","Gratis endringer inntil 30 dager før.","Modifications gratuites jusqu’à 30 jours avant.")] },

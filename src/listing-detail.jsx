@@ -436,6 +436,22 @@
                   </div>
                 )}
 
+                {/* related experiences — catalogue items mentioned in this trip */}
+                {L.related && L.related.length > 0 && (
+                  <div className="ms-ld-sec ms-ld-divtop">
+                    <h3 className="ms-ld-h3">{tx('Experiences in this trip', 'Opplevelser i denne reisen', 'Expériences de ce voyage')}</h3>
+                    <div className="ms-ld-avail-sub">{tx('Tap an experience to see its photos, details & prices from our catalogue.', 'Trykk på en opplevelse for bilder, detaljer og priser fra katalogen.', 'Touchez une expérience pour voir ses photos, détails & prix dans notre catalogue.')}</div>
+                    <div className="ms-ld-related">
+                      {L.related.map((r, i) => (
+                        <button key={i} type="button" className="ms-ld-htag"
+                          onClick={() => { L.onClose(); setTimeout(() => window.dispatchEvent(new CustomEvent('ms:open-catalog', { detail: { tab: r.tab, name: r.name } })), 90); }}>
+                          <span className="ms-ld-htag-hash" aria-hidden="true">#</span>{r.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* availability calendar */}
                 <div className="ms-ld-sec ms-ld-divtop">
                   <h3 className="ms-ld-h3">{tx('Availability', 'Tilgjengelighet', 'Disponibilités')}</h3>

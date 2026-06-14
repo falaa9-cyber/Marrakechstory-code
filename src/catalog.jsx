@@ -278,7 +278,10 @@ function Catalog() {
         camps: D.CAMPS, pools: D.POOLS, transport: D.TRANSPORT, excursions: D.EXCURSIONS,
       };
       const list = arrays[localTab] || [];
-      const item = list.find(x => x.slug === slug) || list.find(x => (typeof x.name === 'string' ? x.name : x.name?.en) === name);
+      const nm = (x) => (typeof x.name === 'string' ? x.name : x.name?.en) || '';
+      const item = (slug && list.find(x => x.slug === slug))
+        || (name && list.find(x => nm(x) === name))
+        || (name && list.find(x => nm(x).toLowerCase().includes(String(name).toLowerCase())));
       if (item) {
         // Defer one frame so the tab swap settles first.
         setTimeout(() => setModal({ item, tab: localTab }), 30);

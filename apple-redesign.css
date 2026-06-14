@@ -5375,3 +5375,28 @@ button.ms-ld-room-img { border: none; padding: 0; cursor: pointer; }
   box-shadow: 0 1px 5px rgba(0,0,0,.45); color: #fff; font-size: 12.5px; font-weight: 700;
   display: flex; align-items: center; justify-content: center; line-height: 1;
 }
+
+/* ── Related-experience hashtags (trip → catalogue) ── */
+.ms-ld-related { display: flex; flex-wrap: wrap; gap: 9px; }
+.ms-ld-htag {
+  display: inline-flex; align-items: center; gap: 2px;
+  background: #faf1ee; border: 1px solid #f1d9d2; color: var(--brand, #e0432a);
+  border-radius: 999px; padding: 8px 15px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.ms-ld-htag-hash { font-weight: 800; opacity: .85; }
+.ms-ld-htag:hover { background: var(--brand, #e0432a); color: #fff; border-color: var(--brand, #e0432a); }
+.ms-ld-htag:active { transform: scale(.96); }
+
+/* ── Reviews + gallery: full-screen width ── */
+.ms-rev-inner, .ms-gal-inner { max-width: min(1640px, 94vw) !important; }
+
+/* ── Round corners on (almost) every box that isn't already pill/round ── */
+[class*="card"], [class*="-box"], [class*="box-"], [class*="panel"], [class*="tile"],
+[class*="-field"], [class*="field-"], [class*="well"], [class*="callout"],
+.msa-card, .admin-card, .stat-card, .reiseplaner-card, .insight-card, .kpi,
+fieldset, .form-group, .input-group,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([class*="pill"]):not([class*="round"]),
+textarea, select {
+  border-radius: 14px;
+}
