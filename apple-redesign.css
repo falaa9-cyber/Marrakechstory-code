@@ -5400,3 +5400,9 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([class*
 textarea, select {
   border-radius: 14px;
 }
+
+/* ── Sub-tabs / filter chips: pill-shaped (override legacy sharp-corners) ── */
+.filter-chip, .trip-filter-chip, .cat-filter, .cat-tab, .itin-tab,
+.cat-showmore, .cat-showall {
+  border-radius: 999px !important;
+}
