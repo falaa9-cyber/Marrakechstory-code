@@ -146,21 +146,56 @@
     return single ? out.slice(0, 1) : out;
   }
 
-  /* ---- Leaflet map of the itinerary stops (OpenStreetMap, no key) ---- */
+  /* ---- Map of the itinerary stops — Google-style basemap (CARTO Voyager) +
+         real road-following route from OSRM, drawn as a blue Google route line.
+         No API key required. ---- */
   function StopMap({ stops }) {
-    const ref = useRef(null); const mapRef = useRef(null);
+    const ref = useRef(null);
     useEffect(() => {
       if (!window.L || !ref.current || !stops.length) return;
       const map = window.L.map(ref.current, { scrollWheelZoom: false, zoomControl: true });
-      mapRef.current = map;
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
+      // Clean Google-Maps-like raster basemap (free, no key)
+      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19, subdomains: 'abcd', attribution: '© OpenStreetMap, © CARTO',
+      }).addTo(map);
       const pts = stops.map(s => [s.lat, s.lng]);
-      if (pts.length > 1) window.L.polyline(pts, { color: '#e0432a', weight: 3, opacity: .85, dashArray: '7 7' }).addTo(map);
+
+      // Google-style numbered pins: green start · red end · blue waypoints
       stops.forEach((s, i) => {
-        window.L.circleMarker([s.lat, s.lng], { radius: 8, color: '#fff', weight: 2, fillColor: '#e0432a', fillOpacity: 1 })
-          .addTo(map).bindTooltip((stops.length > 1 ? (i + 1) + '. ' : '') + s.name, { direction: 'top', offset: [0, -6] });
+        const single = stops.length === 1;
+        const isStart = i === 0, isEnd = i === stops.length - 1;
+        const color = single ? '#ea4335' : isStart ? '#34a853' : isEnd ? '#ea4335' : '#1a73e8';
+        const label = single ? '' : String(i + 1);
+        const icon = window.L.divIcon({
+          className: 'ms-ld-pinwrap',
+          html: '<div class="ms-ld-pin" style="background:' + color + '">' + label + '</div>',
+          iconSize: [28, 28], iconAnchor: [14, 14],
+        });
+        window.L.marker([s.lat, s.lng], { icon }).addTo(map)
+          .bindTooltip((label ? label + '. ' : '') + s.name, { direction: 'top', offset: [0, -14] });
       });
-      if (pts.length > 1) map.fitBounds(pts, { padding: [34, 34] }); else map.setView(pts[0], 11);
+
+      // Blue route line (Google Directions look): white casing under a blue line
+      let casing, line;
+      const drawRoute = (latlngs) => {
+        [casing, line].forEach(l => l && map.removeLayer(l));
+        casing = window.L.polyline(latlngs, { color: '#ffffff', weight: 9, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }).addTo(map);
+        line = window.L.polyline(latlngs, { color: '#1a73e8', weight: 5, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }).addTo(map);
+      };
+      if (pts.length > 1) {
+        drawRoute(pts); // instant straight fallback
+        const coords = stops.map(s => s.lng + ',' + s.lat).join(';');
+        fetch('https://router.project-osrm.org/route/v1/driving/' + coords + '?overview=full&geometries=geojson')
+          .then(r => (r.ok ? r.json() : null))
+          .then(j => {
+            const g = j && j.routes && j.routes[0] && j.routes[0].geometry;
+            if (g && g.coordinates && g.coordinates.length) drawRoute(g.coordinates.map(c => [c[1], c[0]]));
+          })
+          .catch(() => {});
+        map.fitBounds(pts, { padding: [40, 40] });
+      } else {
+        map.setView(pts[0], 12);
+      }
       setTimeout(() => map.invalidateSize(), 120);
       return () => { try { map.remove(); } catch (e) {} };
     }, []);
