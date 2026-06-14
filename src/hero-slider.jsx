@@ -220,8 +220,8 @@ function HeroSearch({ lang, tx }) {
   );
 }
 
-const HERO_IMG      = "assets/photos/riad-courtyard-pool-03.jpg?v=69";
-const HERO_FALLBACK = "assets/photos/riad-pool-terrace-08.avif";
+const HERO_IMG      = "assets/photos/medina-koutoubia-04.jpg?v=266";
+const HERO_FALLBACK = "assets/photos/riad-courtyard-pool-03.jpg";
 
 function useResolvedHeroImage(primary, fallback) {
   const [src, setSrc] = useStateHs(primary);
