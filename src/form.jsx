@@ -687,7 +687,7 @@ function ItineraryBuilder() {
       <div className="wrap-wide">
         <div className="section-head reveal" style={{ textAlign: 'center', margin: '0 auto 56px' }}>
           <span className="eyebrow">{t('itin_eyebrow')}</span>
-          <h2>{t('itin_title_a')} <em>{t('itin_title_b')}</em> {t('itin_title_c')}</h2>
+          <h2>{t('itin_title_a')} <em>{t('itin_title_b')}</em>{t('itin_title_c')}</h2>
           <p style={{ margin: '0 auto' }}>{t('itin_sub')}</p>
         </div>
 
