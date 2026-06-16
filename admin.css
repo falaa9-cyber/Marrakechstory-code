@@ -29,7 +29,9 @@
 .msa-login-back { margin-top: 14px; color: var(--msa-dim); font-size: 13px; text-decoration: none; }
 
 /* Shell */
-.msa-shell { display: flex; height: 100vh; }
+/* 125vh = 100vh / 0.8 — counteracts the #ms-admin-root zoom:0.8 so the shell
+   still fills the full screen height (no gap at the bottom). */
+.msa-shell { display: flex; height: 125vh; }
 .msa-sidebar { width: 244px; background: #fff; border-right: 1px solid var(--msa-line); display: flex; flex-direction: column; flex-shrink: 0; }
 .msa-brand { display: flex; align-items: center; gap: 10px; padding: 20px 22px; font-weight: 700; font-size: 16.5px; letter-spacing: -0.01em; position: relative; }
 .msa-brand img { width: 30px; height: 30px; object-fit: contain; border-radius: 8px; }
@@ -328,7 +330,7 @@
   .msa-burger { display: inline-flex; align-items: center; justify-content: center; border: none; background: #f0f0f3; width: 40px; height: 40px; border-radius: 11px; cursor: pointer; color: var(--msa-ink); flex-shrink: 0; }
   .msa-topbar-title { font-weight: 700; font-size: 16px; flex-shrink: 0; }
   .msa-topsearch { height: 38px; }
-  .msa-shell { flex-direction: column; height: 100dvh; }
+  .msa-shell { flex-direction: column; height: 125dvh; }
   .msa-sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; width: 78vw; max-width: 290px; transform: translateX(-100%); transition: transform .28s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 40px rgba(0,0,0,0.18); }
   .msa-shell.nav-open .msa-sidebar { transform: translateX(0); }
   .msa-nav-overlay { display: block; position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity .28s; }
