@@ -360,6 +360,42 @@
     const loadThread = useCallback(() => { const sb = getSB(); if (!sb || !initial || !initial.email) return; sb.from('messages').select('*').eq('client_email', initial.email).order('created_at', { ascending: true }).then(({ data }) => { setThread(data || []); const unread = (data || []).filter(x => x.sender === 'client' && !x.read_by_admin).map(x => x.id); if (unread.length) sb.from('messages').update({ read_by_admin: true }).in('id', unread); }); }, [initial && initial.id]);
     useEffect(() => { loadThread(); }, [loadThread]);
     const sendReply = async () => { const sb = getSB(); if (!reply.trim() || !sb || !initial || !initial.email) return; const body = reply.trim(); setReply(''); await sb.from('messages').insert({ client_email: initial.email, sender: 'admin', body, booking_id: initial.id, read_by_admin: true }); loadThread(); };
+
+    // ---- Files & documents (Supabase Storage: booking-files/<bookingId>/…) ----
+    const FILE_BUCKET = 'booking-files';
+    const [files, setFiles] = useState([]);
+    const [upBusy, setUpBusy] = useState(false);
+    const loadFiles = useCallback(() => {
+      const sb = getSB(); if (!sb || !initial || !initial.id) { setFiles([]); return; }
+      sb.storage.from(FILE_BUCKET).list(String(initial.id), { limit: 200, sortBy: { column: 'created_at', order: 'desc' } })
+        .then(({ data }) => setFiles((data || []).filter(f => f.name !== '.emptyFolderPlaceholder')));
+    }, [initial && initial.id]);
+    useEffect(() => { loadFiles(); }, [loadFiles]);
+    const uploadFiles = async (fileList) => {
+      const sb = getSB();
+      if (!sb || !initial || !initial.id) { alert('Save the booking first, then you can upload files to it.'); return; }
+      const list = Array.from(fileList || []); if (!list.length) return;
+      setUpBusy(true);
+      for (const file of list) {
+        const safe = file.name.replace(/[^\w.\-]+/g, '_');
+        const path = `${initial.id}/${Date.now()}-${safe}`;
+        const { error } = await sb.storage.from(FILE_BUCKET).upload(path, file, { upsert: false, cacheControl: '3600', contentType: file.type || undefined });
+        if (error) { alert('Upload failed (' + file.name + '): ' + error.message); }
+      }
+      setUpBusy(false);
+      logAudit('uploaded file(s)', 'booking', initial.id, initial.client_name);
+      loadFiles();
+    };
+    const delFile = async (name) => {
+      const sb = getSB(); if (!sb || !initial || !initial.id) return;
+      if (!confirm('Delete this file?')) return;
+      await sb.storage.from(FILE_BUCKET).remove([`${initial.id}/${name}`]);
+      logAudit('deleted file', 'booking', initial.id, name);
+      loadFiles();
+    };
+    const fileUrl = (name) => { const sb = getSB(); if (!sb || !initial) return '#'; return sb.storage.from(FILE_BUCKET).getPublicUrl(`${initial.id}/${name}`).data.publicUrl; };
+    const niceName = (n) => String(n || '').replace(/^\d{10,}-/, '');
+    const fmtSize = (bytes) => { const n = +bytes || 0; if (!n) return ''; if (n < 1024) return n + ' B'; if (n < 1048576) return (n / 1024).toFixed(0) + ' KB'; return (n / 1048576).toFixed(1) + ' MB'; };
     const set = (k, v) => setB(p => ({ ...p, [k]: v }));
     const setCost = (k, v) => setB(p => { const n = { ...p, [k]: v }; n.total_cost = (+n.cost_transportation || 0) + (+n.cost_activities || 0) + (+n.cost_accommodation || 0); return n; });
     const setPrice = (v) => setB(p => ({ ...p, selling_price: v, deposit_amount: Math.round(v * 0.2), balance: v - (+p.paid_amount || Math.round(v * 0.2)) }));
@@ -416,6 +452,18 @@
               h('button', { className: 'msa-icon-btn', onClick: () => delAct(di, ai) }, ICON.x())),
             h('input', { className: 'msa-day-in', placeholder: 'Details…', value: a.details, onChange: (e) => setAct(di, ai, 'details', e.target.value) }))),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: () => addAct(di) }, '+ Activity')))),
+        h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Files & documents'),
+          (initial && initial.id)
+            ? h('label', { className: 'msa-btn msa-btn-sm msa-btn-primary msa-upload-label' }, ICON.plus(), upBusy ? 'Uploading…' : 'Upload',
+                h('input', { type: 'file', multiple: true, disabled: upBusy, style: { display: 'none' }, onChange: (e) => { uploadFiles(e.target.files); e.target.value = ''; } }))
+            : h('span', { className: 'msa-dim', style: { fontSize: 12, fontWeight: 400 } }, 'Save first to attach files')),
+        (initial && initial.id) ? h('div', { className: 'msa-files' },
+          files.length === 0
+            ? h('div', { className: 'msa-dim', style: { padding: '6px 2px' } }, 'No files yet — upload contracts, vouchers, passports, PDFs or photos from your computer.')
+            : files.map(f => h('div', { key: f.name, className: 'msa-file-row' },
+                h('a', { className: 'msa-file-name', href: fileUrl(f.name), target: '_blank', rel: 'noopener' }, ICON.doc(), h('span', null, niceName(f.name))),
+                h('span', { className: 'msa-file-size' }, fmtSize(f.metadata && f.metadata.size)),
+                h('button', { className: 'msa-icon-btn', title: 'Delete file', onClick: () => delFile(f.name) }, ICON.trash())))) : null,
         isAdminRole() ? h('h4', { className: 'msa-section' }, 'Costs (internal)') : null,
         isAdminRole() ? h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'Transport'), h('input', { type: 'number', value: b.cost_transportation || '', onChange: (e) => setCost('cost_transportation', parseFloat(e.target.value) || 0) })),

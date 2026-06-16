@@ -862,3 +862,13 @@
 .msa-ws-team { background: #eef0ff; color: #4a4ad6; }
 .msa-ws-admin { background: var(--msa-brand-soft); color: var(--msa-brand-deep, var(--msa-brand)); }
 .msa-ws-partner { background: var(--msa-green-soft); color: #1c7a3f; }
+
+/* ── Booking files & documents ── */
+.msa-upload-label { cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.msa-files { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 6px; }
+.msa-file-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--msa-line, #e6e2da); border-radius: 12px; background: #fff; }
+.msa-file-name { display: inline-flex; align-items: center; gap: 8px; flex: 1; min-width: 0; color: var(--msa-ink, #1f1b16); text-decoration: none; font-weight: 600; font-size: 13px; }
+.msa-file-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msa-file-name:hover { text-decoration: underline; }
+.msa-file-name svg { flex: 0 0 auto; opacity: .6; }
+.msa-file-size { font-size: 11.5px; color: #8a857d; font-variant-numeric: tabular-nums; flex: 0 0 auto; }

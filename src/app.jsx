@@ -63,7 +63,7 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
                 aria-label={it.label}>
                 <span className="flag">{it.flag}</span>
                 <span className="ms-lc-lang-label">{it.label}</span>
-                <span className="ms-lc-lang-cur">{CURR_SYMBOL[LANG_TO_CURR[it.id]] || ''}</span>
+                <span className="ms-lc-lang-cur">{LANG_TO_CURR[it.id] || ''}</span>
                 {lang === it.id && <Ia.Check s={13} className="check" />}
               </button>
             ))}
@@ -293,7 +293,7 @@ function AppInner() {
       {window.MS_Chatbot && <window.MS_Chatbot />}
       <window.MS_InstagramWidget />
       {window.MS_Weather && <window.MS_Weather />}
-      {window.MS_CookieBanner && <window.MS_CookieBanner />}
+      {/* Cookie banner removed per request */}
     </>
   );
 }

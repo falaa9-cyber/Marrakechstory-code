@@ -2365,8 +2365,9 @@ h2.itin-modal-title {
   gap: 8px;
   width: min(560px, 90vw);
   margin: 24px auto 0;
-  padding: 6px 6px 6px 18px;
+  padding: 10px 22px 10px 18px;
   background: rgba(255,255,255,0.18);
+  /* single clean box — submit button removed, Enter submits */
   backdrop-filter: saturate(180%) blur(18px);
   -webkit-backdrop-filter: saturate(180%) blur(18px);
   border: 1px solid rgba(255,255,255,0.30);
@@ -2389,6 +2390,7 @@ h2.itin-modal-title {
   padding: 8px 4px;
   outline: none;
 }
+.ms-hero-search-submit-hidden { position: absolute; width: 0; height: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; }
 .ms-hero-search input::placeholder {
   color: rgba(255,255,255,0.78);
   font-weight: 400;
@@ -5442,4 +5444,23 @@ textarea, select {
   border-radius: 999px !important;
   box-shadow: none !important;
   padding-left: 4px !important;
+}
+
+/* ── Mobile: sub-tab / filter rows stay on one horizontal scrolling line ── */
+@media (max-width: 768px) {
+  .cat-filters, .cat-tabs-v2, .trip-filter-scroll, .cat-tabs, .itin-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .cat-filters::-webkit-scrollbar,
+  .cat-tabs-v2::-webkit-scrollbar,
+  .cat-tabs::-webkit-scrollbar,
+  .itin-tabs::-webkit-scrollbar { display: none; }
+  .cat-filters .filter-chip,
+  .cat-tabs-v2 .cat-tab-v2,
+  .cat-tabs .cat-tab { flex: 0 0 auto !important; white-space: nowrap !important; }
 }
