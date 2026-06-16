@@ -948,3 +948,23 @@
   color: #111;
 }
 .msa-dark .msa-docbox-link { color: #1f1b16; }
+
+/* Night mode — lighten the hardcoded dark-green accent texts so they stay
+   legible on dark surfaces (#1c7a3f / #15803d → bright green). */
+.msa-dark .msa-st-confirmed, .msa-dark .msa-st-fully_paid, .msa-dark .msa-cd-today,
+.msa-dark .msa-field-profit .msa-readout, .msa-dark .msa-savemsg, .msa-dark .msa-live,
+.msa-dark .msa-team-status.on, .msa-dark .msa-ws-partner, .msa-dark .msa-kpi-delta.up,
+.msa-dark .msa-feed-live,
+.msa-dark .msa-kpi-benefit .msa-kpi-label, .msa-dark .msa-kpi-benefit .msa-kpi-value {
+  color: #5fd98a !important;
+}
+/* Section dividers use a light line — map to the themed line in dark mode */
+.msa-dark .msa-section { border-bottom-color: var(--msa-line); }
+
+/* Admin headings inherit the public site's h1–h4 { color: var(--ink) } (dark)
+   which doesn't flip — force them to the themed ink in night mode. Inside the
+   white document, --msa-ink is re-scoped to dark, so doc headings stay correct. */
+.msa-dark h1, .msa-dark h2, .msa-dark h3, .msa-dark h4 { color: var(--msa-ink); }
+/* Keep the document's brand-red headings red (my .msa-dark h* rule tied and
+   overrode them by source order). */
+.msa-dark .msa-doc-brand h1, .msa-dark .msa-doc-day-head h3 { color: var(--msa-brand); }
