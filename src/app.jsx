@@ -36,7 +36,9 @@ function NavPill({ label, items, value, onSelect, head, align = 'right' }) {
 
 // Combined language + currency popover (Apple-style chip — emoji-only, compact)
 const CURR_EMOJI = { NOK: '🇳🇴', SEK: '🇸🇪', EUR: '🇪🇺', USD: '🇺🇸', MAD: '🇲🇦', GBP: '🇬🇧' };
-const CURR_SYMBOL = { NOK: 'kr', SEK: 'kr', EUR: '€', USD: '$', MAD: 'د.م', GBP: '£' };
+const CURR_SYMBOL = { NOK: 'kr', SEK: 'kr', DKK: 'kr.', EUR: '€', USD: '$', MAD: 'د.م', GBP: '£' };
+// Mirrors LANG_TO_CURR in i18n.jsx — currency follows language automatically.
+const LANG_TO_CURR = { no: 'NOK', sv: 'SEK', da: 'DKK', de: 'EUR', en: 'GBP', fr: 'EUR' };
 function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, setCurr, langHead, currHead }) {
   const [open, setOpen] = useStateA(false);
   const ref = useRefA(null);
@@ -49,32 +51,20 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
     <div className="ms-lc" ref={ref} style={{ position: 'relative' }}>
       <button className="ms-lc-pill" onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open} aria-label={`${lang} / ${curr}`}>
         <span className="ms-lc-flag">{langItem?.flag}</span>
-        <span className="ms-lc-sep">·</span>
-        <span className="ms-lc-flag">{CURR_EMOJI[curr] || '💰'}</span>
       </button>
       {open && (
-        <div className="ms-lc-menu" role="listbox">
+        <div className="ms-lc-menu ms-lc-menu-lang" role="listbox">
           <div className="ms-lc-col-head">{langHead}</div>
-          <div className="ms-lc-col-head">{currHead}</div>
-          <div>
+          <div className="ms-lc-lang-col">
             {LANG_LIST.map(it => (
               <button key={it.id}
-                className={`ms-lc-opt flags-only ${lang === it.id ? 'is-active' : ''}`}
-                onClick={() => { setLang(it.id); }}
+                className={`ms-lc-opt ${lang === it.id ? 'is-active' : ''}`}
+                onClick={() => { setLang(it.id); setOpen(false); }}
                 aria-label={it.label}>
                 <span className="flag">{it.flag}</span>
+                <span className="ms-lc-lang-label">{it.label}</span>
+                <span className="ms-lc-lang-cur">{CURR_SYMBOL[LANG_TO_CURR[it.id]] || ''}</span>
                 {lang === it.id && <Ia.Check s={13} className="check" />}
-              </button>
-            ))}
-          </div>
-          <div>
-            {CURR_LIST.map(it => (
-              <button key={it.id}
-                className={`ms-lc-opt flags-only ${curr === it.id ? 'is-active' : ''}`}
-                onClick={() => { setCurr(it.id); }}
-                aria-label={it.id}>
-                <span className="flag">{CURR_EMOJI[it.id] || '💰'}</span>
-                {curr === it.id && <Ia.Check s={13} className="check" />}
               </button>
             ))}
           </div>

@@ -781,8 +781,8 @@ body, html { background: #fbfbfd !important; }
 
 /* AI / "+" / Instagram FABs */
 .ms-ai-fab { background: var(--brand) !important; color: #fff !important; }
-.ms-chat-fab { background: #25D366 !important; color: #fff !important; }
-.ms-chat-fab.open { background: #1d1d1f !important; }
+.ms-chat-fab { background: #D97757 !important; color: #fff !important; }
+.ms-chat-fab.open { background: #B85C43 !important; }
 .ms-instagram-fab {
   background: linear-gradient(45deg, #feda75 0%, #fa7e1e 25%, #d62976 50%, #962fbf 75%, #4f5bd5 100%) !important;
   color: #fff !important;
@@ -5405,4 +5405,41 @@ textarea, select {
 .filter-chip, .trip-filter-chip, .cat-filter, .cat-tab, .itin-tab,
 .cat-showmore, .cat-showall {
   border-radius: 999px !important;
+}
+
+/* ── Language / currency pill — round, single-flag, language-only menu ── */
+.ms-lc-pill { border-radius: 999px !important; }
+.ms-lc-menu { border-radius: 16px !important; }
+.ms-lc-menu-lang {
+  display: block !important;
+  min-width: 200px !important;
+  padding: 8px !important;
+}
+.ms-lc-menu-lang .ms-lc-lang-col { display: flex !important; flex-direction: column; gap: 2px; }
+.ms-lc-menu-lang .ms-lc-opt {
+  border-radius: 10px !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+  font-size: 13.5px !important;
+}
+.ms-lc-lang-label { flex: 1; }
+.ms-lc-lang-cur { font-size: 12px; color: #8a8a8e; font-variant-numeric: tabular-nums; }
+.ms-lc-opt.is-active { background: #f3ece9; }
+.ms-lc-opt.is-active .ms-lc-lang-cur { color: var(--brand, #e0432a); }
+
+/* ── Chatbot — Claude orange theming ── */
+.ms-chat-head { background: #D97757 !important; }
+.ms-chat-msg.user { background: #D97757 !important; }
+.ms-chat-send, .ms-chat-form button[type="submit"] { background: #D97757 !important; color: #fff !important; }
+.ms-chat-suggestion:hover { border-color: #D97757 !important; color: #B85C43 !important; }
+
+/* ── Hero search bar — round, single clean field (drop legacy input box) ── */
+.ms-hero-search { border-radius: 999px !important; }
+.ms-hero-search input,
+.ms-hero-search input[type="search"] {
+  border: none !important;
+  background: transparent !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  padding-left: 4px !important;
 }
