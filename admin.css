@@ -9,7 +9,7 @@
   --msa-ink: #111114; --msa-ink2: #2b2b30; --msa-dim: #54545c;
   --msa-bg: #f5f5f7; --msa-card: #ffffff; --msa-line: #e6e6ea; --msa-radius: 18px;
 }
-#ms-admin-root { position: fixed; inset: 0; z-index: 100000; background: var(--msa-bg); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; color: var(--msa-ink); overflow: hidden; -webkit-font-smoothing: antialiased; }
+#ms-admin-root { position: fixed; inset: 0; z-index: 100000; background: var(--msa-bg); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; color: var(--msa-ink); overflow: hidden; -webkit-font-smoothing: antialiased; zoom: 0.8; }
 #ms-admin-root * { box-sizing: border-box; }
 #ms-admin-root strong { color: var(--msa-ink); }
 .msa-dim { color: var(--msa-dim); font-size: 12.5px; }
