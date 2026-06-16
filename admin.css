@@ -912,34 +912,56 @@
 #ms-admin-root.msa-dark {
   --msa-bg: #131316; --msa-card: #1c1c21; --msa-elev: #26262d;
   --msa-line: #33333b; --msa-ink: #f2f2f5; --msa-ink2: #d8d8df; --msa-dim: #9a9aa6;
-  --msa-brand-soft: #3a201b; --msa-green-soft: #16301f;
+  /* --msa-brand-soft / --msa-green-soft kept LIGHT so the income/benefit money
+     cards and the green/brand status pills keep dark text on a light tint
+     (consistent with the other light-tinted pills) and stay readable. */
 }
-/* Card / panel surfaces (hardcoded #fff → card) */
+/* Card / panel surfaces (hardcoded #fff → dark card). Money KPI cards keep
+   their own tinted backgrounds. */
 .msa-dark .msa-sidebar, .msa-dark .msa-topbar, .msa-dark .msa-modal, .msa-dark .msa-modal-head,
-.msa-dark .msa-search, .msa-dark .msa-remind, .msa-dark .msa-bk, .msa-dark .msa-client-card,
-.msa-dark .msa-mini-card, .msa-dark .msa-fin-card, .msa-dark .msa-searchbar, .msa-dark .msa-filterbar,
-.msa-dark .msa-table-card, .msa-dark .msa-table tr { background: var(--msa-card) !important; }
-/* Inner / input surfaces (hardcoded #fafafa·#f0f0f3·#f4f4f6 → elevated) */
+.msa-dark .msa-remind, .msa-dark .msa-bk, .msa-dark .msa-client-card, .msa-dark .msa-mini-card,
+.msa-dark .msa-fin-card, .msa-dark .msa-searchbar, .msa-dark .msa-filterbar, .msa-dark .msa-table-card,
+.msa-dark .msa-table tr, .msa-dark .msa-cl-bk, .msa-dark .msa-cl-trip, .msa-dark .msa-task-mini,
+.msa-dark .msa-keyitem, .msa-dark .msa-cal-cell, .msa-dark .msa-toolbar,
+.msa-dark .msa-kpi:not(.msa-kpi-income):not(.msa-kpi-cost):not(.msa-kpi-benefit) {
+  background: var(--msa-card) !important;
+}
+/* Inner / input / track surfaces (light greys → elevated). var-based text is
+   already light, so flipping the surface is enough for contrast. */
 .msa-dark .msa-field input, .msa-dark .msa-field select, .msa-dark .msa-field textarea,
 .msa-dark .msa-day-card, .msa-dark .msa-day-in, .msa-dark .msa-act, .msa-dark .msa-readout,
-.msa-dark .msa-searchbar-in, .msa-dark .msa-filterbar select, .msa-dark .msa-seg,
+.msa-dark .msa-search, .msa-dark .msa-searchbar-in, .msa-dark .msa-filterbar select, .msa-dark .msa-seg,
 .msa-dark .msa-drawer-close, .msa-dark .msa-act-row input, .msa-dark .msa-act-row select,
 .msa-dark .msa-btn, .msa-dark .msa-day-num, .msa-dark .msa-docbox-item, .msa-dark .msa-docbox-empty,
-.msa-dark .msa-file-row, .msa-dark .msa-topsearch input { background: var(--msa-elev) !important; color: var(--msa-ink); }
-/* Hovers + selected states */
-.msa-dark .msa-nav-btn:hover, .msa-dark .msa-remind:hover,
-.msa-dark .msa-bt-row:hover, .msa-dark .msa-bt-row.open { background: var(--msa-elev) !important; }
+.msa-dark .msa-file-row, .msa-dark .msa-topsearch input, .msa-dark .msa-inline-form input,
+.msa-dark .msa-inline-form select, .msa-dark .msa-msg-composer input, .msa-dark .msa-rq-dump,
+.msa-dark .msa-rq-ta, .msa-dark .msa-ws-quick-in, .msa-dark .msa-ws-quick-sel, .msa-dark .msa-toolbar select,
+.msa-dark .msa-check, .msa-dark .msa-funnel-track, .msa-dark .msa-srcbar-track, .msa-dark .msa-burger,
+.msa-dark .msa-archive-bar, .msa-dark .msa-bt-detail td, .msa-dark .msa-btable thead tr,
+.msa-dark .msa-msg.them .msa-msg-bubble, .msa-dark .msa-team-status.off,
+.msa-dark .msa-st-completed, .msa-dark .msa-pri-low, .msa-dark .msa-cd-done {
+  background: var(--msa-elev) !important;
+}
+/* Hovers */
+.msa-dark .msa-nav-btn:hover, .msa-dark .msa-remind:hover, .msa-dark .msa-bt-row:hover,
+.msa-dark .msa-bt-row.open, .msa-dark .msa-evt-row:hover, .msa-dark .msa-keyitem:hover,
+.msa-dark .msa-task-mini:hover, .msa-dark .msa-cal-cell:hover, .msa-dark .msa-icon-btn:hover,
+.msa-dark .msa-cl-bk:hover { background: var(--msa-elev) !important; }
+/* Selected / nav active */
 .msa-dark .msa-seg button.active { background: var(--msa-card) !important; color: var(--msa-ink); }
 .msa-dark .msa-nav-btn.active { background: var(--msa-brand) !important; color: #fff; }
 .msa-dark .msa-nav-btn.active .msa-nav-badge { background: #fff; color: var(--msa-brand); }
-/* Inputs keep readable text + border */
+/* Borders + placeholders */
 .msa-dark .msa-field input, .msa-dark .msa-field select, .msa-dark .msa-field textarea,
 .msa-dark .msa-search, .msa-dark .msa-btn { border-color: var(--msa-line) !important; }
 .msa-dark .msa-field input::placeholder, .msa-dark .msa-search::placeholder { color: var(--msa-dim); }
-/* Keep the printable Itinerary/Invoice document on white paper for legibility */
-.msa-dark .msa-doc, .msa-dark .msa-modal-doc, .msa-dark .msa-modal-doc .msa-modal-body { background: #fff !important; }
+.msa-dark .msa-section { border-bottom-color: var(--msa-line); }
+/* Green accent texts that sit directly on dark cards (no tinted pill behind) */
+.msa-dark .msa-kpi-delta.up, .msa-dark .msa-feed-live { color: #34c759 !important; }
 /* Theme toggle button */
 .msa-theme-toggle .msa-theme-ico { font-size: 15px; line-height: 1; }
+/* Keep the printable Itinerary/Invoice document on white paper for legibility */
+.msa-dark .msa-doc, .msa-dark .msa-modal-doc, .msa-dark .msa-modal-doc .msa-modal-body { background: #fff !important; }
 /* The printable document stays light, so re-scope its variables back to the
    light palette — keeps all doc text/borders/inner boxes legible on white. */
 .msa-dark .msa-doc {
@@ -948,18 +970,6 @@
   color: #111;
 }
 .msa-dark .msa-docbox-link { color: #1f1b16; }
-
-/* Night mode — lighten the hardcoded dark-green accent texts so they stay
-   legible on dark surfaces (#1c7a3f / #15803d → bright green). */
-.msa-dark .msa-st-confirmed, .msa-dark .msa-st-fully_paid, .msa-dark .msa-cd-today,
-.msa-dark .msa-field-profit .msa-readout, .msa-dark .msa-savemsg, .msa-dark .msa-live,
-.msa-dark .msa-team-status.on, .msa-dark .msa-ws-partner, .msa-dark .msa-kpi-delta.up,
-.msa-dark .msa-feed-live,
-.msa-dark .msa-kpi-benefit .msa-kpi-label, .msa-dark .msa-kpi-benefit .msa-kpi-value {
-  color: #5fd98a !important;
-}
-/* Section dividers use a light line — map to the themed line in dark mode */
-.msa-dark .msa-section { border-bottom-color: var(--msa-line); }
 
 /* Admin headings inherit the public site's h1–h4 { color: var(--ink) } (dark)
    which doesn't flip — force them to the themed ink in night mode. Inside the
