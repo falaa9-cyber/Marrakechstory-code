@@ -905,3 +905,46 @@
 .msa-docbox-size { font-size: 11.5px; color: #8a857d; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
 .msa-upload-label { cursor: pointer; }
 .msa-upload-label input { display: none; }
+
+/* ============================================================
+   NIGHT MODE — toggled from the sidebar (#ms-admin-root.msa-dark)
+   ============================================================ */
+#ms-admin-root.msa-dark {
+  --msa-bg: #131316; --msa-card: #1c1c21; --msa-elev: #26262d;
+  --msa-line: #33333b; --msa-ink: #f2f2f5; --msa-ink2: #d8d8df; --msa-dim: #9a9aa6;
+  --msa-brand-soft: #3a201b; --msa-green-soft: #16301f;
+}
+/* Card / panel surfaces (hardcoded #fff → card) */
+.msa-dark .msa-sidebar, .msa-dark .msa-topbar, .msa-dark .msa-modal, .msa-dark .msa-modal-head,
+.msa-dark .msa-search, .msa-dark .msa-remind, .msa-dark .msa-bk, .msa-dark .msa-client-card,
+.msa-dark .msa-mini-card, .msa-dark .msa-fin-card, .msa-dark .msa-searchbar, .msa-dark .msa-filterbar,
+.msa-dark .msa-table-card, .msa-dark .msa-table tr { background: var(--msa-card) !important; }
+/* Inner / input surfaces (hardcoded #fafafa·#f0f0f3·#f4f4f6 → elevated) */
+.msa-dark .msa-field input, .msa-dark .msa-field select, .msa-dark .msa-field textarea,
+.msa-dark .msa-day-card, .msa-dark .msa-day-in, .msa-dark .msa-act, .msa-dark .msa-readout,
+.msa-dark .msa-searchbar-in, .msa-dark .msa-filterbar select, .msa-dark .msa-seg,
+.msa-dark .msa-drawer-close, .msa-dark .msa-act-row input, .msa-dark .msa-act-row select,
+.msa-dark .msa-btn, .msa-dark .msa-day-num, .msa-dark .msa-docbox-item, .msa-dark .msa-docbox-empty,
+.msa-dark .msa-file-row, .msa-dark .msa-topsearch input { background: var(--msa-elev) !important; color: var(--msa-ink); }
+/* Hovers + selected states */
+.msa-dark .msa-nav-btn:hover, .msa-dark .msa-remind:hover,
+.msa-dark .msa-bt-row:hover, .msa-dark .msa-bt-row.open { background: var(--msa-elev) !important; }
+.msa-dark .msa-seg button.active { background: var(--msa-card) !important; color: var(--msa-ink); }
+.msa-dark .msa-nav-btn.active { background: var(--msa-brand) !important; color: #fff; }
+.msa-dark .msa-nav-btn.active .msa-nav-badge { background: #fff; color: var(--msa-brand); }
+/* Inputs keep readable text + border */
+.msa-dark .msa-field input, .msa-dark .msa-field select, .msa-dark .msa-field textarea,
+.msa-dark .msa-search, .msa-dark .msa-btn { border-color: var(--msa-line) !important; }
+.msa-dark .msa-field input::placeholder, .msa-dark .msa-search::placeholder { color: var(--msa-dim); }
+/* Keep the printable Itinerary/Invoice document on white paper for legibility */
+.msa-dark .msa-doc, .msa-dark .msa-modal-doc, .msa-dark .msa-modal-doc .msa-modal-body { background: #fff !important; }
+/* Theme toggle button */
+.msa-theme-toggle .msa-theme-ico { font-size: 15px; line-height: 1; }
+/* The printable document stays light, so re-scope its variables back to the
+   light palette — keeps all doc text/borders/inner boxes legible on white. */
+.msa-dark .msa-doc {
+  --msa-ink: #111114; --msa-ink2: #2b2b30; --msa-dim: #54545c;
+  --msa-line: #e6e6ea; --msa-card: #ffffff; --msa-elev: #fafafa;
+  color: #111;
+}
+.msa-dark .msa-docbox-link { color: #1f1b16; }

@@ -1481,6 +1481,13 @@
   function Shell({ user, role, onLogout }) {
     const isAdmin = role === 'admin';
     const [tab, setTab] = useState('dashboard'); const [navOpen, setNavOpen] = useState(false);
+    const [dark, setDark] = useState(() => { try { return localStorage.getItem('ms-admin-theme') === 'dark'; } catch (e) { return false; } });
+    useEffect(() => {
+      const root = document.getElementById('ms-admin-root') || document.body;
+      if (dark) root.classList.add('msa-dark'); else root.classList.remove('msa-dark');
+      try { localStorage.setItem('ms-admin-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    }, [dark]);
+    useEffect(() => () => { const r = document.getElementById('ms-admin-root'); if (r) r.classList.remove('msa-dark'); }, []);
     const [bookings, setBookings] = useState([]); const [clients, setClients] = useState([]); const [suppliers, setSuppliers] = useState([]);
     const [tasks, setTasks] = useState([]); const [leads, setLeads] = useState([]); const [loading, setLoading] = useState(true);
     const [supSeed, setSupSeed] = useState(null); const [focusBooking, setFocusBooking] = useState(null);
@@ -1543,6 +1550,8 @@
         h('div', { className: 'msa-brand' }, h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }), h('span', null, 'MarrakechStory'), h('button', { className: 'msa-drawer-close', onClick: () => setNavOpen(false) }, ICON.x())),
         h('nav', { className: 'msa-nav' }, visibleTabs.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label), (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))),
         h('div', { className: 'msa-user' },
+          h('button', { className: 'msa-btn msa-btn-block msa-theme-toggle', onClick: () => setDark(d => !d), title: 'Toggle night mode' },
+            h('span', { className: 'msa-theme-ico', 'aria-hidden': 'true' }, dark ? '☀️' : '🌙'), dark ? 'Light mode' : 'Night mode'),
           h('a', { className: 'msa-btn msa-btn-block msa-btn-site', href: '#', onClick: () => setNavOpen(false) }, ICON.globe(), 'Back to website'),
           h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || (isAdmin ? 'Aladdin faiz' : 'Partner')), h('span', { className: 'msa-dim' }, isAdmin ? 'Administrator' : 'Partner · assistant')),
           h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout }, ICON.logout(), 'Log out'))),
