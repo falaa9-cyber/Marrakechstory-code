@@ -253,6 +253,7 @@
 
   function Dashboard({ bookings, tasks, leads, clients, go, openBooking, reload }) {
     const isAdmin = isAdminRole();
+    const [addTask, setAddTask] = useState(false);
     const active = bookings.filter(b => !b.archived && b.arrival_date && b.departure_date && new Date(b.arrival_date) <= startOfToday() && startOfToday() <= new Date(b.departure_date)).length;
     const future = bookings.filter(b => !b.archived && b.arrival_date && new Date(b.arrival_date) > startOfToday() && !['cancelled','completed'].includes(b.status)).sort((a, b) => new Date(a.arrival_date) - new Date(b.arrival_date));
     const past = bookings.filter(b => b.archived || ['completed','cancelled'].includes(b.status) || (b.departure_date && new Date(b.departure_date) < startOfToday())).length;
@@ -273,7 +274,9 @@
     const kpi = (label, value, cls, tab) => h('button', { className: 'msa-kpi ' + cls, onClick: () => tab && go(tab) },
       h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, value));
 
-    return h('div', { className: 'msa-page' },
+    return h(R.Fragment, null,
+      addTask && h(TaskModal, { initial: {}, onClose: () => setAddTask(false), onSaved: () => { setAddTask(false); reload(); } }),
+      h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' },
         h('div', null, h('h1', null, 'Dashboard'), h('p', null, 'Status for ' + today)),
         h('button', { className: 'msa-btn msa-btn-primary', onClick: () => openBooking({}) }, ICON.plus(), 'New Booking')),
@@ -320,10 +323,13 @@
                 return h('button', { key: b.id, className: 'msa-remind', onClick: () => openBooking(b) },
                   h('div', { className: 'msa-remind-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days'))),
                   h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + (b.total_days || '?') + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
-                  h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-dim' }, 'Bal ' + kr(b.balance)))); })))),
+                  h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-text-red', style: { fontWeight: 600 } }, 'Bal ' + kr(b.balance)))); })))),
 
         h('div', { className: 'msa-card msa-dash-box' },
-          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Workspace'), h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Open →')),
+          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Workspace'),
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+              h('button', { className: 'msa-icon-btn', title: 'Add task', onClick: () => setAddTask(true) }, ICON.plus()),
+              h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Open →'))),
           h('div', { className: 'msa-dash-scroll' }, openTasks.length === 0 ? h('div', { className: 'msa-empty' }, 'No shared tasks. Add one in the Workspace.')
             : openTasks.slice(0, 6).map(t => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = n != null && n < 0; const soon = n != null && n >= 0 && n <= 2;
                 return h('div', { key: t.id, className: 'msa-task-mini' },
@@ -345,7 +351,7 @@
           h('div', { className: 'msa-dash-scroll' }, clients.length === 0 ? h('div', { className: 'msa-empty' }, 'No clients yet.')
             : clients.slice().sort((a, b) => (+b.total_spent || 0) - (+a.total_spent || 0)).slice(0, 5).map(c => h('button', { key: c.id, className: 'msa-line-item', onClick: () => go('clients') },
                 h('div', null, h('span', { className: 'msa-avatar msa-avatar-sm' }, (c.name || '?').slice(0, 1).toUpperCase()), h('strong', { style: { marginLeft: 8 } }, c.name)),
-                isAdmin ? h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(c.total_spent)) : h('span', { className: 'msa-dim' }, (c.trips || 0) + ' trips')))))));
+                isAdmin ? h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(c.total_spent)) : h('span', { className: 'msa-dim' }, (c.trips || 0) + ' trips'))))))));
   }
 
   // =====================================================================
@@ -469,13 +475,13 @@
           h('div', { className: 'msa-field' }, h('label', null, 'Transport'), h('input', { type: 'number', value: b.cost_transportation || '', onChange: (e) => setCost('cost_transportation', parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Activities'), h('input', { type: 'number', value: b.cost_activities || '', onChange: (e) => setCost('cost_activities', parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Accommodation'), h('input', { type: 'number', value: b.cost_accommodation || '', onChange: (e) => setCost('cost_accommodation', parseFloat(e.target.value) || 0) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Total Cost'), h('div', { className: 'msa-readout' }, kr(b.total_cost)))) : null,
+          h('div', { className: 'msa-field' }, h('label', null, 'Total Cost'), h('div', { className: 'msa-readout msa-text-red' }, kr(b.total_cost)))) : null,
         h('h4', { className: 'msa-section' }, isAdminRole() ? 'Pricing, Payment & Status' : 'Status'),
         isAdminRole() ? h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'Selling Price'), h('input', { type: 'number', value: b.selling_price || '', onChange: (e) => setPrice(parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: b.status, onChange: (e) => set('status', e.target.value) }, STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))),
           h('div', { className: 'msa-field' }, h('label', null, 'Paid so far'), h('input', { type: 'number', value: b.paid_amount || '', onChange: (e) => setPaid(parseFloat(e.target.value) || 0) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Balance'), h('div', { className: 'msa-readout' }, kr(b.balance))),
+          h('div', { className: 'msa-field' }, h('label', null, 'Balance'), h('div', { className: 'msa-readout ' + ((+b.balance > 0) ? 'msa-text-red' : 'msa-text-green') }, kr(b.balance))),
           h('div', { className: 'msa-field' }, h('label', null, 'Payment Method'), h('select', { value: b.payment_method || 'Bank Transfer', onChange: (e) => set('payment_method', e.target.value) }, PAYMENT_METHODS.map(m => h('option', { key: m, value: m }, m)))),
           h('div', { className: 'msa-field msa-field-profit' }, h('label', null, 'Profit'), h('div', { className: 'msa-readout msa-text-green' }, kr((+b.selling_price || 0) - (+b.total_cost || 0)))))
           : h('div', { className: 'msa-grid-2' }, h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: b.status, onChange: (e) => set('status', e.target.value) }, STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))), h('div', { className: 'msa-field' }, h('label', null, 'Payment'), h('div', { className: 'msa-readout msa-dim' }, 'Managed by admin'))),
@@ -559,12 +565,20 @@
     const cPhone = S.company_phone || COMPANY.phone;
     const cWeb = (S.website_url || 'https://marrakechstory.com').replace(/^https?:\/\//, '');
     const logo = h('img', { src: 'assets/logo.png', alt: '', className: 'msa-doc-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } });
-    const itinerary = () => h('div', { className: 'msa-doc' },
-      h('div', { className: 'msa-doc-top' }, h('div', { className: 'msa-doc-brand' }, logo, h('div', null, h('h1', null, 'MarrakechStory'), h('p', null, 'Bespoke Travel Experiences'))),
-        h('div', { className: 'msa-doc-meta' }, h('h2', null, 'Travel Itinerary'), h('p', null, 'Ref: ' + (b.reference || '—')), h('p', null, 'Date: ' + new Date().toLocaleDateString()))),
-      h('div', { className: 'msa-doc-cols' },
-        h('div', null, h('h3', null, 'Prepared For'), h('p', { className: 'msa-doc-big' }, b.client_name), h('p', { className: 'msa-dim' }, ((b.adults || 0) + (b.kids || 0)) + ' Travelers (' + (b.adults || 0) + ' Adults, ' + (b.kids || 0) + ' Kids)')),
-        h('div', { className: 'msa-right' }, h('h3', null, 'Trip Overview'), h('p', { className: 'msa-doc-big' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('p', { className: 'msa-dim' }, (b.total_nights || 0) + ' Nights / ' + (b.total_days || 0) + ' Days'), h('p', { className: 'msa-dim' }, fmtDate(b.arrival_date) + ' — ' + fmtDate(b.departure_date)))),
+    const itinerary = () => h('div', { className: 'msa-doc msa-doc-itin' },
+      // Decorative travel-magazine header band
+      h('div', { className: 'msa-itin-hero' },
+        h('img', { src: 'assets/logo.png', alt: '', className: 'msa-itin-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }),
+        h('div', { className: 'msa-itin-hero-icons', 'aria-hidden': 'true' }, '🌴   🐪   🎈   ✈️   🕌'),
+        h('h1', { className: 'msa-itin-title' }, 'REISEPLAN'),
+        h('div', { className: 'msa-itin-path', 'aria-hidden': 'true' })),
+      // Trip info strip
+      h('div', { className: 'msa-itin-info' },
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'For'), h('span', { className: 'msa-itin-info-v' }, b.client_name || '—')),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Reise'), h('span', { className: 'msa-itin-info-v' }, (b.arrival_city || '') + ' → ' + (b.departure_city || ''))),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Datoer'), h('span', { className: 'msa-itin-info-v' }, fmtDate(b.arrival_date) + ' — ' + fmtDate(b.departure_date))),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Reisende'), h('span', { className: 'msa-itin-info-v' }, ((b.adults || 0) + (b.kids || 0)) + ' personer · ' + (b.total_nights || 0) + ' netter')),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Ref'), h('span', { className: 'msa-itin-info-v' }, b.reference || '—'))),
       h('div', { className: 'msa-doc-days' }, (b.daily_itinerary || []).length === 0 ? h('p', { className: 'msa-dim' }, 'No daily itinerary added yet.')
         : (b.daily_itinerary || []).map((day, i) => h('div', { key: i, className: 'msa-doc-day' },
             h('div', { className: 'msa-doc-day-head' }, h('h3', null, 'Day ' + day.day), day.city && h('span', null, '— ' + day.city), h('span', { className: 'msa-dim msa-doc-date' }, day.date || 'TBD')),
@@ -586,7 +600,7 @@
           h('tbody', null, h('tr', null, h('td', null, h('strong', null, 'Bespoke Travel Package'), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' Nights: ' + (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, ((b.adults || 0) + (b.kids || 0)) + ' Travelers')), h('td', { className: 'msa-right' }, kr(sub))))),
         h('div', { className: 'msa-doc-totals' }, h('div', null, h('span', { className: 'msa-dim' }, 'Subtotal'), h('span', null, kr(sub))),
           h('div', null, h('span', { className: 'msa-dim' }, 'Paid'), h('span', { className: 'msa-text-green' }, '-' + kr(paid))),
-          h('div', { className: 'msa-doc-balance' }, h('span', null, 'Balance Due'), h('span', null, kr(bal)))),
+          h('div', { className: 'msa-doc-balance' }, h('span', null, 'Balance Due'), h('span', { className: (bal > 0 ? 'msa-text-red' : 'msa-text-green') }, kr(bal)))),
         h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Bank Transfer Details'), h('div', { className: 'msa-bank-grid' },
           h('span', { className: 'msa-dim' }, 'Bank Name:'), h('span', null, S.bank_name || 'BMCE Bank of Africa'), h('span', { className: 'msa-dim' }, 'Account Name:'), h('span', null, S.account_name || 'MarrakechStory SARL'),
           h('span', { className: 'msa-dim' }, 'RIB:'), h('span', null, S.rib || '011 450 0000 123456789012 34'), h('span', { className: 'msa-dim' }, 'SWIFT:'), h('span', null, S.swift || 'BMCE MAMC'))),
@@ -649,7 +663,7 @@
         h('div', { className: 'msa-bt-detail-grid' },
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Route & dates'), h('div', null, (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' nights / ' + (b.total_days || 0) + ' days · ' + countdownLabel(b.arrival_date))),
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Contact'), b.email && h('div', null, h('a', { href: 'mailto:' + b.email }, b.email)), b.phone && h('div', null, h('a', { href: waLink(b.phone), target: '_blank' }, b.phone)), h('div', { className: 'msa-dim' }, 'Source: ' + (b.lead_source || '—'))),
-          isAdminRole() ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Payment'), h('div', null, 'Paid ', h('strong', { className: 'msa-text-green' }, kr(paid))), h('div', null, 'Balance ', h('strong', null, kr(b.balance)))) : null,
+          isAdminRole() ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Payment'), h('div', null, 'Paid ', h('strong', { className: 'msa-text-green' }, kr(paid))), h('div', null, 'Balance ', h('strong', { className: (+b.balance > 0 ? 'msa-text-red' : 'msa-text-green') }, kr(b.balance)))) : null,
           h('div', null, h('span', { className: 'msa-fin-k' }, 'Notes'), h('div', { className: 'msa-dim' }, b.internal_notes || b.special_requests || '—'))),
         h('div', { className: 'msa-bt-detail-actions' },
           h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => setEdit(b) }, ICON.edit(), 'Edit booking'),

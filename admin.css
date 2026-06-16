@@ -978,3 +978,47 @@
 /* Keep the document's brand-red headings red (my .msa-dark h* rule tied and
    overrode them by source order). */
 .msa-dark .msa-doc-brand h1, .msa-dark .msa-doc-day-head h3 { color: var(--msa-brand); }
+
+/* ============================================================
+   ITINERARY DOC — warm travel-magazine design (matches client PDF)
+   Scoped to .msa-doc-itin; applies in both light & dark mode since it
+   is a client-facing document with its own fixed palette.
+   ============================================================ */
+.msa-doc.msa-doc-itin { background: #f6efe2 !important; color: #4a3b30; padding: 0 !important; }
+/* Hero band */
+.msa-doc-itin .msa-itin-hero { position: relative; text-align: center; padding: 26px 24px 12px; background: linear-gradient(180deg, #f4e8d6 0%, #f6efe2 100%); }
+.msa-doc-itin .msa-itin-logo { position: absolute; top: 16px; right: 20px; width: 46px; height: auto; border-radius: 10px; }
+.msa-doc-itin .msa-itin-hero-icons { font-size: 19px; letter-spacing: 4px; margin-bottom: 4px; }
+.msa-doc-itin .msa-itin-title { font-family: 'Playfair Display', Georgia, serif !important; font-size: 50px; line-height: 1; font-weight: 800; letter-spacing: 12px; color: #e0432a !important; margin: 0; padding-left: 12px; text-shadow: 0 2px 0 rgba(0,0,0,.05); }
+.msa-doc-itin .msa-itin-path { height: 0; margin: 12px auto 0; max-width: 78%; border-top: 2px dashed #d8a47e; }
+/* Info strip — brand-red band */
+.msa-doc-itin .msa-itin-info { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 26px; padding: 14px 26px; background: #e0432a; color: #fff; }
+.msa-doc-itin .msa-itin-info-cell { display: flex; flex-direction: column; align-items: center; min-width: 84px; }
+.msa-doc-itin .msa-itin-info-k { font-size: 9px; text-transform: uppercase; letter-spacing: .13em; opacity: .82; font-weight: 700; }
+.msa-doc-itin .msa-itin-info-v { font-size: 12.5px; font-weight: 700; margin-top: 1px; }
+/* Day timeline */
+.msa-doc-itin .msa-doc-days { padding: 26px 30px 6px; }
+.msa-doc-itin .msa-doc-day { position: relative; padding: 0 0 20px 28px; border-left: 2px dotted #e0a980; margin-left: 7px; }
+.msa-doc-itin .msa-doc-day:last-child { border-left-color: transparent; }
+.msa-doc-itin .msa-doc-day::before { content: ''; position: absolute; left: -8px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: #e0432a; box-shadow: 0 0 0 3px #f6efe2; }
+.msa-doc-itin .msa-doc-day-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 9px; border-bottom: 2px solid #ecceb3; padding-bottom: 5px; }
+.msa-doc-itin .msa-doc-day-head h3 { font-family: 'Playfair Display', Georgia, serif !important; color: #e0432a !important; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; margin: 0; }
+.msa-doc-itin .msa-doc-day-head > span { color: #9a5f38; font-weight: 700; font-size: 13.5px; text-transform: uppercase; }
+.msa-doc-itin .msa-doc-date { margin-left: auto; font-size: 11px; color: #b08968 !important; }
+.msa-doc-itin .msa-doc-act { display: flex; gap: 12px; padding: 4px 0; align-items: baseline; }
+.msa-doc-itin .msa-doc-act .msa-doc-time { color: #e0432a; font-weight: 800; min-width: 50px; }
+.msa-doc-itin .msa-doc-act strong { color: #3a2e26; }
+.msa-doc-itin .msa-doc-act p { color: #5d4c3f; margin: 1px 0 0; }
+/* Included / not-included */
+.msa-doc-itin .msa-doc-incl { padding: 10px 30px 20px; gap: 34px; }
+.msa-doc-itin .msa-doc-incl h3 { color: #e0432a !important; text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid #ecceb3; padding-bottom: 4px; display: inline-block; font-weight: 800; }
+.msa-doc-itin .msa-incl-list li { color: #4a3b30; }
+/* Terms + documents box on the warm paper */
+.msa-doc-itin .msa-doc-terms { margin: 0 30px 14px; background: #fdf6ec; border: 1px solid #ecd6bf; border-radius: 12px; }
+.msa-doc-itin .msa-doc-terms summary { color: #9a5f38; }
+.msa-doc-itin .msa-doc-docs { padding: 4px 30px 16px; }
+.msa-doc-itin .msa-doc-docs h3 { color: #e0432a; text-transform: uppercase; letter-spacing: .04em; }
+.msa-doc-itin .msa-docbox-item { background: #fff !important; border-color: #ecd6bf; }
+/* Footer — brand band */
+.msa-doc-itin .msa-doc-foot { background: #e0432a; color: #fff; border: none !important; margin-top: 10px; padding: 18px 24px; }
+.msa-doc-itin .msa-doc-foot p { color: #fff; opacity: .95; }
