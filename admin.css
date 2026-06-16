@@ -890,3 +890,18 @@
 .msa-login input[type=checkbox], .msa-login input[type=radio],
 .msa-shell input[type=checkbox], .msa-shell input[type=radio],
 .msa-modal-backdrop input[type=checkbox], .msa-modal-backdrop input[type=radio] { border-radius: 5px !important; }
+
+/* ── Itinerary documents box (DocModal) ── */
+.msa-doc-docs { margin: 22px 0 6px; }
+.msa-doc-docs h3 { margin: 0 0 4px; }
+.msa-doc-docs-hint { margin: 0 0 12px; font-size: 12.5px; }
+.msa-docbox { display: flex; flex-direction: column; gap: 8px; }
+.msa-docbox-empty { padding: 16px; border: 1px dashed var(--msa-line, #e6e2da); border-radius: 12px; color: #8a857d; font-size: 13px; background: #fafafa; }
+.msa-docbox-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--msa-line, #e6e2da); border-radius: 12px; background: #fff; }
+.msa-docbox-link { display: inline-flex; align-items: center; gap: 9px; flex: 1; min-width: 0; color: var(--msa-ink, #1f1b16); text-decoration: none; font-weight: 600; font-size: 13.5px; }
+.msa-docbox-link span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msa-docbox-link:hover { color: var(--msa-brand); text-decoration: underline; }
+.msa-docbox-link svg { flex: 0 0 auto; opacity: .6; }
+.msa-docbox-size { font-size: 11.5px; color: #8a857d; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+.msa-upload-label { cursor: pointer; }
+.msa-upload-label input { display: none; }

@@ -511,6 +511,50 @@
   function DocModal({ booking, initialType, onClose, settings }) {
     const [type, setType] = useState(initialType || 'itinerary');
     const b = booking; const S = settings || {};
+    // ---- Documents attached to this booking (Supabase Storage: booking-files/<id>/…) ----
+    const DOC_BUCKET = 'booking-files';
+    const [docFiles, setDocFiles] = useState([]);
+    const [docUpBusy, setDocUpBusy] = useState(false);
+    const loadDocFiles = useCallback(() => {
+      const sb = getSB(); if (!sb || !b || !b.id) { setDocFiles([]); return; }
+      sb.storage.from(DOC_BUCKET).list(String(b.id), { limit: 200, sortBy: { column: 'created_at', order: 'desc' } })
+        .then(({ data }) => setDocFiles((data || []).filter(f => f.name !== '.emptyFolderPlaceholder')));
+    }, [b && b.id]);
+    useEffect(() => { loadDocFiles(); }, [loadDocFiles]);
+    const uploadDocs = async (fileList) => {
+      const sb = getSB();
+      if (!sb || !b || !b.id) { alert('This booking must be saved before attaching documents.'); return; }
+      const list = Array.from(fileList || []); if (!list.length) return;
+      setDocUpBusy(true);
+      for (const file of list) {
+        const safe = file.name.replace(/[^\w.\-]+/g, '_');
+        const path = `${b.id}/${Date.now()}-${safe}`;
+        const { error } = await sb.storage.from(DOC_BUCKET).upload(path, file, { upsert: false, cacheControl: '3600', contentType: file.type || undefined });
+        if (error) alert('Upload failed (' + file.name + '): ' + error.message);
+      }
+      setDocUpBusy(false);
+      logAudit('uploaded document(s)', 'booking', b.id, b.client_name);
+      loadDocFiles();
+    };
+    const delDoc = async (name) => {
+      const sb = getSB(); if (!sb || !b || !b.id) return;
+      if (!confirm('Delete this document?')) return;
+      await sb.storage.from(DOC_BUCKET).remove([`${b.id}/${name}`]);
+      logAudit('deleted document', 'booking', b.id, name);
+      loadDocFiles();
+    };
+    const docUrl = (name) => { const sb = getSB(); if (!sb || !b) return '#'; return sb.storage.from(DOC_BUCKET).getPublicUrl(`${b.id}/${name}`).data.publicUrl; };
+    const docNice = (n) => String(n || '').replace(/^\d{10,}-/, '');
+    const docSize = (bytes) => { const n = +bytes || 0; if (!n) return ''; if (n < 1024) return n + ' B'; if (n < 1048576) return (n / 1024).toFixed(0) + ' KB'; return (n / 1048576).toFixed(1) + ' MB'; };
+    const docBox = () => h('div', { className: 'msa-doc-docs msa-print-hide' },
+      h('h3', null, 'Documents'),
+      h('p', { className: 'msa-dim msa-doc-docs-hint' }, 'Vouchers, tickets, passports, contracts — any file. Click to open anytime.'),
+      docFiles.length === 0
+        ? h('div', { className: 'msa-docbox-empty' }, 'No documents attached yet. Use “Upload” at the top to add files from your computer.')
+        : h('div', { className: 'msa-docbox' }, docFiles.map(f => h('div', { key: f.name, className: 'msa-docbox-item' },
+            h('a', { className: 'msa-docbox-link', href: docUrl(f.name), target: '_blank', rel: 'noopener' }, ICON.doc(), h('span', null, docNice(f.name))),
+            h('span', { className: 'msa-docbox-size' }, docSize(f.metadata && f.metadata.size)),
+            h('button', { className: 'msa-icon-btn', title: 'Delete document', onClick: () => delDoc(f.name) }, ICON.trash())))));
     const cName = S.company_name || 'MarrakechStory SARL';
     const cPhone = S.company_phone || COMPANY.phone;
     const cWeb = (S.website_url || 'https://marrakechstory.com').replace(/^https?:\/\//, '');
@@ -530,6 +574,7 @@
         (b.excluded || []).length ? h('div', null, h('h3', null, 'Not included'), h('ul', { className: 'msa-incl-list' }, b.excluded.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null,
       S.payment_info ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Payment Information'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', null, S.payment_info)) : null,
       S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null,
+      docBox(),
       h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'), h('p', null, cWeb + ' | ' + cPhone)));
     const invoice = () => { const sub = +b.selling_price || 0, paid = +b.paid_amount || +b.deposit_amount || 0, bal = +b.balance || (sub - paid);
       return h('div', { className: 'msa-doc' },
@@ -551,6 +596,8 @@
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-doc', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head msa-print-hide' },
         h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice')),
+        h('label', { className: 'msa-btn msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
+          h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
         h('div', null, h('button', { className: 'msa-btn msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download PDF'),
           (b.phone) && h('a', { className: 'msa-btn', href: waLink(b.phone), target: '_blank' }, ICON.whatsapp(), 'Send'),
           h('button', { className: 'msa-btn', onClick: () => window.print() }, ICON.print(), 'Print'), h('button', { className: 'msa-btn', onClick: onClose }, ICON.x()))),
