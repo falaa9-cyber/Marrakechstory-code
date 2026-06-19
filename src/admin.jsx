@@ -1502,6 +1502,19 @@
       try { localStorage.setItem('ms-admin-theme', dark ? 'dark' : 'light'); } catch (e) {}
     }, [dark]);
     useEffect(() => () => { const r = document.getElementById('ms-admin-root'); if (r) r.classList.remove('msa-dark'); }, []);
+    // Browser full-screen toggle
+    const [isFs, setIsFs] = useState(false);
+    useEffect(() => {
+      const onFs = () => setIsFs(!!(document.fullscreenElement || document.webkitFullscreenElement));
+      document.addEventListener('fullscreenchange', onFs);
+      document.addEventListener('webkitfullscreenchange', onFs);
+      return () => { document.removeEventListener('fullscreenchange', onFs); document.removeEventListener('webkitfullscreenchange', onFs); };
+    }, []);
+    const toggleFs = () => {
+      const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fsEl) { (document.exitFullscreen || document.webkitExitFullscreen || function () {}).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen || function () {}).call(el); }
+    };
     const [bookings, setBookings] = useState([]); const [clients, setClients] = useState([]); const [suppliers, setSuppliers] = useState([]);
     const [tasks, setTasks] = useState([]); const [leads, setLeads] = useState([]); const [loading, setLoading] = useState(true);
     const [supSeed, setSupSeed] = useState(null); const [focusBooking, setFocusBooking] = useState(null);
@@ -1566,6 +1579,8 @@
         h('div', { className: 'msa-user' },
           h('button', { className: 'msa-btn msa-btn-block msa-theme-toggle', onClick: () => setDark(d => !d), title: 'Toggle night mode' },
             h('span', { className: 'msa-theme-ico', 'aria-hidden': 'true' }, dark ? '☀️' : '🌙'), dark ? 'Light mode' : 'Night mode'),
+          h('button', { className: 'msa-btn msa-btn-block msa-theme-toggle', onClick: toggleFs, title: 'Toggle full screen' },
+            h('span', { className: 'msa-theme-ico', 'aria-hidden': 'true' }, isFs ? '🗗' : '⛶'), isFs ? 'Exit full screen' : 'Full screen'),
           h('a', { className: 'msa-btn msa-btn-block msa-btn-site', href: '#', onClick: () => setNavOpen(false) }, ICON.globe(), 'Back to website'),
           h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || (isAdmin ? 'Aladdin faiz' : 'Partner')), h('span', { className: 'msa-dim' }, isAdmin ? 'Administrator' : 'Partner · assistant')),
           h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout }, ICON.logout(), 'Log out'))),
