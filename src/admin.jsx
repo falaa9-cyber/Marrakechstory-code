@@ -306,9 +306,6 @@
         h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Revenue by month'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
           months.length ? h(Bars, { data: months }) : h('div', { className: 'msa-empty' }, 'No dated bookings.'))) : null,
 
-      // Team activity — admin-only: is the partner connected & what are they changing
-      isAdmin ? h(TeamActivity, {}) : null,
-
       // Operations calendar — yearly overview
       h('div', { className: 'msa-card' },
         h(MonthCalendar, { bookings, sel: todayISO(), onSelect: () => go('calendar'), year: true }),
@@ -351,7 +348,9 @@
           h('div', { className: 'msa-dash-scroll' }, clients.length === 0 ? h('div', { className: 'msa-empty' }, 'No clients yet.')
             : clients.slice().sort((a, b) => (+b.total_spent || 0) - (+a.total_spent || 0)).slice(0, 5).map(c => h('button', { key: c.id, className: 'msa-line-item', onClick: () => go('clients') },
                 h('div', null, h('span', { className: 'msa-avatar msa-avatar-sm' }, (c.name || '?').slice(0, 1).toUpperCase()), h('strong', { style: { marginLeft: 8 } }, c.name)),
-                isAdmin ? h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(c.total_spent)) : h('span', { className: 'msa-dim' }, (c.trips || 0) + ' trips'))))))));
+                isAdmin ? h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(c.total_spent)) : h('span', { className: 'msa-dim' }, (c.trips || 0) + ' trips')))))),
+      // Team activity — moved to the bottom of the dashboard
+      isAdmin ? h(TeamActivity, {}) : null));
   }
 
   // =====================================================================
