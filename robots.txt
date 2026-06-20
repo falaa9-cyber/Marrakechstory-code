@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Allow crawlers full access to JS/CSS/images so the app can be rendered & indexed.
+Sitemap: https://marrakechstory.com/sitemap.xml
