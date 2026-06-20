@@ -1235,6 +1235,14 @@
       callFn('ga4-insights', { period: p }).then(r => setGa(r || { ok: false, error: 'no response' })).catch(e => setGa({ ok: false, error: String(e && e.message || e) }));
     }, [period]);
     useEffect(() => { loadGa(); const t = setInterval(loadGa, 60000); return () => clearInterval(t); }, [loadGa]);
+    const [gaJson, setGaJson] = useState(''); const [gaPid, setGaPid] = useState(''); const [gaSaving, setGaSaving] = useState(false); const [gaSaveErr, setGaSaveErr] = useState('');
+    const saveGa = async () => {
+      setGaSaving(true); setGaSaveErr('');
+      const r = await callFn('ga4-insights', { action: 'save', serviceAccount: gaJson, propertyId: gaPid });
+      setGaSaving(false);
+      if (!r || !r.ok) { setGaSaveErr((r && r.error) || 'Save failed'); return; }
+      setGa(null); loadGa();
+    };
     if (rows === null) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading analytics…'));
 
     const now = Date.now();
@@ -1358,7 +1366,13 @@
       h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Google Analytics'),
         (ga && ga.configured && ga.ok) ? h('span', { className: 'msa-live' }, h('span', { className: 'msa-live-dot' }), nf(ga.active || 0) + ' active now') : null),
       ga === null ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'Connecting to Google Analytics…'))
-        : (!ga.configured) ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-ga-setup' }, h('strong', null, 'Google Analytics not connected yet'), h('p', { className: 'msa-dim' }, 'Live GA4 numbers appear here once the Google service-account key and Property ID are added.')))
+        : (!ga.configured) ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-ga-setup' },
+            h('strong', null, 'Connect Google Analytics (one-time)'),
+            h('p', { className: 'msa-dim' }, 'Paste your Google service-account key (the JSON file) and your GA4 numeric Property ID. Live data appears here right after you connect.'),
+            h('div', { className: 'msa-field' }, h('label', null, 'Service account key (JSON)'), h('textarea', { rows: 5, value: gaJson, placeholder: '{ "type": "service_account", "project_id": "...", "private_key": "...", "client_email": "...@...iam.gserviceaccount.com" }', onChange: (e) => setGaJson(e.target.value) })),
+            h('div', { className: 'msa-field' }, h('label', null, 'GA4 Property ID (numbers only)'), h('input', { value: gaPid, placeholder: 'e.g. 312345678', onChange: (e) => setGaPid(e.target.value) })),
+            gaSaveErr ? h('div', { className: 'msa-text-red', style: { marginBottom: 8, fontSize: 13 } }, gaSaveErr) : null,
+            h('button', { className: 'msa-btn msa-btn-primary', disabled: gaSaving || !gaJson.trim() || !gaPid.trim(), onClick: saveGa }, gaSaving ? 'Connecting…' : 'Connect Google Analytics')))
         : (!ga.ok || ga.error) ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'Google Analytics error: ' + (ga.error || 'unknown')))
         : h('div', null,
           h('div', { className: 'msa-kpi-grid' },
