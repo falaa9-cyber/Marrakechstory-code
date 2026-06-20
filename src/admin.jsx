@@ -976,16 +976,46 @@
         cells.push(h('div', { key: d, className: 'msa-cal-cell tall' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : ''), onClick: () => setSel(k), onDoubleClick: () => openDay(k) },
           h('span', { className: 'msa-cal-num' }, d), h('div', { className: 'msa-cal-evs' }, bars, info.on.length > 4 && h('span', { className: 'msa-cal-more' }, '+' + (info.on.length - 4))))); }
       return h('div', { className: 'msa-cal-grid' }, cells); };
-    const dayPanel = (k, showOpen) => { const info = dayMap[k] || { arr: [], dep: [], on: [] };
-      const evt = (b, kind, time) => h('button', { key: kind + b.id, className: 'msa-evt-row', style: { borderLeft: '4px solid ' + bkColor(b) }, onClick: () => openBooking(b) },
-        h('span', { className: 'msa-badge ' + (kind === 'Arrival' ? 'msa-ev-arrival' : kind === 'Departure' ? 'msa-ev-departure' : 'msa-st-' + b.status) }, kind === 'On trip' ? STATUS_LABEL[b.status] : kind),
-        h('div', { className: 'msa-evt-title' }, h('span', { className: 'msa-key-dot', style: { background: bkColor(b) } }), b.client_name), h('span', { className: 'msa-dim' }, time || (b.arrival_city || '') + '→' + (b.departure_city || '')));
-      return (info.arr.length + info.dep.length + info.on.length === 0) ? h('div', { className: 'msa-empty' }, 'Nothing scheduled.')
-        : h('div', null,
-            info.arr.map(b => evt(b, 'Arrival', '14:00')),
-            info.dep.map(b => evt(b, 'Departure', '11:00')),
-            h('div', { className: 'msa-card-head', style: { marginTop: 12 } }, h('h3', null, 'On trip')),
-            info.on.length === 0 ? h('div', { className: 'msa-dim' }, '—') : info.on.map(b => evt(b, 'On trip')));
+    // Find the itinerary day for a booking that matches a calendar date k
+    const dayProgram = (b, k) => {
+      const itin = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
+      let m = itin.find(d => (d.date || '').slice(0, 10) === k);
+      if (!m && b.arrival_date) { const diff = Math.round((new Date(k) - new Date(b.arrival_date.slice(0, 10))) / 86400000); if (diff >= 0 && diff < itin.length) m = itin[diff]; }
+      return m;
+    };
+    const dayPanel = (k, showOpen) => {
+      const info = dayMap[k] || { arr: [], dep: [], on: [] };
+      const byId = {};
+      info.arr.forEach(b => { (byId[b.id] = byId[b.id] || { b, kinds: [] }).kinds.push('Arrival'); });
+      info.dep.forEach(b => { (byId[b.id] = byId[b.id] || { b, kinds: [] }).kinds.push('Departure'); });
+      info.on.forEach(b => { if (!byId[b.id]) byId[b.id] = { b, kinds: ['On trip'] }; });
+      const list = Object.keys(byId).map(id => byId[id]);
+      if (!list.length) return h('div', { className: 'msa-empty' }, 'Nothing scheduled.');
+      return h('div', { className: 'msa-cal-progs' }, list.map(({ b, kinds }) => {
+        const prog = dayProgram(b, k);
+        const acts = (prog && Array.isArray(prog.activities)) ? prog.activities : [];
+        const dayNo = prog && prog.day ? ('Day ' + prog.day) : null;
+        return h('div', { key: b.id, className: 'msa-cal-prog', style: { borderLeft: '4px solid ' + bkColor(b) } },
+          h('div', { className: 'msa-cal-prog-head' },
+            h('span', { className: 'msa-key-dot', style: { background: bkColor(b) } }),
+            h('strong', null, b.client_name),
+            kinds.map((kd, i) => h('span', { key: i, className: 'msa-badge ' + (kd === 'Arrival' ? 'msa-ev-arrival' : kd === 'Departure' ? 'msa-ev-departure' : 'msa-st-' + b.status) }, kd === 'On trip' ? STATUS_LABEL[b.status] : kd)),
+            dayNo ? h('span', { className: 'msa-dim msa-cal-prog-dayno' }, dayNo) : null,
+            h('button', { className: 'msa-link', style: { marginLeft: 'auto' }, onClick: () => openBooking(b) }, 'Open →')),
+          h('div', { className: 'msa-cal-prog-meta' },
+            h('span', null, (b.arrival_city || '?') + ' → ' + (b.departure_city || '?')),
+            h('span', null, ((+b.adults || 0) + (+b.kids || 0)) + ' pax'),
+            b.total_nights ? h('span', null, b.total_nights + ' nights') : null,
+            b.reference ? h('span', { className: 'msa-ref-chip' }, b.reference) : null,
+            b.phone ? h('a', { href: 'tel:' + b.phone, className: 'msa-cal-prog-link' }, '📞 ' + b.phone) : null,
+            (prog && prog.city) ? h('span', { className: 'msa-cal-prog-city' }, '📍 ' + prog.city) : null),
+          h('div', { className: 'msa-cal-acts' },
+            kinds.indexOf('Arrival') >= 0 ? h('div', { className: 'msa-cal-act' }, h('span', { className: 'msa-cal-act-t' }, '~14:00'), h('div', null, h('strong', null, 'Arrival'), h('p', null, 'Airport pickup & check-in in ' + (b.arrival_city || 'Marrakech')))) : null,
+            acts.length ? acts.map((a, i) => h('div', { key: i, className: 'msa-cal-act' }, h('span', { className: 'msa-cal-act-t' }, a.time || '·'), h('div', null, h('strong', null, a.type || ''), a.details ? h('p', null, a.details) : null)))
+              : (prog ? null : h('div', { className: 'msa-dim', style: { fontSize: 12.5, padding: '4px 2px' } }, 'No detailed program set for this day yet.')),
+            kinds.indexOf('Departure') >= 0 ? h('div', { className: 'msa-cal-act' }, h('span', { className: 'msa-cal-act-t' }, '~11:00'), h('div', null, h('strong', null, 'Departure'), h('p', null, 'Transfer to airport'))) : null),
+          b.special_requests ? h('div', { className: 'msa-cal-prog-note' }, '📝 ' + b.special_requests) : null);
+      }));
     };
     // Color key — which booking is which color (this month)
     const monthBookings = bookings.filter(b => { if (!b.arrival_date && !b.departure_date) return false; const a = b.arrival_date || b.departure_date; const e = b.departure_date || b.arrival_date; return !(e < new Date(Y, M, 1).toISOString().slice(0, 10) || a > new Date(Y, M + 1, 0).toISOString().slice(0, 10)); });

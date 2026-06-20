@@ -1094,3 +1094,21 @@
 .msa-dark .msa-type { color: #e0a878 !important; }
 .msa-dark .msa-kpi-delta.down { color: #ff6f63 !important; }
 .msa-dark .msa-file-size, .msa-dark .msa-docbox-size { color: #b8b8c2 !important; }
+
+/* ── Calendar day program (full daily itinerary in the day panel) ── */
+.msa-cal-progs { display: flex; flex-direction: column; gap: 12px; }
+.msa-cal-prog { background: var(--msa-card); border: 1px solid var(--msa-line); border-radius: 14px; padding: 12px 14px; }
+.msa-cal-prog-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 7px; }
+.msa-cal-prog-head strong { font-size: 14.5px; }
+.msa-cal-prog-dayno { font-size: 11px; font-weight: 700; }
+.msa-cal-prog-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--msa-dim); margin-bottom: 9px; }
+.msa-cal-prog-meta .msa-ref-chip { font-size: 10px; }
+.msa-cal-prog-city { color: var(--msa-brand) !important; font-weight: 700; }
+.msa-cal-prog-link { color: var(--msa-dim); text-decoration: none; }
+.msa-cal-prog-link:hover { color: var(--msa-brand); }
+.msa-cal-acts { display: flex; flex-direction: column; gap: 7px; padding-left: 2px; border-left: 2px dotted var(--msa-line); margin-left: 4px; padding-left: 12px; }
+.msa-cal-act { display: flex; gap: 11px; align-items: baseline; }
+.msa-cal-act-t { flex: 0 0 52px; font-weight: 800; color: var(--msa-brand); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.msa-cal-act strong { font-size: 13px; color: var(--msa-ink); }
+.msa-cal-act p { margin: 1px 0 0; font-size: 12.5px; color: var(--msa-ink2); line-height: 1.45; }
+.msa-cal-prog-note { margin-top: 9px; font-size: 12.5px; color: var(--msa-ink2); background: var(--msa-bg); border-radius: 9px; padding: 7px 10px; }
