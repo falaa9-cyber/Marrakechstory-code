@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="no">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -10,8 +10,12 @@
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
   <meta name="theme-color" content="#e0432a" />
   <link rel="icon" href="assets/logo.png" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+  <link rel="manifest" href="site.webmanifest" />
   <link rel="canonical" href="https://marrakechstory.com/" />
   <meta name="google-site-verification" content="UuNY8OmWQs_QxMvYBasmI9tF9pQfrk5CV0dQZCMu0rY" />
+  <!-- Preload the hero image to improve LCP (Core Web Vitals) -->
+  <link rel="preload" as="image" href="assets/photos/medina-koutoubia-04.jpg" fetchpriority="high" />
 
   <!-- ── Social sharing (Open Graph + Twitter) — fixes WhatsApp/FB/LinkedIn previews ── -->
   <meta property="og:type" content="website" />
@@ -49,7 +53,14 @@
     "areaServed": ["Marrakech", "Agafay", "Sahara", "Atlas Mountains", "Ouarzazate", "Essaouira", "Morocco"],
     "address": { "@type": "PostalAddress", "addressLocality": "Marrakech", "addressCountry": "MA" },
     "sameAs": ["https://www.instagram.com/marrakechstory"],
-    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "5.0", "reviewCount": "28", "bestRating": "5" }
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "5.0", "reviewCount": "28", "bestRating": "5" },
+    "review": [
+      { "@type": "Review", "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }, "author": { "@type": "Person", "name": "Younes el khomri" }, "reviewBody": "My wife and I had the absolute best holiday of our lives thanks to Marrakech Story! From start to finish, everything was perfectly planned, allowing us to fully enjoy every moment without a single worry." },
+      { "@type": "Review", "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }, "author": { "@type": "Person", "name": "Alexander Ganapathy" }, "reviewBody": "We had an amazing day trip to the Agafay Desert with MarrakechStory. They let us visit several camps before we chose the one we liked best. The service was top-notch from start to finish. Highly recommended!" },
+      { "@type": "Review", "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }, "author": { "@type": "Person", "name": "BABS Jonquille" }, "reviewBody": "What a fantastic 5-day trip we had in Marrakech. We couldn't have done any of this without the tremendous effort of Aladdin and his team at Marrakech Story Tours. What a blast!" },
+      { "@type": "Review", "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }, "author": { "@type": "Person", "name": "Dee Pinkney" }, "reviewBody": "Very easy to communicate with! We decided which activities we wanted to do and the dates we would be in Morocco, sent them a message and they took it from there. Very easy!" },
+      { "@type": "Review", "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }, "author": { "@type": "Person", "name": "Alexia Terrones" }, "reviewBody": "A wonderful experience for our first trip to Morocco. Aladdin was always attentive and available throughout the day. He handled everything very professionally. I will definitely use this agency again." }
+    ]
   }
   </script>
   <script type="application/ld+json">
@@ -80,9 +91,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=287" />
-  <link rel="stylesheet" href="apple-redesign.css?v=287" />
-  <link rel="stylesheet" href="admin.css?v=287" />
+  <link rel="stylesheet" href="styles.css?v=288" />
+  <link rel="stylesheet" href="apple-redesign.css?v=288" />
+  <link rel="stylesheet" href="admin.css?v=288" />
 
   <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -283,34 +294,34 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
 
   <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
-  <script src="src/env.js?v=287"></script>
-  <script src="src/supabase.js?v=287"></script>
-  <script src="src/data.js?v=287"></script>
+  <script src="src/env.js?v=288"></script>
+  <script src="src/supabase.js?v=288"></script>
+  <script src="src/data.js?v=288"></script>
 
   <!--
     JSX modules. All bumped to the same cache version on every release
     so a stale CDN copy never co-exists with a fresh one.
   -->
-  <script type="text/babel" src="src/i18n.jsx?v=287"></script>
-  <script type="text/babel" src="src/icons.jsx?v=287"></script>
-  <script type="text/babel" src="src/motion.jsx?v=287"></script>
-  <script type="text/babel" src="src/hero.jsx?v=287"></script>
-  <script type="text/babel" src="src/insta-phone.jsx?v=287"></script>
-  <script type="text/babel" src="src/hero-tabs.jsx?v=287"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=287"></script>
-  <script type="text/babel" src="src/listing-detail.jsx?v=287"></script>
-  <script type="text/babel" src="src/itineraries.jsx?v=287"></script>
-  <script type="text/babel" src="src/booking.jsx?v=287"></script>
-  <script type="text/babel" src="src/catalog.jsx?v=287"></script>
-  <script type="text/babel" src="src/form.jsx?v=287"></script>
-  <script type="text/babel" src="src/extras.jsx?v=287"></script>
-  <script type="text/babel" src="src/extras2.jsx?v=287"></script>
-  <script type="text/babel" src="src/weather.jsx?v=287"></script>
-  <script type="text/babel" src="src/auth.jsx?v=287"></script>
-  <script type="text/babel" src="src/reviews.jsx?v=287"></script>
-  <script type="text/babel" src="src/app.jsx?v=287"></script>
-  <script type="text/babel" src="src/admin.jsx?v=287"></script>
-  <script type="text/babel" src="src/apple-fx.jsx?v=287"></script>
+  <script type="text/babel" src="src/i18n.jsx?v=288"></script>
+  <script type="text/babel" src="src/icons.jsx?v=288"></script>
+  <script type="text/babel" src="src/motion.jsx?v=288"></script>
+  <script type="text/babel" src="src/hero.jsx?v=288"></script>
+  <script type="text/babel" src="src/insta-phone.jsx?v=288"></script>
+  <script type="text/babel" src="src/hero-tabs.jsx?v=288"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=288"></script>
+  <script type="text/babel" src="src/listing-detail.jsx?v=288"></script>
+  <script type="text/babel" src="src/itineraries.jsx?v=288"></script>
+  <script type="text/babel" src="src/booking.jsx?v=288"></script>
+  <script type="text/babel" src="src/catalog.jsx?v=288"></script>
+  <script type="text/babel" src="src/form.jsx?v=288"></script>
+  <script type="text/babel" src="src/extras.jsx?v=288"></script>
+  <script type="text/babel" src="src/extras2.jsx?v=288"></script>
+  <script type="text/babel" src="src/weather.jsx?v=288"></script>
+  <script type="text/babel" src="src/auth.jsx?v=288"></script>
+  <script type="text/babel" src="src/reviews.jsx?v=288"></script>
+  <script type="text/babel" src="src/app.jsx?v=288"></script>
+  <script type="text/babel" src="src/admin.jsx?v=288"></script>
+  <script type="text/babel" src="src/apple-fx.jsx?v=288"></script>
 
   <!-- ── Auto-syncing trip structured data (TouristTrip ItemList from live data) ── -->
   <script>
