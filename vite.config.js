@@ -13,7 +13,7 @@ import path from 'path';
 
 function copyStaticTree() {
   const root = process.cwd();
-  const include = ['src', 'assets', 'styles.css', 'apple-redesign.css', 'admin.css', 'robots.txt', 'sitemap.xml'];
+  const include = ['src', 'assets', 'styles.css', 'apple-redesign.css', 'admin.css', 'robots.txt', 'sitemap.xml', 'googled9fb7d24e8ddbe07.html'];
 
   return {
     name: 'copy-static-tree',
