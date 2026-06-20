@@ -1083,3 +1083,14 @@
 .msa-btn-primary { box-shadow: 0 6px 16px rgba(224,67,42,.25); }
 /* Rounded chart bar tops */
 .msa-bar-fill { border-radius: 8px 8px 2px 2px; }
+
+/* ── Night mode: force all form-control text + options to light ──
+   (some selects/inputs inherited the public site's dark ink and were
+   invisible on dark backgrounds). */
+.msa-dark input, .msa-dark select, .msa-dark textarea { color: var(--msa-ink) !important; }
+.msa-dark option { color: #f2f2f5; background: #26262d; }
+.msa-dark input::placeholder, .msa-dark textarea::placeholder { color: var(--msa-dim) !important; }
+/* Other hardcoded dark accents that sit on dark cards */
+.msa-dark .msa-type { color: #e0a878 !important; }
+.msa-dark .msa-kpi-delta.down { color: #ff6f63 !important; }
+.msa-dark .msa-file-size, .msa-dark .msa-docbox-size { color: #b8b8c2 !important; }
