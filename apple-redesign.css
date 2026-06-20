@@ -5464,3 +5464,15 @@ textarea, select {
   .cat-tabs-v2 .cat-tab-v2,
   .cat-tabs .cat-tab { flex: 0 0 auto !important; white-space: nowrap !important; }
 }
+
+/* ── Katalog tab bar + sub-tab bar: active highlight uses the brand colour ── */
+.cat-tabs-v2 .cat-tab-v2.active,
+.cat-tab-v2.active, .cat-tab.active,
+.cat-filters .filter-chip.active,
+.filter-chip.active {
+  background: var(--brand, #e0432a) !important;
+  border-color: var(--brand, #e0432a) !important;
+  color: #fff !important;
+}
+.cat-tab-v2.active .count,
+.filter-chip.active .count { color: rgba(255,255,255,0.85) !important; }
