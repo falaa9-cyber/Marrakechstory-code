@@ -1228,6 +1228,13 @@
     useEffect(() => { load(); const t = setInterval(load, 20000); return () => clearInterval(t); }, [load]);
     // 1s ticker so "active now" + relative times stay live between reloads.
     useEffect(() => { const t = setInterval(() => setTick(x => x + 1), 1000); return () => clearInterval(t); }, []);
+    // ── Live Google Analytics (GA4) via the ga4-insights edge function ──
+    const [ga, setGa] = useState(null);
+    const loadGa = useCallback(() => {
+      const p = period === 'all' ? '90d' : period;
+      callFn('ga4-insights', { period: p }).then(r => setGa(r || { ok: false, error: 'no response' })).catch(e => setGa({ ok: false, error: String(e && e.message || e) }));
+    }, [period]);
+    useEffect(() => { loadGa(); const t = setInterval(loadGa, 60000); return () => clearInterval(t); }, [loadGa]);
     if (rows === null) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading analytics…'));
 
     const now = Date.now();
@@ -1340,6 +1347,33 @@
       [['24h', 'Today'], ['7d', '7 days'], ['30d', '30 days'], ['all', 'All time']].map(([k, lbl]) =>
         h('button', { key: k, className: period === k ? 'active' : '', onClick: () => setPeriod(k) }, lbl)));
 
+    // ── Google Analytics (GA4) live panel ──
+    const gaCard = (label, val, cls) => h('div', { className: 'msa-kpi ' + (cls || '') }, h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, val));
+    const gaFmtDur = (s) => { s = Math.round(s || 0); const m = Math.floor(s / 60); return m ? (m + 'm ' + (s % 60) + 's') : (s + 's'); };
+    const gaList = (title, items) => h('div', { className: 'msa-card msa-dash-box' },
+      h('div', { className: 'msa-card-head' }, h('h3', null, title)),
+      h('div', { className: 'msa-dash-scroll' }, (!items || !items.length) ? h('div', { className: 'msa-empty' }, 'No data yet')
+        : items.map((it, i) => h('div', { key: i, className: 'msa-line-item' }, h('span', null, (it.key || '(none)')), h('strong', { className: 'msa-text-brand' }, nf(it.value))))));
+    const gaSection = h('div', { className: 'msa-ga-section' },
+      h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Google Analytics'),
+        (ga && ga.configured && ga.ok) ? h('span', { className: 'msa-live' }, h('span', { className: 'msa-live-dot' }), nf(ga.active || 0) + ' active now') : null),
+      ga === null ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'Connecting to Google Analytics…'))
+        : (!ga.configured) ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-ga-setup' }, h('strong', null, 'Google Analytics not connected yet'), h('p', { className: 'msa-dim' }, 'Live GA4 numbers appear here once the Google service-account key and Property ID are added.')))
+        : (!ga.ok || ga.error) ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'Google Analytics error: ' + (ga.error || 'unknown')))
+        : h('div', null,
+          h('div', { className: 'msa-kpi-grid' },
+            gaCard('Active now', nf(ga.active), 'msa-kpi-income'),
+            gaCard('Users', nf(ga.summary.users), 'msa-kpi-benefit'),
+            gaCard('Sessions', nf(ga.summary.sessions)),
+            gaCard('Pageviews', nf(ga.summary.pageviews)),
+            gaCard('Avg. session', gaFmtDur(ga.summary.avgDuration)),
+            gaCard('Bounce rate', Math.round((ga.summary.bounceRate || 0) * 100) + '%')),
+          h('div', { className: 'msa-dash-grid' },
+            gaList('Top pages', ga.pages),
+            gaList('Channels', ga.sources),
+            gaList('Countries', ga.countries),
+            gaList('Devices', ga.devices))));
+
     return h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' },
         h('div', null, h('h1', null, 'Insights'), h('p', { className: 'msa-subtitle' }, 'Live website analytics — audience, behaviour & conversion')),
@@ -1347,6 +1381,8 @@
           h('span', { className: 'msa-live' }, h('span', { className: 'msa-live-dot' }), active > 0 ? (active + ' active now') : 'Live'),
           updatedAt && h('span', { className: 'msa-dim', style: { marginRight: 8 } }, 'Updated ' + updatedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: load }, 'Refresh'))),
+
+      gaSection,
 
       h('div', { className: 'msa-insights-bar' }, periodSeg,
         h('span', { className: 'msa-dim' }, M.visits + ' visits · ' + M.uniq + ' unique in this period')),

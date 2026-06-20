@@ -1024,3 +1024,8 @@
 /* Footer — brand band */
 .msa-doc-itin .msa-doc-foot { background: #e0432a; color: #fff; border: none !important; margin-top: 10px; padding: 18px 24px; }
 .msa-doc-itin .msa-doc-foot p { color: #fff; opacity: .95; }
+
+/* ── Google Analytics live panel (Insights) ── */
+.msa-ga-section { margin-bottom: 24px; }
+.msa-ga-setup { padding: 16px; }
+.msa-ga-setup strong { display: block; margin-bottom: 4px; font-size: 14px; }
