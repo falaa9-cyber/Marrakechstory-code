@@ -1356,12 +1356,23 @@
         h('button', { key: k, className: period === k ? 'active' : '', onClick: () => setPeriod(k) }, lbl)));
 
     // ── Google Analytics (GA4) live panel ──
-    const gaCard = (label, val, cls) => h('div', { className: 'msa-kpi ' + (cls || '') }, h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, val));
+    const gaCard = (label, val, cls, sub) => h('div', { className: 'msa-kpi ' + (cls || '') }, h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, val), sub ? h('span', { className: 'msa-kpi-sub' }, sub) : null);
     const gaFmtDur = (s) => { s = Math.round(s || 0); const m = Math.floor(s / 60); return m ? (m + 'm ' + (s % 60) + 's') : (s + 's'); };
-    const gaList = (title, items) => h('div', { className: 'msa-card msa-dash-box' },
-      h('div', { className: 'msa-card-head' }, h('h3', null, title)),
+    const gaList = (title, items, live) => h('div', { className: 'msa-card msa-dash-box' },
+      h('div', { className: 'msa-card-head' }, h('h3', null, live ? h('span', { className: 'msa-live-dot', style: { display: 'inline-block', marginRight: 6 } }) : null, title)),
       h('div', { className: 'msa-dash-scroll' }, (!items || !items.length) ? h('div', { className: 'msa-empty' }, 'No data yet')
-        : items.map((it, i) => h('div', { key: i, className: 'msa-line-item' }, h('span', null, (it.key || '(none)')), h('strong', { className: 'msa-text-brand' }, nf(it.value))))));
+        : items.map((it, i) => h('div', { key: i, className: 'msa-line-item' }, h('span', { title: it.key }, (it.key || '(none)')), h('strong', { className: 'msa-text-brand' }, nf(it.value))))));
+    const gaDate = (k) => (k && k.length === 8) ? (parseInt(k.slice(6, 8), 10) + '/' + parseInt(k.slice(4, 6), 10)) : k;
+    const gaTrend = (data, label) => {
+      const d = (data || []).filter(x => x.key && x.key.length === 8);
+      const max = Math.max(1, ...d.map(x => x.value));
+      return h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, label)),
+        !d.length ? h('div', { className: 'msa-empty' }, 'No data yet')
+          : h('div', { className: 'msa-ga-trend' }, d.map((x, i) => h('div', { key: i, className: 'msa-ga-trend-col', title: nf(x.value) + ' users · ' + gaDate(x.key) },
+              h('div', { className: 'msa-ga-trend-bar', style: { height: Math.max(3, Math.round(x.value / max * 100)) + '%' } }),
+              h('span', { className: 'msa-ga-trend-lbl' }, (d.length <= 16 || i % Math.ceil(d.length / 12) === 0) ? gaDate(x.key) : '')))));
+    };
+    const gaPeriodLabel = period === '24h' ? 'today' : period === 'all' ? 'last 90 days' : 'last ' + period.replace('d', ' days');
     const gaSection = h('div', { className: 'msa-ga-section' },
       h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Google Analytics'),
         (ga && ga.configured && ga.ok) ? h('span', { className: 'msa-live' }, h('span', { className: 'msa-live-dot' }), nf(ga.active || 0) + ' active now') : null),
@@ -1377,16 +1388,25 @@
         : h('div', null,
           h('div', { className: 'msa-kpi-grid' },
             gaCard('Active now', nf(ga.active), 'msa-kpi-income'),
-            gaCard('Users', nf(ga.summary.users), 'msa-kpi-benefit'),
+            gaCard('Users', nf(ga.summary.users), 'msa-kpi-benefit', (ga.summary.newUsers ? (Math.round(ga.summary.newUsers / Math.max(1, ga.summary.users) * 100) + '% new') : null)),
+            gaCard('New users', nf(ga.summary.newUsers)),
             gaCard('Sessions', nf(ga.summary.sessions)),
             gaCard('Pageviews', nf(ga.summary.pageviews)),
-            gaCard('Avg. session', gaFmtDur(ga.summary.avgDuration)),
-            gaCard('Bounce rate', Math.round((ga.summary.bounceRate || 0) * 100) + '%')),
+            gaCard('Engagement', Math.round((ga.summary.engagementRate || 0) * 100) + '%'),
+            gaCard('Avg. engaged', gaFmtDur(ga.summary.users ? ga.summary.engagementTime / ga.summary.users : 0)),
+            gaCard('Events', nf(ga.summary.events))),
+          gaTrend(ga.trend, 'Visitors — ' + gaPeriodLabel),
           h('div', { className: 'msa-dash-grid' },
+            (ga.realtimePages && ga.realtimePages.length) ? gaList('Being viewed now', ga.realtimePages, true) : null,
             gaList('Top pages', ga.pages),
-            gaList('Channels', ga.sources),
+            gaList('Landing pages', ga.landing),
+            gaList('Channels', ga.channels),
+            gaList('Source / Medium', ga.sourceMedium),
             gaList('Countries', ga.countries),
-            gaList('Devices', ga.devices))));
+            gaList('Cities', ga.cities),
+            gaList('Devices', ga.devices),
+            gaList('Top events', ga.topEvents),
+            gaList('Languages', ga.languages))));
 
     return h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' },

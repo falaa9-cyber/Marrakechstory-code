@@ -1029,3 +1029,10 @@
 .msa-ga-section { margin-bottom: 24px; }
 .msa-ga-setup { padding: 16px; }
 .msa-ga-setup strong { display: block; margin-bottom: 4px; font-size: 14px; }
+
+/* ── GA4 visitors trend mini-chart ── */
+.msa-ga-trend { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 6px 2px 2px; }
+.msa-ga-trend-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+.msa-ga-trend-bar { width: 70%; max-width: 22px; min-height: 3px; background: linear-gradient(180deg, var(--msa-brand), #f6a08c); border-radius: 5px 5px 0 0; transition: height .3s ease; }
+.msa-ga-trend-col:hover .msa-ga-trend-bar { background: var(--msa-brand-deep, var(--msa-brand)); }
+.msa-ga-trend-lbl { font-size: 9.5px; color: var(--msa-dim); margin-top: 4px; white-space: nowrap; }
