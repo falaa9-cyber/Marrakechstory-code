@@ -1255,3 +1255,9 @@
 .msa-dash-side .msa-remind-body span { font-size: 11px; line-height: 1.35; }
 .msa-dash-side .msa-remind-meta { gap: 4px; font-size: 11px; }
 .msa-dash-side .msa-remind-meta .msa-badge { font-size: 9.5px; padding: 2px 7px; }
+
+/* Taller dashboard calendar — 4 month-columns (3 rows) so it extends down */
+.msa-dash-cal .msa-yr-grid-dash { grid-template-columns: repeat(4, 1fr) !important; gap: 24px 20px; }
+.msa-dash-cal .msa-yr-day { font-size: 11px; }
+.msa-dash-cal .msa-yr-name { font-size: 14px; }
+@media (max-width: 1100px) { .msa-dash-cal .msa-yr-grid-dash { grid-template-columns: repeat(3, 1fr) !important; } }
