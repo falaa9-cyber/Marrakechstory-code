@@ -1112,3 +1112,13 @@
 .msa-cal-act strong { font-size: 13px; color: var(--msa-ink); }
 .msa-cal-act p { margin: 1px 0 0; font-size: 12.5px; color: var(--msa-ink2); line-height: 1.45; }
 .msa-cal-prog-note { margin-top: 9px; font-size: 12.5px; color: var(--msa-ink2); background: var(--msa-bg); border-radius: 9px; padding: 7px 10px; }
+
+/* ── Upcoming-bookings countdown circles: solid colour + white number ──
+   (the number inherited the night-mode light ink and was invisible on the
+   light circle). Brand-red by default, urgency-coloured for today/soon. */
+.msa-remind-cd { color: #fff !important; border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,.14); }
+.msa-remind-cd strong, .msa-remind-cd span { color: #fff !important; }
+.msa-cd-today { background: var(--msa-green, #34c759) !important; box-shadow: 0 5px 14px rgba(52,199,89,.30) !important; }
+.msa-cd-soon  { background: #f0922e !important; box-shadow: 0 5px 14px rgba(240,146,46,.30) !important; }
+.msa-cd-far   { background: var(--msa-brand, #e0432a) !important; box-shadow: 0 5px 14px rgba(224,67,42,.30) !important; }
+.msa-cd-done  { background: #9b9ba2 !important; box-shadow: none !important; }
