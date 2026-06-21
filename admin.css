@@ -1153,3 +1153,61 @@
 .msa-ga-section .msa-kpi { padding: 15px 17px; }
 .msa-ga-section .msa-kpi-value { font-size: 22px; }
 .msa-ga-section .msa-kpi-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+/* ============================================================
+   ICON SIDEBAR · DASHBOARD RE-LAYOUT · LOGIN REDESIGN
+   ============================================================ */
+/* ── Icon-only sidebar on desktop (more room for content) ── */
+@media (min-width: 901px) {
+  .msa-sidebar { width: 76px !important; align-items: center; padding: 16px 8px !important; }
+  .msa-nav-label { display: none !important; }
+  .msa-brand span { display: none !important; }
+  .msa-brand { justify-content: center; padding: 0 0 12px !important; }
+  .msa-brand img { margin: 0 !important; }
+  .msa-nav { width: 100%; }
+  .msa-nav-btn { justify-content: center !important; padding: 12px 0 !important; position: relative; }
+  .msa-nav-badge { position: absolute; top: 4px; right: 13px; }
+  .msa-user { align-items: center; width: 100%; }
+  .msa-user-info { display: none !important; }
+  .msa-emoji-row { flex-direction: column; width: 100%; }
+  .msa-btn-block { padding: 11px 0 !important; justify-content: center; }
+  .msa-btn-block svg { margin: 0; }
+}
+/* ── Dashboard re-layout: calendar + stacked bookings/workspace ── */
+.msa-dash-main { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; align-items: start; margin-bottom: 18px; }
+.msa-dash-side { display: flex; flex-direction: column; gap: 18px; }
+.msa-dash-cal, .msa-dash-side .msa-dash-box { margin: 0; }
+.msa-dash-side .msa-dash-scroll { max-height: 280px; }
+@media (max-width: 1100px) { .msa-dash-main { grid-template-columns: 1fr; } }
+/* Smaller cost-breakdown + revenue charts */
+.msa-dash-charts .msa-card { padding: 16px 18px; }
+.msa-dash-charts .msa-bars { height: 108px; }
+/* Latest-requests widget (opens a popup) */
+.msa-dash-reqwidget { display: block; width: 100%; text-align: left; cursor: pointer; margin-bottom: 18px; }
+.msa-dash-reqwidget:hover { box-shadow: var(--msa-card-shadow-hover) !important; transform: translateY(-2px); }
+.msa-dash-reqwidget .msa-card-head { margin-bottom: 0; }
+.msa-dash-reqwidget p { font-size: 13px; }
+/* ── Login redesign (clean modal) ── */
+.msa-login-card { max-width: 380px; width: 100%; padding: 32px 28px; text-align: left; }
+.msa-login-logo-wrap { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 16px; background: var(--msa-brand); display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 8px 20px rgba(224,67,42,.30); }
+.msa-login-logo { width: 40px; height: 40px; object-fit: contain; }
+.msa-login-card h1 { font-size: 22px; text-align: center; margin: 0 0 4px; font-weight: 800; }
+.msa-login-sub { text-align: center; color: var(--msa-dim); margin: 0 0 20px; font-size: 13px; }
+.msa-login-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.msa-login-mode { padding: 12px; border-radius: 12px; border: 1px solid var(--msa-line); background: #fff; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .15s; }
+.msa-login-mode.active { border-color: var(--msa-brand); background: var(--msa-brand-soft); color: var(--msa-brand-deep); }
+.msa-login-divider { text-align: center; position: relative; margin: 4px 0 16px; color: var(--msa-dim); font-size: 12px; }
+.msa-login-divider span { background: #fff; padding: 0 10px; position: relative; z-index: 1; }
+.msa-login-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--msa-line); }
+.msa-login-card input[type=email], .msa-login-card input[type=password] { width: 100%; padding: 13px 15px; border: 1px solid var(--msa-line) !important; border-radius: 12px !important; font-size: 14px; margin-bottom: 12px; background: #fafafa !important; }
+.msa-login-card input[type=email]:focus, .msa-login-card input[type=password]:focus { border-color: var(--msa-brand) !important; background: #fff !important; outline: none; }
+.msa-login-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; font-size: 12.5px; }
+.msa-login-remember { display: flex; align-items: center; gap: 7px; color: var(--msa-dim); cursor: pointer; }
+.msa-login-remember input { width: auto !important; margin: 0 !important; }
+.msa-login-forgot { color: var(--msa-ink); font-weight: 700; text-decoration: underline; white-space: nowrap; }
+.msa-login-submit { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #1b1b20; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; transition: background .15s; }
+.msa-login-submit:hover { background: #000; }
+.msa-login-submit:disabled { opacity: .55; }
+.msa-login-notice { background: var(--msa-green-soft); color: #1c7a3f; padding: 9px 12px; border-radius: 10px; font-size: 12.5px; margin-bottom: 12px; }
+.msa-login-back { display: block; text-align: center; margin-top: 16px; color: var(--msa-dim); font-size: 12.5px; text-decoration: none; }
+.msa-login-back:hover { color: var(--msa-brand); }

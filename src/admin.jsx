@@ -139,7 +139,15 @@
     const [mode, setMode] = useState('admin');   // 'admin' | 'partner'
     const [email, setEmail] = useState(ADMIN_EMAIL); const [pass, setPass] = useState('');
     const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
-    const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setEmail(m === 'admin' ? ADMIN_EMAIL : PARTNER_HINT_EMAIL); };
+    const [remember, setRemember] = useState(true); const [notice, setNotice] = useState('');
+    const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setNotice(''); setEmail(m === 'admin' ? ADMIN_EMAIL : PARTNER_HINT_EMAIL); };
+    const forgot = async (e) => {
+      e.preventDefault(); setErr(''); setNotice('');
+      if (!email.trim()) { setErr('Enter your email first, then tap “Forgot password”.'); return; }
+      const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); return; }
+      const { error } = await sb.auth.resetPasswordForEmail(email.trim());
+      if (error) setErr(error.message); else setNotice('Password-reset email sent to ' + email.trim() + '.');
+    };
     const submit = async (e) => {
       e.preventDefault(); setErr(''); setBusy(true);
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
@@ -151,16 +159,22 @@
       onAuthed(data.user);
     };
     return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submit },
-      h('img', { src: 'assets/logo.png', alt: '', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } }),
-      h('h1', null, 'MarrakechStory'), h('p', { className: 'msa-login-sub' }, 'Operations Console'),
+      h('div', { className: 'msa-login-logo-wrap' }, h('img', { src: 'assets/logo.png', alt: 'MarrakechStory', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } })),
+      h('h1', null, 'Sign in to your account'),
+      h('p', { className: 'msa-login-sub' }, 'MarrakechStory Operations Console'),
       h('div', { className: 'msa-login-modes' },
         h('button', { type: 'button', className: 'msa-login-mode' + (mode === 'admin' ? ' active' : ''), onClick: () => pickMode('admin') }, '🛡️ Admin'),
         h('button', { type: 'button', className: 'msa-login-mode' + (mode === 'partner' ? ' active' : ''), onClick: () => pickMode('partner') }, '👤 Partner')),
+      h('div', { className: 'msa-login-divider' }, h('span', null, 'Sign in with email')),
       err && h('div', { className: 'msa-login-err' }, err),
-      h('label', null, 'Email'), h('input', { type: 'email', autoComplete: 'email', value: email, onChange: (e) => setEmail(e.target.value) }),
-      h('label', null, 'Password'), h('input', { type: 'password', autoComplete: 'current-password', value: pass, onChange: (e) => setPass(e.target.value), placeholder: '••••••••' }),
-      h('button', { type: 'submit', disabled: busy, className: 'msa-btn msa-btn-primary msa-btn-block' }, busy ? 'Signing in…' : 'Sign in'),
-      h('a', { href: '#', className: 'msa-login-back' }, '← Back to site')));
+      notice && h('div', { className: 'msa-login-notice' }, notice),
+      h('input', { type: 'email', autoComplete: 'email', placeholder: 'Email address', value: email, onChange: (e) => setEmail(e.target.value) }),
+      h('input', { type: 'password', autoComplete: 'current-password', placeholder: 'Password', value: pass, onChange: (e) => setPass(e.target.value) }),
+      h('div', { className: 'msa-login-row' },
+        h('label', { className: 'msa-login-remember' }, h('input', { type: 'checkbox', checked: remember, onChange: (e) => setRemember(e.target.checked) }), 'Remember me on this device'),
+        h('a', { href: '#', className: 'msa-login-forgot', onClick: forgot }, 'Forgot password?')),
+      h('button', { type: 'submit', disabled: busy, className: 'msa-login-submit' }, busy ? 'Signing in…' : 'Sign In'),
+      h('a', { href: '#', className: 'msa-login-back' }, '← Back to website')));
   }
 
   // ---- tiny SVG charts ----
@@ -254,6 +268,7 @@
   function Dashboard({ bookings, tasks, leads, clients, go, openBooking, reload }) {
     const isAdmin = isAdminRole();
     const [addTask, setAddTask] = useState(false);
+    const [reqPop, setReqPop] = useState(false);
     const active = bookings.filter(b => !b.archived && b.arrival_date && b.departure_date && new Date(b.arrival_date) <= startOfToday() && startOfToday() <= new Date(b.departure_date)).length;
     const future = bookings.filter(b => !b.archived && b.arrival_date && new Date(b.arrival_date) > startOfToday() && !['cancelled','completed'].includes(b.status)).sort((a, b) => new Date(a.arrival_date) - new Date(b.arrival_date));
     const past = bookings.filter(b => b.archived || ['completed','cancelled'].includes(b.status) || (b.departure_date && new Date(b.departure_date) < startOfToday())).length;
@@ -276,6 +291,19 @@
 
     return h(R.Fragment, null,
       addTask && h(TaskModal, { initial: {}, onClose: () => setAddTask(false), onSaved: () => { setAddTask(false); reload(); } }),
+      reqPop && h('div', { className: 'msa-modal-backdrop', onClick: () => setReqPop(false) },
+        h('div', { className: 'msa-modal', onClick: (e) => e.stopPropagation() },
+          h('div', { className: 'msa-modal-head' }, h('h2', null, ICON.requests(), ' Latest requests'),
+            h('div', null,
+              h('button', { className: 'msa-btn msa-btn-primary', onClick: () => { setReqPop(false); go('requests'); } }, 'Open Requests page'),
+              h('button', { className: 'msa-btn', onClick: () => setReqPop(false) }, 'Close'))),
+          h('div', { className: 'msa-modal-body' },
+            leads.length === 0 ? h('div', { className: 'msa-empty' }, 'No website requests yet.')
+              : leads.slice(0, 25).map(l => h('button', { key: l.id, className: 'msa-line-item', style: { width: '100%' }, onClick: () => { setReqPop(false); go('requests'); } },
+                  h('div', null, h('strong', null, l.name || l.email || 'Anonymous'),
+                    reqTitle(l) ? h('span', { className: 'msa-text-brand', style: { marginLeft: 6, fontWeight: 600 } }, '· ' + reqTitle(l)) : null,
+                    h('span', { className: 'msa-dim' }, ' · ' + reqKindLabel(l))),
+                  h('span', { className: 'msa-dim' }, fmtDate(l.created_at))))))),
       h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' },
         h('div', null, h('h1', null, 'Dashboard'), h('p', null, 'Status for ' + today)),
@@ -306,49 +334,37 @@
         h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Revenue by month'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
           months.length ? h(Bars, { data: months }) : h('div', { className: 'msa-empty' }, 'No dated bookings.'))) : null,
 
-      // Operations calendar — yearly overview
-      h('div', { className: 'msa-card' },
-        h(MonthCalendar, { bookings, sel: todayISO(), onSelect: () => go('calendar'), year: true }),
-        h('div', { className: 'msa-cal-legend', style: { marginTop: 12 } }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today'), h('span', null, h('i', { className: 'msa-lg msa-lg-single' }), 'Single booking'), h('span', null, h('i', { className: 'msa-lg msa-lg-multi' }), 'Multiple bookings'))),
+      // Main row — calendar (left) + upcoming bookings / workspace stacked (right)
+      h('div', { className: 'msa-dash-main' },
+        h('div', { className: 'msa-card msa-dash-cal' },
+          h(MonthCalendar, { bookings, sel: todayISO(), onSelect: () => go('calendar'), year: true }),
+          h('div', { className: 'msa-cal-legend', style: { marginTop: 12 } }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today'), h('span', null, h('i', { className: 'msa-lg msa-lg-single' }), 'Single booking'), h('span', null, h('i', { className: 'msa-lg msa-lg-multi' }), 'Multiple bookings'))),
+        h('div', { className: 'msa-dash-side' },
+          h('div', { className: 'msa-card msa-dash-box' },
+            h('div', { className: 'msa-card-head' }, h('h3', null, ICON.bell(), ' Upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All →')),
+            h('div', { className: 'msa-dash-scroll' }, future.length === 0 ? h('div', { className: 'msa-empty' }, 'No upcoming bookings.')
+              : h('div', { className: 'msa-remind-list' }, future.slice(0, 5).map(b => { const n = daysUntil(b.arrival_date); const cd = n === 0 ? 'msa-cd-today' : n <= 7 ? 'msa-cd-soon' : 'msa-cd-far';
+                  return h('button', { key: b.id, className: 'msa-remind', onClick: () => openBooking(b) },
+                    h('div', { className: 'msa-remind-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days'))),
+                    h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + (b.total_days || '?') + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
+                    h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-text-red', style: { fontWeight: 600 } }, 'Bal ' + kr(b.balance)))); })))),
+          h('div', { className: 'msa-card msa-dash-box' },
+            h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Workspace'),
+              h('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+                h('button', { className: 'msa-icon-btn', title: 'Add task', onClick: () => setAddTask(true) }, ICON.plus()),
+                h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Open →'))),
+            h('div', { className: 'msa-dash-scroll' }, openTasks.length === 0 ? h('div', { className: 'msa-empty' }, 'No shared tasks. Add one in the Workspace.')
+              : openTasks.slice(0, 6).map(t => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = n != null && n < 0; const soon = n != null && n >= 0 && n <= 2;
+                  return h('div', { key: t.id, className: 'msa-task-mini' },
+                    h('button', { className: 'msa-check msa-check-sm', title: 'Mark done', onClick: (e) => toggleTask(t, e) }, ''),
+                    h('div', { className: 'msa-task-mini-body', onClick: () => go('tasks'), style: { cursor: 'pointer' } }, h('span', null, t.title), h('span', { className: 'msa-dim ' + (overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : '') }, (t.due ? fmtDate(t.due) : 'No due') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : ''))),
+                    h('span', { className: 'msa-ws-assignee msa-ws-' + (t.assigned_to || 'team') }, assignLabel(t.assigned_to))); }))))),
 
-      // Symmetric 2×2 grid of equal boxes
-      h('div', { className: 'msa-dash-grid' },
-        h('div', { className: 'msa-card msa-dash-box' },
-          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.bell(), ' Upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All →')),
-          h('div', { className: 'msa-dash-scroll' }, future.length === 0 ? h('div', { className: 'msa-empty' }, 'No upcoming bookings.')
-            : h('div', { className: 'msa-remind-list' }, future.slice(0, 5).map(b => { const n = daysUntil(b.arrival_date); const cd = n === 0 ? 'msa-cd-today' : n <= 7 ? 'msa-cd-soon' : 'msa-cd-far';
-                return h('button', { key: b.id, className: 'msa-remind', onClick: () => openBooking(b) },
-                  h('div', { className: 'msa-remind-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days'))),
-                  h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + (b.total_days || '?') + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
-                  h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-text-red', style: { fontWeight: 600 } }, 'Bal ' + kr(b.balance)))); })))),
-
-        h('div', { className: 'msa-card msa-dash-box' },
-          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Workspace'),
-            h('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
-              h('button', { className: 'msa-icon-btn', title: 'Add task', onClick: () => setAddTask(true) }, ICON.plus()),
-              h('button', { className: 'msa-link', onClick: () => go('tasks') }, 'Open →'))),
-          h('div', { className: 'msa-dash-scroll' }, openTasks.length === 0 ? h('div', { className: 'msa-empty' }, 'No shared tasks. Add one in the Workspace.')
-            : openTasks.slice(0, 6).map(t => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = n != null && n < 0; const soon = n != null && n >= 0 && n <= 2;
-                return h('div', { key: t.id, className: 'msa-task-mini' },
-                  h('button', { className: 'msa-check msa-check-sm', title: 'Mark done', onClick: (e) => toggleTask(t, e) }, ''),
-                  h('div', { className: 'msa-task-mini-body', onClick: () => go('tasks'), style: { cursor: 'pointer' } }, h('span', null, t.title), h('span', { className: 'msa-dim ' + (overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : '') }, (t.due ? fmtDate(t.due) : 'No due') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : ''))),
-                  h('span', { className: 'msa-ws-assignee msa-ws-' + (t.assigned_to || 'team') }, assignLabel(t.assigned_to))); }))),
-
-        h('div', { className: 'msa-card msa-dash-box' },
-          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.requests(), ' Latest requests'), h('button', { className: 'msa-link', onClick: () => go('requests') }, 'All →')),
-          h('div', { className: 'msa-dash-scroll' }, newRequests.length === 0 ? h('div', { className: 'msa-empty' }, 'No website requests yet.')
-            : newRequests.map(l => h('button', { key: l.id, className: 'msa-line-item', onClick: () => go('requests') },
-                h('div', null, h('strong', null, l.name || l.email || 'Anonymous'),
-                  reqTitle(l) ? h('span', { className: 'msa-text-brand', style: { marginLeft: 6, fontWeight: 600 } }, '· ' + reqTitle(l)) : null,
-                  h('span', { className: 'msa-dim' }, ' · ' + reqKindLabel(l))),
-                h('span', { className: 'msa-dim' }, fmtDate(l.created_at)))))),
-
-        h('div', { className: 'msa-card msa-dash-box' },
-          h('div', { className: 'msa-card-head' }, h('h3', null, ICON.clients(), ' Top clients'), h('button', { className: 'msa-link', onClick: () => go('clients') }, 'All →')),
-          h('div', { className: 'msa-dash-scroll' }, clients.length === 0 ? h('div', { className: 'msa-empty' }, 'No clients yet.')
-            : clients.slice().sort((a, b) => (+b.total_spent || 0) - (+a.total_spent || 0)).slice(0, 5).map(c => h('button', { key: c.id, className: 'msa-line-item', onClick: () => go('clients') },
-                h('div', null, h('span', { className: 'msa-avatar msa-avatar-sm' }, (c.name || '?').slice(0, 1).toUpperCase()), h('strong', { style: { marginLeft: 8 } }, c.name)),
-                isAdmin ? h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(c.total_spent)) : h('span', { className: 'msa-dim' }, (c.trips || 0) + ' trips')))))),
+      // Latest requests — compact widget that opens a popup
+      h('button', { className: 'msa-card msa-dash-reqwidget', onClick: () => setReqPop(true) },
+        h('div', { className: 'msa-card-head' }, h('h3', null, ICON.requests(), ' Latest requests'),
+          h('span', { className: 'msa-badge ' + (newRequests.length ? 'msa-st-new' : 'msa-cd-done') }, newRequests.length + ' new')),
+        h('p', { className: 'msa-dim', style: { margin: '5px 0 0' } }, newRequests.length ? 'Click to view all — then open any request →' : 'No website requests yet.')),
       // Team activity — moved to the bottom of the dashboard
       isAdmin ? h(TeamActivity, {}) : null));
   }
@@ -1674,13 +1690,13 @@
       h('div', { className: 'msa-nav-overlay', onClick: () => setNavOpen(false) }),
       h('aside', { className: 'msa-sidebar' },
         h('div', { className: 'msa-brand' }, h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }), h('span', null, 'MarrakechStory'), h('button', { className: 'msa-drawer-close', onClick: () => setNavOpen(false) }, ICON.x())),
-        h('nav', { className: 'msa-nav' }, visibleTabs.map(([id, label, icon]) => h('button', { key: id, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label), (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))),
+        h('nav', { className: 'msa-nav' }, visibleTabs.map(([id, label, icon]) => h('button', { key: id, title: label, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label), (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))),
         h('div', { className: 'msa-user' },
           h('div', { className: 'msa-emoji-row' },
             h('button', { className: 'msa-emoji-btn', onClick: () => setDark(d => !d), title: dark ? 'Light mode' : 'Night mode' }, dark ? '☀️' : '🌙'),
             h('a', { className: 'msa-emoji-btn', href: '#', onClick: () => setNavOpen(false), title: 'Back to website' }, '🌐')),
           h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || (isAdmin ? 'Aladdin faiz' : 'Partner')), h('span', { className: 'msa-dim' }, isAdmin ? 'Administrator' : 'Partner · assistant')),
-          h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout }, ICON.logout(), 'Log out'))),
+          h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout, title: 'Log out' }, ICON.logout(), h('span', { className: 'msa-nav-label' }, 'Log out')))),
       h('main', { className: 'msa-main' }, body()));
   }
 
