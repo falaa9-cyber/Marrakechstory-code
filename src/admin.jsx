@@ -307,7 +307,9 @@
       h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' },
         h('div', null, h('h1', null, 'Dashboard'), h('p', null, 'Status for ' + today)),
-        h('button', { className: 'msa-btn msa-btn-primary', onClick: () => openBooking({}) }, ICON.plus(), 'New Booking')),
+        h('div', { className: 'msa-head-actions' },
+          h('button', { className: 'msa-notif-btn', onClick: () => setReqPop(true), title: 'Latest requests' }, ICON.requests(), newRequests.length > 0 ? h('span', { className: 'msa-notif-badge' }, newRequests.length) : null),
+          h('button', { className: 'msa-btn msa-btn-primary', onClick: () => openBooking({}) }, ICON.plus(), 'New Booking'))),
 
       // Top section — 4 equal stat boxes
       h('div', { className: 'msa-dash-top' },
@@ -360,11 +362,6 @@
                     h('div', { className: 'msa-task-mini-body', onClick: () => go('tasks'), style: { cursor: 'pointer' } }, h('span', null, t.title), h('span', { className: 'msa-dim ' + (overdue ? 'msa-text-red' : soon ? 'msa-text-orange' : '') }, (t.due ? fmtDate(t.due) : 'No due') + (overdue ? ' · Overdue' : soon ? ' · Due soon' : ''))),
                     h('span', { className: 'msa-ws-assignee msa-ws-' + (t.assigned_to || 'team') }, assignLabel(t.assigned_to))); }))))),
 
-      // Latest requests — compact widget that opens a popup
-      h('button', { className: 'msa-card msa-dash-reqwidget', onClick: () => setReqPop(true) },
-        h('div', { className: 'msa-card-head' }, h('h3', null, ICON.requests(), ' Latest requests'),
-          h('span', { className: 'msa-badge ' + (newRequests.length ? 'msa-st-new' : 'msa-cd-done') }, newRequests.length + ' new')),
-        h('p', { className: 'msa-dim', style: { margin: '5px 0 0' } }, newRequests.length ? 'Click to view all — then open any request →' : 'No website requests yet.')),
       // Team activity — moved to the bottom of the dashboard
       isAdmin ? h(TeamActivity, {}) : null));
   }

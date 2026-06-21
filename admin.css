@@ -1211,3 +1211,47 @@
 .msa-login-notice { background: var(--msa-green-soft); color: #1c7a3f; padding: 9px 12px; border-radius: 10px; font-size: 12.5px; margin-bottom: 12px; }
 .msa-login-back { display: block; text-align: center; margin-top: 16px; color: var(--msa-dim); font-size: 12.5px; text-decoration: none; }
 .msa-login-back:hover { color: var(--msa-brand); }
+
+/* ============================================================
+   Hover sidebar · bigger calendar · header notification ·
+   private money KPIs · compact upcoming bookings
+   ============================================================ */
+/* ── Sidebar: icon rail that expands on hover (overlays content, no reflow) ── */
+@media (min-width: 901px) {
+  .msa-sidebar { position: absolute; left: 0; top: 0; bottom: 0; width: 76px !important; z-index: 60; transition: width .2s ease, box-shadow .2s ease; }
+  .msa-main { margin-left: 76px; }
+  .msa-sidebar:hover { width: 244px !important; align-items: stretch !important; box-shadow: 10px 0 36px rgba(20,16,30,.16); }
+  .msa-sidebar:hover .msa-nav-label { display: inline-block !important; }
+  .msa-sidebar:hover .msa-user-info { display: block !important; }
+  .msa-sidebar:hover .msa-brand span { display: inline !important; }
+  .msa-sidebar:hover .msa-brand { justify-content: flex-start; padding: 0 6px 12px !important; }
+  .msa-sidebar:hover .msa-nav-btn { justify-content: flex-start !important; padding: 10px 14px !important; }
+  .msa-sidebar:hover .msa-nav-badge { position: static; }
+  .msa-sidebar:hover .msa-emoji-row { flex-direction: row; }
+  .msa-sidebar:hover .msa-btn-block { justify-content: flex-start; padding: 11px 14px !important; }
+}
+/* ── Bigger calendar in the dashboard main row ── */
+.msa-dash-main { grid-template-columns: 1.95fr 1fr; }
+.msa-dash-cal .msa-cal-grid, .msa-dash-cal .msa-yr-grid { font-size: 12px; }
+/* ── Header: latest-requests notification button next to New Booking ── */
+.msa-head-actions { display: flex; align-items: center; gap: 10px; }
+.msa-notif-btn { position: relative; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--msa-line); background: var(--msa-card); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--msa-ink); transition: background .15s, transform .1s; }
+.msa-notif-btn:hover { background: rgba(120,110,140,.10); }
+.msa-notif-btn:active { transform: scale(.93); }
+.msa-notif-btn svg { width: 18px; height: 18px; }
+.msa-notif-badge { position: absolute; top: -4px; right: -4px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--msa-brand); color: #fff; font-size: 10.5px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(224,67,42,.45); }
+/* ── Private money KPIs: blurred until hovered ── */
+.msa-kpi-income .msa-kpi-value, .msa-kpi-cost .msa-kpi-value, .msa-kpi-benefit .msa-kpi-value {
+  filter: blur(9px); transition: filter .22s ease; cursor: pointer; user-select: none;
+}
+.msa-kpi-income:hover .msa-kpi-value, .msa-kpi-cost:hover .msa-kpi-value, .msa-kpi-benefit:hover .msa-kpi-value { filter: none; }
+/* ── Compact upcoming-bookings rows (fit everything cleanly) ── */
+.msa-dash-side .msa-dash-scroll { max-height: 340px; }
+.msa-dash-side .msa-remind { padding: 8px 10px; gap: 10px; }
+.msa-dash-side .msa-remind-cd { width: 44px; height: 44px; flex: 0 0 44px; }
+.msa-dash-side .msa-remind-cd strong { font-size: 15px; }
+.msa-dash-side .msa-remind-cd span { font-size: 8px; }
+.msa-dash-side .msa-remind-body strong { font-size: 12.5px; }
+.msa-dash-side .msa-remind-body span { font-size: 11px; line-height: 1.35; }
+.msa-dash-side .msa-remind-meta { gap: 4px; font-size: 11px; }
+.msa-dash-side .msa-remind-meta .msa-badge { font-size: 9.5px; padding: 2px 7px; }
