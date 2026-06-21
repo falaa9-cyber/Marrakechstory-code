@@ -1122,3 +1122,34 @@
 .msa-cd-soon  { background: #f0922e !important; box-shadow: 0 5px 14px rgba(240,146,46,.30) !important; }
 .msa-cd-far   { background: var(--msa-brand, #e0432a) !important; box-shadow: 0 5px 14px rgba(224,67,42,.30) !important; }
 .msa-cd-done  { background: #9b9ba2 !important; box-shadow: none !important; }
+
+/* ============================================================
+   FINANCIAL-DASHBOARD reference styling — warm-grey canvas, very
+   rounded cards, circular icon buttons, pill buttons. Brand-coral
+   accent (matches the reference orange).
+   ============================================================ */
+:root { --msa-bg: #e9e8ea; --msa-radius: 24px; }
+#ms-admin-root.msa-dark { --msa-bg: #111113; }
+/* Rounder cards */
+.msa-card, .msa-table-card, .msa-fin-card, .msa-client-card, .msa-mini-card,
+.msa-kpi, .msa-modal, .msa-searchbar, .msa-filterbar { border-radius: 24px !important; }
+.msa-bk, .msa-remind, .msa-cl-bk { border-radius: 20px !important; }
+/* Circular icon buttons (+, search, etc. like the reference) */
+.msa-icon-btn { border-radius: 50% !important; }
+/* Pill action buttons */
+.msa-btn { border-radius: 999px !important; }
+.msa-btn-primary { box-shadow: 0 8px 20px rgba(224,67,42,.28); }
+/* Sidebar emoji buttons (night mode + back to website) */
+.msa-emoji-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.msa-emoji-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; height: 42px; font-size: 19px; line-height: 1; border: 1px solid var(--msa-line); border-radius: 16px; background: var(--msa-card); cursor: pointer; text-decoration: none; transition: background .15s, transform .1s; }
+.msa-emoji-btn:hover { background: rgba(120,110,140,.10); }
+.msa-emoji-btn:active { transform: scale(.94); }
+/* Smaller, uniform Google Analytics boxes */
+.msa-ga-section .msa-dash-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)) !important; gap: 14px !important; }
+.msa-ga-section .msa-dash-box { border-radius: 18px !important; }
+.msa-ga-section .msa-dash-box .msa-card-head h3 { font-size: 14px; }
+.msa-ga-section .msa-dash-scroll { max-height: 172px; }
+.msa-ga-section .msa-line-item { padding: 6px 0; font-size: 12.5px; }
+.msa-ga-section .msa-kpi { padding: 15px 17px; }
+.msa-ga-section .msa-kpi-value { font-size: 22px; }
+.msa-ga-section .msa-kpi-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
