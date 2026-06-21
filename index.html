@@ -91,9 +91,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=301" />
-  <link rel="stylesheet" href="apple-redesign.css?v=301" />
-  <link rel="stylesheet" href="admin.css?v=301" />
+  <link rel="stylesheet" href="styles.css?v=302" />
+  <link rel="stylesheet" href="apple-redesign.css?v=302" />
+  <link rel="stylesheet" href="admin.css?v=302" />
 
   <!-- Google Analytics 4 (Measurement ID G-2KQ6SRF86C) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2KQ6SRF86C"></script>
@@ -160,50 +160,45 @@
     @keyframes msLineIn { 0% { width: 0; opacity: 0; } 100% { width: 170px; opacity: 1; } }
     @keyframes msOrbA { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(6vmax,4vmax) scale(1.1); } }
     @keyframes msOrbB { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5vmax,-4vmax) scale(1.12); } }
-    /* 3D floating travel graphics */
-    .ms-intro-sky { position: absolute; inset: 0; z-index: 1; pointer-events: none; perspective: 760px; transform-style: preserve-3d; }
-    .ms-intro-emoji { position: absolute; font-size: clamp(24px, 3.6vw, 44px); line-height: 1; opacity: 0; will-change: transform, opacity;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,.5)); transform-style: preserve-3d;
-      animation: msEmojiIn 1.1s ease-out var(--d, 0s) both, msFloat3d var(--dur, 9s) ease-in-out var(--d, 0s) infinite; }
-    @keyframes msEmojiIn { 0% { opacity: 0; transform: scale(.4) translateZ(-120px); } 100% { opacity: .92; transform: scale(1) translateZ(0); } }
-    @keyframes msFloat3d {
-      0%   { transform: translate3d(0,0,0)        rotateY(0deg)   rotateX(0deg);   }
-      25%  { transform: translate3d(16px,-26px,50px) rotateY(22deg)  rotateX(9deg);  }
-      50%  { transform: translate3d(-12px,-10px,-40px) rotateY(-18deg) rotateX(-7deg); }
-      75%  { transform: translate3d(10px,20px,24px) rotateY(14deg)  rotateX(6deg);  }
-      100% { transform: translate3d(0,0,0)        rotateY(0deg)   rotateX(0deg);   }
-    }
-    /* the plane gets its own flight path across the sky */
-    .ms-intro-plane { position: absolute; top: 16%; left: -12%; font-size: clamp(26px, 3.8vw, 46px); opacity: 0;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,.5)); animation: msPlaneFly 9s linear .4s infinite; }
-    @keyframes msPlaneFly {
-      0%   { opacity: 0; transform: translate3d(0,0,0) rotate(8deg); }
-      8%   { opacity: .95; }
-      92%  { opacity: .95; }
-      100% { opacity: 0; transform: translate3d(128vw,-22vh,0) rotate(8deg); }
-    }
+    /* ── Elegant Moroccan line-art motifs (replaces emojis) ── */
+    .ms-intro-flight { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+    .ms-intro-path { position: absolute; top: 11%; left: 0; width: 100%; height: 38%; }
+    .ms-intro-path path { fill: none; stroke: #e3b483; stroke-width: 1.3; stroke-dasharray: 3 8; opacity: .38; stroke-dashoffset: 1700; animation: msDraw 3.6s ease-out .5s both; }
+    @keyframes msDraw { to { stroke-dashoffset: 0; } }
+    .ms-intro-plane { position: absolute; top: 11%; left: -9%; width: 32px; height: 32px; fill: none; stroke: #f3ddc4; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; filter: drop-shadow(0 6px 16px rgba(0,0,0,.5)); animation: msPlaneFly 9.5s cubic-bezier(.42,0,.58,1) .7s infinite; }
+    @keyframes msPlaneFly { 0% { opacity: 0; transform: translate(0,52px) rotate(16deg); } 12% { opacity: .95; } 88% { opacity: .95; } 100% { opacity: 0; transform: translate(120vw,-52px) rotate(16deg); } }
+    .ms-intro-sky { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+    .ms-intro-motif { position: absolute; opacity: 0; will-change: opacity, transform; animation: msMotifIn 1.5s cubic-bezier(.16,.72,.18,1) var(--d, 0s) both; }
+    @keyframes msMotifIn { 0% { opacity: 0; transform: translateY(24px) scale(.78); } 100% { opacity: .92; transform: translateY(0) scale(1); } }
+    .ms-intro-art { display: block; width: var(--s, 56px); height: var(--s, 56px); fill: none; stroke: #e7b277; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 8px 20px rgba(0,0,0,.45)); animation: msFloatArt var(--dur, 12s) ease-in-out var(--d, 0s) infinite; }
+    .ms-intro-art.dim { stroke: #cf9a57; opacity: .72; }
+    @keyframes msFloatArt { 0%, 100% { transform: translate3d(0,0,0) rotate(0deg); } 30% { transform: translate3d(7px,-15px,0) rotate(2.5deg); } 60% { transform: translate3d(-6px,-8px,0) rotate(-2.5deg); } }
+    .ms-intro-art.spin { animation: msSpinArt var(--dur, 34s) linear var(--d, 0s) infinite; transform-origin: 50% 50%; }
+    @keyframes msSpinArt { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) {
       .ms-intro-logo, .ms-intro-word, .ms-intro-line, .ms-intro-glow, #ms-intro::before, #ms-intro::after,
-      .ms-intro-emoji, .ms-intro-plane { animation: none !important; }
+      .ms-intro-motif, .ms-intro-art, .ms-intro-plane, .ms-intro-path path { animation: none !important; }
       .ms-intro-word { opacity: 1; letter-spacing: .045em; } .ms-intro-line { width: 170px; opacity: 1; } .ms-intro-glow { opacity: .5; }
-      .ms-intro-emoji { opacity: .9; } .ms-intro-plane { opacity: .9; left: 16%; }
+      .ms-intro-motif { opacity: .85; } .ms-intro-plane { opacity: .85; left: 20%; } .ms-intro-path path { stroke-dashoffset: 0; opacity: .32; }
     }
   </style>
 </head>
 <body>
   <div id="ms-intro" aria-hidden="true">
+    <div class="ms-intro-flight">
+      <svg class="ms-intro-path" viewBox="0 0 1000 200" preserveAspectRatio="none"><path d="M-30 150 Q 420 8 1030 78"/></svg>
+      <svg class="ms-intro-plane" viewBox="0 0 24 24"><path d="M2 12 L22 3 L15 21 L12 13 Z"/><path d="M12 13 L22 3"/></svg>
+    </div>
     <div class="ms-intro-sky">
-      <span class="ms-intro-emoji" style="top:21%; left:11%;  --d:.15s; --dur:8.5s;">🐪</span>
-      <span class="ms-intro-emoji" style="top:19%; right:13%; --d:.45s; --dur:9.5s;">🕌</span>
-      <span class="ms-intro-emoji" style="bottom:18%; left:15%; --d:.7s; --dur:10s;">🚐</span>
-      <span class="ms-intro-emoji" style="bottom:21%; right:16%; --d:.3s; --dur:9s;">🧳</span>
-      <span class="ms-intro-emoji" style="top:40%; left:6%;  --d:.9s; --dur:11s;">🧭</span>
-      <span class="ms-intro-emoji" style="top:44%; right:7%; --d:.55s; --dur:10.5s;">🌴</span>
-      <span class="ms-intro-emoji" style="top:11%; left:43%; --d:1.05s; --dur:9.2s;">☀️</span>
-      <span class="ms-intro-emoji" style="bottom:9%; left:41%; --d:.8s; --dur:10.8s;">🏜️</span>
-      <span class="ms-intro-emoji" style="bottom:27%; left:30%; --d:1.2s; --dur:9.8s;">🐫</span>
-      <span class="ms-intro-emoji" style="bottom:30%; right:28%; --d:.65s; --dur:11.4s;">🛺</span>
-      <span class="ms-intro-plane">✈️</span>
+      <span class="ms-intro-motif" style="top:17%; left:10%; --d:.25s"><svg class="ms-intro-art" style="--s:56px;--dur:11s" viewBox="0 0 24 24"><path d="M12 1.4 V2.8 M9.3 3.6 H14.7 L14.2 5 H9.8 Z M9.7 5 H14.3 L15.6 8 L14.3 16.4 H9.7 L8.4 8 Z M12 5 V16.4 M10.1 8 H13.9 M11.3 16.4 H12.7 L12.4 18.4 H11.6 Z M12 18.4 V19.8"/></svg></span>
+      <span class="ms-intro-motif" style="top:15%; right:11%; --d:.55s"><svg class="ms-intro-art" style="--s:62px;--dur:12.5s" viewBox="0 0 24 24"><path d="M8 22 V7 H16 V22 M8 12 H16 M8 16 H16 M9.5 7 V4 H14.5 V7 M11 4 V2.6 H13 V4 M12 2.6 V1.4"/><circle cx="12" cy="1" r=".85"/></svg></span>
+      <span class="ms-intro-motif" style="bottom:15%; left:13%; --d:.75s"><svg class="ms-intro-art" style="--s:66px;--dur:10.6s" viewBox="0 0 24 24"><path d="M12 22 C11.6 18 11.8 14.5 12 11.2 M12 11.2 C9 10 5.2 10.6 2.6 12.6 M12 11.2 C15 10 18.8 10.6 21.4 12.6 M12 11.2 C10 8.2 7.6 5.6 5.2 4.6 M12 11.2 C14 8.2 16.4 5.6 18.8 4.6 M12 11.2 C11.6 8 11.6 5.4 12 3.4 M12 11.2 C12.6 8.4 13.2 6 13.8 4.2"/></svg></span>
+      <span class="ms-intro-motif" style="bottom:17%; right:13%; --d:.4s"><svg class="ms-intro-art" style="--s:60px;--dur:11.8s" viewBox="0 0 24 24"><path d="M3 22 H21 M5 22 V13 C5 7.5 8 5 12 5 C16 5 19 7.5 19 13 V22 M9 22 V14.5 C9 11.5 10.2 10.5 12 10.5 C13.8 10.5 15 11.5 15 14.5 V22"/></svg></span>
+      <span class="ms-intro-motif" style="top:39%; left:5%; --d:1s"><svg class="ms-intro-art spin dim" style="--s:38px;--dur:34s" viewBox="0 0 24 24"><path d="M12 2 L13.5 9 L19 5 L15 10.5 L22 12 L15 13.5 L19 19 L13.5 15 L12 22 L10.5 15 L5 19 L9 13.5 L2 12 L9 10.5 L5 5 L10.5 9 Z"/></svg></span>
+      <span class="ms-intro-motif" style="top:45%; right:6%; --d:.65s"><svg class="ms-intro-art spin dim" style="--s:32px;--dur:42s" viewBox="0 0 24 24"><path d="M12 2 L13.5 9 L19 5 L15 10.5 L22 12 L15 13.5 L19 19 L13.5 15 L12 22 L10.5 15 L5 19 L9 13.5 L2 12 L9 10.5 L5 5 L10.5 9 Z"/></svg></span>
+      <span class="ms-intro-motif" style="bottom:7%; left:39%; --d:1.1s"><svg class="ms-intro-art dim" style="--s:96px;--dur:13s" viewBox="0 0 48 24"><path d="M2 21 L13 6 L20 14 L27 4 L34 13 L46 21 Z M13 6 L16 9.5 M27 4 L24.2 8 M34 13 L31.3 9.6"/></svg></span>
+      <span class="ms-intro-motif" style="top:11%; left:45%; --d:1.2s"><svg class="ms-intro-art dim" style="--s:36px;--dur:12s" viewBox="0 0 24 24"><path d="M17.5 3.2 A10 10 0 1 0 21.5 16.5 A7.6 7.6 0 0 1 17.5 3.2 Z M6 5 l.55 1.4 1.45 .15 -1.1 1 .35 1.45 -1.25 -.8 -1.25 .8 .35 -1.45 -1.1 -1 1.45 -.15 z"/></svg></span>
+      <span class="ms-intro-motif" style="bottom:27%; left:27%; --d:1.3s"><svg class="ms-intro-art" style="--s:58px;--dur:10.8s" viewBox="0 0 28 24"><path d="M3 17 C3 15.4 4.4 15 5.4 15.7 C5.9 12.8 7.7 12.8 8.2 15.7 C9.5 15.2 11.1 15.2 11.7 15.7 C12.3 12.9 14.1 12.9 14.6 15.7 C17.6 15.7 18.6 13 18.6 10 C18.6 8.7 19.1 8.1 20.1 8.1 L20.8 9 L19.5 10 M5.4 17 V21 M8.2 17 V21 M11.3 17 V21 M14.6 17 V21 M3 17 L1.7 19.3"/></svg></span>
     </div>
     <div class="ms-intro-stage">
       <div class="ms-intro-logo-wrap"><span class="ms-intro-glow"></span><img class="ms-intro-logo" src="assets/logo.png" alt="MarrakechStory" /></div>
@@ -294,34 +289,34 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
 
   <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
-  <script src="src/env.js?v=301"></script>
-  <script src="src/supabase.js?v=301"></script>
-  <script src="src/data.js?v=301"></script>
+  <script src="src/env.js?v=302"></script>
+  <script src="src/supabase.js?v=302"></script>
+  <script src="src/data.js?v=302"></script>
 
   <!--
     JSX modules. All bumped to the same cache version on every release
     so a stale CDN copy never co-exists with a fresh one.
   -->
-  <script type="text/babel" src="src/i18n.jsx?v=301"></script>
-  <script type="text/babel" src="src/icons.jsx?v=301"></script>
-  <script type="text/babel" src="src/motion.jsx?v=301"></script>
-  <script type="text/babel" src="src/hero.jsx?v=301"></script>
-  <script type="text/babel" src="src/insta-phone.jsx?v=301"></script>
-  <script type="text/babel" src="src/hero-tabs.jsx?v=301"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=301"></script>
-  <script type="text/babel" src="src/listing-detail.jsx?v=301"></script>
-  <script type="text/babel" src="src/itineraries.jsx?v=301"></script>
-  <script type="text/babel" src="src/booking.jsx?v=301"></script>
-  <script type="text/babel" src="src/catalog.jsx?v=301"></script>
-  <script type="text/babel" src="src/form.jsx?v=301"></script>
-  <script type="text/babel" src="src/extras.jsx?v=301"></script>
-  <script type="text/babel" src="src/extras2.jsx?v=301"></script>
-  <script type="text/babel" src="src/weather.jsx?v=301"></script>
-  <script type="text/babel" src="src/auth.jsx?v=301"></script>
-  <script type="text/babel" src="src/reviews.jsx?v=301"></script>
-  <script type="text/babel" src="src/app.jsx?v=301"></script>
-  <script type="text/babel" src="src/admin.jsx?v=301"></script>
-  <script type="text/babel" src="src/apple-fx.jsx?v=301"></script>
+  <script type="text/babel" src="src/i18n.jsx?v=302"></script>
+  <script type="text/babel" src="src/icons.jsx?v=302"></script>
+  <script type="text/babel" src="src/motion.jsx?v=302"></script>
+  <script type="text/babel" src="src/hero.jsx?v=302"></script>
+  <script type="text/babel" src="src/insta-phone.jsx?v=302"></script>
+  <script type="text/babel" src="src/hero-tabs.jsx?v=302"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=302"></script>
+  <script type="text/babel" src="src/listing-detail.jsx?v=302"></script>
+  <script type="text/babel" src="src/itineraries.jsx?v=302"></script>
+  <script type="text/babel" src="src/booking.jsx?v=302"></script>
+  <script type="text/babel" src="src/catalog.jsx?v=302"></script>
+  <script type="text/babel" src="src/form.jsx?v=302"></script>
+  <script type="text/babel" src="src/extras.jsx?v=302"></script>
+  <script type="text/babel" src="src/extras2.jsx?v=302"></script>
+  <script type="text/babel" src="src/weather.jsx?v=302"></script>
+  <script type="text/babel" src="src/auth.jsx?v=302"></script>
+  <script type="text/babel" src="src/reviews.jsx?v=302"></script>
+  <script type="text/babel" src="src/app.jsx?v=302"></script>
+  <script type="text/babel" src="src/admin.jsx?v=302"></script>
+  <script type="text/babel" src="src/apple-fx.jsx?v=302"></script>
 
   <!-- ── Auto-syncing trip structured data (TouristTrip ItemList from live data) ── -->
   <script>
