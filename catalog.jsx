@@ -211,7 +211,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
   const L = {
     id: "cat-" + tab + "-" + slug, lang, onClose,
     title: localize(item.name, lang) + (tab === 'camps' && Array.isArray(item.rooms) && item.rooms.length ? ' · ' + tx('Accommodation', 'Overnatting', 'Hébergement', 'Boende') : ''),
-    subtitle: [area, (item.style && !String(area || "").includes(localize(item.style, lang))) ? localize(item.style, lang) : null].filter(Boolean).join(" · "),
+    subtitle: [area, localize(item.style, lang)].filter(Boolean).join(" · "),
     metaDots: [localize(item.tag, lang), priceFrom ? tx("from","fra","dès") + " " + priceFrom : null].filter(Boolean),
     badge: localize(item.tag || item.style, lang),
     trust: tx("Hand-picked by Marrakech Story · we book & confirm for you · 24/7 support","Håndplukket av Marrakech Story · vi booker & bekrefter for deg · 24/7 støtte","Sélectionné par Marrakech Story · nous réservons & confirmons pour vous · assistance 24/7"),
@@ -233,7 +233,7 @@ function CatalogModal({ item, tab, onClose, lang }) {
       rules: { title: tx("Good to know","Verdt å vite","Bon à savoir"), items: localizeList(item.practical, lang) },
       safety: { title: tx("Booking & trust","Booking & trygghet","Réservation & confiance"), items: [tx("We confirm availability directly with the venue.","Vi bekrefter tilgjengelighet direkte med stedet.","Nous confirmons la disponibilité directement avec l’établissement."), tx("No online payment — pay on site or as agreed.","Ingen nettbetaling — betal på stedet eller som avtalt.","Pas de paiement en ligne — sur place ou comme convenu."), tx("24/7 WhatsApp support — Aladdin & Marte.","24/7 WhatsApp-støtte — Aladdin & Marte.","Assistance WhatsApp 24/7 — Aladdin & Marte.")] },
     } : null,
-    price: { from: priceFrom || tx("On request","På forespørsel","Sur demande"), per: tab === 'hotels' ? tx("/ night","/ natt","/ nuit","/ natt") : tx("/ person","/ person","/ personne") },
+    price: { from: priceFrom || tx("On request","På forespørsel","Sur demande"), per: tx("/ person","/ person","/ personne") },
     banner: tx("We book it for you","Vi booker for deg","Nous réservons pour vous"),
     breadcrumb: ["Morocco", area ? area.split("·")[0].trim() : "Marrakech", localize(item.name, lang)],
     reserveLabel: tx("Send reservation","Send reservasjon","Envoyer la réservation"),
