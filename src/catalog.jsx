@@ -37,7 +37,7 @@ const MS_CAT_LOCAL = {
   pools:       'assets/act-agafay-pool.jpg',
   excursions:  'assets/hero-ourika.jpg',
   transport:   'assets/hero-medina.jpg',
-  hotels:      'assets/photos/riad-pool-dusk-01.jpg',
+  hotels:      'assets/catalog/hotels/coming-soon.svg',
 };
 
 // Resolver: try real photo at canonical path first, then AI placeholder, then existing Unsplash URL.
@@ -45,6 +45,14 @@ const MS_CAT_LOCAL = {
 function msResolveImg(tab, item) {
   const dir = MS_CAT_DIR[tab] || tab;
   const slug = item.slug || msSlugify(item.name);
+  // Hotels must NEVER use a local/stock placeholder photo. Use only the
+  // official image URL supplied per-hotel; if absent or broken, fall back to
+  // a neutral branded "photo coming soon" tile — not a generic Morocco photo.
+  if (tab === 'hotels') {
+    const ph = 'assets/catalog/hotels/coming-soon.svg';
+    const primary = item.img ? item.img : ph;
+    return { primary, placeholder: ph, remote: ph, slug };
+  }
   const real = `assets/catalog/${dir}/${slug}.jpg`;
   const placeholder = `assets/catalog/placeholder_ai/${dir}/${slug}/hero.jpg`;
   const remote = item.img;
