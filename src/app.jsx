@@ -281,6 +281,7 @@ function AppInner() {
     <>
       <Nav />
       <window.MS_HeroSlider />
+      {window.MS_SeasonTrip && <window.MS_SeasonTrip />}
       <window.MS_Itineraries />
       <window.MS_Catalog />
       <window.MS_Form />
