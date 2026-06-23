@@ -24,6 +24,7 @@ const MS_CAT_DIR = {
   pools: 'pools',
   excursions: 'excursions',
   transport: 'transport',
+  hotels: 'hotels',
 };
 
 // Final local fallback per category — guaranteed-present files in assets/.
@@ -36,6 +37,7 @@ const MS_CAT_LOCAL = {
   pools:       'assets/act-agafay-pool.jpg',
   excursions:  'assets/hero-ourika.jpg',
   transport:   'assets/hero-medina.jpg',
+  hotels:      'assets/photos/riad-pool-dusk-01.jpg',
 };
 
 // Resolver: try real photo at canonical path first, then AI placeholder, then existing Unsplash URL.
