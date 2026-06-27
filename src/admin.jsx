@@ -95,6 +95,95 @@
   const ACTIVITY_TYPES = ['Transport','Airport Transfer','Private Driver','Check-in','Check-out','Guided Tour','City Tour','Medina Tour','Ourika Valley','Atlas Mountains','Agafay Day Pass','Agafay Dinner','Desert Camp','Sahara Trip','Essaouira Day Trip','Cooking Class','Hot Air Balloon','Paragliding','Quad/Buggy','Camel Ride','Horse Riding','Jet Ski','Surfing','Boat Trip','Golf','Waterfalls Trip','Shopping Tour','Photography Tour','Restaurant','Breakfast','Lunch','Dinner','Show / Entertainment','Spa/Hammam','Massage','Pool Day','Free Time','Other'];
   const SUP_TYPES = [['hotel','Hotel / Riad'],['driver','Transport / Driver'],['guide','Guide'],['camp','Desert Camp'],['activity','Activity Provider']];
   const PAYMENT_METHODS = ['Bank Transfer', 'Revolut', 'Wise', 'PayPal', 'Cash', 'NOK Bank', 'MAD Bank'];
+  // ── Document languages (matches the public site: Norsk, English, Svenska, Français, Deutsch) ──
+  const DOC_LANGS = [['no', 'Norsk'], ['en', 'English'], ['sv', 'Svenska'], ['fr', 'Français'], ['de', 'Deutsch']];
+  const DOC_LOCALE = { no: 'nb-NO', en: 'en-GB', sv: 'sv-SE', fr: 'fr-FR', de: 'de-DE' };
+  const DOC_TR = {
+    itin_kicker: { no: "Privat reiseplan", en: "Private travel itinerary", sv: "Privat resplan", fr: "Itinéraire privé", de: "Private Reiseroute" },
+    itin_title: { no: "Reiseplan", en: "Itinerary", sv: "Resplan", fr: "Itinéraire", de: "Reiseplan" },
+    for: { no: "For", en: "For", sv: "För", fr: "Pour", de: "Für" },
+    trip: { no: "Reise", en: "Trip", sv: "Resa", fr: "Voyage", de: "Reise" },
+    dates: { no: "Datoer", en: "Dates", sv: "Datum", fr: "Dates", de: "Daten" },
+    travelers: { no: "Reisende", en: "Travellers", sv: "Resenärer", fr: "Voyageurs", de: "Reisende" },
+    ref: { no: "Ref", en: "Ref", sv: "Ref", fr: "Réf", de: "Ref" },
+    persons: { no: "personer", en: "travellers", sv: "personer", fr: "voyageurs", de: "Personen" },
+    nights: { no: "netter", en: "nights", sv: "nätter", fr: "nuits", de: "Nächte" },
+    day: { no: "Dag", en: "Day", sv: "Dag", fr: "Jour", de: "Tag" },
+    no_itin: { no: "Ingen dagsplan lagt til ennå.", en: "No daily itinerary added yet.", sv: "Inget dagsprogram tillagt ännu.", fr: "Aucun programme journalier ajouté.", de: "Noch kein Tagesprogramm hinzugefügt." },
+    tbd: { no: "Kommer", en: "TBD", sv: "Kommer", fr: "À définir", de: "Offen" },
+    included: { no: "Inkludert", en: "Included", sv: "Ingår", fr: "Inclus", de: "Inbegriffen" },
+    not_included: { no: "Ikke inkludert", en: "Not included", sv: "Ingår inte", fr: "Non inclus", de: "Nicht inbegriffen" },
+    foot_thanks: { no: "Takk for at du valgte MarrakechStory. Vi ønsker deg en uforglemmelig reise.", en: "Thank you for choosing MarrakechStory. We wish you an unforgettable journey.", sv: "Tack för att du valde MarrakechStory. Vi önskar dig en oförglömlig resa.", fr: "Merci d'avoir choisi MarrakechStory. Nous vous souhaitons un voyage inoubliable.", de: "Danke, dass Sie MarrakechStory gewählt haben. Wir wünschen Ihnen eine unvergessliche Reise." },
+    inv_kicker: { no: "Faktura", en: "Invoice", sv: "Faktura", fr: "Facture", de: "Rechnung" },
+    inv_title: { no: "Faktura", en: "Invoice", sv: "Faktura", fr: "Facture", de: "Rechnung" },
+    billed_to: { no: "Fakturert til", en: "Billed to", sv: "Fakturerad till", fr: "Facturé à", de: "Rechnung an" },
+    invoice_no: { no: "Faktura", en: "Invoice", sv: "Faktura", fr: "Facture", de: "Rechnung" },
+    date: { no: "Dato", en: "Date", sv: "Datum", fr: "Date", de: "Datum" },
+    method: { no: "Metode", en: "Method", sv: "Metod", fr: "Méthode", de: "Methode" },
+    status: { no: "Status", en: "Status", sv: "Status", fr: "Statut", de: "Status" },
+    bill_to: { no: "Fakturamottaker", en: "Bill to", sv: "Faktureras till", fr: "Facturer à", de: "Rechnungsempfänger" },
+    description: { no: "Beskrivelse", en: "Description", sv: "Beskrivning", fr: "Description", de: "Beschreibung" },
+    amount: { no: "Beløp", en: "Amount", sv: "Belopp", fr: "Montant", de: "Betrag" },
+    package: { no: "Skreddersydd reisepakke", en: "Bespoke Travel Package", sv: "Skräddarsytt resepaket", fr: "Forfait voyage sur mesure", de: "Maßgeschneidertes Reisepaket" },
+    travelers_word: { no: "reisende", en: "travellers", sv: "resenärer", fr: "voyageurs", de: "Reisende" },
+    subtotal: { no: "Delsum", en: "Subtotal", sv: "Delsumma", fr: "Sous-total", de: "Zwischensumme" },
+    deposit_confirm: { no: "Depositum for å bekrefte", en: "Deposit to confirm", sv: "Handpenning att bekräfta", fr: "Acompte pour confirmer", de: "Anzahlung zur Bestätigung" },
+    paid: { no: "Betalt", en: "Paid", sv: "Betalt", fr: "Payé", de: "Bezahlt" },
+    balance_due: { no: "Restbeløp", en: "Balance Due", sv: "Återstående", fr: "Solde dû", de: "Restbetrag" },
+    to_pay: { no: "Å betale", en: "To pay", sv: "Att betala", fr: "À payer", de: "Zu zahlen" },
+    paynote_deposit: { no: "Et depositum på {dep} ({pct}%) bekrefter bestillingen. Resten på {rest} betales før avreise.", en: "A deposit of {dep} ({pct}%) confirms your booking. The remaining {rest} is due before departure.", sv: "En handpenning på {dep} ({pct}%) bekräftar bokningen. Resterande {rest} betalas före avresa.", fr: "Un acompte de {dep} ({pct}%) confirme votre réservation. Le solde de {rest} est dû avant le départ.", de: "Eine Anzahlung von {dep} ({pct}%) bestätigt Ihre Buchung. Der Restbetrag von {rest} ist vor Abreise fällig." },
+    paynote_full: { no: "Full betaling på {sub} kreves for å bekrefte bestillingen.", en: "Full payment of {sub} is required to confirm your booking.", sv: "Full betalning på {sub} krävs för att bekräfta bokningen.", fr: "Le paiement intégral de {sub} est requis pour confirmer votre réservation.", de: "Die vollständige Zahlung von {sub} ist zur Bestätigung Ihrer Buchung erforderlich." },
+    bank_details: { no: "Bankoverføring", en: "Bank transfer details", sv: "Banköverföring", fr: "Coordonnées bancaires", de: "Bankverbindung" },
+    bank_name: { no: "Bank:", en: "Bank name:", sv: "Bank:", fr: "Banque :", de: "Bank:" },
+    account_name: { no: "Kontonavn:", en: "Account name:", sv: "Kontonamn:", fr: "Titulaire :", de: "Kontoinhaber:" },
+    pay_via: { no: "Betal med", en: "Pay via", sv: "Betala via", fr: "Payer via", de: "Zahlen per" },
+    cash_title: { no: "Kontant betaling", en: "Payment in cash", sv: "Kontant betalning", fr: "Paiement en espèces", de: "Barzahlung" },
+    label_method: { no: "Metode:", en: "Method:", sv: "Metod:", fr: "Méthode :", de: "Methode:" },
+    label_when: { no: "Når:", en: "When:", sv: "När:", fr: "Quand :", de: "Wann:" },
+    cash_when: { no: "Betales kontant ved ankomst i Marrakech", en: "Payable in cash on arrival in Marrakech", sv: "Betalas kontant vid ankomst i Marrakech", fr: "Payable en espèces à l'arrivée à Marrakech", de: "Zahlbar in bar bei Ankunft in Marrakesch" },
+    cash_word: { no: "Kontant", en: "Cash", sv: "Kontant", fr: "Espèces", de: "Bar" },
+    terms: { no: "Vilkår og betingelser", en: "Terms & Conditions", sv: "Villkor", fr: "Conditions générales", de: "Geschäftsbedingungen" }
+  };
+  const ACT_TR = {
+    'Transport': { no: "Transport", sv: "Transport", fr: "Transport", de: "Transport" },
+    'Airport Transfer': { no: "Flyplasstransport", sv: "Flygplatstransfer", fr: "Transfert aéroport", de: "Flughafentransfer" },
+    'Private Driver': { no: "Privatsjåfør", sv: "Privat chaufför", fr: "Chauffeur privé", de: "Privatfahrer" },
+    'Check-in': { no: "Innsjekk", sv: "Incheckning", fr: "Arrivée", de: "Check-in" },
+    'Check-out': { no: "Utsjekk", sv: "Utcheckning", fr: "Départ", de: "Check-out" },
+    'Guided Tour': { no: "Guidet tur", sv: "Guidad tur", fr: "Visite guidée", de: "Geführte Tour" },
+    'City Tour': { no: "Byrundtur", sv: "Stadsrundtur", fr: "Visite de la ville", de: "Stadtrundfahrt" },
+    'Medina Tour': { no: "Medina-tur", sv: "Medina-tur", fr: "Visite de la médina", de: "Medina-Tour" },
+    'Ourika Valley': { no: "Ourika-dalen", sv: "Ourikadalen", fr: "Vallée de l'Ourika", de: "Ourika-Tal" },
+    'Atlas Mountains': { no: "Atlasfjellene", sv: "Atlasbergen", fr: "Montagnes de l'Atlas", de: "Atlasgebirge" },
+    'Agafay Day Pass': { no: "Agafay dagspass", sv: "Agafay dagspass", fr: "Pass journée Agafay", de: "Agafay Tagespass" },
+    'Agafay Dinner': { no: "Agafay middag", sv: "Agafay middag", fr: "Dîner à Agafay", de: "Agafay Abendessen" },
+    'Desert Camp': { no: "Ørkenleir", sv: "Ökenläger", fr: "Camp dans le désert", de: "Wüstencamp" },
+    'Sahara Trip': { no: "Sahara-tur", sv: "Sahararesa", fr: "Excursion au Sahara", de: "Sahara-Reise" },
+    'Essaouira Day Trip': { no: "Essaouira dagstur", sv: "Essaouira dagstur", fr: "Excursion à Essaouira", de: "Essaouira Tagesausflug" },
+    'Cooking Class': { no: "Matlagingskurs", sv: "Matlagningskurs", fr: "Cours de cuisine", de: "Kochkurs" },
+    'Hot Air Balloon': { no: "Luftballong", sv: "Luftballong", fr: "Montgolfière", de: "Heißluftballon" },
+    'Paragliding': { no: "Paragliding", sv: "Skärmflygning", fr: "Parapente", de: "Gleitschirmfliegen" },
+    'Quad/Buggy': { no: "Quad/Buggy", sv: "Quad/Buggy", fr: "Quad/Buggy", de: "Quad/Buggy" },
+    'Camel Ride': { no: "Kameltur", sv: "Kamelridning", fr: "Balade à dos de chameau", de: "Kamelritt" },
+    'Horse Riding': { no: "Rideturer", sv: "Ridning", fr: "Équitation", de: "Reiten" },
+    'Jet Ski': { no: "Vannscooter", sv: "Vattenskoter", fr: "Jet ski", de: "Jetski" },
+    'Surfing': { no: "Surfing", sv: "Surfing", fr: "Surf", de: "Surfen" },
+    'Boat Trip': { no: "Båttur", sv: "Båttur", fr: "Excursion en bateau", de: "Bootsfahrt" },
+    'Golf': { no: "Golf", sv: "Golf", fr: "Golf", de: "Golf" },
+    'Waterfalls Trip': { no: "Fossetur", sv: "Vattenfallstur", fr: "Excursion aux cascades", de: "Wasserfälle-Ausflug" },
+    'Shopping Tour': { no: "Shoppingtur", sv: "Shoppingtur", fr: "Tour shopping", de: "Shopping-Tour" },
+    'Photography Tour': { no: "Fototur", sv: "Fototur", fr: "Tour photo", de: "Foto-Tour" },
+    'Restaurant': { no: "Restaurant", sv: "Restaurang", fr: "Restaurant", de: "Restaurant" },
+    'Breakfast': { no: "Frokost", sv: "Frukost", fr: "Petit-déjeuner", de: "Frühstück" },
+    'Lunch': { no: "Lunsj", sv: "Lunch", fr: "Déjeuner", de: "Mittagessen" },
+    'Dinner': { no: "Middag", sv: "Middag", fr: "Dîner", de: "Abendessen" },
+    'Show / Entertainment': { no: "Show", sv: "Underhållning", fr: "Spectacle", de: "Show" },
+    'Spa/Hammam': { no: "Spa/Hammam", sv: "Spa/Hammam", fr: "Spa/Hammam", de: "Spa/Hammam" },
+    'Massage': { no: "Massasje", sv: "Massage", fr: "Massage", de: "Massage" },
+    'Pool Day': { no: "Bassengdag", sv: "Pooldag", fr: "Journée piscine", de: "Pooltag" },
+    'Free Time': { no: "Fritid", sv: "Fritid", fr: "Temps libre", de: "Freizeit" },
+    'Other': { no: "Annet", sv: "Övrigt", fr: "Autre", de: "Sonstiges" }
+  };
   // Stable distinct color per booking (so spans are easy to follow on the calendar)
   const BK_PALETTE = ['#e0432a', '#0a84ff', '#34c759', '#ff9f0a', '#af52de', '#ff2d55', '#0aa2c0', '#a2845e', '#d4a017', '#1c7a3f', '#5856d6', '#ff6482', '#00b8a3', '#c2410c'];
   function bkColor(b) { const s = String((b && (b.reference || b.id || b.client_name)) || ''); let n = 0; for (let i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0; return BK_PALETTE[n % BK_PALETTE.length]; }
@@ -652,7 +741,12 @@
   }
   function DocModal({ booking, initialType, onClose, settings }) {
     const [type, setType] = useState(initialType || 'itinerary');
+    const [lang, setLang] = useState((booking && booking.doc_lang) || 'no');
     const b = booking; const S = settings || {};
+    // Translate a label key / an activity type / a template with {placeholders}.
+    const t = (k) => (DOC_TR[k] && (DOC_TR[k][lang] || DOC_TR[k].en)) || k;
+    const tAct = (ty) => (ACT_TR[ty] && (ACT_TR[ty][lang] || ty)) || ty;
+    const tFmt = (k, vals) => { let s = t(k); Object.keys(vals || {}).forEach((x) => { s = s.split('{' + x + '}').join(vals[x]); }); return s; };
     // ---- Documents attached to this booking (Supabase Storage: booking-files/<id>/…) ----
     const DOC_BUCKET = 'booking-files';
     const [docFiles, setDocFiles] = useState([]);
@@ -705,23 +799,23 @@
       // Decorative travel-magazine header band
       h('div', { className: 'msa-itin-hero' },
         h('img', { src: 'assets/logo.png', alt: '', className: 'msa-itin-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }),
-        h('span', { className: 'msa-itin-kicker' }, 'Private travel itinerary'),
-        h('h1', { className: 'msa-itin-title' }, 'Reiseplan'),
+        h('span', { className: 'msa-itin-kicker' }, t('itin_kicker')),
+        h('h1', { className: 'msa-itin-title' }, t('itin_title')),
         h('div', { className: 'msa-itin-rule', 'aria-hidden': 'true' })),
       // Trip info strip
       h('div', { className: 'msa-itin-info' },
-        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'For'), h('span', { className: 'msa-itin-info-v' }, b.client_name || '—')),
-        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Reise'), h('span', { className: 'msa-itin-info-v' }, (b.arrival_city || '') + ' → ' + (b.departure_city || ''))),
-        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Datoer'), h('span', { className: 'msa-itin-info-v' }, fmtDate(b.arrival_date) + ' — ' + fmtDate(b.departure_date))),
-        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Reisende'), h('span', { className: 'msa-itin-info-v' }, ((b.adults || 0) + (b.kids || 0)) + ' personer · ' + (b.total_nights || 0) + ' netter')),
-        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Ref'), h('span', { className: 'msa-itin-info-v' }, b.reference || '—'))),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, t('for')), h('span', { className: 'msa-itin-info-v' }, b.client_name || '—')),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, t('trip')), h('span', { className: 'msa-itin-info-v' }, (b.arrival_city || '') + ' → ' + (b.departure_city || ''))),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, t('dates')), h('span', { className: 'msa-itin-info-v' }, fmtDate(b.arrival_date) + ' — ' + fmtDate(b.departure_date))),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, t('travelers')), h('span', { className: 'msa-itin-info-v' }, ((b.adults || 0) + (b.kids || 0)) + ' ' + t('persons') + ' · ' + (b.total_nights || 0) + ' ' + t('nights'))),
+        h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, t('ref')), h('span', { className: 'msa-itin-info-v' }, b.reference || '—'))),
       (function () {
         const days = (b.daily_itinerary || []);
-        if (!days.length) return h('div', { className: 'msa-doc-days' }, h('p', { className: 'msa-dim' }, 'No daily itinerary added yet.'));
+        if (!days.length) return h('div', { className: 'msa-doc-days' }, h('p', { className: 'msa-dim' }, t('no_itin')));
         const renderDay = (day, i) => h('div', { key: i, className: 'msa-doc-day' },
           h('span', { className: 'msa-doc-daynum', 'aria-hidden': 'true' }, day.day),
-          h('div', { className: 'msa-doc-day-head' }, h('h3', null, day.city ? ('Day ' + day.day + ' · ' + day.city) : ('Day ' + day.day)), h('span', { className: 'msa-dim msa-doc-date' }, day.date || 'TBD')),
-          h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, a.type), a.details ? h('p', null, a.details) : null)))));
+          h('div', { className: 'msa-doc-day-head' }, h('h3', null, day.city ? (t('day') + ' ' + day.day + ' · ' + day.city) : (t('day') + ' ' + day.day)), h('span', { className: 'msa-dim msa-doc-date' }, day.date || t('tbd'))),
+          h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, tAct(a.type)), a.details ? h('p', null, a.details) : null)))));
         // ≤5 days reads best as one column; longer trips split into two balanced
         // columns (explicit flex, NOT CSS multi-column, which html2canvas can't render).
         if (days.length <= 5) return h('div', { className: 'msa-doc-days msa-doc-days-1' }, days.map(renderDay));
@@ -734,11 +828,11 @@
         const inc = (b.included || []).filter(x => x && String(x).trim());
         const exc = (b.excluded || []).filter(x => x && String(x).trim());
         return (inc.length || exc.length) ? h('div', { className: 'msa-doc-incl' },
-          inc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, 'Included'), h('ul', { className: 'msa-incl-list' }, inc.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
-          exc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, 'Not included'), h('ul', { className: 'msa-incl-list' }, exc.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null;
+          inc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, t('included')), h('ul', { className: 'msa-incl-list' }, inc.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
+          exc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, t('not_included')), h('ul', { className: 'msa-incl-list' }, exc.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null;
       })(),
       docBox(),
-      h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'), h('p', null, cWeb + ' | ' + cPhone)));
+      h('div', { className: 'msa-doc-foot' }, h('p', null, lang === 'no' ? (S.invoice_footer || t('foot_thanks')) : t('foot_thanks')), h('p', null, cWeb + ' | ' + cPhone)));
     const invoice = () => {
       const sub = +b.selling_price || 0;
       const paid = +b.paid_amount || 0;
@@ -751,46 +845,46 @@
       const isCash = /cash/i.test(method);
       const payRow = (k, v) => [h('span', { className: 'msa-dim' }, k), h('span', null, v || '—')];
       const paymentBox = isBank
-        ? h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Bank transfer details'), h('div', { className: 'msa-bank-grid' },
-            payRow('Bank name:', S.bank_name || 'BMCE Bank of Africa'), payRow('Account name:', S.account_name || cName),
+        ? h('div', { className: 'msa-doc-bank' }, h('h3', null, t('bank_details')), h('div', { className: 'msa-bank-grid' },
+            payRow(t('bank_name'), S.bank_name || 'BMCE Bank of Africa'), payRow(t('account_name'), S.account_name || cName),
             payRow('RIB:', S.rib || '011 450 0000 123456789012 34'), payRow('SWIFT:', S.swift || 'BMCE MAMC')))
         : isCash
-        ? h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Payment in cash'), h('div', { className: 'msa-bank-grid' },
-            payRow('Method:', 'Cash'), payRow('When:', 'Payable in cash on arrival in Marrakech')))
-        : h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Pay via ' + method), h('div', { className: 'msa-bank-grid' },
+        ? h('div', { className: 'msa-doc-bank' }, h('h3', null, t('cash_title')), h('div', { className: 'msa-bank-grid' },
+            payRow(t('label_method'), t('cash_word')), payRow(t('label_when'), t('cash_when'))))
+        : h('div', { className: 'msa-doc-bank' }, h('h3', null, t('pay_via') + ' ' + method), h('div', { className: 'msa-bank-grid' },
             payRow(method + ':', method === 'Revolut' ? (S.revolut || S.company_phone || cPhone)
               : method === 'Wise' ? (S.wise || S.company_email)
               : method === 'PayPal' ? (S.paypal || S.company_email)
               : (S.payment_info || S.company_email))));
       const payNote = depEnabled
-        ? 'A deposit of ' + kr(dep) + ' (' + depPct + '%) confirms your booking. The remaining ' + kr(sub - dep) + ' is due before departure.'
-        : 'Full payment of ' + kr(sub) + ' is required to confirm your booking.';
+        ? tFmt('paynote_deposit', { dep: kr(dep), pct: depPct, rest: kr(sub - dep) })
+        : tFmt('paynote_full', { sub: kr(sub) });
       const infoCell = (k, v) => h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, k), h('span', { className: 'msa-itin-info-v' }, v || '—'));
       return h('div', { className: 'msa-doc msa-doc-itin msa-doc-inv' },
         h('div', { className: 'msa-itin-hero' },
           h('img', { src: 'assets/logo.png', alt: '', className: 'msa-itin-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }),
-          h('span', { className: 'msa-itin-kicker' }, 'Invoice'),
-          h('h1', { className: 'msa-itin-title' }, 'Faktura'),
+          h('span', { className: 'msa-itin-kicker' }, t('inv_kicker')),
+          h('h1', { className: 'msa-itin-title' }, t('inv_title')),
           h('div', { className: 'msa-itin-rule', 'aria-hidden': 'true' })),
         h('div', { className: 'msa-itin-info' },
-          infoCell('Billed to', b.client_name),
-          infoCell('Invoice', (S.invoice_prefix || 'INV') + '-' + (b.reference || '').split('-').pop()),
-          infoCell('Date', new Date().toLocaleDateString()),
-          infoCell('Method', method),
-          infoCell('Status', STATUS_LABEL[b.status] || b.status)),
+          infoCell(t('billed_to'), b.client_name),
+          infoCell(t('invoice_no'), (S.invoice_prefix || 'INV') + '-' + (b.reference || '').split('-').pop()),
+          infoCell(t('date'), new Date().toLocaleDateString(DOC_LOCALE[lang] || undefined)),
+          infoCell(t('method'), method),
+          infoCell(t('status'), STATUS_LABEL[b.status] || b.status)),
         h('div', { className: 'msa-inv-body' },
-          (b.address || b.email || b.phone) ? h('div', { className: 'msa-inv-billto' }, h('h3', null, 'Bill to'), h('p', { className: 'msa-doc-big' }, b.client_name), b.address ? h('p', { className: 'msa-dim' }, b.address) : null, ([b.email, b.phone].filter(Boolean).length ? h('p', { className: 'msa-dim' }, [b.email, b.phone].filter(Boolean).join('   ·   ')) : null)) : null,
-          h('table', { className: 'msa-table msa-doc-table' }, h('thead', null, h('tr', null, h('th', null, 'Description'), h('th', { className: 'msa-right' }, 'Amount'))),
-            h('tbody', null, h('tr', null, h('td', null, h('strong', null, 'Bespoke Travel Package'), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' Nights: ' + (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, ((b.adults || 0) + (b.kids || 0)) + ' Travelers')), h('td', { className: 'msa-right' }, kr(sub))))),
+          (b.address || b.email || b.phone) ? h('div', { className: 'msa-inv-billto' }, h('h3', null, t('bill_to')), h('p', { className: 'msa-doc-big' }, b.client_name), b.address ? h('p', { className: 'msa-dim' }, b.address) : null, ([b.email, b.phone].filter(Boolean).length ? h('p', { className: 'msa-dim' }, [b.email, b.phone].filter(Boolean).join('   ·   ')) : null)) : null,
+          h('table', { className: 'msa-table msa-doc-table' }, h('thead', null, h('tr', null, h('th', null, t('description')), h('th', { className: 'msa-right' }, t('amount')))),
+            h('tbody', null, h('tr', null, h('td', null, h('strong', null, t('package')), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' ' + t('nights') + ': ' + (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, ((b.adults || 0) + (b.kids || 0)) + ' ' + t('travelers_word'))), h('td', { className: 'msa-right' }, kr(sub))))),
           h('div', { className: 'msa-doc-totals' },
-            h('div', null, h('span', { className: 'msa-dim' }, 'Subtotal'), h('span', null, kr(sub))),
-            (depEnabled && paid <= 0) ? h('div', null, h('span', { className: 'msa-dim' }, 'Deposit to confirm (' + depPct + '%)'), h('span', { className: 'msa-text-brand' }, kr(dep))) : null,
-            (paid > 0) ? h('div', null, h('span', { className: 'msa-dim' }, 'Paid'), h('span', { className: 'msa-text-green' }, '-' + kr(paid))) : null,
-            h('div', { className: 'msa-doc-balance' }, h('span', null, paid > 0 ? 'Balance Due' : 'To pay'), h('span', { className: (bal > 0 ? 'msa-text-red' : 'msa-text-green') }, kr(bal)))),
+            h('div', null, h('span', { className: 'msa-dim' }, t('subtotal')), h('span', null, kr(sub))),
+            (depEnabled && paid <= 0) ? h('div', null, h('span', { className: 'msa-dim' }, t('deposit_confirm') + ' (' + depPct + '%)'), h('span', { className: 'msa-text-brand' }, kr(dep))) : null,
+            (paid > 0) ? h('div', null, h('span', { className: 'msa-dim' }, t('paid')), h('span', { className: 'msa-text-green' }, '-' + kr(paid))) : null,
+            h('div', { className: 'msa-doc-balance' }, h('span', null, paid > 0 ? t('balance_due') : t('to_pay')), h('span', { className: (bal > 0 ? 'msa-text-red' : 'msa-text-green') }, kr(bal)))),
           h('p', { className: 'msa-doc-paynote' }, payNote),
           paymentBox,
-          S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null),
-        h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory.'), h('p', null, cWeb + ' | ' + cPhone))); };
+          S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, t('terms')), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null),
+        h('div', { className: 'msa-doc-foot' }, h('p', null, lang === 'no' ? (S.invoice_footer || t('foot_thanks')) : t('foot_thanks')), h('p', null, cWeb + ' | ' + cPhone))); };
     const fname = 'MarrakechStory-' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + '-' + (b.reference || 'MS') + '.pdf';
     const docLabel = type === 'invoice' ? 'fakturaen' : 'reiseplanen';
     const shareSubject = 'MarrakechStory — ' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + (b.reference ? (' ' + b.reference) : '');
@@ -800,7 +894,11 @@
     const waHref = waLink(b.phone) + '?text=' + encodeURIComponent(shareBody);
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-doc', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head msa-print-hide' },
-        h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice')),
+        h('div', { className: 'msa-doc-head-left' },
+          h('label', { className: 'msa-doc-lang', title: 'Document language — translates the itinerary & invoice' },
+            ICON.globe ? ICON.globe() : null,
+            h('select', { value: lang, onChange: (e) => setLang(e.target.value) }, DOC_LANGS.map(l => h('option', { key: l[0], value: l[0] }, l[1])))),
+          h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice'))),
         h('label', { className: 'msa-btn msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
           h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
         h('div', null, h('button', { className: 'msa-btn msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download'),

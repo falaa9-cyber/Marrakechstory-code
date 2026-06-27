@@ -286,6 +286,11 @@
 .msa-kid-age { display: inline-flex; flex-direction: column; gap: 3px; }
 .msa-kid-age-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--msa-dim); padding-left: 2px; }
 .msa-kid-age input { width: 86px; padding: 8px 10px; border: 1px solid var(--msa-line); border-radius: 9px; font-size: 13px; background: #fff; font-family: inherit; color: var(--msa-ink); box-sizing: border-box; }
+.msa-doc-head-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.msa-doc-lang { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1px solid var(--msa-line); border-radius: 10px; padding: 4px 6px 4px 9px; font-size: 12.5px; font-weight: 600; color: var(--msa-ink); cursor: pointer; }
+.msa-doc-lang svg { width: 15px; height: 15px; opacity: .55; flex: 0 0 auto; }
+.msa-doc-lang select { border: none; background: transparent; font: inherit; color: inherit; font-weight: 600; cursor: pointer; padding: 2px 4px 2px 0; outline: none; }
+.msa-dark .msa-doc-lang { background: #1f1f24; border-color: #34343c; }
 .msa-seg { display: inline-flex; background: #f0f0f3; border-radius: 10px; padding: 3px; gap: 2px; }
 .msa-seg button { border: none; background: none; padding: 6px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--msa-dim); }
 .msa-seg button.active { background: #fff; color: var(--msa-ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
