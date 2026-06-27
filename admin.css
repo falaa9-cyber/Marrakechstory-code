@@ -993,46 +993,49 @@
 /* Clean white, Apple-style document */
 .msa-doc.msa-doc-itin { background: #ffffff !important; color: #1d1d1f; padding: 0 !important;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
-/* Header */
-.msa-doc-itin .msa-itin-hero { position: relative; text-align: left; padding: 40px 44px 24px; background: #fff; }
-.msa-doc-itin .msa-itin-logo { position: absolute; top: 34px; right: 40px; width: 42px; height: auto; border-radius: 10px; }
-.msa-doc-itin .msa-itin-kicker { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #e0432a; margin-bottom: 9px; }
-.msa-doc-itin .msa-itin-title { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Georgia, serif !important; font-size: 44px; line-height: 1.02; font-weight: 700; letter-spacing: -0.03em; color: #1d1d1f !important; margin: 0; padding: 0; text-shadow: none; text-transform: none; }
-.msa-doc-itin .msa-itin-rule { height: 3px; width: 56px; margin: 20px 0 0; border: none; background: #e0432a; border-radius: 2px; }
-/* Info strip — quiet stat row */
-.msa-doc-itin .msa-itin-info { display: flex; flex-wrap: wrap; gap: 0; padding: 4px 44px 0; background: #fff; border-top: 1px solid #efefef; }
-.msa-doc-itin .msa-itin-info-cell { display: flex; flex-direction: column; align-items: flex-start; padding: 16px 28px 16px 0; min-width: 90px; }
-.msa-doc-itin .msa-itin-info-k { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: #8e8e93; font-weight: 700; }
-.msa-doc-itin .msa-itin-info-v { font-size: 14px; font-weight: 600; color: #1d1d1f; margin-top: 4px; }
-/* Day timeline with numbered badges */
-.msa-doc-itin .msa-doc-days { padding: 30px 44px 8px; }
-.msa-doc-itin .msa-doc-day { position: relative; padding: 0 0 28px 56px; border: none; margin: 0; }
-.msa-doc-itin .msa-doc-day::before { content: ''; position: absolute; left: 17px; top: 38px; bottom: -2px; width: 2px; background: #ededed; }
-.msa-doc-itin .msa-doc-day:last-child::before { display: none; }
-.msa-doc-itin .msa-doc-daynum { position: absolute; left: 0; top: 0; width: 36px; height: 36px; border-radius: 50%;
-  background: #1d1d1f; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
-.msa-doc-itin .msa-doc-day-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin: 5px 0 12px; border: none; padding: 0; }
-.msa-doc-itin .msa-doc-day-head h3 { font-family: inherit !important; color: #1d1d1f !important; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; text-transform: none; margin: 0; }
-.msa-doc-itin .msa-doc-date { margin-left: auto; font-size: 11px; font-weight: 600; color: #8e8e93 !important; background: #f5f5f7; padding: 4px 11px; border-radius: 999px; }
-/* Activities as a soft card */
-.msa-doc-itin .msa-doc-acts { background: #fafafa; border: 1px solid #efefef; border-radius: 14px; padding: 4px 16px; }
-.msa-doc-itin .msa-doc-act { display: flex; gap: 18px; padding: 11px 0; align-items: baseline; border-top: 1px solid #f0f0f0; }
-.msa-doc-itin .msa-doc-acts .msa-doc-act:first-child { border-top: none; }
-.msa-doc-itin .msa-doc-act .msa-doc-time { color: #e0432a; font-weight: 700; min-width: 52px; font-size: 13px; }
-.msa-doc-itin .msa-doc-act strong { color: #1d1d1f; font-size: 14px; font-weight: 600; }
-.msa-doc-itin .msa-doc-act p { color: #6e6e73; margin: 2px 0 0; font-size: 13px; line-height: 1.45; }
-/* Included / not-included */
-.msa-doc-itin .msa-doc-incl { padding: 16px 44px 28px; gap: 44px; border-top: 1px solid #efefef; margin-top: 6px; }
-.msa-doc-itin .msa-doc-incl h3 { color: #1d1d1f !important; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; border: none; padding: 0; margin: 0 0 12px; display: block; }
-.msa-doc-itin .msa-incl-list li { color: #3a3a3c; }
+/* Header — compact */
+.msa-doc-itin .msa-itin-hero { position: relative; text-align: left; padding: 20px 34px 12px; background: #fff; }
+.msa-doc-itin .msa-itin-logo { position: absolute; top: 18px; right: 32px; width: 34px; height: auto; border-radius: 8px; }
+.msa-doc-itin .msa-itin-kicker { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #e0432a; margin-bottom: 4px; }
+.msa-doc-itin .msa-itin-title { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Georgia, serif !important; font-size: 27px; line-height: 1.02; font-weight: 700; letter-spacing: -0.02em; color: #1d1d1f !important; margin: 0; padding: 0; text-shadow: none; text-transform: none; }
+.msa-doc-itin .msa-itin-rule { height: 3px; width: 42px; margin: 11px 0 0; border: none; background: #e0432a; border-radius: 2px; }
+/* Info strip — thin stat row */
+.msa-doc-itin .msa-itin-info { display: flex; flex-wrap: wrap; gap: 0; padding: 0 34px; background: #fff; border-top: 1px solid #efefef; }
+.msa-doc-itin .msa-itin-info-cell { display: flex; flex-direction: column; align-items: flex-start; padding: 9px 22px 9px 0; min-width: 84px; }
+.msa-doc-itin .msa-itin-info-k { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #8e8e93; font-weight: 700; }
+.msa-doc-itin .msa-itin-info-v { font-size: 12.5px; font-weight: 600; color: #1d1d1f; margin-top: 2px; }
+/* Days — dense. ≤5 days = one column; longer trips = two flex columns (fits one page) */
+.msa-doc-itin .msa-doc-days { display: block !important; padding: 14px 34px 6px; }
+.msa-doc-itin .msa-doc-days-2 { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start; gap: 0 30px; }
+.msa-doc-itin .msa-doc-days-2 .msa-doc-col { flex: 1 1 0; min-width: 0; }
+.msa-doc-itin .msa-doc-day { position: relative; padding: 0 0 9px 32px; border: none; margin: 0 0 4px; }
+.msa-doc-itin .msa-doc-day::before { display: none; }
+.msa-doc-itin .msa-doc-daynum { position: absolute; left: 0; top: 1px; width: 24px; height: 24px; border-radius: 50%;
+  background: #1d1d1f; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; }
+.msa-doc-itin .msa-doc-day-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin: 2px 0 4px; border: none; padding: 0; }
+.msa-doc-itin .msa-doc-day-head h3 { font-family: inherit !important; color: #1d1d1f !important; font-size: 14.5px; font-weight: 700; letter-spacing: -0.01em; text-transform: none; margin: 0; }
+.msa-doc-itin .msa-doc-date { margin-left: auto; font-size: 9.5px; font-weight: 600; color: #8e8e93 !important; background: #f5f5f7; padding: 3px 9px; border-radius: 999px; }
+.msa-doc-itin .msa-doc-acts { background: transparent; border: none; border-radius: 0; padding: 0; }
+.msa-doc-itin .msa-doc-act { display: flex; gap: 12px; padding: 4px 0; align-items: baseline; border-top: 1px solid #f4f4f4; }
+.msa-doc-itin .msa-doc-acts .msa-doc-act:first-child { border-top: none; padding-top: 1px; }
+.msa-doc-itin .msa-doc-act .msa-doc-time { color: #e0432a; font-weight: 700; min-width: 44px; font-size: 11.5px; }
+.msa-doc-itin .msa-doc-act-body { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.msa-doc-itin .msa-doc-act strong { color: #1d1d1f; font-size: 12.5px; font-weight: 600; }
+.msa-doc-itin .msa-doc-act p { color: #6e6e73; margin: 0; font-size: 12px; line-height: 1.3; }
+/* Included / not-included — compact */
+.msa-doc-itin .msa-doc-incl { padding: 10px 34px 12px; gap: 30px; border-top: 1px solid #efefef; margin-top: 4px; }
+.msa-doc-itin .msa-doc-incl h3 { color: #1d1d1f !important; text-transform: uppercase; letter-spacing: .1em; font-size: 10px; border: none; padding: 0; margin: 0 0 7px; display: block; }
+.msa-doc-itin .msa-incl-list { gap: 4px; }
+.msa-doc-itin .msa-incl-list li { color: #3a3a3c; font-size: 11.5px; padding-left: 18px; }
 /* Terms + documents + footer */
-.msa-doc-itin .msa-doc-terms { margin: 0 44px 14px; background: #fafafa; border: 1px solid #efefef; border-radius: 14px; }
-.msa-doc-itin .msa-doc-terms summary { color: #1d1d1f; }
-.msa-doc-itin .msa-doc-docs { padding: 4px 44px 16px; }
-.msa-doc-itin .msa-doc-docs h3 { color: #1d1d1f; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; }
+.msa-doc-itin .msa-doc-terms { margin: 0 34px 10px; background: #fafafa; border: 1px solid #efefef; border-radius: 12px; }
+.msa-doc-itin .msa-doc-terms summary { color: #1d1d1f; font-size: 12px; }
+.msa-doc-itin .msa-doc-terms p { font-size: 11px; }
+.msa-doc-itin .msa-doc-docs { padding: 2px 34px 10px; }
+.msa-doc-itin .msa-doc-docs h3 { color: #1d1d1f; text-transform: uppercase; letter-spacing: .1em; font-size: 10px; }
 .msa-doc-itin .msa-docbox-item { background: #fff !important; border-color: #efefef; }
-.msa-doc-itin .msa-doc-foot { background: #fff; color: #8e8e93; border-top: 1px solid #efefef !important; margin-top: 10px; padding: 24px 44px; text-align: left; }
-.msa-doc-itin .msa-doc-foot p { color: #8e8e93; opacity: 1; }
+.msa-doc-itin .msa-doc-foot { background: #fff; color: #8e8e93; border-top: 1px solid #efefef !important; margin-top: 6px; padding: 12px 34px; text-align: left; font-size: 11px; }
+.msa-doc-itin .msa-doc-foot p { color: #8e8e93; opacity: 1; margin: 2px 0; }
 
 /* ── Booking form utilities: wide field · Apple toggle · invoice pay-note ── */
 .msa-field-wide { grid-column: 1 / -1; }
@@ -1364,22 +1367,8 @@
 .msa-act-time-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--msa-dim); padding-left: 2px; }
 .msa-act-time input { font-weight: 700; }
 
-/* ── Compact spacing for the PDF/print pages (fit closer to one A4 page) ── */
-.msa-print-page .msa-itin-hero { padding: 22px 40px 12px; }
-.msa-print-page .msa-itin-logo { top: 22px; width: 38px; }
-.msa-print-page .msa-itin-title { font-size: 32px; }
-.msa-print-page .msa-itin-kicker { margin-bottom: 6px; }
-.msa-print-page .msa-itin-rule { margin-top: 13px; }
-.msa-print-page .msa-itin-info { padding: 2px 40px 0; }
-.msa-print-page .msa-itin-info-cell { padding: 11px 24px 11px 0; }
-.msa-print-page .msa-doc-days { padding: 18px 40px 2px; }
-.msa-print-page .msa-doc-day { padding-bottom: 15px; }
-.msa-print-page .msa-doc-day::before { top: 34px; }
-.msa-print-page .msa-doc-day-head { margin: 4px 0 9px; }
-.msa-print-page .msa-doc-acts { padding: 1px 16px; }
-.msa-print-page .msa-doc-act { padding: 8px 0; }
-.msa-print-page .msa-doc-incl { padding: 12px 40px 16px; }
-.msa-print-page .msa-doc-foot { padding: 16px 40px; }
-.msa-print-page .msa-inv-body { padding: 14px 40px 2px; }
-.msa-print-page .msa-doc-table td { padding: 12px 0; }
-.msa-print-page .msa-doc-bank { padding: 14px; margin-top: 14px; }
+/* Export pages: full width (base itinerary/invoice are already dense → one page each) */
+.msa-print-both .msa-print-page, .msa-print-page { width: 794px; }
+/* The attached-documents box is an interactive affordance ("click to open") —
+   drop it from the static PDF so the itinerary stays on one page. */
+.msa-print-page .msa-doc-docs { display: none !important; }

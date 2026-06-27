@@ -541,10 +541,12 @@
   // =====================================================================
   // DOC MODAL — Itinerary + Invoice, PDF export + print
   // =====================================================================
-  // Export BOTH documents as one PDF, full-width and readable: the itinerary
-  // first, then the invoice ALWAYS on a fresh page. Short trips → one page each.
-  // Cloned off the zoomed admin root + explicit canvas size, because html2canvas
-  // miscounts the height of off-screen / zoomed nodes (was producing a blank PDF).
+  // Export BOTH documents — itinerary (page 1) + invoice (page 2), ONE page each.
+  // We render the WHOLE off-screen block to a single high-res canvas, then SLICE it
+  // per page and fit each slice to its own A4 page. (Capturing each page element on
+  // its own makes html2canvas collapse the invoice to a blank canvas; capturing the
+  // whole block and slicing is reliable.) Cloned off the zoomed admin root with an
+  // explicit canvas size, because html2canvas miscounts height for zoomed nodes.
   function exportPDF(filename) {
     const src = document.getElementById('msa-print-both'); if (!src) return;
     if (!window.html2pdf) { window.print(); return; }
@@ -555,15 +557,33 @@
     document.body.appendChild(holder);
     const cleanup = () => { try { holder.remove(); } catch (e) {} };
     setTimeout(function () {
-      const H = holder.scrollHeight;
-      const w = window.html2pdf().set({
-        margin: 0, filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794, height: H, windowWidth: 794, windowHeight: H },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'], before: '.msa-print-page-2' }
-      }).from(holder).save();
-      if (w && typeof w.then === 'function') w.then(cleanup, cleanup); else setTimeout(cleanup, 8000);
+      const SCALE = 2.5, totalH = holder.scrollHeight;
+      window.html2pdf().set({ html2canvas: { scale: SCALE, useCORS: true, backgroundColor: '#ffffff', width: 794, height: totalH, windowWidth: 794, windowHeight: totalH } })
+        .from(holder).toCanvas().get('canvas', (big) => {
+          const hostTop = holder.getBoundingClientRect().top;
+          const pages = Array.prototype.slice.call(holder.querySelectorAll('.msa-print-page'))
+            .map((p) => { const r = p.getBoundingClientRect(); return { top: Math.round(r.top - hostTop), h: Math.round(r.height) }; });
+          cleanup();
+          const tiny = document.createElement('div'); tiny.style.cssText = 'width:1px;height:1px;'; document.body.appendChild(tiny);
+          window.html2pdf().set({ jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, html2canvas: { scale: 1 }, margin: 0 })
+            .from(tiny).toPdf().get('pdf', (pdf) => {
+              try { tiny.remove(); } catch (e) {}
+              const PW = 210, PH = 297, M = 7; let first = true;
+              pages.forEach((pg) => {
+                const sy = pg.top * SCALE, sh = Math.min(pg.h * SCALE, big.height - sy);
+                if (sh < 4) return;
+                const slice = document.createElement('canvas'); slice.width = big.width; slice.height = sh;
+                const sctx = slice.getContext('2d'); sctx.fillStyle = '#fff'; sctx.fillRect(0, 0, slice.width, slice.height);
+                sctx.drawImage(big, 0, sy, big.width, sh, 0, 0, big.width, sh);
+                if (!first) pdf.addPage(); first = false;
+                const availW = PW - 2 * M, availH = PH - 2 * M;
+                let w = availW, hh = (slice.height / slice.width) * w;
+                if (hh > availH) { hh = availH; w = (slice.width / slice.height) * hh; }
+                pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', (PW - w) / 2, M, w, hh);
+              });
+              pdf.save(filename);
+            }).then(() => {}, () => {});
+        }).then(() => {}, () => { cleanup(); });
     }, 250);
   }
   function DocModal({ booking, initialType, onClose, settings }) {
@@ -631,11 +651,21 @@
         h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Datoer'), h('span', { className: 'msa-itin-info-v' }, fmtDate(b.arrival_date) + ' — ' + fmtDate(b.departure_date))),
         h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Reisende'), h('span', { className: 'msa-itin-info-v' }, ((b.adults || 0) + (b.kids || 0)) + ' personer · ' + (b.total_nights || 0) + ' netter')),
         h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Ref'), h('span', { className: 'msa-itin-info-v' }, b.reference || '—'))),
-      h('div', { className: 'msa-doc-days' }, (b.daily_itinerary || []).length === 0 ? h('p', { className: 'msa-dim' }, 'No daily itinerary added yet.')
-        : (b.daily_itinerary || []).map((day, i) => h('div', { key: i, className: 'msa-doc-day' },
-            h('span', { className: 'msa-doc-daynum', 'aria-hidden': 'true' }, day.day),
-            h('div', { className: 'msa-doc-day-head' }, h('h3', null, day.city ? ('Day ' + day.day + ' · ' + day.city) : ('Day ' + day.day)), h('span', { className: 'msa-dim msa-doc-date' }, day.date || 'TBD')),
-            h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, a.type), a.details ? h('p', null, a.details) : null))))))),
+      (function () {
+        const days = (b.daily_itinerary || []);
+        if (!days.length) return h('div', { className: 'msa-doc-days' }, h('p', { className: 'msa-dim' }, 'No daily itinerary added yet.'));
+        const renderDay = (day, i) => h('div', { key: i, className: 'msa-doc-day' },
+          h('span', { className: 'msa-doc-daynum', 'aria-hidden': 'true' }, day.day),
+          h('div', { className: 'msa-doc-day-head' }, h('h3', null, day.city ? ('Day ' + day.day + ' · ' + day.city) : ('Day ' + day.day)), h('span', { className: 'msa-dim msa-doc-date' }, day.date || 'TBD')),
+          h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, a.type), a.details ? h('p', null, a.details) : null)))));
+        // ≤5 days reads best as one column; longer trips split into two balanced
+        // columns (explicit flex, NOT CSS multi-column, which html2canvas can't render).
+        if (days.length <= 5) return h('div', { className: 'msa-doc-days msa-doc-days-1' }, days.map(renderDay));
+        const mid = Math.ceil(days.length / 2);
+        return h('div', { className: 'msa-doc-days msa-doc-days-2' },
+          h('div', { className: 'msa-doc-col' }, days.slice(0, mid).map(renderDay)),
+          h('div', { className: 'msa-doc-col' }, days.slice(mid).map(renderDay)));
+      })(),
       (function () {
         const inc = (b.included || []).filter(x => x && String(x).trim());
         const exc = (b.excluded || []).filter(x => x && String(x).trim());
