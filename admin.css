@@ -1261,3 +1261,56 @@
 .msa-dash-cal .msa-yr-day { font-size: 11px; }
 .msa-dash-cal .msa-yr-name { font-size: 14px; }
 @media (max-width: 1100px) { .msa-dash-cal .msa-yr-grid-dash { grid-template-columns: repeat(3, 1fr) !important; } }
+
+/* ============================================================
+   New Booking modal — Apple-ish minimalist redesign
+   (scoped to .msa-modal-booking; structure & data unchanged,
+   only the boxes + layout are restyled; adapts to dark mode
+   via the --msa-* variables)
+   ============================================================ */
+.msa-modal-booking { max-width: 1040px; border-radius: 26px; overflow: hidden;
+  box-shadow: 0 40px 120px -30px rgba(20,16,30,0.5); }
+.msa-modal-booking .msa-modal-head {
+  padding: 20px 26px; border-bottom: 1px solid var(--msa-line);
+  background: var(--msa-card);
+  background: color-mix(in srgb, var(--msa-card) 78%, transparent);
+  -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px);
+  border-radius: 26px 26px 0 0; }
+/* The public site sets `h2 { font-size: clamp(38px,5.5vw,80px) !important }`,
+   which leaks into admin modal titles — pin them back. */
+.msa-modal-head h2 { font-size: 20px !important; }
+.msa-modal-booking .msa-modal-head h2 { font-size: 21px !important; font-weight: 700; letter-spacing: -0.02em; }
+.msa-modal-booking .msa-modal-head .msa-btn { border-radius: 999px; }
+.msa-modal-booking .msa-modal-body { padding: 22px 26px 30px; background: var(--msa-bg); }
+
+/* Section title — quiet, clean (no underline rule) */
+.msa-modal-booking .msa-section {
+  border-bottom: none; text-transform: none; letter-spacing: -0.01em;
+  font-size: 15px; font-weight: 700; color: var(--msa-ink);
+  margin: 24px 4px 11px; padding: 0; }
+.msa-modal-booking .msa-section:first-child { margin-top: 4px; }
+.msa-modal-booking .msa-section-row { margin-bottom: 13px; }
+
+/* Each field group → soft floating card */
+.msa-modal-booking .msa-grid-2 {
+  background: var(--msa-card); border: 1px solid var(--msa-card-border, var(--msa-line));
+  border-radius: 18px; padding: 20px; gap: 15px 18px;
+  box-shadow: 0 1px 2px rgba(20,16,30,0.04), 0 14px 36px -28px rgba(20,16,30,0.3); }
+
+/* Apple-style labels + inputs */
+.msa-modal-booking .msa-field label {
+  text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 600;
+  color: var(--msa-dim); margin-left: 2px; }
+.msa-modal-booking .msa-field input,
+.msa-modal-booking .msa-field select,
+.msa-modal-booking .msa-field textarea {
+  background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 12px;
+  padding: 11px 14px; font-size: 14.5px; color: var(--msa-ink);
+  transition: border-color .16s, box-shadow .16s, background .16s; }
+.msa-modal-booking .msa-field input:focus,
+.msa-modal-booking .msa-field select:focus,
+.msa-modal-booking .msa-field textarea:focus {
+  border-color: var(--msa-brand); background: var(--msa-card);
+  box-shadow: 0 0 0 4px rgba(224,67,42,0.15); }
+.msa-modal-booking .msa-readout {
+  background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 12px; }

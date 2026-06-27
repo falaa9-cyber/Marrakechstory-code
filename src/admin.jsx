@@ -415,6 +415,18 @@
     const niceName = (n) => String(n || '').replace(/^\d{10,}-/, '');
     const fmtSize = (bytes) => { const n = +bytes || 0; if (!n) return ''; if (n < 1024) return n + ' B'; if (n < 1048576) return (n / 1024).toFixed(0) + ' KB'; return (n / 1048576).toFixed(1) + ' MB'; };
     const set = (k, v) => setB(p => ({ ...p, [k]: v }));
+    // Picking arrival/departure in the calendar auto-fills nights & days.
+    const setDate = (k, v) => setB(p => {
+      const n = { ...p, [k]: v };
+      const arr = k === 'arrival_date' ? v : p.arrival_date;
+      const dep = k === 'departure_date' ? v : p.departure_date;
+      if (arr && dep) {
+        const nights = Math.max(0, Math.round((new Date(dep) - new Date(arr)) / 86400000));
+        n.total_nights = nights;
+        n.total_days = nights > 0 ? nights + 1 : 0;
+      }
+      return n;
+    });
     const setCost = (k, v) => setB(p => { const n = { ...p, [k]: v }; n.total_cost = (+n.cost_transportation || 0) + (+n.cost_activities || 0) + (+n.cost_accommodation || 0); return n; });
     const setPrice = (v) => setB(p => ({ ...p, selling_price: v, deposit_amount: Math.round(v * 0.2), balance: v - (+p.paid_amount || Math.round(v * 0.2)) }));
     const setPaid = (v) => setB(p => ({ ...p, paid_amount: v, balance: (+p.selling_price || 0) - v }));
@@ -443,7 +455,7 @@
 
     const field = (label, k, type) => h('div', { className: 'msa-field' }, h('label', null, label), h('input', { type: type || 'text', value: b[k] == null ? '' : b[k], onChange: (e) => set(k, type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value) }));
 
-    return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-wide', onClick: (e) => e.stopPropagation() },
+    return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-wide msa-modal-booking', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head' },
         h('h2', null, b.id ? 'Edit Booking' : 'New Booking', b.reference && h('span', { className: 'msa-ref-chip' }, b.reference)),
         h('div', null,
@@ -457,7 +469,10 @@
           h('div', { className: 'msa-field' }, h('label', null, 'Lead Source'), h('select', { value: b.lead_source, onChange: (e) => set('lead_source', e.target.value) }, LEAD_SOURCES.map(s => h('option', { key: s, value: s }, s)))),
           field('Reference', 'reference')),
         h('h4', { className: 'msa-section' }, 'Trip'),
-        h('div', { className: 'msa-grid-2' }, field('Arrival City', 'arrival_city'), field('Departure City', 'departure_city'), field('Arrival Date', 'arrival_date', 'date'), field('Departure Date', 'departure_date', 'date'), field('Nights', 'total_nights', 'number'), field('Days', 'total_days', 'number'), field('Adults', 'adults', 'number'), field('Kids', 'kids', 'number')),
+        h('div', { className: 'msa-grid-2' }, field('Arrival City', 'arrival_city'), field('Departure City', 'departure_city'),
+          h('div', { className: 'msa-field' }, h('label', null, 'Arrival Date'), h('input', { type: 'date', value: b.arrival_date || '', onChange: (e) => setDate('arrival_date', e.target.value) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Departure Date'), h('input', { type: 'date', value: b.departure_date || '', onChange: (e) => setDate('departure_date', e.target.value) })),
+          field('Nights', 'total_nights', 'number'), field('Days', 'total_days', 'number'), field('Adults', 'adults', 'number'), field('Kids', 'kids', 'number')),
         (+b.kids > 0) && field('Kids Ages', 'kids_ages'),
         h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Daily Itinerary'), h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: addDay }, ICON.plus(), 'Day')),
         h('div', { className: 'msa-day-grid' }, (b.daily_itinerary || []).map((day, di) => h('div', { key: di, className: 'msa-day-card' },
