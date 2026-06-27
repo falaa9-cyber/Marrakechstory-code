@@ -369,7 +369,7 @@
   // =====================================================================
   // BOOKING MODAL (full edit + itinerary builder + payments)
   // =====================================================================
-  const EMPTY_BOOKING = { client_name: '', email: '', phone: '', nationality: '', lead_source: 'website', reference: '', arrival_city: 'Marrakech', departure_city: 'Marrakech', arrival_date: '', departure_date: '', total_nights: 0, total_days: 0, adults: 2, kids: 0, kids_ages: '', status: 'new', selling_price: 0, deposit_amount: 0, paid_amount: 0, balance: 0, cost_transportation: 0, cost_activities: 0, cost_accommodation: 0, total_cost: 0, daily_itinerary: [], included: [], excluded: [], internal_notes: '', special_requests: '', payment_method: '', archived: false };
+  const EMPTY_BOOKING = { client_name: '', email: '', phone: '', nationality: '', address: '', lead_source: 'website', reference: '', arrival_city: 'Marrakech', departure_city: 'Marrakech', arrival_date: '', departure_date: '', total_nights: 0, total_days: 0, adults: 2, kids: 0, kids_ages: '', status: 'new', selling_price: 0, deposit_amount: 0, deposit_enabled: true, paid_amount: 0, balance: 0, cost_transportation: 0, cost_activities: 0, cost_accommodation: 0, total_cost: 0, daily_itinerary: [], included: [], excluded: [], internal_notes: '', special_requests: '', payment_method: '', archived: false };
 
   function BookingModal({ initial, onClose, onSaved, onView }) {
     const [b, setB] = useState(() => ({ ...EMPTY_BOOKING, ...initial, daily_itinerary: (initial && initial.daily_itinerary) || [], included: (initial && initial.included) || [], excluded: (initial && initial.excluded) || [] }));
@@ -436,7 +436,8 @@
     const setAct = (di, ai, k, v) => setB(p => { const a = [...p.daily_itinerary]; const ac = [...a[di].activities]; ac[ai] = { ...ac[ai], [k]: v }; a[di] = { ...a[di], activities: ac }; return { ...p, daily_itinerary: a }; });
     const delAct = (di, ai) => setB(p => { const a = [...p.daily_itinerary]; const ac = [...a[di].activities]; ac.splice(ai, 1); a[di] = { ...a[di], activities: ac }; return { ...p, daily_itinerary: a }; });
     const delDay = (i) => setB(p => ({ ...p, daily_itinerary: p.daily_itinerary.filter((_, x) => x !== i).map((d, x) => ({ ...d, day: x + 1 })) }));
-    const setList = (k, txt) => set(k, txt.split('\n').map(s => s.trim()).filter(Boolean));
+    // Keep the raw text (spaces & blank lines allowed); empties are dropped only at display/save time.
+    const setList = (k, txt) => set(k, txt.split('\n'));
 
     const save = async (closeAfter) => {
       if (!b.client_name.trim()) { alert('Client name is required'); return; }
@@ -467,7 +468,8 @@
         h('h4', { className: 'msa-section' }, 'Client'),
         h('div', { className: 'msa-grid-2' }, field('Full Name', 'client_name'), field('Email', 'email', 'email'), field('Phone', 'phone'), field('Nationality', 'nationality'),
           h('div', { className: 'msa-field' }, h('label', null, 'Lead Source'), h('select', { value: b.lead_source, onChange: (e) => set('lead_source', e.target.value) }, LEAD_SOURCES.map(s => h('option', { key: s, value: s }, s)))),
-          field('Reference', 'reference')),
+          field('Reference', 'reference'),
+          h('div', { className: 'msa-field msa-field-wide' }, h('label', null, 'Address'), h('input', { type: 'text', value: b.address || '', placeholder: 'Street, city, postal code, country', onChange: (e) => set('address', e.target.value) }))),
         h('h4', { className: 'msa-section' }, 'Trip'),
         h('div', { className: 'msa-grid-2' }, field('Arrival City', 'arrival_city'), field('Departure City', 'departure_city'),
           h('div', { className: 'msa-field' }, h('label', null, 'Arrival Date'), h('input', { type: 'date', value: b.arrival_date || '', onChange: (e) => setDate('arrival_date', e.target.value) })),
@@ -480,7 +482,8 @@
           h('input', { className: 'msa-day-in', placeholder: 'City', value: day.city || '', onChange: (e) => setDay(di, 'city', e.target.value) }),
           h('input', { className: 'msa-day-in', type: 'date', value: day.date || '', onChange: (e) => setDay(di, 'date', e.target.value) }),
           (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-act' },
-            h('div', { className: 'msa-act-row' }, h('input', { type: 'time', value: a.time, onChange: (e) => setAct(di, ai, 'time', e.target.value) }),
+            h('div', { className: 'msa-act-row' },
+              h('label', { className: 'msa-act-time' }, h('span', { className: 'msa-act-time-lbl' }, 'Time'), h('input', { type: 'time', value: a.time, onChange: (e) => setAct(di, ai, 'time', e.target.value) })),
               h('select', { value: a.type, onChange: (e) => setAct(di, ai, 'type', e.target.value) }, ACTIVITY_TYPES.map(t => h('option', { key: t, value: t }, t))),
               h('button', { className: 'msa-icon-btn', onClick: () => delAct(di, ai) }, ICON.x())),
             h('input', { className: 'msa-day-in', placeholder: 'Details…', value: a.details, onChange: (e) => setAct(di, ai, 'details', e.target.value) }))),
@@ -506,6 +509,11 @@
         h('h4', { className: 'msa-section' }, isAdminRole() ? 'Pricing, Payment & Status' : 'Status'),
         isAdminRole() ? h('div', { className: 'msa-grid-2' },
           h('div', { className: 'msa-field' }, h('label', null, 'Selling Price'), h('input', { type: 'number', value: b.selling_price || '', onChange: (e) => setPrice(parseFloat(e.target.value) || 0) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Deposit'),
+            h('label', { className: 'msa-toggle' },
+              h('input', { type: 'checkbox', checked: b.deposit_enabled !== false, onChange: (e) => set('deposit_enabled', e.target.checked) }),
+              h('span', { className: 'msa-toggle-ui' }),
+              h('span', { className: 'msa-toggle-lbl' }, (b.deposit_enabled !== false) ? ('Required · ' + kr(b.deposit_amount || 0)) : 'Not required'))),
           h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: b.status, onChange: (e) => set('status', e.target.value) }, STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))),
           h('div', { className: 'msa-field' }, h('label', null, 'Paid so far'), h('input', { type: 'number', value: b.paid_amount || '', onChange: (e) => setPaid(parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Balance'), h('div', { className: 'msa-readout ' + ((+b.balance > 0) ? 'msa-text-red' : 'msa-text-green') }, kr(b.balance))),
@@ -534,11 +542,12 @@
   // DOC MODAL — Itinerary + Invoice, PDF export + print
   // =====================================================================
   function exportPDF(filename) {
-    const el = document.getElementById('msa-printable'); if (!el) return;
+    // Export BOTH documents: itinerary (page 1) + invoice (page 2).
+    const el = document.getElementById('msa-print-both') || document.getElementById('msa-doc-preview'); if (!el) return;
     // Force any collapsible Terms/Payment boxes open so they appear in the PDF.
     el.querySelectorAll('details').forEach((d) => { d.open = true; });
     if (window.html2pdf) {
-      window.html2pdf().set({ margin: 8, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save();
+      window.html2pdf().set({ margin: 0, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 820 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], before: '.msa-print-page-2' } }).from(el).save();
     } else { window.print(); }
   }
   function DocModal({ booking, initialType, onClose, settings }) {
@@ -596,9 +605,9 @@
       // Decorative travel-magazine header band
       h('div', { className: 'msa-itin-hero' },
         h('img', { src: 'assets/logo.png', alt: '', className: 'msa-itin-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }),
-        h('div', { className: 'msa-itin-hero-icons', 'aria-hidden': 'true' }, '🌴   🐪   🎈   ✈️   🕌'),
-        h('h1', { className: 'msa-itin-title' }, 'REISEPLAN'),
-        h('div', { className: 'msa-itin-path', 'aria-hidden': 'true' })),
+        h('span', { className: 'msa-itin-kicker' }, 'Private travel itinerary'),
+        h('h1', { className: 'msa-itin-title' }, 'Reiseplan'),
+        h('div', { className: 'msa-itin-rule', 'aria-hidden': 'true' })),
       // Trip info strip
       h('div', { className: 'msa-itin-info' },
         h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'For'), h('span', { className: 'msa-itin-info-v' }, b.client_name || '—')),
@@ -608,32 +617,69 @@
         h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, 'Ref'), h('span', { className: 'msa-itin-info-v' }, b.reference || '—'))),
       h('div', { className: 'msa-doc-days' }, (b.daily_itinerary || []).length === 0 ? h('p', { className: 'msa-dim' }, 'No daily itinerary added yet.')
         : (b.daily_itinerary || []).map((day, i) => h('div', { key: i, className: 'msa-doc-day' },
-            h('div', { className: 'msa-doc-day-head' }, h('h3', null, 'Day ' + day.day), day.city && h('span', null, '— ' + day.city), h('span', { className: 'msa-dim msa-doc-date' }, day.date || 'TBD')),
-            (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', null, h('strong', null, a.type), h('p', null, a.details))))))),
-      ((b.included || []).length || (b.excluded || []).length) ? h('div', { className: 'msa-doc-incl' },
-        (b.included || []).length ? h('div', null, h('h3', null, 'Included'), h('ul', { className: 'msa-incl-list' }, b.included.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
-        (b.excluded || []).length ? h('div', null, h('h3', null, 'Not included'), h('ul', { className: 'msa-incl-list' }, b.excluded.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null,
+            h('span', { className: 'msa-doc-daynum', 'aria-hidden': 'true' }, day.day),
+            h('div', { className: 'msa-doc-day-head' }, h('h3', null, day.city ? ('Day ' + day.day + ' · ' + day.city) : ('Day ' + day.day)), h('span', { className: 'msa-dim msa-doc-date' }, day.date || 'TBD')),
+            h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, a.type), a.details ? h('p', null, a.details) : null))))))),
+      (function () {
+        const inc = (b.included || []).filter(x => x && String(x).trim());
+        const exc = (b.excluded || []).filter(x => x && String(x).trim());
+        return (inc.length || exc.length) ? h('div', { className: 'msa-doc-incl' },
+          inc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, 'Included'), h('ul', { className: 'msa-incl-list' }, inc.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
+          exc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, 'Not included'), h('ul', { className: 'msa-incl-list' }, exc.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null;
+      })(),
       S.payment_info ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Payment Information'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', null, S.payment_info)) : null,
       S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null,
       docBox(),
       h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'), h('p', null, cWeb + ' | ' + cPhone)));
-    const invoice = () => { const sub = +b.selling_price || 0, paid = +b.paid_amount || +b.deposit_amount || 0, bal = +b.balance || (sub - paid);
-      return h('div', { className: 'msa-doc' },
-        h('div', { className: 'msa-doc-top' }, h('div', { className: 'msa-doc-brand' }, logo, h('div', null, h('h1', null, 'MarrakechStory'), h('p', null, 'Invoice #' + (S.invoice_prefix || 'INV') + '-' + (b.reference || '').split('-').pop()))),
-          h('div', { className: 'msa-doc-meta' }, h('h2', null, 'INVOICE'), h('p', null, 'Date: ' + new Date().toLocaleDateString()))),
-        h('div', { className: 'msa-doc-cols' }, h('div', null, h('h3', null, 'Bill To'), h('p', { className: 'msa-doc-big' }, b.client_name), h('p', { className: 'msa-dim' }, b.email || ''), h('p', { className: 'msa-dim' }, b.phone || '')),
-          h('div', { className: 'msa-right' }, h('h3', null, 'Payment'), h('p', { className: 'msa-dim' }, 'Status: ' + (STATUS_LABEL[b.status] || b.status)), h('p', { className: 'msa-dim' }, 'Method: ' + (b.payment_method || 'Bank Transfer')))),
-        h('table', { className: 'msa-table msa-doc-table' }, h('thead', null, h('tr', null, h('th', null, 'Description'), h('th', { className: 'msa-right' }, 'Amount'))),
-          h('tbody', null, h('tr', null, h('td', null, h('strong', null, 'Bespoke Travel Package'), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' Nights: ' + (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, ((b.adults || 0) + (b.kids || 0)) + ' Travelers')), h('td', { className: 'msa-right' }, kr(sub))))),
-        h('div', { className: 'msa-doc-totals' }, h('div', null, h('span', { className: 'msa-dim' }, 'Subtotal'), h('span', null, kr(sub))),
-          h('div', null, h('span', { className: 'msa-dim' }, 'Paid'), h('span', { className: 'msa-text-green' }, '-' + kr(paid))),
-          h('div', { className: 'msa-doc-balance' }, h('span', null, 'Balance Due'), h('span', { className: (bal > 0 ? 'msa-text-red' : 'msa-text-green') }, kr(bal)))),
-        h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Bank Transfer Details'), h('div', { className: 'msa-bank-grid' },
-          h('span', { className: 'msa-dim' }, 'Bank Name:'), h('span', null, S.bank_name || 'BMCE Bank of Africa'), h('span', { className: 'msa-dim' }, 'Account Name:'), h('span', null, S.account_name || 'MarrakechStory SARL'),
-          h('span', { className: 'msa-dim' }, 'RIB:'), h('span', null, S.rib || '011 450 0000 123456789012 34'), h('span', { className: 'msa-dim' }, 'SWIFT:'), h('span', null, S.swift || 'BMCE MAMC'))),
-        S.payment_info ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Payment Information'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', null, S.payment_info)) : null,
-        S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null); };
-    const fname = (type === 'itinerary' ? 'Itinerary-' : 'Invoice-') + (b.reference || 'MS') + '.pdf';
+    const invoice = () => {
+      const sub = +b.selling_price || 0;
+      const paid = +b.paid_amount || 0;
+      const depEnabled = b.deposit_enabled !== false;
+      const depPct = +S.deposit_pct || 20;
+      const dep = depEnabled ? (+b.deposit_amount || Math.round(sub * depPct / 100)) : 0;
+      const bal = sub - paid;
+      const method = b.payment_method || 'Bank Transfer';
+      const isBank = /bank|transfer|virement/i.test(method);
+      const payRow = (k, v) => [h('span', { className: 'msa-dim' }, k), h('span', null, v || '—')];
+      const paymentBox = isBank
+        ? h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Bank transfer details'), h('div', { className: 'msa-bank-grid' },
+            payRow('Bank name:', S.bank_name || 'BMCE Bank of Africa'), payRow('Account name:', S.account_name || cName),
+            payRow('RIB:', S.rib || '011 450 0000 123456789012 34'), payRow('SWIFT:', S.swift || 'BMCE MAMC')))
+        : h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Pay via ' + method), h('div', { className: 'msa-bank-grid' },
+            payRow(method + ':', method === 'Revolut' ? (S.revolut || S.company_phone || cPhone)
+              : method === 'Wise' ? (S.wise || S.company_email)
+              : method === 'PayPal' ? (S.paypal || S.company_email)
+              : (S.payment_info || S.company_email))));
+      const payNote = depEnabled
+        ? 'A deposit of ' + kr(dep) + ' (' + depPct + '%) confirms your booking. The remaining ' + kr(sub - dep) + ' is due before departure.'
+        : 'Full payment of ' + kr(sub) + ' is required to confirm your booking.';
+      const infoCell = (k, v) => h('div', { className: 'msa-itin-info-cell' }, h('span', { className: 'msa-itin-info-k' }, k), h('span', { className: 'msa-itin-info-v' }, v || '—'));
+      return h('div', { className: 'msa-doc msa-doc-itin msa-doc-inv' },
+        h('div', { className: 'msa-itin-hero' },
+          h('img', { src: 'assets/logo.png', alt: '', className: 'msa-itin-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }),
+          h('span', { className: 'msa-itin-kicker' }, 'Invoice'),
+          h('h1', { className: 'msa-itin-title' }, 'Faktura'),
+          h('div', { className: 'msa-itin-rule', 'aria-hidden': 'true' })),
+        h('div', { className: 'msa-itin-info' },
+          infoCell('Billed to', b.client_name),
+          infoCell('Invoice', (S.invoice_prefix || 'INV') + '-' + (b.reference || '').split('-').pop()),
+          infoCell('Date', new Date().toLocaleDateString()),
+          infoCell('Method', method),
+          infoCell('Status', STATUS_LABEL[b.status] || b.status)),
+        h('div', { className: 'msa-inv-body' },
+          (b.address || b.email || b.phone) ? h('div', { className: 'msa-inv-billto' }, h('h3', null, 'Bill to'), h('p', { className: 'msa-doc-big' }, b.client_name), b.address ? h('p', { className: 'msa-dim' }, b.address) : null, ([b.email, b.phone].filter(Boolean).length ? h('p', { className: 'msa-dim' }, [b.email, b.phone].filter(Boolean).join('   ·   ')) : null)) : null,
+          h('table', { className: 'msa-table msa-doc-table' }, h('thead', null, h('tr', null, h('th', null, 'Description'), h('th', { className: 'msa-right' }, 'Amount'))),
+            h('tbody', null, h('tr', null, h('td', null, h('strong', null, 'Bespoke Travel Package'), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' Nights: ' + (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, ((b.adults || 0) + (b.kids || 0)) + ' Travelers')), h('td', { className: 'msa-right' }, kr(sub))))),
+          h('div', { className: 'msa-doc-totals' },
+            h('div', null, h('span', { className: 'msa-dim' }, 'Subtotal'), h('span', null, kr(sub))),
+            (depEnabled && paid <= 0) ? h('div', null, h('span', { className: 'msa-dim' }, 'Deposit to confirm (' + depPct + '%)'), h('span', { className: 'msa-text-brand' }, kr(dep))) : null,
+            (paid > 0) ? h('div', null, h('span', { className: 'msa-dim' }, 'Paid'), h('span', { className: 'msa-text-green' }, '-' + kr(paid))) : null,
+            h('div', { className: 'msa-doc-balance' }, h('span', null, paid > 0 ? 'Balance Due' : 'To pay'), h('span', { className: (bal > 0 ? 'msa-text-red' : 'msa-text-green') }, kr(bal)))),
+          h('p', { className: 'msa-doc-paynote' }, payNote),
+          paymentBox,
+          S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null),
+        h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory.'), h('p', null, cWeb + ' | ' + cPhone))); };
+    const fname = 'MarrakechStory-' + (b.reference || 'MS') + '.pdf';
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-doc', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head msa-print-hide' },
         h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice')),
@@ -642,7 +688,13 @@
         h('div', null, h('button', { className: 'msa-btn msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download PDF'),
           (b.phone) && h('a', { className: 'msa-btn', href: waLink(b.phone), target: '_blank' }, ICON.whatsapp(), 'Send'),
           h('button', { className: 'msa-btn', onClick: () => window.print() }, ICON.print(), 'Print'), h('button', { className: 'msa-btn', onClick: onClose }, ICON.x()))),
-      h('div', { className: 'msa-modal-body', id: 'msa-printable' }, type === 'itinerary' ? itinerary() : invoice())));
+      h('div', { className: 'msa-modal-body' },
+        h('div', { id: 'msa-doc-preview' }, type === 'itinerary' ? itinerary() : invoice()),
+        // Always rendered off-screen so Download/Print export BOTH documents,
+        // itinerary on page 1 and invoice on page 2.
+        h('div', { id: 'msa-print-both', className: 'msa-print-both', 'aria-hidden': 'true' },
+          h('div', { className: 'msa-print-page' }, itinerary()),
+          h('div', { className: 'msa-print-page msa-print-page-2' }, invoice())))));
   }
 
   // =====================================================================
@@ -1579,7 +1631,7 @@
     };
     const set = (k, v) => setS(p => ({ ...p, [k]: v }));
     const save = async () => { setBusy(true); setMsg('');
-      const row = { id: 1, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', terms_conditions: s.terms_conditions, payment_info: s.payment_info, updated_at: new Date().toISOString() };
+      const row = { id: 1, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, revolut: s.revolut, wise: s.wise, paypal: s.paypal, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', terms_conditions: s.terms_conditions, payment_info: s.payment_info, updated_at: new Date().toISOString() };
       const sb = getSB(); const { error } = await sb.from('admin_settings').upsert(row, { onConflict: 'id' });
       setBusy(false); setMsg(error ? 'Save failed: ' + error.message : 'Saved ✓'); if (!error) onSaved && onSaved(); };
     const changePw = async () => { setPwMsg(''); if (pw.length < 8) { setPwMsg('Min 8 characters'); return; } if (pw !== pw2) { setPwMsg('Passwords do not match'); return; }
@@ -1593,6 +1645,8 @@
         h('div', { className: 'msa-grid-2' }, fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))) : null,
       admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Invoice & bank (admin only)')),
         h('div', { className: 'msa-grid-2' }, fld('Invoice prefix', 'invoice_prefix', 'INV'), fld('Default deposit %', 'deposit_pct'), fld('Bank name', 'bank_name'), fld('Account name', 'account_name'), fld('RIB', 'rib'), fld('SWIFT', 'swift')),
+        h('h4', { className: 'msa-section', style: { marginTop: 16 } }, 'Online payment handles (shown on the invoice for the matching method)'),
+        h('div', { className: 'msa-grid-2' }, fld('Revolut', 'revolut', '@revtag or revolut.me/…'), fld('Wise', 'wise', 'email or wise.com/pay/…'), fld('PayPal', 'paypal', 'email or paypal.me/…')),
         h('div', { className: 'msa-field', style: { marginTop: 12 } }, h('label', null, 'Invoice footer note'), h('textarea', { rows: 2, value: s.invoice_footer || '', onChange: (e) => set('invoice_footer', e.target.value) }))) : null,
       admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Payment Information & Terms')),
         h('div', { className: 'msa-field' }, h('label', null, 'Payment information (shown on itinerary & invoice)'), h('textarea', { rows: 3, value: s.payment_info || '', onChange: (e) => set('payment_info', e.target.value) })),
