@@ -1363,3 +1363,23 @@
 .msa-act-time { display: inline-flex; flex-direction: column; gap: 3px; flex: 0 0 auto; }
 .msa-act-time-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--msa-dim); padding-left: 2px; }
 .msa-act-time input { font-weight: 700; }
+
+/* ── Compact spacing for the PDF/print pages (fit closer to one A4 page) ── */
+.msa-print-page .msa-itin-hero { padding: 22px 40px 12px; }
+.msa-print-page .msa-itin-logo { top: 22px; width: 38px; }
+.msa-print-page .msa-itin-title { font-size: 32px; }
+.msa-print-page .msa-itin-kicker { margin-bottom: 6px; }
+.msa-print-page .msa-itin-rule { margin-top: 13px; }
+.msa-print-page .msa-itin-info { padding: 2px 40px 0; }
+.msa-print-page .msa-itin-info-cell { padding: 11px 24px 11px 0; }
+.msa-print-page .msa-doc-days { padding: 18px 40px 2px; }
+.msa-print-page .msa-doc-day { padding-bottom: 15px; }
+.msa-print-page .msa-doc-day::before { top: 34px; }
+.msa-print-page .msa-doc-day-head { margin: 4px 0 9px; }
+.msa-print-page .msa-doc-acts { padding: 1px 16px; }
+.msa-print-page .msa-doc-act { padding: 8px 0; }
+.msa-print-page .msa-doc-incl { padding: 12px 40px 16px; }
+.msa-print-page .msa-doc-foot { padding: 16px 40px; }
+.msa-print-page .msa-inv-body { padding: 14px 40px 2px; }
+.msa-print-page .msa-doc-table td { padding: 12px 0; }
+.msa-print-page .msa-doc-bank { padding: 14px; margin-top: 14px; }

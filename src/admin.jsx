@@ -541,14 +541,30 @@
   // =====================================================================
   // DOC MODAL — Itinerary + Invoice, PDF export + print
   // =====================================================================
+  // Export BOTH documents as one PDF, full-width and readable: the itinerary
+  // first, then the invoice ALWAYS on a fresh page. Short trips → one page each.
+  // Cloned off the zoomed admin root + explicit canvas size, because html2canvas
+  // miscounts the height of off-screen / zoomed nodes (was producing a blank PDF).
   function exportPDF(filename) {
-    // Export BOTH documents: itinerary (page 1) + invoice (page 2).
-    const el = document.getElementById('msa-print-both') || document.getElementById('msa-doc-preview'); if (!el) return;
-    // Force any collapsible Terms/Payment boxes open so they appear in the PDF.
-    el.querySelectorAll('details').forEach((d) => { d.open = true; });
-    if (window.html2pdf) {
-      window.html2pdf().set({ margin: 0, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 820 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], before: '.msa-print-page-2' } }).from(el).save();
-    } else { window.print(); }
+    const src = document.getElementById('msa-print-both'); if (!src) return;
+    if (!window.html2pdf) { window.print(); return; }
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:absolute; top:0; left:0; width:794px; background:#fff; z-index:-1;';
+    holder.innerHTML = src.innerHTML;
+    holder.querySelectorAll('details').forEach((d) => { d.open = true; });
+    document.body.appendChild(holder);
+    const cleanup = () => { try { holder.remove(); } catch (e) {} };
+    setTimeout(function () {
+      const H = holder.scrollHeight;
+      const w = window.html2pdf().set({
+        margin: 0, filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794, height: H, windowWidth: 794, windowHeight: H },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'], before: '.msa-print-page-2' }
+      }).from(holder).save();
+      if (w && typeof w.then === 'function') w.then(cleanup, cleanup); else setTimeout(cleanup, 8000);
+    }, 250);
   }
   function DocModal({ booking, initialType, onClose, settings }) {
     const [type, setType] = useState(initialType || 'itinerary');
