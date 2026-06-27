@@ -542,11 +542,9 @@
   // DOC MODAL — Itinerary + Invoice, PDF export + print
   // =====================================================================
   // Export BOTH documents — itinerary (page 1) + invoice (page 2), ONE page each.
-  // We render the WHOLE off-screen block to a single high-res canvas, then SLICE it
-  // per page and fit each slice to its own A4 page. (Capturing each page element on
-  // its own makes html2canvas collapse the invoice to a blank canvas; capturing the
-  // whole block and slicing is reliable.) Cloned off the zoomed admin root with an
-  // explicit canvas size, because html2canvas miscounts height for zoomed nodes.
+  // Each page is captured to its own high-res canvas and scaled to fit an A4 page,
+  // so nothing is cut and the split is exact. Cloned off the zoomed admin root with
+  // an explicit canvas size, because html2canvas miscounts height for zoomed nodes.
   function exportPDF(filename) {
     const src = document.getElementById('msa-print-both'); if (!src) return;
     if (!window.html2pdf) { window.print(); return; }
@@ -555,35 +553,40 @@
     holder.innerHTML = src.innerHTML;
     holder.querySelectorAll('details').forEach((d) => { d.open = true; });
     document.body.appendChild(holder);
+    const pages = Array.prototype.slice.call(holder.querySelectorAll('.msa-print-page'));
     const cleanup = () => { try { holder.remove(); } catch (e) {} };
-    setTimeout(function () {
-      const SCALE = 2.5, totalH = holder.scrollHeight;
-      window.html2pdf().set({ html2canvas: { scale: SCALE, useCORS: true, backgroundColor: '#ffffff', width: 794, height: totalH, windowWidth: 794, windowHeight: totalH } })
-        .from(holder).toCanvas().get('canvas', (big) => {
-          const hostTop = holder.getBoundingClientRect().top;
-          const pages = Array.prototype.slice.call(holder.querySelectorAll('.msa-print-page'))
-            .map((p) => { const r = p.getBoundingClientRect(); return { top: Math.round(r.top - hostTop), h: Math.round(r.height) }; });
-          cleanup();
-          const tiny = document.createElement('div'); tiny.style.cssText = 'width:1px;height:1px;'; document.body.appendChild(tiny);
-          window.html2pdf().set({ jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, html2canvas: { scale: 1 }, margin: 0 })
-            .from(tiny).toPdf().get('pdf', (pdf) => {
-              try { tiny.remove(); } catch (e) {}
-              const PW = 210, PH = 297, M = 7; let first = true;
-              pages.forEach((pg) => {
-                const sy = pg.top * SCALE, sh = Math.min(pg.h * SCALE, big.height - sy);
-                if (sh < 4) return;
-                const slice = document.createElement('canvas'); slice.width = big.width; slice.height = sh;
-                const sctx = slice.getContext('2d'); sctx.fillStyle = '#fff'; sctx.fillRect(0, 0, slice.width, slice.height);
-                sctx.drawImage(big, 0, sy, big.width, sh, 0, 0, big.width, sh);
-                if (!first) pdf.addPage(); first = false;
-                const availW = PW - 2 * M, availH = PH - 2 * M;
-                let w = availW, hh = (slice.height / slice.width) * w;
-                if (hh > availH) { hh = availH; w = (slice.width / slice.height) * hh; }
-                pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', (PW - w) / 2, M, w, hh);
-              });
-              pdf.save(filename);
-            }).then(() => {}, () => {});
-        }).then(() => {}, () => { cleanup(); });
+    const capture = (el) => new Promise((resolve) => {
+      const H = el.scrollHeight;
+      window.html2pdf().set({ html2canvas: { scale: 2.5, useCORS: true, backgroundColor: '#ffffff', width: 794, height: H, windowWidth: 794, windowHeight: H } })
+        .from(el).toCanvas().get('canvas', (c) => resolve(c)).then(() => {}, () => resolve(null));
+    });
+    setTimeout(async () => {
+      const canvases = [];
+      for (const el of pages) { canvases.push(await capture(el)); }
+      cleanup();
+      const valid = canvases.filter(Boolean);
+      if (!valid.length) return;
+      const tiny = document.createElement('div'); tiny.style.cssText = 'width:1px;height:1px;'; document.body.appendChild(tiny);
+      window.html2pdf().set({ jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, html2canvas: { scale: 1 }, margin: 0 })
+        .from(tiny).toPdf().get('pdf', (pdf) => {
+          try { tiny.remove(); } catch (e) {}
+          const PW = 210, PH = 297, M = 7; let first = true;
+          valid.forEach((c) => {
+            if (!first) pdf.addPage(); first = false;
+            const availW = PW - 2 * M, availH = PH - 2 * M;
+            let w = availW, hh = (c.height / c.width) * w;
+            if (hh > availH) { hh = availH; w = (c.width / c.height) * hh; }
+            pdf.addImage(c.toDataURL('image/jpeg', 0.95), 'JPEG', (PW - w) / 2, M, w, hh);
+          });
+          // Force a real file download (some browsers open pdf.save() in a tab instead).
+          try {
+            const blob = pdf.output('blob');
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click();
+            setTimeout(() => { try { URL.revokeObjectURL(url); a.remove(); } catch (e) {} }, 1500);
+          } catch (e) { pdf.save(filename); }
+        }).then(() => {}, () => {});
     }, 250);
   }
   function DocModal({ booking, initialType, onClose, settings }) {
@@ -673,8 +676,6 @@
           inc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, 'Included'), h('ul', { className: 'msa-incl-list' }, inc.map((x, i) => h('li', { key: i, className: 'msa-incl-yes' }, x)))) : null,
           exc.length ? h('div', { className: 'msa-incl-col' }, h('h3', null, 'Not included'), h('ul', { className: 'msa-incl-list' }, exc.map((x, i) => h('li', { key: i, className: 'msa-incl-no' }, x)))) : null) : null;
       })(),
-      S.payment_info ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Payment Information'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', null, S.payment_info)) : null,
-      S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null,
       docBox(),
       h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory. We wish you an unforgettable journey.'), h('p', null, cWeb + ' | ' + cPhone)));
     const invoice = () => {
@@ -725,15 +726,22 @@
           paymentBox,
           S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, 'Terms & Conditions'), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null),
         h('div', { className: 'msa-doc-foot' }, h('p', null, S.invoice_footer || 'Thank you for choosing MarrakechStory.'), h('p', null, cWeb + ' | ' + cPhone))); };
-    const fname = 'MarrakechStory-' + (b.reference || 'MS') + '.pdf';
+    const fname = 'MarrakechStory-' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + '-' + (b.reference || 'MS') + '.pdf';
+    const docLabel = type === 'invoice' ? 'fakturaen' : 'reiseplanen';
+    const shareSubject = 'MarrakechStory — ' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + (b.reference ? (' ' + b.reference) : '');
+    const shareBody = 'Hei ' + (b.client_name || '') + ',\n\nVedlagt finner du ' + docLabel + ' for reisen din til ' + (b.arrival_city || 'Marokko') + '.'
+      + '\nTa gjerne kontakt om du har spørsmål.\n\nVennlig hilsen,\nMarrakechStory\n' + cPhone + ' · ' + cWeb;
+    const mailHref = 'mailto:' + encodeURIComponent(b.email || '') + '?subject=' + encodeURIComponent(shareSubject) + '&body=' + encodeURIComponent(shareBody);
+    const waHref = waLink(b.phone) + '?text=' + encodeURIComponent(shareBody);
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-doc', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head msa-print-hide' },
         h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice')),
         h('label', { className: 'msa-btn msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
           h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
-        h('div', null, h('button', { className: 'msa-btn msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download PDF'),
-          (b.phone) && h('a', { className: 'msa-btn', href: waLink(b.phone), target: '_blank' }, ICON.whatsapp(), 'Send'),
-          h('button', { className: 'msa-btn', onClick: () => window.print() }, ICON.print(), 'Print'), h('button', { className: 'msa-btn', onClick: onClose }, ICON.x()))),
+        h('div', null, h('button', { className: 'msa-btn msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download'),
+          h('a', { className: 'msa-btn', href: mailHref, title: b.email ? ('Send via email to ' + b.email) : 'Compose email (no address on file)' }, ICON.requests(), 'Email'),
+          h('a', { className: 'msa-btn', href: waHref, target: '_blank', title: b.phone ? ('Send via WhatsApp to ' + b.phone) : 'Send via WhatsApp' }, ICON.whatsapp(), 'WhatsApp'),
+          h('button', { className: 'msa-btn', onClick: onClose }, ICON.x()))),
       h('div', { className: 'msa-modal-body' },
         h('div', { id: 'msa-doc-preview' }, type === 'itinerary' ? itinerary() : invoice()),
         // Always rendered off-screen so Download/Print export BOTH documents,

@@ -1343,7 +1343,8 @@
    ============================================================ */
 .msa-print-both { position: absolute; left: -10000px; top: 0; width: 794px; background: #fff; }
 .msa-print-both .msa-print-page { width: 794px; background: #fff; }
-.msa-print-page-2 { break-before: page; page-break-before: always; }
+/* No CSS page-break here: the PDF export slices each .msa-print-page manually.
+   A `break-before:page` on this node makes html2canvas drop the invoice. */
 
 /* ── Invoice — matches the itinerary (white, Apple) ── */
 .msa-doc-inv .msa-inv-body { padding: 22px 44px 6px; }
