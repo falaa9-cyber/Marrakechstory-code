@@ -557,7 +557,10 @@
     const cleanup = () => { try { holder.remove(); } catch (e) {} };
     const capture = (el) => new Promise((resolve) => {
       const H = el.scrollHeight;
-      window.html2pdf().set({ html2canvas: { scale: 2.5, useCORS: true, backgroundColor: '#ffffff', width: 794, height: H, windowWidth: 794, windowHeight: H } })
+      // windowWidth MUST stay at a desktop width (1280): the site's responsive CSS
+      // switches to a narrow mobile layout below ~800px, and html2canvas honours the
+      // sandbox viewport — windowWidth:794 was rendering the squished mobile layout.
+      window.html2pdf().set({ html2canvas: { scale: 2.5, useCORS: true, backgroundColor: '#ffffff', width: 794, height: H, windowWidth: 1280, windowHeight: H } })
         .from(el).toCanvas().get('canvas', (c) => resolve(c)).then(() => {}, () => resolve(null));
     });
     setTimeout(async () => {
