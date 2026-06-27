@@ -573,7 +573,9 @@
 
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-wide msa-modal-booking', onClick: (e) => e.stopPropagation() },
       h('div', { className: 'msa-modal-head' },
-        h('h2', null, b.id ? 'Edit Booking' : 'New Booking', b.reference && h('span', { className: 'msa-ref-chip' }, b.reference)),
+        h('div', { className: 'msa-bk-title' },
+          h('h2', null, b.id ? 'Edit Booking' : 'New Booking', b.reference && h('span', { className: 'msa-ref-chip' }, b.reference)),
+          h('p', { className: 'msa-bk-sub' }, b.id ? 'Trip, itinerary, pricing & documents' : 'Create a new client booking')),
         h('div', null,
           b.id && onView && h('button', { className: 'msa-btn', onClick: () => onView(b, 'itinerary') }, ICON.doc(), 'Itinerary'),
           b.id && onView && isAdminRole() && h('button', { className: 'msa-btn', onClick: () => onView(b, 'invoice') }, ICON.invoice(), 'Invoice'),

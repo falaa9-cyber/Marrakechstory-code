@@ -1306,52 +1306,105 @@
    only the boxes + layout are restyled; adapts to dark mode
    via the --msa-* variables)
    ============================================================ */
-.msa-modal-booking { max-width: 1040px; border-radius: 26px; overflow: hidden;
-  box-shadow: 0 40px 120px -30px rgba(20,16,30,0.5); }
+.msa-modal-booking { max-width: 1080px; border-radius: 28px; overflow: hidden;
+  box-shadow: 0 50px 130px -34px rgba(20,16,30,0.55); }
 .msa-modal-booking .msa-modal-head {
-  padding: 20px 26px; border-bottom: 1px solid var(--msa-line);
+  padding: 19px 28px; border-bottom: 1px solid var(--msa-line);
   background: var(--msa-card);
-  background: color-mix(in srgb, var(--msa-card) 78%, transparent);
-  -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px);
-  border-radius: 26px 26px 0 0; }
+  background: color-mix(in srgb, var(--msa-card) 82%, transparent);
+  -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px);
+  border-radius: 28px 28px 0 0; align-items: flex-start; }
 /* The public site sets `h2 { font-size: clamp(38px,5.5vw,80px) !important }`,
    which leaks into admin modal titles — pin them back. */
 .msa-modal-head h2 { font-size: 20px !important; }
-.msa-modal-booking .msa-modal-head h2 { font-size: 21px !important; font-weight: 700; letter-spacing: -0.02em; }
-.msa-modal-booking .msa-modal-head .msa-btn { border-radius: 999px; }
-.msa-modal-booking .msa-modal-body { padding: 22px 26px 30px; background: var(--msa-bg); }
+.msa-modal-booking .msa-bk-title { display: flex; flex-direction: column; gap: 3px; }
+.msa-modal-booking .msa-modal-head h2 { font-size: 22px !important; font-weight: 700; letter-spacing: -0.025em; }
+.msa-modal-booking .msa-bk-sub { margin: 0; font-size: 12.5px; font-weight: 500; color: var(--msa-dim); letter-spacing: 0; }
+.msa-modal-booking .msa-modal-head > div:last-child { padding-top: 3px; }
+.msa-modal-booking .msa-modal-head .msa-btn { border-radius: 999px; font-weight: 600; }
+.msa-modal-booking .msa-modal-body { padding: 24px 28px 36px; background: var(--msa-bg); }
 
-/* Section title — quiet, clean (no underline rule) */
+/* Section title — quiet, clean, with a slim brand accent */
 .msa-modal-booking .msa-section {
-  border-bottom: none; text-transform: none; letter-spacing: -0.01em;
-  font-size: 15px; font-weight: 700; color: var(--msa-ink);
-  margin: 24px 4px 11px; padding: 0; }
+  border-bottom: none; text-transform: none; letter-spacing: -0.015em;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+  font-size: 16px; font-weight: 700; color: var(--msa-ink);
+  margin: 26px 4px 12px; padding: 0 0 0 13px; position: relative; }
+.msa-modal-booking .msa-section::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 4px; height: 15px; border-radius: 3px; background: var(--msa-brand); }
 .msa-modal-booking .msa-section:first-child { margin-top: 4px; }
-.msa-modal-booking .msa-section-row { margin-bottom: 13px; }
+.msa-modal-booking .msa-section-row { margin-bottom: 14px; padding-left: 13px; }
+.msa-modal-booking .msa-section-row::before { top: 11px; transform: none; }
 
 /* Each field group → soft floating card */
 .msa-modal-booking .msa-grid-2 {
   background: var(--msa-card); border: 1px solid var(--msa-card-border, var(--msa-line));
-  border-radius: 18px; padding: 20px; gap: 15px 18px;
-  box-shadow: 0 1px 2px rgba(20,16,30,0.04), 0 14px 36px -28px rgba(20,16,30,0.3); }
+  border-radius: 20px; padding: 22px 22px 23px; gap: 16px 20px;
+  box-shadow: 0 1px 2px rgba(20,16,30,0.04), 0 18px 46px -30px rgba(20,16,30,0.32); }
 
 /* Apple-style labels + inputs */
 .msa-modal-booking .msa-field label {
-  text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 600;
+  text-transform: none; letter-spacing: 0; font-size: 11.5px; font-weight: 600;
   color: var(--msa-dim); margin-left: 2px; }
 .msa-modal-booking .msa-field input,
 .msa-modal-booking .msa-field select,
 .msa-modal-booking .msa-field textarea {
-  background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 12px;
-  padding: 11px 14px; font-size: 14.5px; color: var(--msa-ink);
+  background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 13px;
+  padding: 11px 14px; font-size: 14.5px; color: var(--msa-ink); line-height: 1.3;
   transition: border-color .16s, box-shadow .16s, background .16s; }
+.msa-modal-booking .msa-field input:hover,
+.msa-modal-booking .msa-field select:hover,
+.msa-modal-booking .msa-field textarea:hover { border-color: #d3d3da; }
 .msa-modal-booking .msa-field input:focus,
 .msa-modal-booking .msa-field select:focus,
 .msa-modal-booking .msa-field textarea:focus {
   border-color: var(--msa-brand); background: var(--msa-card);
-  box-shadow: 0 0 0 4px rgba(224,67,42,0.15); }
+  box-shadow: 0 0 0 4px rgba(224,67,42,0.13); }
+.msa-modal-booking .msa-field input::placeholder,
+.msa-modal-booking .msa-field textarea::placeholder { color: #b6b6be; }
+
+/* Custom select chevron (Apple-style) */
+.msa-modal-booking .msa-field select {
+  -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 13px center; }
+
+/* Date & time fields — elegant, premium calendar look */
+.msa-modal-booking .msa-field input[type=date],
+.msa-modal-booking .msa-field input[type=time] { cursor: pointer; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.msa-modal-booking .msa-field input[type=date]::-webkit-calendar-picker-indicator,
+.msa-modal-booking .msa-field input[type=time]::-webkit-calendar-picker-indicator {
+  opacity: .5; cursor: pointer; padding: 3px; border-radius: 7px; transition: opacity .15s, background .15s; }
+.msa-modal-booking .msa-field input[type=date]:hover::-webkit-calendar-picker-indicator,
+.msa-modal-booking .msa-field input[type=time]:hover::-webkit-calendar-picker-indicator { opacity: .85; }
+.msa-modal-booking .msa-field input[type=date]::-webkit-calendar-picker-indicator:hover { background: rgba(224,67,42,.12); opacity: 1; }
+
 .msa-modal-booking .msa-readout {
-  background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 12px; }
+  background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 13px;
+  padding: 11px 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Daily-itinerary editor — match the elegant card style */
+.msa-modal-booking .msa-day-grid { gap: 14px; }
+.msa-modal-booking .msa-day-card {
+  background: var(--msa-card); border: 1px solid var(--msa-card-border, var(--msa-line)); border-radius: 18px; padding: 14px;
+  box-shadow: 0 1px 2px rgba(20,16,30,0.04), 0 14px 36px -30px rgba(20,16,30,0.28); }
+.msa-modal-booking .msa-day-num { border-radius: 11px; }
+.msa-modal-booking .msa-day-in,
+.msa-modal-booking .msa-act-row input,
+.msa-modal-booking .msa-act-row select { border-radius: 11px; background: var(--msa-bg); transition: border-color .16s, box-shadow .16s, background .16s; }
+.msa-modal-booking .msa-day-in:focus,
+.msa-modal-booking .msa-act-row input:focus,
+.msa-modal-booking .msa-act-row select:focus { outline: none; border-color: var(--msa-brand); background: var(--msa-card); box-shadow: 0 0 0 3px rgba(224,67,42,0.12); }
+.msa-modal-booking .msa-act { border-radius: 12px; background: var(--msa-bg); }
+.msa-modal-booking .msa-act-row select { -webkit-appearance: none; appearance: none; padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 9px center; }
+/* "+ Day" / "+ Activity" buttons — soft pill */
+.msa-modal-booking .msa-section-row .msa-btn { border-radius: 999px; }
+.msa-modal-booking .msa-act + button.msa-btn-sm,
+.msa-modal-booking .msa-day-card > .msa-btn-sm { border-radius: 10px; border-style: dashed; width: 100%; justify-content: center; color: var(--msa-dim); }
 
 /* ============================================================
    Combined PDF/print container (itinerary p1 + invoice p2)
