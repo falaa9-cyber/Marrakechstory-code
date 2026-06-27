@@ -272,15 +272,20 @@
 .msa-readout { padding: 10px 13px; border-radius: 11px; background: #f4f4f6; font-weight: 700; }
 .msa-field-profit .msa-readout { background: var(--msa-green-soft); color: #1c7a3f; }
 .msa-ref-chip { vertical-align: middle; }
-.msa-day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-.msa-day-card { border: 1px solid var(--msa-line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #fafafa; }
+.msa-day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.msa-day-card { border: 1px solid var(--msa-line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #fafafa; min-width: 0; }
 .msa-day-head { display: flex; align-items: center; justify-content: space-between; }
 .msa-day-num { width: 32px; height: 32px; border-radius: 9px; background: var(--msa-brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-.msa-day-in { width: 100%; padding: 8px 11px; border: 1px solid var(--msa-line); border-radius: 9px; font-size: 13px; background: #fff; font-family: inherit; color: var(--msa-ink); }
-.msa-act { background: #fff; border: 1px solid var(--msa-line); border-radius: 9px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-.msa-act-row { display: flex; gap: 6px; align-items: center; }
-.msa-act-row input[type=time] { width: 80px; padding: 6px; border: 1px solid var(--msa-line); border-radius: 8px; font-size: 12px; }
-.msa-act-row select { flex: 1; padding: 6px; border: 1px solid var(--msa-line); border-radius: 8px; font-size: 12px; }
+.msa-day-in { width: 100%; max-width: 100%; box-sizing: border-box; padding: 8px 11px; border: 1px solid var(--msa-line); border-radius: 9px; font-size: 13px; background: #fff; font-family: inherit; color: var(--msa-ink); }
+.msa-act { background: #fff; border: 1px solid var(--msa-line); border-radius: 9px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.msa-act-row { display: flex; gap: 6px; align-items: flex-end; flex-wrap: wrap; }
+.msa-act-row input[type=time] { width: 76px; padding: 6px; border: 1px solid var(--msa-line); border-radius: 8px; font-size: 12px; box-sizing: border-box; }
+.msa-act-row select { flex: 1 1 110px; min-width: 0; max-width: 100%; padding: 6px 8px; border: 1px solid var(--msa-line); border-radius: 8px; font-size: 12px; background: #fff; box-sizing: border-box; }
+/* One age box per child */
+.msa-kid-ages { display: flex; flex-wrap: wrap; gap: 8px; }
+.msa-kid-age { display: inline-flex; flex-direction: column; gap: 3px; }
+.msa-kid-age-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--msa-dim); padding-left: 2px; }
+.msa-kid-age input { width: 86px; padding: 8px 10px; border: 1px solid var(--msa-line); border-radius: 9px; font-size: 13px; background: #fff; font-family: inherit; color: var(--msa-ink); box-sizing: border-box; }
 .msa-seg { display: inline-flex; background: #f0f0f3; border-radius: 10px; padding: 3px; gap: 2px; }
 .msa-seg button { border: none; background: none; padding: 6px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--msa-dim); }
 .msa-seg button.active { background: #fff; color: var(--msa-ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }

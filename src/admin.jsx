@@ -92,9 +92,9 @@
   const STATUS_LABEL = { new: 'New', quotation_sent: 'Quotation Sent', waiting_confirmation: 'Awaiting', confirmed: 'Confirmed', deposit_paid: 'Deposit Paid', fully_paid: 'Fully Paid', ongoing: 'Ongoing', completed: 'Completed', cancelled: 'Cancelled' };
   const STATUS_ORDER = Object.keys(STATUS_LABEL);
   const LEAD_SOURCES = ['website', 'whatsapp', 'instagram', 'referral', 'recommended', 'email', 'other'];
-  const ACTIVITY_TYPES = ['Transport','Guided Tour','Cooking Class','Hot Air Balloon','Paragliding','Agafay Day Pass','Agafay Dinner','Quad/Buggy','Camel Ride','Jet Ski','Restaurant','Spa/Hammam','Excursion'];
+  const ACTIVITY_TYPES = ['Transport','Airport Transfer','Private Driver','Check-in','Check-out','Guided Tour','City Tour','Medina Tour','Ourika Valley','Atlas Mountains','Agafay Day Pass','Agafay Dinner','Desert Camp','Sahara Trip','Essaouira Day Trip','Cooking Class','Hot Air Balloon','Paragliding','Quad/Buggy','Camel Ride','Horse Riding','Jet Ski','Surfing','Boat Trip','Golf','Waterfalls Trip','Shopping Tour','Photography Tour','Restaurant','Breakfast','Lunch','Dinner','Show / Entertainment','Spa/Hammam','Massage','Pool Day','Free Time','Other'];
   const SUP_TYPES = [['hotel','Hotel / Riad'],['driver','Transport / Driver'],['guide','Guide'],['camp','Desert Camp'],['activity','Activity Provider']];
-  const PAYMENT_METHODS = ['Bank Transfer', 'Revolut', 'Wise', 'PayPal', 'NOK Bank', 'MAD Bank'];
+  const PAYMENT_METHODS = ['Bank Transfer', 'Revolut', 'Wise', 'PayPal', 'Cash', 'NOK Bank', 'MAD Bank'];
   // Stable distinct color per booking (so spans are easy to follow on the calendar)
   const BK_PALETTE = ['#e0432a', '#0a84ff', '#34c759', '#ff9f0a', '#af52de', '#ff2d55', '#0aa2c0', '#a2845e', '#d4a017', '#1c7a3f', '#5856d6', '#ff6482', '#00b8a3', '#c2410c'];
   function bkColor(b) { const s = String((b && (b.reference || b.id || b.client_name)) || ''); let n = 0; for (let i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0; return BK_PALETTE[n % BK_PALETTE.length]; }
@@ -415,7 +415,24 @@
     const niceName = (n) => String(n || '').replace(/^\d{10,}-/, '');
     const fmtSize = (bytes) => { const n = +bytes || 0; if (!n) return ''; if (n < 1024) return n + ' B'; if (n < 1048576) return (n / 1024).toFixed(0) + ' KB'; return (n / 1048576).toFixed(1) + ' MB'; };
     const set = (k, v) => setB(p => ({ ...p, [k]: v }));
-    // Picking arrival/departure in the calendar auto-fills nights & days.
+    // Add a whole number of days to a YYYY-MM-DD string (UTC-safe, no TZ drift).
+    const addDaysISO = (iso, add) => {
+      const p = String(iso || '').split('-'); if (p.length !== 3) return '';
+      const d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); d.setUTCDate(d.getUTCDate() + add);
+      return d.toISOString().slice(0, 10);
+    };
+    // Build `count` day cards from the arrival date, keeping any city/activities
+    // already entered for days that still exist.
+    const buildDays = (existing, arrival, count) => {
+      const out = [];
+      for (let i = 0; i < count; i++) {
+        const prev = (existing && existing[i]) || {};
+        out.push({ day: i + 1, city: prev.city || '', date: arrival ? addDaysISO(arrival, i) : (prev.date || ''), activities: prev.activities || [] });
+      }
+      return out;
+    };
+    // Picking arrival/departure in the calendar auto-fills nights, days AND the
+    // day-by-day itinerary (one dated card per day).
     const setDate = (k, v) => setB(p => {
       const n = { ...p, [k]: v };
       const arr = k === 'arrival_date' ? v : p.arrival_date;
@@ -424,6 +441,7 @@
         const nights = Math.max(0, Math.round((new Date(dep) - new Date(arr)) / 86400000));
         n.total_nights = nights;
         n.total_days = nights > 0 ? nights + 1 : 0;
+        if (n.total_days > 0) n.daily_itinerary = buildDays(p.daily_itinerary, arr, n.total_days);
       }
       return n;
     });
@@ -438,6 +456,14 @@
     const delDay = (i) => setB(p => ({ ...p, daily_itinerary: p.daily_itinerary.filter((_, x) => x !== i).map((d, x) => ({ ...d, day: x + 1 })) }));
     // Keep the raw text (spaces & blank lines allowed); empties are dropped only at display/save time.
     const setList = (k, txt) => set(k, txt.split('\n'));
+    // One age box per kid; stored as a comma-separated string in kids_ages.
+    const kidAges = () => String(b.kids_ages || '').split(',').map(s => s.trim());
+    const setKidAge = (idx, val) => setB(p => {
+      const arr = String(p.kids_ages || '').split(',').map(s => s.trim());
+      while (arr.length <= idx) arr.push('');
+      arr[idx] = val;
+      return { ...p, kids_ages: arr.slice(0, +p.kids || 0).join(', ') };
+    });
 
     const save = async (closeAfter) => {
       if (!b.client_name.trim()) { alert('Client name is required'); return; }
@@ -475,7 +501,11 @@
           h('div', { className: 'msa-field' }, h('label', null, 'Arrival Date'), h('input', { type: 'date', value: b.arrival_date || '', onChange: (e) => setDate('arrival_date', e.target.value) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Departure Date'), h('input', { type: 'date', value: b.departure_date || '', onChange: (e) => setDate('departure_date', e.target.value) })),
           field('Nights', 'total_nights', 'number'), field('Days', 'total_days', 'number'), field('Adults', 'adults', 'number'), field('Kids', 'kids', 'number')),
-        (+b.kids > 0) && field('Kids Ages', 'kids_ages'),
+        (+b.kids > 0) && h('div', { className: 'msa-field msa-field-wide' }, h('label', null, 'Age of each child'),
+          h('div', { className: 'msa-kid-ages' }, Array.from({ length: +b.kids || 0 }).map((_, i) =>
+            h('label', { key: i, className: 'msa-kid-age' },
+              h('span', { className: 'msa-kid-age-lbl' }, 'Child ' + (i + 1)),
+              h('input', { type: 'number', min: 0, max: 17, placeholder: 'Age', value: kidAges()[i] || '', onChange: (e) => setKidAge(i, e.target.value) }))))),
         h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Daily Itinerary'), h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: addDay }, ICON.plus(), 'Day')),
         h('div', { className: 'msa-day-grid' }, (b.daily_itinerary || []).map((day, di) => h('div', { key: di, className: 'msa-day-card' },
           h('div', { className: 'msa-day-head' }, h('span', { className: 'msa-day-num' }, day.day), h('button', { className: 'msa-icon-btn', onClick: () => delDay(di) }, ICON.trash())),
@@ -542,39 +572,67 @@
   // DOC MODAL — Itinerary + Invoice, PDF export + print
   // =====================================================================
   // Export BOTH documents — itinerary (page 1) + invoice (page 2), ONE page each.
-  // Each page is captured to its own high-res canvas and scaled to fit an A4 page,
-  // so nothing is cut and the split is exact. Cloned off the zoomed admin root with
-  // an explicit canvas size, because html2canvas miscounts height for zoomed nodes.
+  // ROBUST against html2canvas's cross-browser quirks (it was clipping the left
+  // edge and squishing to the mobile layout): each page is rendered CENTERED inside
+  // a much wider white frame and captured at desktop windowWidth, so no edge can be
+  // clipped; we then auto-crop the canvas to the real content bounds and fit that to
+  // one A4 page. No reliance on exact pixel positioning.
   function exportPDF(filename) {
     const src = document.getElementById('msa-print-both'); if (!src) return;
     if (!window.html2pdf) { window.print(); return; }
-    const holder = document.createElement('div');
-    holder.style.cssText = 'position:absolute; top:0; left:0; width:794px; background:#fff; z-index:-1;';
-    holder.innerHTML = src.innerHTML;
-    holder.querySelectorAll('details').forEach((d) => { d.open = true; });
-    document.body.appendChild(holder);
-    const pages = Array.prototype.slice.call(holder.querySelectorAll('.msa-print-page'));
-    const cleanup = () => { try { holder.remove(); } catch (e) {} };
-    const capture = (el) => new Promise((resolve) => {
-      const H = el.scrollHeight;
-      // windowWidth MUST stay at a desktop width (1280): the site's responsive CSS
-      // switches to a narrow mobile layout below ~800px, and html2canvas honours the
-      // sandbox viewport — windowWidth:794 was rendering the squished mobile layout.
-      window.html2pdf().set({ html2canvas: { scale: 2.5, useCORS: true, backgroundColor: '#ffffff', width: 794, height: H, windowWidth: 1280, windowHeight: H } })
-        .from(el).toCanvas().get('canvas', (c) => resolve(c)).then(() => {}, () => resolve(null));
+    const pageHTMLs = Array.prototype.slice.call(src.querySelectorAll('.msa-print-page')).map((p) => p.outerHTML);
+    if (!pageHTMLs.length) return;
+    const WRAP = 1160, PAGEW = 794, SCALE = 2.5;
+    const captureOne = (html) => new Promise((resolve) => {
+      const holder = document.createElement('div');
+      holder.style.cssText = 'position:absolute; top:0; left:0; width:' + WRAP + 'px; background:#fff; z-index:-1; display:flex; justify-content:center;';
+      const inner = document.createElement('div');
+      inner.style.cssText = 'width:' + PAGEW + 'px; background:#fff;';
+      inner.innerHTML = html;
+      inner.querySelectorAll('details').forEach((d) => { d.open = true; });
+      holder.appendChild(inner);
+      document.body.appendChild(holder);
+      const H = holder.scrollHeight;
+      const done = (c) => { try { holder.remove(); } catch (e) {} resolve(c); };
+      // windowWidth stays desktop (1280) so the responsive CSS renders the desktop
+      // layout, not the narrow mobile one.
+      window.html2pdf().set({ html2canvas: { scale: SCALE, useCORS: true, backgroundColor: '#ffffff', width: WRAP, height: H, windowWidth: 1280, windowHeight: H, scrollX: 0, scrollY: 0 } })
+        .from(holder).toCanvas().get('canvas', (c) => done(c)).then(() => {}, () => done(null));
     });
+    const cropToContent = (canvas) => {
+      const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
+      const img = ctx.getImageData(0, 0, W, H).data;
+      const rs = Math.max(1, Math.floor(H / 600)), thr = 244;
+      let minX = W, maxX = 0, minY = H, maxY = 0;
+      for (let y = 0; y < H; y += rs) {
+        const b = y * W * 4;
+        for (let x = 0; x < W; x++) {
+          const i = b + x * 4;
+          if (img[i] < thr || img[i + 1] < thr || img[i + 2] < thr) {
+            if (x < minX) minX = x; if (x > maxX) maxX = x;
+            if (y < minY) minY = y; if (y > maxY) maxY = y;
+          }
+        }
+      }
+      if (maxX < minX || maxY < minY) return canvas;
+      const pad = Math.round(W * 0.006);
+      minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad);
+      maxX = Math.min(W - 1, maxX + pad); maxY = Math.min(H - 1, maxY + pad);
+      const cw = maxX - minX + 1, ch = maxY - minY + 1;
+      const o = document.createElement('canvas'); o.width = cw; o.height = ch;
+      o.getContext('2d').drawImage(canvas, minX, minY, cw, ch, 0, 0, cw, ch);
+      return o;
+    };
     setTimeout(async () => {
-      const canvases = [];
-      for (const el of pages) { canvases.push(await capture(el)); }
-      cleanup();
-      const valid = canvases.filter(Boolean);
-      if (!valid.length) return;
+      const cropped = [];
+      for (const html of pageHTMLs) { const c = await captureOne(html); if (c) cropped.push(cropToContent(c)); }
+      if (!cropped.length) return;
       const tiny = document.createElement('div'); tiny.style.cssText = 'width:1px;height:1px;'; document.body.appendChild(tiny);
       window.html2pdf().set({ jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, html2canvas: { scale: 1 }, margin: 0 })
         .from(tiny).toPdf().get('pdf', (pdf) => {
           try { tiny.remove(); } catch (e) {}
-          const PW = 210, PH = 297, M = 7; let first = true;
-          valid.forEach((c) => {
+          const PW = 210, PH = 297, M = 10; let first = true;
+          cropped.forEach((c) => {
             if (!first) pdf.addPage(); first = false;
             const availW = PW - 2 * M, availH = PH - 2 * M;
             let w = availW, hh = (c.height / c.width) * w;
@@ -690,11 +748,15 @@
       const bal = sub - paid;
       const method = b.payment_method || 'Bank Transfer';
       const isBank = /bank|transfer|virement/i.test(method);
+      const isCash = /cash/i.test(method);
       const payRow = (k, v) => [h('span', { className: 'msa-dim' }, k), h('span', null, v || '—')];
       const paymentBox = isBank
         ? h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Bank transfer details'), h('div', { className: 'msa-bank-grid' },
             payRow('Bank name:', S.bank_name || 'BMCE Bank of Africa'), payRow('Account name:', S.account_name || cName),
             payRow('RIB:', S.rib || '011 450 0000 123456789012 34'), payRow('SWIFT:', S.swift || 'BMCE MAMC')))
+        : isCash
+        ? h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Payment in cash'), h('div', { className: 'msa-bank-grid' },
+            payRow('Method:', 'Cash'), payRow('When:', 'Payable in cash on arrival in Marrakech')))
         : h('div', { className: 'msa-doc-bank' }, h('h3', null, 'Pay via ' + method), h('div', { className: 'msa-bank-grid' },
             payRow(method + ':', method === 'Revolut' ? (S.revolut || S.company_phone || cPhone)
               : method === 'Wise' ? (S.wise || S.company_email)
