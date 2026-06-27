@@ -814,8 +814,11 @@
         if (!days.length) return h('div', { className: 'msa-doc-days' }, h('p', { className: 'msa-dim' }, t('no_itin')));
         const renderDay = (day, i) => h('div', { key: i, className: 'msa-doc-day' },
           h('span', { className: 'msa-doc-daynum', 'aria-hidden': 'true' }, day.day),
-          h('div', { className: 'msa-doc-day-head' }, h('h3', null, day.city ? (t('day') + ' ' + day.day + ' · ' + day.city) : (t('day') + ' ' + day.day)), h('span', { className: 'msa-dim msa-doc-date' }, day.date || t('tbd'))),
-          h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, tAct(a.type)), a.details ? h('p', null, a.details) : null)))));
+          h('div', { className: 'msa-doc-day-card' },
+            h('div', { className: 'msa-doc-day-head' },
+              h('h3', null, day.city || (t('day') + ' ' + day.day)),
+              h('span', { className: 'msa-dim msa-doc-date' }, day.date || t('tbd'))),
+            h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, tAct(a.type)), a.details ? h('p', null, a.details) : null))))));
         // ≤5 days reads best as one column; longer trips split into two balanced
         // columns (explicit flex, NOT CSS multi-column, which html2canvas can't render).
         if (days.length <= 5) return h('div', { className: 'msa-doc-days msa-doc-days-1' }, days.map(renderDay));
