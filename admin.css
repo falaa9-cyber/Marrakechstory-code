@@ -1021,14 +1021,15 @@
 .msa-doc-itin .msa-doc-days-2 .msa-doc-col { flex: 1 1 0; min-width: 0; }
 .msa-doc-itin .msa-doc-day { position: relative; padding: 0 0 14px 38px; border: none; margin: 0; }
 /* connecting timeline line behind the number badges */
-.msa-doc-itin .msa-doc-day::before { content: ''; display: block; position: absolute; left: 13px; top: 8px; bottom: -2px; width: 2px; background: #f3ddd8; }
-.msa-doc-itin .msa-doc-day:last-child::before { display: none; }
+.msa-doc-itin .msa-doc-day::before { content: ''; display: block; position: absolute; left: 13px; top: 6px; bottom: -6px; width: 2px; background: #f0a892; }
+.msa-doc-itin .msa-doc-col > .msa-doc-day:last-child::before, .msa-doc-itin .msa-doc-days-1 > .msa-doc-day:last-child::before { display: none; }
 .msa-doc-itin .msa-doc-daynum { position: absolute; left: 0; top: 2px; width: 28px; height: 28px; border-radius: 50%;
   background: var(--msa-brand); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700;
   border: 3px solid #fff; box-sizing: border-box; z-index: 1; }
 .msa-doc-itin .msa-doc-day-card { background: #fff; border: 1px solid #ececef; border-radius: 14px; padding: 11px 15px 13px; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
 .msa-doc-itin .msa-doc-day-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0 0 8px; border-bottom: 1px solid #f0f0f2; }
-.msa-doc-itin .msa-doc-day-head h3 { font-family: inherit !important; color: var(--msa-brand) !important; font-size: 14px !important; line-height: 1.2 !important; font-weight: 700; letter-spacing: -0.01em; text-transform: none; margin: 0; }
+.msa-doc-itin .msa-doc-day-head h3 { font-family: inherit !important; color: #1d1d1f !important; font-size: 14px !important; line-height: 1.2 !important; font-weight: 700; letter-spacing: -0.01em; text-transform: none; margin: 0; }
+.msa-doc-itin .msa-doc-day-head h3 .msa-doc-day-date { color: var(--msa-brand) !important; }
 .msa-doc-itin .msa-doc-date { margin-left: auto; font-size: 9.5px; font-weight: 600; color: #8e8e93 !important; background: #f5f5f7; padding: 3px 9px; border-radius: 999px; }
 .msa-doc-itin .msa-doc-acts { background: transparent; border: none; border-radius: 0; padding: 0; }
 .msa-doc-itin .msa-doc-act { display: flex; gap: 14px; padding: 6px 0; align-items: baseline; border-top: 1px solid #f4f4f4; }

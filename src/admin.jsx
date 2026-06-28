@@ -858,7 +858,10 @@
           h('span', { className: 'msa-doc-daynum', 'aria-hidden': 'true' }, day.day),
           h('div', { className: 'msa-doc-day-card' },
             h('div', { className: 'msa-doc-day-head' },
-              h('h3', null, t('day') + ' ' + day.day + (day.date ? ' · ' + fmtDDMMYY(day.date) : '') + (day.city ? ' · ' + day.city : ''))),
+              h('h3', null,
+                t('day') + ' ' + day.day,
+                day.date ? h('span', { className: 'msa-doc-day-date' }, ' · ' + fmtDDMMYY(day.date)) : null,
+                day.city ? (' · ' + day.city) : '')),
             h('div', { className: 'msa-doc-acts' }, (day.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-doc-act' }, h('div', { className: 'msa-doc-time' }, a.time), h('div', { className: 'msa-doc-act-body' }, h('strong', null, tAct(a.type)), a.details ? h('p', null, a.details) : null))))));
         // ≤5 days reads best as one column; longer trips split into two balanced
         // columns (explicit flex, NOT CSS multi-column, which html2canvas can't render).
