@@ -97,6 +97,19 @@
   const CURRENCIES = ['NOK', 'MAD', 'EUR', 'USD', 'SEK', 'DKK', 'GBP'];
   const CUR_SYMBOL = { NOK: 'kr', SEK: 'kr', DKK: 'kr', MAD: 'DH', EUR: '€', USD: '$', GBP: '£' };
   const money = (n, cur) => { const v = Math.round((+n || 0)).toLocaleString('nb-NO'); const c = cur || 'NOK'; return (c === 'EUR' || c === 'USD' || c === 'GBP') ? (CUR_SYMBOL[c] + ' ' + v) : (v + ' ' + (CUR_SYMBOL[c] || c)); };
+  // Cost-line categories: each booking can have several collaborators per category.
+  const COST_CATS = [['transport', 'Transport', 'driver'], ['accommodation', 'Accommodation', 'hotel'], ['activities', 'Activities', 'activity']];
+  // Per-collaborator spend for one booking — reads the multi-line cost_lines if
+  // present, else falls back to the legacy single-collaborator-per-category fields.
+  const bookingCollabSpend = (b) => {
+    const lines = Array.isArray(b.cost_lines) ? b.cost_lines : null;
+    if (lines && lines.length) return lines.filter(l => l.collab && (+l.amount > 0)).map(l => ({ collab: l.collab, amount: +l.amount, cat: l.cat }));
+    const out = [];
+    if (b.collab_transport && +b.cost_transportation > 0) out.push({ collab: b.collab_transport, amount: +b.cost_transportation, cat: 'transport' });
+    if (b.collab_accommodation && +b.cost_accommodation > 0) out.push({ collab: b.collab_accommodation, amount: +b.cost_accommodation, cat: 'accommodation' });
+    if (b.collab_activities && +b.cost_activities > 0) out.push({ collab: b.collab_activities, amount: +b.cost_activities, cat: 'activities' });
+    return out;
+  };
   const PAYMENT_METHODS = ['Bank Transfer', 'Revolut', 'Wise', 'PayPal', 'Cash', 'NOK Bank', 'MAD Bank'];
   // ── Document languages (matches the public site: Norsk, English, Svenska, Français, Deutsch) ──
   const DOC_LANGS = [['no', 'Norsk'], ['en', 'English'], ['sv', 'Svenska'], ['fr', 'Français'], ['de', 'Deutsch']];
@@ -461,10 +474,20 @@
   // =====================================================================
   // BOOKING MODAL (full edit + itinerary builder + payments)
   // =====================================================================
-  const EMPTY_BOOKING = { client_name: '', email: '', phone: '', nationality: '', address: '', lead_source: 'website', reference: '', arrival_city: 'Marrakech', departure_city: 'Marrakech', arrival_date: '', departure_date: '', total_nights: 0, total_days: 0, adults: 2, kids: 0, kids_ages: '', status: 'new', selling_price: 0, deposit_amount: 0, deposit_enabled: true, paid_amount: 0, balance: 0, cost_transportation: 0, cost_activities: 0, cost_accommodation: 0, total_cost: 0, sell_currency: 'NOK', cost_currency: 'MAD', fx_rate: '', collab_transport: '', collab_accommodation: '', collab_activities: '', daily_itinerary: [], included: [], excluded: [], internal_notes: '', special_requests: '', payment_method: '', archived: false };
+  const EMPTY_BOOKING = { client_name: '', email: '', phone: '', nationality: '', address: '', lead_source: 'website', reference: '', arrival_city: 'Marrakech', departure_city: 'Marrakech', arrival_date: '', departure_date: '', total_nights: 0, total_days: 0, adults: 2, kids: 0, kids_ages: '', status: 'new', selling_price: 0, deposit_amount: 0, deposit_enabled: true, paid_amount: 0, balance: 0, cost_transportation: 0, cost_activities: 0, cost_accommodation: 0, total_cost: 0, sell_currency: 'NOK', cost_currency: 'MAD', fx_rate: '', collab_transport: '', collab_accommodation: '', collab_activities: '', cost_lines: [], daily_itinerary: [], included: [], excluded: [], internal_notes: '', special_requests: '', payment_method: '', archived: false };
 
   function BookingModal({ initial, onClose, onSaved, onView, suppliers }) {
-    const [b, setB] = useState(() => ({ ...EMPTY_BOOKING, ...initial, daily_itinerary: (initial && initial.daily_itinerary) || [], included: (initial && initial.included) || [], excluded: (initial && initial.excluded) || [] }));
+    // Seed cost_lines from the legacy single-collaborator fields when editing an
+    // older booking that doesn't have line items yet.
+    const initCostLines = (init) => {
+      if (init && Array.isArray(init.cost_lines) && init.cost_lines.length) return init.cost_lines;
+      const out = [];
+      if (init && +init.cost_transportation) out.push({ cat: 'transport', collab: init.collab_transport || '', amount: +init.cost_transportation });
+      if (init && +init.cost_accommodation) out.push({ cat: 'accommodation', collab: init.collab_accommodation || '', amount: +init.cost_accommodation });
+      if (init && +init.cost_activities) out.push({ cat: 'activities', collab: init.collab_activities || '', amount: +init.cost_activities });
+      return out;
+    };
+    const [b, setB] = useState(() => ({ ...EMPTY_BOOKING, ...initial, daily_itinerary: (initial && initial.daily_itinerary) || [], included: (initial && initial.included) || [], excluded: (initial && initial.excluded) || [], cost_lines: initCostLines(initial) }));
     const [busy, setBusy] = useState(false);
     const [thread, setThread] = useState([]); const [reply, setReply] = useState('');
     const loadThread = useCallback(() => { const sb = getSB(); if (!sb || !initial || !initial.email) return; sb.from('messages').select('*').eq('client_email', initial.email).order('created_at', { ascending: true }).then(({ data }) => { setThread(data || []); const unread = (data || []).filter(x => x.sender === 'client' && !x.read_by_admin).map(x => x.id); if (unread.length) sb.from('messages').update({ read_by_admin: true }).in('id', unread); }); }, [initial && initial.id]);
@@ -537,19 +560,22 @@
       }
       return n;
     });
-    const setCost = (k, v) => setB(p => { const n = { ...p, [k]: v }; n.total_cost = (+n.cost_transportation || 0) + (+n.cost_activities || 0) + (+n.cost_accommodation || 0); return n; });
     const setPrice = (v) => setB(p => ({ ...p, selling_price: v, deposit_amount: Math.round(v * 0.2), balance: v - (+p.paid_amount || Math.round(v * 0.2)) }));
     const setPaid = (v) => setB(p => ({ ...p, paid_amount: v, balance: (+p.selling_price || 0) - v }));
+    // Cost lines — several collaborators (each with an amount) per category.
+    const recalcCosts = (lines) => { const sum = (cat) => lines.filter(l => l.cat === cat).reduce((s, l) => s + (+l.amount || 0), 0); const ct = sum('transport'), ca = sum('accommodation'), cv = sum('activities'); return { cost_lines: lines, cost_transportation: ct, cost_accommodation: ca, cost_activities: cv, total_cost: ct + ca + cv }; };
+    const addLine = (cat) => setB(p => { const nl = [...(p.cost_lines || []), { cat: cat, collab: '', amount: 0 }]; return { ...p, ...recalcCosts(nl) }; });
+    const setLine = (idx, key, val) => setB(p => { const nl = (p.cost_lines || []).map((l, i) => i === idx ? { ...l, [key]: val } : l); return { ...p, ...recalcCosts(nl) }; });
+    const delLine = (idx) => setB(p => { const nl = (p.cost_lines || []).filter((_, i) => i !== idx); return { ...p, ...recalcCosts(nl) }; });
     // Collaborators available for the cost-line dropdowns (incl. ones added inline here).
     const [extraSups, setExtraSups] = useState([]);
     const allSups = [...(suppliers || []), ...extraSups];
-    const supName = (id) => { const s = allSups.find(x => x.id === id); return s ? s.name : ''; };
-    const addCollab = async (field, defType) => {
+    const addCollabLine = async (idx, defType) => {
       const name = (window.prompt('New collaborator name:') || '').trim(); if (!name) return;
       const res = await dbInsert('suppliers', { name: name, type: defType || 'activity' });
       if (res.error) { alert('Could not add: ' + res.error.message); return; }
       const row = res.data && res.data[0]; if (!row) return;
-      setExtraSups(p => [...p, row]); set(field, row.id);
+      setExtraSups(p => [...p, row]); setLine(idx, 'collab', row.id);
     };
     // Currency helpers (sell currency vs the currency you pay suppliers in)
     const sc = b.sell_currency || 'NOK', cc = b.cost_currency || 'MAD';
@@ -645,22 +671,28 @@
                 h('button', { className: 'msa-icon-btn', title: 'Delete file', onClick: () => delFile(f.name) }, ICON.trash())))) : null,
         isAdminRole() ? h('h4', { className: 'msa-section' }, 'Costs (internal)') : null,
         isAdminRole() ? (function () {
-          // A cost line: amount + which collaborator is in charge (with inline "+ new").
-          const costLine = (label, amtKey, collabKey, defType) => h('div', { className: 'msa-field msa-field-wide msa-costline' },
-            h('label', null, label),
-            h('div', { className: 'msa-costline-row' },
-              h('input', { type: 'number', className: 'msa-costline-amt', placeholder: '0', value: b[amtKey] || '', onChange: (e) => setCost(amtKey, parseFloat(e.target.value) || 0) }),
-              h('select', { className: 'msa-costline-sel', value: b[collabKey] || '', onChange: (e) => { if (e.target.value === '__new') { addCollab(collabKey, defType); } else { set(collabKey, e.target.value); } } },
-                h('option', { value: '' }, 'Collaborator…'),
-                allSups.map(s => h('option', { key: s.id, value: s.id }, s.name)),
-                h('option', { value: '__new' }, '+ Add new collaborator…'))));
+          const lines = Array.isArray(b.cost_lines) ? b.cost_lines : [];
+          // One category block with several collaborator lines (amount + who).
+          const catBlock = (cat, label, defType) => {
+            const items = lines.map((l, i) => ({ l: l, i: i })).filter(x => x.l.cat === cat);
+            return h('div', { className: 'msa-field msa-field-wide msa-cost-cat' },
+              h('label', null, label + ' — ' + money(b['cost_' + (cat === 'transport' ? 'transportation' : cat)], cc)),
+              items.map(({ l, i }) => h('div', { key: i, className: 'msa-costline-row' },
+                h('input', { type: 'number', className: 'msa-costline-amt', placeholder: '0', value: l.amount || '', onChange: (e) => setLine(i, 'amount', parseFloat(e.target.value) || 0) }),
+                h('select', { className: 'msa-costline-sel', value: l.collab || '', onChange: (e) => { if (e.target.value === '__new') { addCollabLine(i, defType); } else { setLine(i, 'collab', e.target.value); } } },
+                  h('option', { value: '' }, 'Collaborator…'),
+                  allSups.map(s => h('option', { key: s.id, value: s.id }, s.name)),
+                  h('option', { value: '__new' }, '+ Add new collaborator…')),
+                h('button', { className: 'msa-icon-btn', title: 'Remove', onClick: () => delLine(i) }, ICON.trash()))),
+              h('button', { className: 'msa-btn msa-btn-sm msa-addline', onClick: () => addLine(cat) }, ICON.plus(), 'Add ' + label.toLowerCase() + ' collaborator'));
+          };
           return h('div', { className: 'msa-grid-2' },
             h('div', { className: 'msa-field' }, h('label', null, 'Cost currency (what you pay suppliers in)'), h('select', { value: cc, onChange: (e) => set('cost_currency', e.target.value) }, CURRENCIES.map(c => h('option', { key: c, value: c }, c)))),
             sameCur ? h('div', { className: 'msa-field' }, h('label', null, 'Exchange rate'), h('div', { className: 'msa-readout msa-dim' }, 'Same currency — no conversion'))
               : h('div', { className: 'msa-field' }, h('label', null, '1 ' + cc + ' = ? ' + sc), h('input', { type: 'number', step: '0.0001', placeholder: 'e.g. 0.95', value: b.fx_rate == null ? '' : b.fx_rate, onChange: (e) => set('fx_rate', e.target.value) })),
-            costLine('Transport', 'cost_transportation', 'collab_transport', 'driver'),
-            costLine('Accommodation', 'cost_accommodation', 'collab_accommodation', 'hotel'),
-            costLine('Activities', 'cost_activities', 'collab_activities', 'activity'),
+            catBlock('transport', 'Transport', 'driver'),
+            catBlock('accommodation', 'Accommodation', 'hotel'),
+            catBlock('activities', 'Activities', 'activity'),
             h('div', { className: 'msa-field' }, h('label', null, 'Total Cost (' + cc + ')'), h('div', { className: 'msa-readout msa-text-red' }, money(b.total_cost, cc))),
             h('div', { className: 'msa-field' }, h('label', null, 'Total Cost in ' + sc), h('div', { className: 'msa-readout msa-text-red' }, sameCur ? money(b.total_cost, sc) : (fx > 0 ? '≈ ' + money(costInSell, sc) : 'Set the exchange rate'))));
         })() : null,
@@ -1176,7 +1208,7 @@
     useEffect(() => { if (seed) { setEdit({ type: 'hotel', ...seed }); clearSeed && clearSeed(); } }, [seed]);
     const typeLabel = (tp) => (SUP_TYPES.find(x => x[0] === tp) || [tp, tp])[1];
     const del = async (s, e) => { e && e.stopPropagation(); if (confirm('Remove ' + s.name + '?')) { await dbDelete('suppliers', s.id); reload(); } };
-    const spendFor = (s) => { let total = 0; const hist = []; (bookings || []).forEach(b => { let amt = 0; if (b.collab_transport === s.id) amt += +b.cost_transportation || 0; if (b.collab_accommodation === s.id) amt += +b.cost_accommodation || 0; if (b.collab_activities === s.id) amt += +b.cost_activities || 0; if (amt > 0) { total += amt; hist.push({ b: b, amt: amt }); } }); return { total: total, hist: hist }; };
+    const spendFor = (s) => { let total = 0; const hist = []; (bookings || []).forEach(b => { const amt = bookingCollabSpend(b).filter(l => l.collab === s.id).reduce((t, l) => t + l.amount, 0); if (amt > 0) { total += amt; hist.push({ b: b, amt: amt }); } }); return { total: total, hist: hist }; };
     const pending = (leads || []).filter(l => l.kind === 'collaboration');
     const addFromLead = (l) => { const p = l.payload || {}; setEdit({ type: 'hotel', name: l.name || '', city: l.country || '', contact: l.name || '', phone: l.phone || '', email: l.email || '', notes: (p.collaborationType ? 'Type: ' + p.collaborationType + '. ' : '') + (p.message || '') }); };
     const val = (s, k) => k === 'typeLabel' ? typeLabel(s.type) : k === 'spend' ? spendFor(s).total : k === 'bookings' ? spendFor(s).hist.length : s[k];
@@ -1241,9 +1273,11 @@
     const collabSpend = (function () {
       const m = {};
       (bookings || []).forEach(b => {
-        [['collab_transport', 'cost_transportation'], ['collab_accommodation', 'cost_accommodation'], ['collab_activities', 'cost_activities']].forEach(([ck, ak]) => {
-          const id = b[ck]; const amt = +b[ak] || 0; if (!id || amt <= 0) return;
-          if (!m[id]) m[id] = { total: 0, count: 0 }; m[id].total += amt; m[id].count += 1;
+        const seen = {};
+        bookingCollabSpend(b).forEach(l => {
+          if (!m[l.collab]) m[l.collab] = { total: 0, count: 0 };
+          m[l.collab].total += l.amount;
+          if (!seen[l.collab]) { m[l.collab].count += 1; seen[l.collab] = 1; }
         });
       });
       return Object.keys(m).map(id => { const s = (suppliers || []).find(x => x.id === id); return { id: id, name: s ? s.name : 'Unknown', type: s ? s.type : '', total: m[id].total, count: m[id].count }; }).sort((a, b) => b.total - a.total);

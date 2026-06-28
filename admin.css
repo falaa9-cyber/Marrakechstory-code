@@ -1407,10 +1407,13 @@
 .msa-modal-booking .msa-readout {
   background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 13px;
   padding: 11px 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
-/* Cost line: amount + collaborator-in-charge */
+/* Cost category block — several collaborator lines per category */
+.msa-modal-booking .msa-cost-cat { background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 14px; padding: 12px 13px; display: flex; flex-direction: column; gap: 8px; }
 .msa-costline-row { display: flex; gap: 8px; align-items: stretch; }
-.msa-costline-amt { flex: 0 0 130px; }
+.msa-costline-amt { flex: 0 0 120px; }
 .msa-costline-sel { flex: 1 1 auto; min-width: 0; }
+.msa-modal-booking .msa-cost-cat .msa-icon-btn { flex: 0 0 auto; align-self: center; }
+.msa-modal-booking .msa-addline { align-self: flex-start; border-radius: 999px; border-style: dashed; color: var(--msa-dim); margin-top: 1px; }
 
 /* Daily-itinerary editor — match the elegant card style */
 .msa-modal-booking .msa-day-grid { gap: 14px; }
