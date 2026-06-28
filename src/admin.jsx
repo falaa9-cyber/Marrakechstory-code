@@ -569,6 +569,7 @@
     const delLine = (idx) => setB(p => { const nl = (p.cost_lines || []).filter((_, i) => i !== idx); return { ...p, ...recalcCosts(nl) }; });
     // Collaborators available for the cost-line dropdowns (incl. ones added inline here).
     const [extraSups, setExtraSups] = useState([]);
+    const [collabModal, setCollabModal] = useState(null); // { lineIdx, defType } | null
     const allSups = [...(suppliers || []), ...extraSups];
     const addCollabLine = async (idx, defType) => {
       const name = (window.prompt('New collaborator name:') || '').trim(); if (!name) return;
@@ -679,10 +680,10 @@
               h('label', null, label + ' — ' + money(b['cost_' + (cat === 'transport' ? 'transportation' : cat)], cc)),
               items.map(({ l, i }) => h('div', { key: i, className: 'msa-costline-row' },
                 h('input', { type: 'number', className: 'msa-costline-amt', placeholder: '0', value: l.amount || '', onChange: (e) => setLine(i, 'amount', parseFloat(e.target.value) || 0) }),
-                h('select', { className: 'msa-costline-sel', value: l.collab || '', onChange: (e) => { if (e.target.value === '__new') { addCollabLine(i, defType); } else { setLine(i, 'collab', e.target.value); } } },
+                h('select', { className: 'msa-costline-sel', value: l.collab || '', onChange: (e) => setLine(i, 'collab', e.target.value) },
                   h('option', { value: '' }, 'Collaborator…'),
-                  allSups.map(s => h('option', { key: s.id, value: s.id }, s.name)),
-                  h('option', { value: '__new' }, '+ Add new collaborator…')),
+                  allSups.map(s => h('option', { key: s.id, value: s.id }, s.name))),
+                h('button', { className: 'msa-icon-btn msa-collab-add', title: 'Create a new collaborator', onClick: () => setCollabModal({ lineIdx: i, defType: defType }) }, ICON.plus()),
                 h('button', { className: 'msa-icon-btn', title: 'Remove', onClick: () => delLine(i) }, ICON.trash()))),
               h('button', { className: 'msa-btn msa-btn-sm msa-addline', onClick: () => addLine(cat) }, ICON.plus(), 'Add ' + label.toLowerCase() + ' collaborator'));
           };
@@ -726,7 +727,8 @@
                 h('div', { className: 'msa-msg-bubble' }, m.body), h('div', { className: 'msa-msg-meta' }, (m.sender === 'admin' ? 'You' : (b.client_name || 'Client')) + ' · ' + fmtDateTime(m.created_at))))),
           h('div', { className: 'msa-msg-composer' },
             h('input', { value: reply, placeholder: 'Reply to the client…', onChange: (e) => setReply(e.target.value), onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); sendReply(); } } }),
-            h('button', { className: 'msa-btn msa-btn-primary', onClick: sendReply, disabled: !reply.trim() }, 'Send'))) : null)));
+            h('button', { className: 'msa-btn msa-btn-primary', onClick: sendReply, disabled: !reply.trim() }, 'Send'))) : null),
+      collabModal !== null ? h(CollaboratorModal, { initial: { type: collabModal.defType }, onClose: () => setCollabModal(null), onSaved: (savedRow) => { if (savedRow && savedRow.id) { setExtraSups(p => [...p, savedRow]); if (collabModal.lineIdx != null) setLine(collabModal.lineIdx, 'collab', savedRow.id); } setCollabModal(null); } }) : null));
   }
 
   // =====================================================================
@@ -1173,9 +1175,10 @@
       const res = s.id ? await dbUpdate('suppliers', s.id, row) : await dbInsert('suppliers', row);
       setBusy(false);
       if (res.error) { alert('Save failed: ' + res.error.message); return; }
-      if (!s.id && res.data && res.data[0]) setS(p => ({ ...p, id: res.data[0].id }));
+      const savedRow = s.id ? { ...s } : (res.data && res.data[0]);
+      if (!s.id && savedRow) setS(p => ({ ...p, id: savedRow.id }));
       setSaved(true); setTimeout(() => setSaved(false), 1800);
-      onSaved && onSaved();
+      onSaved && onSaved(savedRow);
     };
     const fld = (label, k, type, ph) => h('div', { className: 'msa-field' }, h('label', null, label), h('input', { type: type || 'text', value: s[k] == null ? '' : s[k], placeholder: ph || '', onChange: (e) => set(k, e.target.value) }));
     return h('div', { className: 'msa-modal-backdrop', onClick: onClose }, h('div', { className: 'msa-modal msa-modal-wide msa-modal-booking', onClick: (e) => e.stopPropagation() },

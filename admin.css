@@ -1414,6 +1414,8 @@
 .msa-costline-sel { flex: 1 1 auto; min-width: 0; }
 .msa-modal-booking .msa-cost-cat .msa-icon-btn { flex: 0 0 auto; align-self: center; }
 .msa-modal-booking .msa-addline { align-self: flex-start; border-radius: 999px; border-style: dashed; color: var(--msa-dim); margin-top: 1px; }
+.msa-modal-booking .msa-collab-add { color: var(--msa-brand); border: 1px solid var(--msa-line); border-radius: 9px; flex: 0 0 auto; }
+.msa-modal-booking .msa-collab-add:hover { background: rgba(224,67,42,.1); border-color: var(--msa-brand); }
 
 /* Daily-itinerary editor — match the elegant card style */
 .msa-modal-booking .msa-day-grid { gap: 14px; }
