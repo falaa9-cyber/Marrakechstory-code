@@ -1406,6 +1406,10 @@
 .msa-modal-booking .msa-readout {
   background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 13px;
   padding: 11px 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Cost line: amount + collaborator-in-charge */
+.msa-costline-row { display: flex; gap: 8px; align-items: stretch; }
+.msa-costline-amt { flex: 0 0 130px; }
+.msa-costline-sel { flex: 1 1 auto; min-width: 0; }
 
 /* Daily-itinerary editor — match the elegant card style */
 .msa-modal-booking .msa-day-grid { gap: 14px; }

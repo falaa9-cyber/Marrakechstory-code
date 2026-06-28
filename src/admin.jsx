@@ -461,9 +461,9 @@
   // =====================================================================
   // BOOKING MODAL (full edit + itinerary builder + payments)
   // =====================================================================
-  const EMPTY_BOOKING = { client_name: '', email: '', phone: '', nationality: '', address: '', lead_source: 'website', reference: '', arrival_city: 'Marrakech', departure_city: 'Marrakech', arrival_date: '', departure_date: '', total_nights: 0, total_days: 0, adults: 2, kids: 0, kids_ages: '', status: 'new', selling_price: 0, deposit_amount: 0, deposit_enabled: true, paid_amount: 0, balance: 0, cost_transportation: 0, cost_activities: 0, cost_accommodation: 0, total_cost: 0, daily_itinerary: [], included: [], excluded: [], internal_notes: '', special_requests: '', payment_method: '', archived: false };
+  const EMPTY_BOOKING = { client_name: '', email: '', phone: '', nationality: '', address: '', lead_source: 'website', reference: '', arrival_city: 'Marrakech', departure_city: 'Marrakech', arrival_date: '', departure_date: '', total_nights: 0, total_days: 0, adults: 2, kids: 0, kids_ages: '', status: 'new', selling_price: 0, deposit_amount: 0, deposit_enabled: true, paid_amount: 0, balance: 0, cost_transportation: 0, cost_activities: 0, cost_accommodation: 0, total_cost: 0, sell_currency: 'NOK', cost_currency: 'MAD', fx_rate: '', collab_transport: '', collab_accommodation: '', collab_activities: '', daily_itinerary: [], included: [], excluded: [], internal_notes: '', special_requests: '', payment_method: '', archived: false };
 
-  function BookingModal({ initial, onClose, onSaved, onView }) {
+  function BookingModal({ initial, onClose, onSaved, onView, suppliers }) {
     const [b, setB] = useState(() => ({ ...EMPTY_BOOKING, ...initial, daily_itinerary: (initial && initial.daily_itinerary) || [], included: (initial && initial.included) || [], excluded: (initial && initial.excluded) || [] }));
     const [busy, setBusy] = useState(false);
     const [thread, setThread] = useState([]); const [reply, setReply] = useState('');
@@ -540,6 +540,23 @@
     const setCost = (k, v) => setB(p => { const n = { ...p, [k]: v }; n.total_cost = (+n.cost_transportation || 0) + (+n.cost_activities || 0) + (+n.cost_accommodation || 0); return n; });
     const setPrice = (v) => setB(p => ({ ...p, selling_price: v, deposit_amount: Math.round(v * 0.2), balance: v - (+p.paid_amount || Math.round(v * 0.2)) }));
     const setPaid = (v) => setB(p => ({ ...p, paid_amount: v, balance: (+p.selling_price || 0) - v }));
+    // Collaborators available for the cost-line dropdowns (incl. ones added inline here).
+    const [extraSups, setExtraSups] = useState([]);
+    const allSups = [...(suppliers || []), ...extraSups];
+    const supName = (id) => { const s = allSups.find(x => x.id === id); return s ? s.name : ''; };
+    const addCollab = async (field, defType) => {
+      const name = (window.prompt('New collaborator name:') || '').trim(); if (!name) return;
+      const res = await dbInsert('suppliers', { name: name, type: defType || 'activity' });
+      if (res.error) { alert('Could not add: ' + res.error.message); return; }
+      const row = res.data && res.data[0]; if (!row) return;
+      setExtraSups(p => [...p, row]); set(field, row.id);
+    };
+    // Currency helpers (sell currency vs the currency you pay suppliers in)
+    const sc = b.sell_currency || 'NOK', cc = b.cost_currency || 'MAD';
+    const fx = parseFloat(b.fx_rate) || 0;            // 1 cost-currency unit = fx sell-currency units
+    const sameCur = sc === cc;
+    const costInSell = sameCur ? (+b.total_cost || 0) : (+b.total_cost || 0) * fx;
+    const profitSell = (+b.selling_price || 0) - costInSell;
     const addDay = () => setB(p => ({ ...p, daily_itinerary: [...p.daily_itinerary, { day: p.daily_itinerary.length + 1, city: '', date: '', activities: [] }] }));
     const setDay = (i, k, v) => setB(p => { const a = [...p.daily_itinerary]; a[i] = { ...a[i], [k]: v }; return { ...p, daily_itinerary: a }; });
     const addAct = (i) => setB(p => { const a = [...p.daily_itinerary]; a[i] = { ...a[i], activities: [...(a[i].activities || []), { time: '09:00', type: 'Transport', details: '' }] }; return { ...p, daily_itinerary: a }; });
@@ -563,6 +580,8 @@
       const row = { ...b, reference: b.reference || ('MS-' + Math.random().toString(36).slice(2, 8).toUpperCase()), travelers: (+b.adults || 0) + (+b.kids || 0), updated_at: new Date().toISOString() };
       ['total_nights','total_days','adults','kids'].forEach(k => row[k] = +row[k] || 0);
       ['selling_price','deposit_amount','paid_amount','balance','cost_transportation','cost_activities','cost_accommodation','total_cost'].forEach(k => row[k] = +row[k] || 0);
+      row.fx_rate = (row.fx_rate === '' || row.fx_rate == null) ? null : (parseFloat(row.fx_rate) || null);
+      ['collab_transport','collab_accommodation','collab_activities'].forEach(k => { if (!row[k]) row[k] = null; });
       if (!row.arrival_date) delete row.arrival_date; if (!row.departure_date) delete row.departure_date;
       delete row.id; delete row.created_at; delete row.routed_booking_id;
       const res = b.id ? await dbUpdate('bookings', b.id, row) : await dbInsert('bookings', { ...row, created_by: CURRENT_EMAIL || ADMIN_EMAIL });
@@ -625,24 +644,40 @@
                 h('span', { className: 'msa-file-size' }, fmtSize(f.metadata && f.metadata.size)),
                 h('button', { className: 'msa-icon-btn', title: 'Delete file', onClick: () => delFile(f.name) }, ICON.trash())))) : null,
         isAdminRole() ? h('h4', { className: 'msa-section' }, 'Costs (internal)') : null,
-        isAdminRole() ? h('div', { className: 'msa-grid-2' },
-          h('div', { className: 'msa-field' }, h('label', null, 'Transport'), h('input', { type: 'number', value: b.cost_transportation || '', onChange: (e) => setCost('cost_transportation', parseFloat(e.target.value) || 0) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Activities'), h('input', { type: 'number', value: b.cost_activities || '', onChange: (e) => setCost('cost_activities', parseFloat(e.target.value) || 0) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Accommodation'), h('input', { type: 'number', value: b.cost_accommodation || '', onChange: (e) => setCost('cost_accommodation', parseFloat(e.target.value) || 0) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Total Cost'), h('div', { className: 'msa-readout msa-text-red' }, kr(b.total_cost)))) : null,
+        isAdminRole() ? (function () {
+          // A cost line: amount + which collaborator is in charge (with inline "+ new").
+          const costLine = (label, amtKey, collabKey, defType) => h('div', { className: 'msa-field msa-field-wide msa-costline' },
+            h('label', null, label),
+            h('div', { className: 'msa-costline-row' },
+              h('input', { type: 'number', className: 'msa-costline-amt', placeholder: '0', value: b[amtKey] || '', onChange: (e) => setCost(amtKey, parseFloat(e.target.value) || 0) }),
+              h('select', { className: 'msa-costline-sel', value: b[collabKey] || '', onChange: (e) => { if (e.target.value === '__new') { addCollab(collabKey, defType); } else { set(collabKey, e.target.value); } } },
+                h('option', { value: '' }, 'Collaborator…'),
+                allSups.map(s => h('option', { key: s.id, value: s.id }, s.name)),
+                h('option', { value: '__new' }, '+ Add new collaborator…'))));
+          return h('div', { className: 'msa-grid-2' },
+            h('div', { className: 'msa-field' }, h('label', null, 'Cost currency (what you pay suppliers in)'), h('select', { value: cc, onChange: (e) => set('cost_currency', e.target.value) }, CURRENCIES.map(c => h('option', { key: c, value: c }, c)))),
+            sameCur ? h('div', { className: 'msa-field' }, h('label', null, 'Exchange rate'), h('div', { className: 'msa-readout msa-dim' }, 'Same currency — no conversion'))
+              : h('div', { className: 'msa-field' }, h('label', null, '1 ' + cc + ' = ? ' + sc), h('input', { type: 'number', step: '0.0001', placeholder: 'e.g. 0.95', value: b.fx_rate == null ? '' : b.fx_rate, onChange: (e) => set('fx_rate', e.target.value) })),
+            costLine('Transport', 'cost_transportation', 'collab_transport', 'driver'),
+            costLine('Accommodation', 'cost_accommodation', 'collab_accommodation', 'hotel'),
+            costLine('Activities', 'cost_activities', 'collab_activities', 'activity'),
+            h('div', { className: 'msa-field' }, h('label', null, 'Total Cost (' + cc + ')'), h('div', { className: 'msa-readout msa-text-red' }, money(b.total_cost, cc))),
+            h('div', { className: 'msa-field' }, h('label', null, 'Total Cost in ' + sc), h('div', { className: 'msa-readout msa-text-red' }, sameCur ? money(b.total_cost, sc) : (fx > 0 ? '≈ ' + money(costInSell, sc) : 'Set the exchange rate'))));
+        })() : null,
         h('h4', { className: 'msa-section' }, isAdminRole() ? 'Pricing, Payment & Status' : 'Status'),
         isAdminRole() ? h('div', { className: 'msa-grid-2' },
-          h('div', { className: 'msa-field' }, h('label', null, 'Selling Price'), h('input', { type: 'number', value: b.selling_price || '', onChange: (e) => setPrice(parseFloat(e.target.value) || 0) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Selling currency'), h('select', { value: sc, onChange: (e) => set('sell_currency', e.target.value) }, CURRENCIES.map(c => h('option', { key: c, value: c }, c)))),
+          h('div', { className: 'msa-field' }, h('label', null, 'Selling Price (' + sc + ')'), h('input', { type: 'number', value: b.selling_price || '', onChange: (e) => setPrice(parseFloat(e.target.value) || 0) })),
           h('div', { className: 'msa-field' }, h('label', null, 'Deposit'),
             h('label', { className: 'msa-toggle' },
               h('input', { type: 'checkbox', checked: b.deposit_enabled !== false, onChange: (e) => set('deposit_enabled', e.target.checked) }),
               h('span', { className: 'msa-toggle-ui' }),
-              h('span', { className: 'msa-toggle-lbl' }, (b.deposit_enabled !== false) ? ('Required · ' + kr(b.deposit_amount || 0)) : 'Not required'))),
+              h('span', { className: 'msa-toggle-lbl' }, (b.deposit_enabled !== false) ? ('Required · ' + money(b.deposit_amount || 0, sc)) : 'Not required'))),
           h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: b.status, onChange: (e) => set('status', e.target.value) }, STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))),
-          h('div', { className: 'msa-field' }, h('label', null, 'Paid so far'), h('input', { type: 'number', value: b.paid_amount || '', onChange: (e) => setPaid(parseFloat(e.target.value) || 0) })),
-          h('div', { className: 'msa-field' }, h('label', null, 'Balance'), h('div', { className: 'msa-readout ' + ((+b.balance > 0) ? 'msa-text-red' : 'msa-text-green') }, kr(b.balance))),
+          h('div', { className: 'msa-field' }, h('label', null, 'Paid so far (' + sc + ')'), h('input', { type: 'number', value: b.paid_amount || '', onChange: (e) => setPaid(parseFloat(e.target.value) || 0) })),
+          h('div', { className: 'msa-field' }, h('label', null, 'Balance'), h('div', { className: 'msa-readout ' + ((+b.balance > 0) ? 'msa-text-red' : 'msa-text-green') }, money(b.balance, sc))),
           h('div', { className: 'msa-field' }, h('label', null, 'Payment Method'), h('select', { value: b.payment_method || 'Bank Transfer', onChange: (e) => set('payment_method', e.target.value) }, PAYMENT_METHODS.map(m => h('option', { key: m, value: m }, m)))),
-          h('div', { className: 'msa-field msa-field-profit' }, h('label', null, 'Profit'), h('div', { className: 'msa-readout msa-text-green' }, kr((+b.selling_price || 0) - (+b.total_cost || 0)))))
+          h('div', { className: 'msa-field msa-field-profit' }, h('label', null, 'Profit (' + sc + ')'), h('div', { className: 'msa-readout ' + (profitSell >= 0 ? 'msa-text-green' : 'msa-text-red') }, (!sameCur && !(fx > 0)) ? 'Set the exchange rate' : money(profitSell, sc))))
           : h('div', { className: 'msa-grid-2' }, h('div', { className: 'msa-field' }, h('label', null, 'Status'), h('select', { value: b.status, onChange: (e) => set('status', e.target.value) }, STATUS_ORDER.map(s => h('option', { key: s, value: s }, STATUS_LABEL[s])))), h('div', { className: 'msa-field' }, h('label', null, 'Payment'), h('div', { className: 'msa-readout msa-dim' }, 'Managed by admin'))),
         h('h4', { className: 'msa-section' }, 'Included / Not included (one per line)'),
         h('div', { className: 'msa-grid-2' },
@@ -927,7 +962,7 @@
   // =====================================================================
   // BOOKINGS
   // =====================================================================
-  function Bookings({ bookings, reload, settings, focusBooking, clearFocus }) {
+  function Bookings({ bookings, reload, settings, focusBooking, clearFocus, suppliers }) {
     const [edit, setEdit] = useState(null); const [doc, setDoc] = useState(null);
     const [q, setQ] = useState(''); const [statusF, setStatusF] = useState('all'); const [showFilters, setShowFilters] = useState(false);
     const [sort, setSort] = useState({ k: 'arrival_date', d: 'asc' }); const [expanded, setExpanded] = useState({}); const [archiveOpen, setArchiveOpen] = useState(false);
@@ -992,7 +1027,7 @@
       h('div', { className: 'msa-table-card' }, active.length === 0 ? h('div', { className: 'msa-empty' }, 'No active bookings.') : table(active),
         h('button', { className: 'msa-archive-bar', onClick: () => setArchiveOpen(o => !o) }, h('span', { className: 'msa-archive-count' }, archived.length), 'Past bookings archive', h('span', { className: 'msa-archive-chev' }, archiveOpen ? '⌃' : '⌄'))),
       archiveOpen && h('div', { className: 'msa-table-card', style: { marginTop: 14 } }, archived.length === 0 ? h('div', { className: 'msa-empty' }, 'No archived bookings.') : table(archived)),
-      edit && h(BookingModal, { initial: edit.id ? edit : EMPTY_BOOKING, onClose: () => setEdit(null), onSaved: () => { setEdit(null); reload(); }, onView: (bk, t) => setDoc({ booking: bk, type: t }) }),
+      edit && h(BookingModal, { initial: edit.id ? edit : EMPTY_BOOKING, onClose: () => setEdit(null), onSaved: () => { setEdit(null); reload(); }, onView: (bk, t) => setDoc({ booking: bk, type: t }), suppliers }),
       doc && h(DocModal, { booking: doc.booking, initialType: doc.type, settings: settings, onClose: () => setDoc(null) }));
   }
 
@@ -1186,7 +1221,19 @@
   // =====================================================================
   // FINANCE (charts + breakdown)
   // =====================================================================
-  function Finance({ bookings }) {
+  function Finance({ bookings, suppliers }) {
+    // Spend per collaborator: sum each booking cost line to its assigned collaborator.
+    const collabSpend = (function () {
+      const m = {};
+      (bookings || []).forEach(b => {
+        [['collab_transport', 'cost_transportation'], ['collab_accommodation', 'cost_accommodation'], ['collab_activities', 'cost_activities']].forEach(([ck, ak]) => {
+          const id = b[ck]; const amt = +b[ak] || 0; if (!id || amt <= 0) return;
+          if (!m[id]) m[id] = { total: 0, count: 0 }; m[id].total += amt; m[id].count += 1;
+        });
+      });
+      return Object.keys(m).map(id => { const s = (suppliers || []).find(x => x.id === id); return { id: id, name: s ? s.name : 'Unknown', type: s ? s.type : '', total: m[id].total, count: m[id].count }; }).sort((a, b) => b.total - a.total);
+    })();
+    const maxCollab = Math.max(1, ...collabSpend.map(c => c.total));
     const sales = bookings.reduce((s, b) => s + (+b.selling_price || 0), 0);
     const costs = bookings.reduce((s, b) => s + (+b.total_cost || 0), 0);
     const profit = sales - costs; const margin = sales > 0 ? profit / sales * 100 : 0;
@@ -1212,6 +1259,12 @@
         h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Revenue by month')), months.length ? h(Bars, { data: months }) : h('div', { className: 'msa-empty' }, 'No dated bookings.'))),
       h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Lead sources')),
         h('div', { className: 'msa-srcbars' }, sources.map(([k, v], i) => h('div', { key: i, className: 'msa-srcbar' }, h('span', { className: 'msa-srcbar-l' }, k), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (v / maxSrc * 100) + '%' } })), h('span', { className: 'msa-srcbar-v' }, v))))),
+      h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Spend by collaborator'), h('span', { className: 'msa-dim' }, collabSpend.length + ' partners')),
+        collabSpend.length === 0
+          ? h('div', { className: 'msa-empty' }, 'Assign collaborators to booking cost lines (Transport / Accommodation / Activities) to track spend here.')
+          : h('div', { className: 'msa-srcbars' }, collabSpend.map((c, i) => h('div', { key: i, className: 'msa-srcbar' },
+              h('span', { className: 'msa-srcbar-l', title: c.name }, c.name), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (c.total / maxCollab * 100) + '%' } })),
+              h('span', { className: 'msa-srcbar-v' }, kr(c.total) + ' · ' + c.count))))),
       h('div', { className: 'msa-card msa-card-flush' }, h('div', { className: 'msa-card-head msa-pad' }, h('h3', null, 'Breakdown by booking')),
         h('table', { className: 'msa-table' }, h('thead', null, h('tr', null, ['Reference','Client','Price','Cost','Profit','Margin','Status'].map((c, i) => h('th', { key: i, className: i >= 2 && i <= 5 ? 'msa-right' : '' }, c)))),
           h('tbody', null, bookings.slice().sort((a, b) => (+b.selling_price || 0) - (+a.selling_price || 0)).map(b => { const s = +b.selling_price || 0, c = +b.total_cost || 0, p = s - c;
@@ -1427,7 +1480,7 @@
   // =====================================================================
   // REQUESTS — cloned from the Bookings layout (expandable rows + actions)
   // =====================================================================
-  function Requests({ leads, bookings, reload, settings }) {
+  function Requests({ leads, bookings, reload, settings, suppliers }) {
     const [q, setQ] = useState(''); const [expanded, setExpanded] = useState({});
     const [doc, setDoc] = useState(null); const [editBk, setEditBk] = useState(null);
     const [notes, setNotes] = useState({});    // id -> draft note
@@ -1565,7 +1618,7 @@
       h('div', { className: 'msa-table-card' }, list.length === 0 ? h('div', { className: 'msa-empty' }, 'No requests yet.')
         : h('table', { className: 'msa-table msa-btable' }, h('thead', null, h('tr', null, h('th', { className: 'msa-bt-chev' }, ''), ['Date', 'Client', 'Itinerary', 'Dates', 'Status'].map((c, i) => h('th', { key: i }, c)), h('th', null, ''))), h('tbody', null, list.map(row)))),
       doc && h(DocModal, { booking: doc.booking, initialType: doc.type, settings, onClose: () => setDoc(null) }),
-      editBk && h(BookingModal, { initial: editBk, onClose: () => setEditBk(null), onSaved: () => { setEditBk(null); reload(); }, onView: (bk, t) => setDoc({ booking: bk, type: t }) }));
+      editBk && h(BookingModal, { initial: editBk, onClose: () => setEditBk(null), onSaved: () => { setEditBk(null); reload(); }, onView: (bk, t) => setDoc({ booking: bk, type: t }), suppliers }));
   }
 
   // =====================================================================
@@ -2036,13 +2089,13 @@
       if (loading) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading…'));
       if (search.trim()) return h(SearchResults, { q: search.trim(), data: { bookings, clients, suppliers, tasks, leads }, route: routeTo, openBooking, clear: () => setSearch('') });
       switch (tab) {
-        case 'bookings': return h(Bookings, { bookings, reload: reloadAll, settings, focusBooking, clearFocus: () => setFocusBooking(null) });
+        case 'bookings': return h(Bookings, { bookings, reload: reloadAll, settings, focusBooking, clearFocus: () => setFocusBooking(null), suppliers });
         case 'calendar': return h(CalendarTab, { bookings, openBooking });
         case 'clients': return h(Clients, { clients, bookings, reload: reloadAll, initialQuery: clientQuery });
         case 'suppliers': return h(Suppliers, { suppliers, bookings, leads, reload: reloadAll, seed: supSeed, clearSeed: () => setSupSeed(null) });
-        case 'finance': return isAdmin ? h(Finance, { bookings }) : h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
+        case 'finance': return isAdmin ? h(Finance, { bookings, suppliers }) : h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
         case 'tasks': return h(Workspace, { tasks, reload: reloadAll });
-        case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings });
+        case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings, suppliers });
         case 'insights': return h(Insights, {});
         case 'settings': return h(Settings, { settings, onSaved: reloadAll });
         default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
