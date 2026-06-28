@@ -1005,7 +1005,7 @@
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
 /* Header — compact */
 .msa-doc-itin .msa-itin-hero { position: relative; text-align: left; padding: 20px 34px 12px; background: #fff; }
-.msa-doc-itin .msa-itin-logo { position: absolute; top: 16px; right: 32px; width: 41px; height: auto; border-radius: 9px; }
+.msa-doc-itin .msa-itin-logo { position: absolute; top: 15px; right: 32px; width: 49px; height: auto; border-radius: 10px; }
 .msa-doc-itin .msa-itin-kicker { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #e0432a; margin-bottom: 4px; }
 .msa-doc-itin .msa-itin-title { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Georgia, serif !important; font-size: 27px; line-height: 1.02; font-weight: 700; letter-spacing: -0.02em; color: #1d1d1f !important; margin: 0; padding: 0; text-shadow: none; text-transform: none; }
 .msa-doc-itin .msa-itin-rule { height: 3px; width: 42px; margin: 11px 0 0; border: none; background: #e0432a; border-radius: 2px; }
@@ -1054,6 +1054,28 @@
 
 /* ── Booking form utilities: wide field · Apple toggle · invoice pay-note ── */
 .msa-field-wide { grid-column: 1 / -1; }
+
+/* Collaborators — categorized list (like contacts) */
+.msa-collab-group { margin-bottom: 18px; }
+.msa-collab-cat { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--msa-dim); margin: 0 4px 8px; }
+.msa-collab-count { background: var(--msa-bg); border: 1px solid var(--msa-line); border-radius: 999px; padding: 1px 8px; font-size: 11px; }
+.msa-collab-list { background: var(--msa-card); border: 1px solid var(--msa-card-border, var(--msa-line)); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(20,16,30,0.04), 0 16px 40px -32px rgba(20,16,30,0.3); }
+.msa-collab-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-top: 1px solid var(--msa-line); transition: background .12s; }
+.msa-collab-list .msa-collab-row:first-child { border-top: none; }
+.msa-collab-row:hover { background: var(--msa-bg); }
+.msa-collab-row.open { background: var(--msa-bg); }
+.msa-collab-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.msa-collab-main strong { font-size: 14.5px; color: var(--msa-ink); }
+.msa-collab-main .msa-dim { font-size: 12.5px; }
+.msa-collab-spend { font-weight: 700; color: var(--msa-brand); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; margin-right: 2px; }
+.msa-collab-row .msa-chevtog { color: var(--msa-dim); font-size: 13px; width: 14px; text-align: center; }
+.msa-collab-detail { padding: 4px 16px 16px 52px; background: var(--msa-bg); border-top: 1px solid var(--msa-line); }
+.msa-collab-detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px 22px; padding: 12px 0; }
+.msa-collab-detail-grid .msa-fin-k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--msa-dim); font-weight: 700; margin-bottom: 4px; }
+.msa-collab-detail-grid a { color: var(--msa-brand); }
+.msa-collab-hist { border-top: 1px solid var(--msa-line); padding-top: 10px; }
+.msa-collab-hist-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 0; font-size: 13px; border-bottom: 1px solid var(--msa-line); }
+.msa-collab-hist-row:last-child { border-bottom: none; }
 .msa-toggle { display: inline-flex; align-items: center; gap: 11px; cursor: pointer; user-select: none; padding: 7px 0; }
 .msa-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
 .msa-toggle-ui { position: relative; width: 42px; height: 25px; border-radius: 999px; background: #d1d1d6; transition: background .2s; flex: 0 0 auto; }
