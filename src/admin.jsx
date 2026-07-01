@@ -103,6 +103,12 @@
     notes: { l: 'Notes', g: 'notes' }, avoid: { l: 'Avoid', g: 'notes' },
   };
   const REQ_GROUPS = [['trip', 'Trip'], ['who', 'Traveller & contact'], ['style', 'Style & preferences'], ['log', 'Booked & logistics'], ['notes', 'Notes'], ['other', 'Other details']];
+  // Display order that follows the form flow — contact → trip → style → logistics → notes last.
+  const REQ_ORDER = ['name', 'email', 'phone', 'country',
+    'tripType', 'people', 'startDate', 'endDate', 'duration', 'arriveCity', 'departCity', 'multiCity', 'vanSeats',
+    'pace', 'budget', 'accommodation', 'flex', 'interests', 'stops', 'daySchedule', 'occasion',
+    'flightBooked', 'bookedAccom', 'bookedTransport', 'bookedActivities'];
+  const reqOrderIdx = (k) => { if (k === 'notes') return 90001; if (k === 'avoid') return 90002; const i = REQ_ORDER.indexOf(k); return i < 0 ? 50000 : i; };
   // ── Calendar: what's happening for a booking on a given date (for hover tooltips) ──
   function bkDayProgram(b, k) {
     const itin = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
@@ -1802,7 +1808,7 @@
         const v = p[k]; if (v == null || v === '') return null;
         const meta = REQ_FIELD[k] || { l: k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()), g: 'other' };
         return { key: k, label: meta.l, group: meta.g, value: fmtReqVal(v) };
-      }).filter(Boolean);
+      }).filter(Boolean).sort((a, b) => reqOrderIdx(a.key) - reqOrderIdx(b.key));
       const detail = h('tr', { key: l.id + '-d', className: 'msa-bt-detail' }, h('td', { colSpan: 8 },
         p.chooseForMe ? h('div', { className: 'msa-rq-flag' }, '⭐ Choose for me — client wants MarrakechStory to craft the trip') : null,
         h('div', { className: 'msa-rq-head' },

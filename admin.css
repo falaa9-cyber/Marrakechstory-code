@@ -1536,12 +1536,13 @@
 .msa-dark .msa-agent { background: #1c1c20; }
 .msa-dark .msa-rq-dump-count { background: #fff; color: #111; }
 
-/* Request "all submitted details" — plain simple list */
-.msa-rq-simplelist { list-style: none; margin: 10px 0 4px; padding: 0; }
-.msa-rq-sl-row { display: flex; justify-content: space-between; gap: 18px; align-items: baseline; padding: 7px 2px; border-bottom: 1px solid var(--msa-line); font-size: 13px; }
-.msa-rq-sl-row:last-child { border-bottom: none; }
-.msa-rq-sl-k { color: var(--msa-dim); font-weight: 600; flex: 0 0 auto; }
-.msa-rq-sl-v { color: var(--msa-ink); font-weight: 600; text-align: right; word-break: break-word; white-space: pre-wrap; }
+/* Request "all submitted details" — two simple lists side by side */
+.msa-rq-simplelist { list-style: none; margin: 10px 0 4px; padding: 0; column-count: 2; column-gap: 44px; }
+@media (max-width: 720px) { .msa-rq-simplelist { column-count: 1; } }
+.msa-rq-sl-row { break-inside: avoid; -webkit-column-break-inside: avoid; display: grid; grid-template-columns: minmax(115px, 175px) 1fr; gap: 6px 18px; align-items: baseline; padding: 7px 2px; border-bottom: 1px solid var(--msa-line); font-size: 13px; }
+.msa-rq-sl-k { color: var(--msa-ink2, #2b2b30); font-weight: 700; }
+.msa-rq-sl-v { color: var(--msa-brand, #e0432a); font-weight: 700; text-align: left; word-break: break-word; white-space: pre-wrap; }
+.msa-dark .msa-rq-sl-k { color: #cfcfd6; }
 
 /* Dashboard calendar — instant hover tooltip with the day's bookings + activities */
 .msa-cal-cell { position: relative; }
