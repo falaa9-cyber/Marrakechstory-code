@@ -81,6 +81,85 @@
   }
   const REQ_KIND = { quickbook: 'Booking', itinerary: 'Trip request', tweak: 'Custom trip', collaboration: 'Partnership' };
   function reqKindLabel(l) { return (l && REQ_KIND[l.kind]) || (l && l.kind) || 'Request'; }
+  // Pretty-print a submitted value: booleans → Yes/No, empty arrays/objects → None.
+  function fmtReqVal(v) {
+    if (v == null) return '—';
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    if (v === 'true') return 'Yes';
+    if (v === 'false') return 'No';
+    if (typeof v === 'string') { const lo = v.trim().toLowerCase(); if (lo === 'yes') return 'Yes'; if (lo === 'no') return 'No'; }
+    if (Array.isArray(v)) { const a = v.map(reqText).filter(Boolean); return a.length ? a.join(', ') : 'None'; }
+    if (typeof v === 'object') { const s = reqText(v); return s || 'None'; }
+    const s = String(v).trim();
+    if (s === '' || s === '[]' || s === '{}' || s === '[object Object]') return 'None';
+    return s;
+  }
+  // Friendly label + colour-group for known request fields.
+  const REQ_FIELD = {
+    name: { l: 'Name', g: 'who' }, email: { l: 'Email', g: 'who' }, phone: { l: 'Phone', g: 'who' }, country: { l: 'Country', g: 'who' }, people: { l: 'Travellers', g: 'who' }, vanSeats: { l: 'Van seats', g: 'who' },
+    tripType: { l: 'Trip type', g: 'trip' }, duration: { l: 'Duration (days)', g: 'trip' }, startDate: { l: 'Start date', g: 'trip' }, multiCity: { l: 'Multi-city', g: 'trip' }, arriveCity: { l: 'Arrival city', g: 'trip' }, departCity: { l: 'Departure city', g: 'trip' },
+    pace: { l: 'Pace', g: 'style' }, budget: { l: 'Budget', g: 'style' }, accommodation: { l: 'Accommodation', g: 'style' }, flex: { l: 'Flexibility', g: 'style' }, interests: { l: 'Interests', g: 'style' }, stops: { l: 'Stops', g: 'style' }, occasion: { l: 'Occasion', g: 'style' }, daySchedule: { l: 'Day schedule', g: 'style' },
+    flightBooked: { l: 'Flights booked', g: 'log' }, bookedAccom: { l: 'Accommodation booked', g: 'log' }, bookedTransport: { l: 'Transport booked', g: 'log' }, bookedActivities: { l: 'Activities booked', g: 'log' },
+    notes: { l: 'Notes', g: 'notes' }, avoid: { l: 'Avoid', g: 'notes' },
+  };
+  const REQ_GROUPS = [['trip', 'Trip'], ['who', 'Traveller & contact'], ['style', 'Style & preferences'], ['log', 'Booked & logistics'], ['notes', 'Notes'], ['other', 'Other details']];
+  // ── Calendar: what's happening for a booking on a given date (for hover tooltips) ──
+  function bkDayProgram(b, k) {
+    const itin = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
+    let m = itin.find(d => (d.date || '').slice(0, 10) === k);
+    if (!m && b.arrival_date) { const diff = Math.round((new Date(k) - new Date(b.arrival_date.slice(0, 10))) / 86400000); if (diff >= 0 && diff < itin.length) m = itin[diff]; }
+    return m;
+  }
+  function bkDayActs(b, k) {
+    if (k === (b.arrival_date || '').slice(0, 10)) return 'Arrival · ' + (b.arrival_city || 'Marrakech');
+    if (k === (b.departure_date || '').slice(0, 10)) return 'Departure · ' + (b.departure_city || '');
+    const prog = bkDayProgram(b, k); if (!prog) return '';
+    const acts = (Array.isArray(prog.activities) ? prog.activities : []).map(a => a.type || a.details).filter(Boolean).slice(0, 3).join(' · ');
+    return (prog.city ? prog.city : '') + (prog.city && acts ? ' — ' : '') + acts;
+  }
+  // ── MarrakechStory agent: compose a tailored draft reply from a request. ──
+  function agentDraft(l) {
+    const p = (l && l.payload) || {};
+    const first = (reqText(p.name) || (l && l.name) || '').trim().split(/\s+/)[0] || 'there';
+    const lang = ((l && l.lang) || p.lang || '').toString().toLowerCase().slice(0, 2);
+    const tripType = (reqText(p.tripType) || (l && l.trip_type) || '').toLowerCase();
+    const days = p.duration || (l && l.duration);
+    const trav = p.travellers || {};
+    const ppl = p.people || ((+trav.adults || 0) + (+trav.children || 0) + (+trav.infants || 0)) || null;
+    const start = (l && l.start_date) || reqText(p.startDate);
+    const fmtD = start ? fmtDate(start) : '';
+    const budget = reqText(p.budget);
+    const accom = reqText(p.accommodation);
+    const chooseForMe = !!p.chooseForMe;
+    const facts = [];
+    if (tripType) facts.push(tripType.charAt(0).toUpperCase() + tripType.slice(1) + ' trip');
+    if (days) facts.push(days + ' days');
+    if (ppl) facts.push(ppl + ' travellers');
+    if (fmtD) facts.push('starting ' + fmtD);
+    if (accom) facts.push(accom + ' stays');
+    if (budget) facts.push(budget + ' budget');
+    const factLine = facts.join(' · ');
+    if (lang === 'no' || lang === 'nb') {
+      return [
+        'Hei ' + first + ',', '',
+        'Tusen takk for forespørselen din til MarrakechStory — så hyggelig at du vil reise med oss!',
+        factLine ? ('Vi har notert oss: ' + factLine + '.') : '',
+        chooseForMe ? 'Siden du ønsker at vi skreddersyr turen, setter vi sammen et komplett dag-for-dag-program for deg.' : 'Vi setter sammen et forslag som passer ønskene dine.',
+        p.notes ? 'Vi har lest notatene dine og tar med ønskene i planen.' : '', '',
+        'Du får et skreddersydd forslag med program og pris innen 24 timer. Si gjerne ifra om datoene er faste, så låser vi de beste riadene og opplevelsene med en gang.', '',
+        'Varme hilsener,', 'Aladdin & Marte — MarrakechStory',
+      ].filter(x => x !== '').join('\n');
+    }
+    return [
+      'Hi ' + first + ',', '',
+      'Thank you so much for your request to MarrakechStory — we’d love to host you!',
+      factLine ? ('Here’s what we’ve noted: ' + factLine + '.') : '',
+      chooseForMe ? 'Since you’d like us to craft the trip, we’ll put together a complete day-by-day itinerary for you.' : 'We’ll put together a tailored proposal around your wishes.',
+      p.notes ? 'We’ve read your notes and will build your wishes into the plan.' : '', '',
+      'You’ll receive a tailored proposal with the programme and pricing within 24 hours. If your dates are fixed, just let us know and we’ll lock in the best riads and experiences right away.', '',
+      'Warm regards,', 'Aladdin & Marte — MarrakechStory',
+    ].filter(x => x !== '').join('\n');
+  }
   const fmtDate = (d) => { if (!d) return '—'; try { return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); } catch { return d; } };
   const fmtDateTime = (d) => { if (!d) return '—'; try { return new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
   const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -331,7 +410,13 @@
     for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const items = dayMap[k] || []; const cnt = items.length; const isToday = k === todayStr;
       cells.push(h('div', { key: d, className: 'msa-cal-cell' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : '') + (compact ? ' mini' : ''), onClick: () => onSelect && onSelect(k) },
         h('span', { className: 'msa-cal-num' }, d),
-        cnt > 0 && h('span', { className: 'msa-cal-dot ' + (cnt > 1 ? 'multi' : 'single') }, cnt))); }
+        cnt > 0 && h('span', { className: 'msa-cal-dot ' + (cnt > 1 ? 'multi' : 'single') }, cnt),
+        cnt > 0 && h('div', { className: 'msa-cal-tip' },
+          h('div', { className: 'msa-cal-tip-date' }, fmtDate(k)),
+          items.slice(0, 6).map((b, i) => { const a = bkDayActs(b, k); return h('div', { key: i, className: 'msa-cal-tip-row' },
+            h('span', { className: 'msa-key-dot', style: { background: bkColor(b) } }),
+            h('div', { className: 'msa-cal-tip-txt' }, h('strong', null, b.client_name || '—'), a ? h('span', { className: 'msa-cal-tip-act' }, a) : null)); }),
+          items.length > 6 && h('div', { className: 'msa-cal-tip-more' }, '+' + (items.length - 6) + ' more')))); }
     return h('div', null,
       h('div', { className: 'msa-card-head' }, h('h3', null, MON[M] + ' ' + Y),
         h('div', { className: 'msa-cal-controls' }, h('button', { className: 'msa-icon-btn', onClick: () => setCursor(new Date(Y, M - 1, 1)) }, ICON.chevL()),
@@ -592,6 +677,41 @@
     const delDay = (i) => setB(p => ({ ...p, daily_itinerary: p.daily_itinerary.filter((_, x) => x !== i).map((d, x) => ({ ...d, day: x + 1 })) }));
     // Keep the raw text (spaces & blank lines allowed); empties are dropped only at display/save time.
     const setList = (k, txt) => set(k, txt.split('\n'));
+    // ── Auto-built hand-off notes to send to the driver & the hotel (copy to WhatsApp) ──
+    const [collabCopied, setCollabCopied] = useState('');
+    const collabPax = () => (+b.adults || 0) + (+b.kids || 0);
+    const collabRoute = () => {
+      const dests = (Array.isArray(b.daily_itinerary) ? b.daily_itinerary : []).map(d => d.city).filter(Boolean);
+      const stops = [b.arrival_city, ...dests, b.departure_city].filter(Boolean);
+      const seen = []; stops.forEach(s => { if (!seen.length || seen[seen.length - 1] !== s) seen.push(s); });
+      return seen.join(' → ');
+    };
+    const buildCollab = (kind) => {
+      const pax = collabPax();
+      const dates = (b.arrival_date || '?') + ' → ' + (b.departure_date || '?');
+      if (kind === 'transport') return [
+        'MarrakechStory — TRANSPORT',
+        'Dates: ' + dates,
+        'Client: ' + (b.client_name || ''),
+        'Phone: ' + (b.phone || ''),
+        'People: ' + pax + (b.kids ? ' (' + (b.adults || 0) + ' adults + ' + b.kids + ' kids)' : ''),
+        'Pickup address: ' + (b.address || '—'),
+        'Driving / route: ' + (collabRoute() || (b.arrival_city || 'Marrakech')),
+        'Arrival: ' + (b.arrival_city || 'Marrakech') + ' · ' + (b.arrival_date || '?') + ' · flight & time: ______',
+        'Departure: ' + (b.departure_city || 'Marrakech') + ' · ' + (b.departure_date || '?') + ' · flight & time: ______',
+      ].join('\n');
+      return [
+        'MarrakechStory — ACCOMMODATION',
+        'Dates: ' + dates + (b.total_nights ? ' (' + b.total_nights + ' nights)' : ''),
+        'Guest: ' + (b.client_name || ''),
+        'Phone: ' + (b.phone || ''),
+        'Guests: ' + pax + ' pax' + (b.kids ? ' (' + (b.adults || 0) + ' adults + ' + b.kids + ' kids)' : ''),
+        'Rooms: ______',
+      ].join('\n');
+    };
+    const [collabTx, setCollabTx] = useState(() => ({ transport: buildCollab('transport'), accommodation: buildCollab('accommodation') }));
+    const rebuildCollab = () => setCollabTx({ transport: buildCollab('transport'), accommodation: buildCollab('accommodation') });
+    const copyCollab = (kind) => { try { navigator.clipboard.writeText(collabTx[kind] || ''); setCollabCopied(kind); setTimeout(() => setCollabCopied(''), 2000); } catch (e) {} };
     // One age box per kid; stored as a comma-separated string in kids_ages.
     const kidAges = () => String(b.kids_ages || '').split(',').map(s => s.trim());
     const setKidAge = (idx, val) => setB(p => {
@@ -719,6 +839,16 @@
         h('h4', { className: 'msa-section' }, 'Notes'),
         h('div', { className: 'msa-field' }, h('label', null, 'Internal notes'), h('textarea', { rows: 2, value: b.internal_notes || '', onChange: (e) => set('internal_notes', e.target.value) })),
         h('div', { className: 'msa-field' }, h('label', null, 'Special requests'), h('textarea', { rows: 2, value: b.special_requests || '', onChange: (e) => set('special_requests', e.target.value) })),
+        h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Send to collaborators'), h('button', { type: 'button', className: 'msa-btn msa-btn-sm', onClick: rebuildCollab }, '↻ Rebuild from booking')),
+        h('div', { className: 'msa-collab-send' },
+          h('div', { className: 'msa-collab-box' },
+            h('div', { className: 'msa-collab-box-head' }, h('span', { className: 'msa-collab-box-t' }, ICON.van ? ICON.van() : null, '🚗 Driver / transport'),
+              h('button', { type: 'button', className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => copyCollab('transport') }, collabCopied === 'transport' ? 'Copied ✓' : 'Copy')),
+            h('textarea', { className: 'msa-collab-ta', rows: 9, value: collabTx.transport, onChange: (e) => setCollabTx(s => ({ ...s, transport: e.target.value })) })),
+          h('div', { className: 'msa-collab-box' },
+            h('div', { className: 'msa-collab-box-head' }, h('span', { className: 'msa-collab-box-t' }, '🏨 Accommodation'),
+              h('button', { type: 'button', className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => copyCollab('accommodation') }, collabCopied === 'accommodation' ? 'Copied ✓' : 'Copy')),
+            h('textarea', { className: 'msa-collab-ta', rows: 9, value: collabTx.accommodation, onChange: (e) => setCollabTx(s => ({ ...s, accommodation: e.target.value })) }))),
         (initial && initial.id && initial.email) ? h('div', null,
           h('h4', { className: 'msa-section' }, 'Messages with client'),
           h('div', { className: 'msa-msg-thread' },
@@ -1538,9 +1668,61 @@
     const [notes, setNotes] = useState({});    // id -> draft note
     const [replies, setReplies] = useState({}); // id -> draft reply
     const [flash, setFlash] = useState({});     // id -> confirmation text
+    const [draftFlag, setDraftFlag] = useState({}); // id -> true while an unsent agent/edited draft exists
+    const [agentBusy, setAgentBusy] = useState({}); // id -> true while the AI agent is generating
+    const aiSeen = React.useRef(new Set());          // ids we've already auto-upgraded this session
     const setNote = (id, v) => setNotes(s => ({ ...s, [id]: v }));
     const setReply = (id, v) => setReplies(s => ({ ...s, [id]: v }));
     const flashMsg = (id, m) => { setFlash(s => ({ ...s, [id]: m })); setTimeout(() => setFlash(s => ({ ...s, [id]: '' })), 4000); };
+    // ── Agent drafts: persisted in localStorage so they survive until sent/deleted.
+    //    '' stored = the admin dismissed it (don't auto-regenerate); no key = auto-draft. ──
+    const DKEY = (id) => 'msa_req_draft_' + id;
+    const setDraft = (id, v) => { setReply(id, v); setDraftFlag(s => ({ ...s, [id]: true })); try { localStorage.setItem(DKEY(id), v); } catch (e) {} };
+    // ── MarrakechStory AI agent: calls the `agent-draft` edge function (Claude / ChatGPT).
+    //    Falls back to the local template if the LLM isn't configured or errors. ──
+    const aiUpgrade = async (l, force) => {
+      setAgentBusy(s => ({ ...s, [l.id]: true }));
+      let txt = null, provider = null, err = null;
+      try {
+        const res = await callFn('agent-draft', { lead: l });
+        if (res && res.ok && res.draft) { txt = res.draft; provider = res.provider; }
+        else err = (res && res.error) || 'failed';
+      } catch (e) { err = String(e && e.message || e); }
+      if (txt) { setDraft(l.id, txt); if (force) flashMsg(l.id, 'AI draft ready' + (provider ? ' (' + provider + ')' : '') + ' ✓'); }
+      else if (force) {
+        setDraft(l.id, agentDraft(l));
+        flashMsg(l.id, err === 'no_key' ? 'AI not configured — used template. Add ANTHROPIC_API_KEY in Supabase secrets.' : 'AI unavailable — used template.');
+      }
+      setAgentBusy(s => ({ ...s, [l.id]: false }));
+    };
+    const regenDraft = (l) => aiUpgrade(l, true);
+    const deleteDraft = (l) => { setReply(l.id, ''); setDraftFlag(s => ({ ...s, [l.id]: false })); try { localStorage.setItem(DKEY(l.id), ''); } catch (e) {} };
+    const clearDraft = (id) => { setDraftFlag(s => ({ ...s, [id]: false })); try { localStorage.setItem(DKEY(id), ''); } catch (e) {} };
+    // When a request is first opened, quietly upgrade its template draft to a real AI draft (once).
+    React.useEffect(() => {
+      Object.keys(expanded).forEach(id => {
+        if (!expanded[id] || aiSeen.current.has(id)) return;
+        const l = (leads || []).find(x => String(x.id) === String(id));
+        if (!l || l.handled || l.kind === 'collaboration') return;
+        aiSeen.current.add(id);
+        const cur = replies[id];
+        if (cur && cur !== agentDraft(l)) return; // user edited it — leave alone
+        aiUpgrade(l, false);
+      });
+    }, [expanded]);
+    React.useEffect(() => {
+      const initR = {}, initF = {};
+      (leads || []).forEach(l => {
+        let s = null; try { s = localStorage.getItem(DKEY(l.id)); } catch (e) {}
+        if (s != null) { if (s) { initR[l.id] = s; initF[l.id] = true; } }
+        else if (!l.handled && l.kind !== 'collaboration') {
+          const txt = agentDraft(l); initR[l.id] = txt; initF[l.id] = true;
+          try { localStorage.setItem(DKEY(l.id), txt); } catch (e) {}
+        }
+      });
+      setReplies(prev => ({ ...initR, ...prev }));
+      setDraftFlag(prev => ({ ...initF, ...prev }));
+    }, [leads]);
     const saveNote = async (l) => {
       const note = notes[l.id] != null ? notes[l.id] : (l.admin_note || '');
       await dbUpdate('form_submissions', l.id, { admin_note: note });
@@ -1556,7 +1738,7 @@
       if (error) { flashMsg(l.id, 'Failed: ' + error.message); return; }
       logAudit('reply', 'request', l.id, 'to ' + l.email + ' (profile)');
       if (!l.handled) await dbUpdate('form_submissions', l.id, { handled: true });
-      setReply(l.id, ''); flashMsg(l.id, 'Sent to client profile ✓'); reload();
+      setReply(l.id, ''); clearDraft(l.id); flashMsg(l.id, 'Sent to client profile ✓'); reload();
     };
     const replyEmail = (l) => {
       const body = (replies[l.id] || '').trim();
@@ -1614,53 +1796,64 @@
       const hasStyle = !!(p.accommodation || p.pace || p.budget || p.occasion);
       const dateStr = l.start_date ? (l.start_date + (l.end_date && l.end_date !== l.start_date ? ' → ' + l.end_date : '')) : (reqText(p.date) || '');
       const transport = p.needTransport ? ('Transport requested' + (p.pickupAddr ? ' · pickup: ' + reqText(p.pickupAddr) : '')) : '';
-      // Full dump of everything the visitor submitted — nothing hidden.
-      const HIDE = ['daily_itinerary', 'days', 'summary', 'bookingCtx', 'travellers'];
+      // Everything the visitor submitted — only structural/internal keys hidden.
+      const HIDE = ['daily_itinerary', 'days', 'summary', 'bookingCtx', 'travellers', 'chooseForMe'];
       const dump = Object.keys(p).filter(k => HIDE.indexOf(k) < 0).map(k => {
-        let v = p[k]; if (v == null || v === '') return null;
-        if (typeof v === 'object') { v = reqText(v) || JSON.stringify(v); }
-        if (v === '' || v === '[object Object]') return null;
-        return [k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()), String(v)];
+        const v = p[k]; if (v == null || v === '') return null;
+        const meta = REQ_FIELD[k] || { l: k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()), g: 'other' };
+        return { key: k, label: meta.l, group: meta.g, value: fmtReqVal(v) };
       }).filter(Boolean);
       const detail = h('tr', { key: l.id + '-d', className: 'msa-bt-detail' }, h('td', { colSpan: 8 },
         p.chooseForMe ? h('div', { className: 'msa-rq-flag' }, '⭐ Choose for me — client wants MarrakechStory to craft the trip') : null,
-        h('div', { className: 'msa-bt-detail-grid' },
-          h('div', null, h('span', { className: 'msa-fin-k' }, 'Contact'), l.email && h('div', null, h('a', { href: 'mailto:' + l.email }, l.email)), l.phone && h('div', null, h('a', { href: waLink(l.phone), target: '_blank' }, l.phone)), h('div', { className: 'msa-dim' }, [l.country, 'via ' + (l.via || l.kind)].filter(Boolean).join(' · '))),
-          h('div', null, h('span', { className: 'msa-fin-k' }, l.kind === 'quickbook' ? 'Booked' : 'Trip'), h('div', { style: { fontWeight: 600 } }, title), h('div', { className: 'msa-dim' }, [catLabel || reqKindLabel(l), p.people ? p.people + ' pax' : (pax ? pax + ' pax' : null), l.duration ? l.duration + ' days' : null, dateStr || null].filter(Boolean).join(' · '))),
-          (l.kind === 'itinerary' || flights) ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Flights'), h('div', { className: 'msa-dim' }, flights || '—'), p.flightDetails && h('div', { className: 'msa-dim' }, reqText(p.flightDetails))) : null,
-          hasStyle ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Style'), h('div', { className: 'msa-dim' }, [p.accommodation, p.pace, p.budget].filter(Boolean).join(' · ') || '—'), p.occasion && h('div', { className: 'msa-dim' }, 'Occasion: ' + reqText(p.occasion))) : null,
-          transport ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Transport'), h('div', { className: 'msa-dim' }, transport)) : null,
-          p.baseTitle ? h('div', null, h('span', { className: 'msa-fin-k' }, 'Based on'), h('div', { className: 'msa-dim' }, reqText(p.baseTitle) + (p.baseDuration ? ' · ' + reqText(p.baseDuration) : ''))) : null),
+        h('div', { className: 'msa-rq-head' },
+          h('div', { className: 'msa-rq-head-contact' },
+            l.email && h('a', { href: 'mailto:' + l.email }, l.email),
+            l.phone && h('a', { href: waLink(l.phone), target: '_blank' }, l.phone),
+            h('span', { className: 'msa-dim' }, [l.country, 'via ' + (l.via || l.kind)].filter(Boolean).join(' · '))),
+          h('div', { className: 'msa-rq-head-trip' }, [title && title !== '—' ? title : null, catLabel || reqKindLabel(l), (p.people || pax) ? ((p.people || pax) + ' pax') : null, l.duration ? l.duration + ' days' : null, dateStr || null, flights || null, hasStyle ? [p.accommodation, p.pace, p.budget].filter(Boolean).join(' / ') : null].filter(Boolean).join('  ·  '))),
         (p.notes || p.avoid) ? h('div', { className: 'msa-bk-notes', style: { marginTop: 10 } }, [p.notes && reqText(p.notes), p.avoid && ('Avoid: ' + reqText(p.avoid))].filter(Boolean).join(' · ')) : null,
-        dump.length ? h('details', { className: 'msa-rq-dump' }, h('summary', null, 'All submitted details (' + dump.length + ')'),
-          h('div', { className: 'msa-rq-dump-grid' }, dump.map(([k, v], i) => h('div', { key: i, className: 'msa-rq-dump-item' }, h('span', { className: 'msa-rq-dump-k' }, k), h('span', { className: 'msa-rq-dump-v' }, v))))) : null,
+        dump.length ? h('details', { className: 'msa-rq-dump' },
+          h('summary', { className: 'msa-rq-dump-sum' }, h('span', { className: 'msa-rq-chev' }, '⌄'), 'All submitted details', h('span', { className: 'msa-rq-dump-count' }, dump.length)),
+          h('ul', { className: 'msa-rq-simplelist' }, dump.map((d, i) => h('li', { key: i, className: 'msa-rq-sl-row' },
+            h('span', { className: 'msa-rq-sl-k' }, d.label),
+            h('span', { className: 'msa-rq-sl-v' }, d.value))))) : null,
         itin.length > 0 ? h('div', { className: 'msa-rq-itin', style: { marginTop: 12 } }, itin.map((d, i) => h('div', { key: i, className: 'msa-rq-day' },
           h('div', { className: 'msa-rq-day-n' }, d.day || i + 1),
           h('div', null, h('strong', null, (d.city || ('Day ' + (d.day || i + 1))) + (d.date ? ' · ' + fmtDate(d.date) : '')),
             (d.activities || []).map((a, ai) => h('div', { key: ai, className: 'msa-dim' }, (a.time ? a.time + ' · ' : '') + (a.type || '') + (a.details ? ' — ' + a.details : ''))))))) : null,
         b ? h('div', { className: 'msa-rq-booking', style: { marginTop: 12 } }, h('span', { className: 'msa-ref-chip' }, b.reference || '—'), h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), isAdminRole() && h('span', { className: 'msa-text-brand', style: { fontWeight: 700 } }, kr(b.selling_price)), (isAdminRole() && +b.balance > 0) && h('span', { className: 'msa-dim' }, 'Balance ' + kr(b.balance))) : null,
-        // Answer the client + internal note (relay to profile / email / WhatsApp)
-        h('div', { className: 'msa-rq-reply' },
-          h('div', { className: 'msa-rq-reply-grid' },
-            h('div', null,
-              h('span', { className: 'msa-fin-k' }, 'Internal note (staff only)'),
-              h('textarea', { className: 'msa-rq-ta', rows: 2, placeholder: 'Private note…', value: notes[l.id] != null ? notes[l.id] : (l.admin_note || ''), onChange: (e) => setNote(l.id, e.target.value) }),
-              h('button', { className: 'msa-btn msa-btn-sm', onClick: () => saveNote(l) }, 'Save note')),
-            h('div', null,
-              h('span', { className: 'msa-fin-k' }, 'Answer the client'),
-              h('textarea', { className: 'msa-rq-ta', rows: 2, placeholder: 'Write your reply…', value: replies[l.id] || '', onChange: (e) => setReply(l.id, e.target.value) }),
-              h('div', { className: 'msa-rq-reply-btns' },
-                h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => replyProfile(l), title: 'Save to the client’s logged-in profile' }, 'Send to profile'),
-                h('button', { className: 'msa-btn msa-btn-sm', onClick: () => replyEmail(l), disabled: !l.email }, 'Email'),
-                h('button', { className: 'msa-btn msa-btn-sm', onClick: () => replyWhatsapp(l), disabled: !l.phone }, ICON.whatsapp(), 'WhatsApp')))),
+        // MarrakechStory agent — auto-drafts a reply, kept until confirmed / edited / deleted.
+        h('div', { className: 'msa-rq-sec-h' }, 'MarrakechStory agent'),
+        h('div', { className: 'msa-agent' },
+          h('div', { className: 'msa-agent-top' },
+            h('div', { className: 'msa-agent-id' },
+              h('span', { className: 'msa-agent-av' + (agentBusy[l.id] ? ' msa-agent-av-busy' : '') }, '✦'),
+              h('span', { className: 'msa-agent-name' }, 'MarrakechStory AI agent'),
+              agentBusy[l.id] ? h('span', { className: 'msa-agent-badge' }, 'Writing…')
+                : ((replies[l.id] || '').trim() ? h('span', { className: 'msa-agent-badge' + (draftFlag[l.id] ? '' : ' msa-agent-badge-edit') }, draftFlag[l.id] ? 'Draft — review before sending' : 'Edited') : h('span', { className: 'msa-dim', style: { fontSize: 12 } }, 'No draft'))),
+            h('button', { className: 'msa-btn msa-btn-sm', disabled: !!agentBusy[l.id], onClick: () => regenDraft(l), title: 'Generate a tailored reply with the MarrakechStory AI (Claude / ChatGPT)' }, agentBusy[l.id] ? '✦ Writing…' : ((replies[l.id] || '').trim() ? '✦ Regenerate with AI' : '✦ Draft with AI'))),
+          h('textarea', { className: 'msa-rq-ta msa-agent-ta', rows: 8, placeholder: agentBusy[l.id] ? 'The AI agent is writing a tailored reply…' : 'The agent will draft a reply here — click “Draft with AI”.', value: replies[l.id] || '', onChange: (e) => setDraft(l.id, e.target.value) }),
+          h('div', { className: 'msa-agent-btns' },
+            h('div', { className: 'msa-rq-act-grp' },
+              h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => replyProfile(l), disabled: !(replies[l.id] || '').trim(), title: 'Confirm & save to the client’s profile' }, 'Confirm & send to profile'),
+              h('button', { className: 'msa-btn msa-btn-sm', onClick: () => replyEmail(l), disabled: !l.email || !(replies[l.id] || '').trim() }, 'Email'),
+              h('button', { className: 'msa-btn msa-btn-sm', onClick: () => replyWhatsapp(l), disabled: !l.phone || !(replies[l.id] || '').trim() }, ICON.whatsapp(), 'WhatsApp')),
+            h('button', { className: 'msa-btn msa-btn-sm msa-rq-del msa-rq-act-end', onClick: () => deleteDraft(l), disabled: !(replies[l.id] || '').trim() }, 'Delete draft')),
           flash[l.id] ? h('div', { className: 'msa-savemsg', style: { marginTop: 8 } }, flash[l.id]) : null),
+        h('div', { className: 'msa-rq-note' },
+          h('span', { className: 'msa-fin-k' }, 'Internal note (staff only)'),
+          h('textarea', { className: 'msa-rq-ta', rows: 2, placeholder: 'Private note…', value: notes[l.id] != null ? notes[l.id] : (l.admin_note || ''), onChange: (e) => setNote(l.id, e.target.value) }),
+          h('button', { className: 'msa-btn msa-btn-sm', onClick: () => saveNote(l) }, 'Save note')),
+        h('div', { className: 'msa-rq-sec-h' }, 'Manage'),
         h('div', { className: 'msa-bt-detail-actions' },
-          b && h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => setEditBk(b) }, ICON.edit(), 'Open booking editor'),
-          (b || itin.length) && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: docBooking(l, b), type: 'itinerary' }) }, ICON.doc(), 'Itinerary PDF'),
-          b && isAdminRole() && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'invoice' }) }, ICON.invoice(), 'Invoice PDF'),
-          l.phone && h('a', { className: 'msa-btn msa-btn-sm', href: waLink(l.phone), target: '_blank' }, ICON.whatsapp(), 'WhatsApp'),
-          h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => markHandled(l, e) }, l.handled ? 'Mark unread' : 'Mark handled'),
-          h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => del(l, e) }, ICON.trash(), 'Delete'))));
+          h('div', { className: 'msa-rq-act-grp' },
+            b && h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => setEditBk(b) }, ICON.edit(), 'Open booking editor'),
+            (b || itin.length) && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: docBooking(l, b), type: 'itinerary' }) }, ICON.doc(), 'Itinerary PDF'),
+            b && isAdminRole() && h('button', { className: 'msa-btn msa-btn-sm', onClick: () => setDoc({ booking: b, type: 'invoice' }) }, ICON.invoice(), 'Invoice PDF'),
+            l.phone && h('a', { className: 'msa-btn msa-btn-sm', href: waLink(l.phone), target: '_blank' }, ICON.whatsapp(), 'WhatsApp')),
+          h('div', { className: 'msa-rq-act-grp msa-rq-act-end' },
+            h('button', { className: 'msa-btn msa-btn-sm', onClick: (e) => markHandled(l, e) }, l.handled ? 'Mark unread' : 'Mark handled'),
+            h('button', { className: 'msa-btn msa-btn-sm msa-rq-del', onClick: (e) => del(l, e) }, ICON.trash(), 'Delete')))));
       return [main, detail];
     };
 

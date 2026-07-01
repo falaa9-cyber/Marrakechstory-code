@@ -265,9 +265,21 @@ function Catalog() {
   const [filter, setFilter] = useStateC('All');
   const [favs, setFavs] = useStateC({});
   const [modal, setModal] = useStateC(null);
-  const [visibleCount, setVisibleCount] = useStateC(4);
+  const [visibleCount, setVisibleCount] = useStateC(8);
+  // Catalog is driven by the master tab bar in the trips section: it shows a
+  // category when one is picked there, and hides while a trip view is active.
+  const [hubCat, setHubCat] = useStateC(window.MS_HUB_CAT || null);
+  useEffectC(() => {
+    const onHub = (e) => {
+      const c = e.detail?.cat || null;
+      setHubCat(c);
+      if (c) { setTab(c); setFilter('All'); }
+    };
+    window.addEventListener('ms:hub-cat', onHub);
+    return () => window.removeEventListener('ms:hub-cat', onHub);
+  }, []);
 
-  useEffectC(() => { setVisibleCount(4); }, [tab, filter]);
+  useEffectC(() => { setVisibleCount(8); }, [tab, filter]);
 
   // Open a catalog item directly from the hero search dropdown.
   useEffectC(() => {
@@ -282,6 +294,7 @@ function Catalog() {
       };
       const localTab = map[targetTab] || targetTab;
       setTab(localTab);
+      setHubCat(localTab);
       const D = window.MS_DATA || {};
       const arrays = {
         activities: D.ACTIVITIES, restaurants: D.RESTAURANTS, spa: D.SPAS,
@@ -342,25 +355,9 @@ function Catalog() {
   });
 
   return (
-    <section className="catalog section" id="catalog">
+    <section className="catalog section catalog-hub" id="catalog" style={{ display: hubCat ? undefined : 'none' }}>
       <div className="wrap">
-        <div className="section-head reveal" style={{ textAlign: 'center', margin: '0 auto 56px' }}>
-          <span className="eyebrow">{t('cat_eyebrow')}</span>
-          <h2>{t('cat_title_a')} <em>{t('cat_title_b')}</em>{(() => { const c = t('cat_title_c'); return c && c !== 'cat_title_c' ? ` ${c}` : ''; })()}</h2>
-          <p style={{ margin: '0 auto' }}>{t('cat_sub')}</p>
-        </div>
-
-        <div className="cat-tabs-v2 reveal">
-          {tabs.map(x => (
-            <button key={x.id} className={`cat-tab-v2 ${tab === x.id ? 'active' : ''}`}
-              onClick={() => { setTab(x.id); setFilter('All'); }}>
-              <span className="ico">{x.icon}</span>
-              <span>{x.label}</span>
-              <span className="count">{x.data.length}</span>
-            </button>
-          ))}
-        </div>
-
+        {/* Header + category tabs now live in the master bar (trips section). */}
         <div className="cat-filters reveal">
           {current.filters.map(f => (
             <button key={f} className={`filter-chip ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>{f}</button>
@@ -489,11 +486,11 @@ function Catalog() {
         </div>
         {hasMore && (
           <div className="cat-showmore-row">
-            <button className="cat-showmore" onClick={() => setVisibleCount(c => c + 4)}>
+            <button className="cat-showmore" onClick={() => setVisibleCount(c => c + 8)}>
               {tx(`Show more (${items.length - visibleCount} remaining)`, `Vis flere (${items.length - visibleCount} igjen)`, `Voir plus (${items.length - visibleCount} restants)`, `Visa fler (${items.length - visibleCount} kvar)`)}
               <Ic.Arrow s={14} />
             </button>
-            {visibleCount + 4 < items.length && (
+            {visibleCount + 8 < items.length && (
               <button className="cat-showall" onClick={() => setVisibleCount(items.length)}>
                 {tx('Show all', 'Vis alle', 'Tout voir', 'Visa alla')}
               </button>

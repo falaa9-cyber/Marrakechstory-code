@@ -810,6 +810,8 @@ const MS_TRIP_GALLERIES = {
   ],
 };
 function msGalleryFor(trip) {
+  // A trip can carry its own gallery (season trips do); else use the slug map; else the single hero.
+  if (trip.gallery && trip.gallery.length) return trip.gallery.map(p => (/^(assets\/|https?:)/.test(p) ? p : 'assets/photos/' + p));
   const g = MS_TRIP_GALLERIES[trip.slug];
   const list = (g && g.length) ? g : [trip.img];
   return list.map(p => (/^(assets\/|https?:)/.test(p) ? p : 'assets/photos/' + p));
@@ -960,14 +962,63 @@ function Itineraries() {
   const price = usePrice();
   const lang = ctx.lang || 'en';
   const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
-  const [filter, setFilter] = useStateIt('4D3N');
+  // Seasonal "event" trips for the whole year (rotate with the Norwegian calendar).
+  const SEASONS_ALL = window.MS_SEASONS_ALL || [];
+  const isNo = (lang === 'no' || lang === 'sv' || lang === 'da');
+  // Top-level tabs: 'season' (Season tours) · 'tours' (our tours) · 'plan' (make your own).
+  const [topTab, setTopTab] = useStateIt(SEASONS_ALL.length ? 'season' : 'tours');
+  const [seasonIdx, setSeasonIdx] = useStateIt(window.MS_SEASON_DEFAULT_INDEX || 0);  // which vacation
+  const [seasonWho, setSeasonWho] = useStateIt(0);   // 0 Par · 1 Venner · 2 Familie
+  const [filter, setFilter] = useStateIt('4D3N');    // Tours sub-tab (duration / romance)
+  // Catalog categories folded into the same master bar (null = showing trips).
+  const CD = window.MS_DATA || {};
+  const cnt = (a) => (Array.isArray(a) ? a.length : 0);
+  const CAT_TABS = [
+    ['activities', tx('Activities', 'Aktiviteter', 'Activités', 'Aktiviteter'), '🧭', cnt(CD.ACTIVITIES)],
+    ['camps', 'Agafay', '⛺', cnt(CD.CAMPS)],
+    ['transport', tx('Car rental', 'Bilutleie', 'Location de voiture', 'Biluthyrning'), '🚗', cnt(CD.TRANSPORT)],
+    ['restaurants', tx('Restaurants', 'Restauranter', 'Restaurants', 'Restauranger'), '🍴', cnt(CD.RESTAURANTS)],
+    ['spa', tx('Spa & Hammam', 'Spa & Hammam', 'Spa & Hammam', 'Spa & Hammam'), '🌿', cnt(CD.SPAS)],
+    ['hotels', tx('Hotels', 'Hoteller', 'Hôtels', 'Hotell'), '⭐', cnt(CD.HOTELS)],
+    ['pools', tx('Pools', 'Basseng', 'Piscines', 'Pooler'), '☀️', cnt(CD.POOLS)],
+  ];
+  const TRIP_TABS_META = { season: '🗓️', tours: '🧳', plan: '✏️' };
+  const [catMode, setCatMode] = useStateIt(null);
+  // Tell the catalog section what to show (a category) or to hide (trips view),
+  // and tell the planner form to show only while the "Lag din egen" tab is active.
+  useEffectIt(() => {
+    window.MS_HUB_CAT = catMode;
+    window.dispatchEvent(new CustomEvent('ms:hub-cat', { detail: { cat: catMode } }));
+    window.dispatchEvent(new CustomEvent('ms:plan-open', { detail: { open: !catMode && topTab === 'plan' } }));
+  }, [catMode, topTab]);
+  // "Planlegg min reise" (hero) / "Skreddersy" (nav) → open the Lag-din-egen tab.
+  // "Katalog" (nav) → open a catalog category in the same master bar.
+  useEffectIt(() => {
+    const onOpenPlan = () => { setCatMode(null); setTopTab('plan'); setTimeout(() => document.getElementById('itineraries')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
+    const onOpenCat = (e) => { const id = (e && e.detail && e.detail.cat) || 'activities'; setCatMode(id); window.MS_HUB_CAT = id; window.dispatchEvent(new CustomEvent('ms:hub-cat', { detail: { cat: id } })); setTimeout(() => document.getElementById('itineraries')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
+    window.addEventListener('ms:open-plan', onOpenPlan);
+    window.addEventListener('ms:open-cat', onOpenCat);
+    return () => { window.removeEventListener('ms:open-plan', onOpenPlan); window.removeEventListener('ms:open-cat', onOpenCat); };
+  }, []);
+  const pickTrip = (t) => { setCatMode(null); setTopTab(t); if (t === 'plan') setTimeout(() => document.getElementById('itineraries')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
+  const pickCat = (id) => {
+    setCatMode(id);
+    window.MS_HUB_CAT = id;
+    window.dispatchEvent(new CustomEvent('ms:hub-cat', { detail: { cat: id } }));
+    setTimeout(() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
+  const scrollToPlan = () => {
+    window.MS_BookingContext = null;
+    window.dispatchEvent(new CustomEvent('ms:booking-context'));
+    setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
+  };
   const [sliderDir, setSliderDir] = useStateIt('next');
   const [openTrip, setOpenTrip] = useStateIt(null);
   const [visibleCount, setVisibleCount] = useStateIt(4);
   // +40% markup applied to every itinerary price
   const adjustedPrice = (eur) => price(eur * 1.4);
 
-  useEffectIt(() => { setVisibleCount(4); }, [filter]);
+  useEffectIt(() => { setVisibleCount(4); }, [filter, topTab]);
 
   // Open a trip modal from the hero search dropdown.
   useEffectIt(() => {
@@ -985,6 +1036,7 @@ function Itineraries() {
 
   // Simple, friendly labels (no jargon)
   const filterLabel = (f) => {
+    if (f === 'Sesong')           return seasonLabel;
     if (f === 'All')              return tx('All', 'Alle', 'Tout');
     if (f === 'Themes')           return tx('Themes', 'Temaer', 'Thèmes');
     if (f === 'Romance & Family') return tx('Romance & Family', 'Romantikk & Familie', 'Romance & Famille');
@@ -1124,10 +1176,11 @@ function Itineraries() {
   const matches = (t) => {
     if (filter === 'Themes') return !!t.__theme;
     if (filter === 'Romance & Family') return !!t.__special;
-    // Duration tabs only show real itineraries — themes and special packages live in their own tabs.
-    return !t.__theme && !t.__special && t.duration === filter;
+    // Duration tabs only show real itineraries — season, themes and special packages live in their own tabs.
+    return !t.__theme && !t.__special && !t.__season && t.duration === filter;
   };
   const tier = (t) => {
+    if (t.__season) return -3;
     if (t.__theme) return -2;
     if (t.__special) return -1.5;
     if (t.badge === 'MOST BOOKED' || t.badge === 'MOST LOVED') return -1;
@@ -1138,17 +1191,27 @@ function Itineraries() {
     if (t.duration === '14D13N') return 5;
     return 6;
   };
-  const items = useMemoIt(() =>
-    all.filter(matches).sort((a, b) => tier(a) - tier(b)), [filter, all]);
+  const items = useMemoIt(() => {
+    if (topTab === 'season') {
+      const s = SEASONS_ALL[Math.min(seasonIdx, SEASONS_ALL.length - 1)];
+      if (!s) return [];
+      const trip = s.trips[Math.min(seasonWho, s.trips.length - 1)];
+      return trip ? [trip] : [];
+    }
+    if (topTab === 'plan') return [];
+    return all.filter(matches).sort((a, b) => tier(a) - tier(b));
+  }, [topTab, filter, all, seasonIdx, seasonWho]);
+  // Big "feature" cards for Season tours and for duration tabs; grid only for Themes/Romance.
+  const featureMode = topTab === 'season' || (topTab === 'tours' && filter !== 'Themes' && filter !== 'Romance & Family');
   const visibleItems = items.slice(0, visibleCount);
   const hasMore = visibleCount < items.length;
 
   return (
-    <section className="reiseplaner-section catalog section" id="itineraries">
+    <section className={`reiseplaner-section catalog section ${catMode ? 'cat-active' : ''} ${(!catMode && topTab === 'plan') ? 'plan-active' : ''}`} id="itineraries">
       <div className="wrap">
         <div className="section-head reveal" style={{ textAlign: 'center', margin: '0 auto 56px' }}>
           <span className="eyebrow">— {tx('Reiseplaner', 'Reiseplaner', 'Itinéraires')}</span>
-          <h2>{tx('Our best ', 'Våre beste ', 'Nos meilleurs ')}<em>{tx('itineraries', 'reiser', 'voyages')}</em></h2>
+          <h2>{tx('Our best ', 'Våre beste ', 'Nos meilleures ', 'Våra bästa ')}<em>{tx('offers', 'tilbud', 'offres', 'erbjudanden')}</em></h2>
           <p style={{ margin: '0 auto' }}>{tx(
             'Pick the trip you like — we write the rest with you.',
             'Velg reisen du liker — vi skriver resten med deg.',
@@ -1156,46 +1219,99 @@ function Itineraries() {
           )}</p>
         </div>
 
-        {/* Single one-line tab bar — duration filters, Themes, then the
-            three booking CTAs (Team building, Bryllup, Lag din reise last). */}
-        <div className="trip-filter-bar reveal">
-          <div className="trip-filter-scroll">
-            {filters.map(f => {
-              const count = f === 'Themes'
-                ? all.filter(t => t.__theme).length
-                : f === 'Romance & Family'
-                ? all.filter(t => t.__special).length
-                : all.filter(t => !t.__theme && !t.__special && t.duration === f).length;
-              return (
-                <button key={f} className={`trip-filter-chip ${filter === f ? 'active' : ''}`}
-                  onClick={() => setFilter(f)}>
-                  <span>{filterLabel(f)}</span>
-                  <span className="trip-filter-count">{count}</span>
-                </button>
-              );
-            })}
-            <span className="trip-filter-sep" aria-hidden="true" />
-            <button className="trip-filter-chip trip-filter-cta"
-              onClick={() => {
-                window.MS_BookingContext = { mode: 'wedding', title: tx('Wedding planner', 'Bryllup', 'Mariage'), duration: 7, tripType: 'wedding' };
-                window.dispatchEvent(new CustomEvent('ms:booking-context'));
-                setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 60);
-              }}>
-              💍 {tx('Wedding', 'Bryllup', 'Mariage')}
+        {/* ── One master tab bar: trips + catalog, all in one (catalog style) ── */}
+        <div className="trip-bar reveal">
+          <div className="cat-tabs-v2 trip-maintabs-v2" role="tablist">
+            {SEASONS_ALL.length > 0 && (
+              <button role="tab" aria-selected={!catMode && topTab === 'season'}
+                className={`cat-tab-v2 ${!catMode && topTab === 'season' ? 'active' : ''}`}
+                onClick={() => pickTrip('season')}>
+                <span>{tx('Season tours', 'Sesongturer', 'Voyages saisonniers')}</span>
+              </button>
+            )}
+            <button role="tab" aria-selected={!catMode && topTab === 'tours'}
+              className={`cat-tab-v2 ${!catMode && topTab === 'tours' ? 'active' : ''}`}
+              onClick={() => pickTrip('tours')}>
+              <span>{tx('Tours', 'Turer', 'Circuits')}</span>
             </button>
-            <button className="trip-filter-chip trip-filter-cta trip-filter-cta-primary"
-              onClick={() => {
-                window.MS_BookingContext = null;
-                window.dispatchEvent(new CustomEvent('ms:booking-context'));
-                setTimeout(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }), 30);
-              }}>
-              ✨ {tx('Make your trip', 'Lag din reise', 'Créer mon voyage')} →
+            <button role="tab" aria-selected={!catMode && topTab === 'plan'}
+              className={`cat-tab-v2 ${!catMode && topTab === 'plan' ? 'active' : ''}`}
+              onClick={() => pickTrip('plan')}>
+              <span>{tx('Build your trip', 'Lag din egen', 'Sur mesure', 'Skapa egen')}</span>
             </button>
+            <span className="trip-maintabs-sep" aria-hidden="true" />
+            {CAT_TABS.map(([id, label, ico, count]) => (
+              <button key={id} role="tab" aria-selected={catMode === id}
+                className={`cat-tab-v2 ${catMode === id ? 'active' : ''}`}
+                onClick={() => pickCat(id)}>
+                <span>{label}</span>
+                <span className="count">{count}</span>
+              </button>
+            ))}
           </div>
+
+          {!catMode && topTab === 'season' && SEASONS_ALL.length > 0 && (
+            <div className="trip-bar-ctx">
+              <div className="season-vac-line" role="tablist" aria-label={tx('Vacation', 'Ferie', 'Vacances')}>
+                {SEASONS_ALL.map((s, i) => (
+                  <button key={s.key} role="tab" aria-selected={seasonIdx === i}
+                    className={`season-vac-pill ${seasonIdx === i ? 'active' : ''} ${s.upcoming ? 'is-now' : ''}`}
+                    onClick={() => setSeasonIdx(i)}>
+                    {isNo ? s.no : s.en}
+                    {s.upcoming && <span className="season-vac-now">{tx('Now', 'Nå', 'Maintenant')}</span>}
+                  </button>
+                ))}
+              </div>
+              <span className="trip-bar-sep" aria-hidden="true" />
+              <div className="season-subtabs-track" role="tablist" aria-label={tx('Who travels', 'Hvem reiser', 'Qui voyage')}>
+                {SEASONS_ALL[seasonIdx].trips.map((s, i) => (
+                  <button key={s.slug} role="tab" aria-selected={seasonWho === i}
+                    className={`season-subtab ${seasonWho === i ? 'active' : ''}`}
+                    onClick={() => setSeasonWho(i)}>
+                    {typeof s.who === 'object' ? (s.who[lang] || s.who.en) : s.who}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-            <div className={`trip-slider ${filter !== 'Themes' && filter !== 'Romance & Family' ? 'trip-slider-feature' : ''}`} data-dir={sliderDir}>
-              {(filter === 'Themes' || filter === 'Romance & Family') ? (
+        {/* ── Tours: duration / romance sub-tabs ── */}
+        {!catMode && topTab === 'tours' && (
+          <div className="trip-filter-bar reveal">
+            <div className="trip-filter-scroll">
+              {filters.map(f => {
+                const count = f === 'Themes'
+                  ? all.filter(t => t.__theme).length
+                  : f === 'Romance & Family'
+                  ? all.filter(t => t.__special).length
+                  : all.filter(t => !t.__theme && !t.__special && t.duration === f).length;
+                return (
+                  <button key={f} className={`trip-filter-chip ${filter === f ? 'active' : ''}`}
+                    onClick={() => setFilter(f)}>
+                    <span>{filterLabel(f)}</span>
+                    <span className="trip-filter-count">{count}</span>
+                  </button>
+                );
+              })}
+              <span className="trip-filter-sep" aria-hidden="true" />
+              <button className="trip-filter-chip trip-filter-cta"
+                onClick={() => {
+                  window.MS_BookingContext = { mode: 'wedding', title: tx('Wedding planner', 'Bryllup', 'Mariage'), duration: 7, tripType: 'wedding' };
+                  window.dispatchEvent(new CustomEvent('ms:booking-context'));
+                  pickTrip('plan');
+                }}>
+                💍 {tx('Wedding', 'Bryllup', 'Mariage')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* "Lag din egen reise" jumps straight to the planner form (no prompt). */}
+
+        {!catMode && topTab !== 'plan' && (
+            <div className={`trip-slider ${featureMode ? 'trip-slider-feature' : ''}`} data-dir={sliderDir}>
+              {topTab === 'tours' && (filter === 'Themes' || filter === 'Romance & Family') ? (
                 <>
                   <button className="trip-slider-arrow prev" aria-label="Previous"
                     onClick={(e) => { const sc = e.currentTarget.parentElement.querySelector('.trip-slider-track'); sc?.scrollBy({ left: -(sc.clientWidth * 0.85), behavior: 'smooth' }); }}>
@@ -1206,7 +1322,7 @@ function Itineraries() {
                     <Iit.Arrow s={18} />
                   </button>
                 </>
-              ) : (
+              ) : topTab === 'tours' ? (
                 <>
                   {/* Feature mode: arrows step through the 6 duration buckets */}
                   <button className="trip-slider-arrow prev" aria-label={tx('Shorter trip', 'Kortere reise', 'Plus court')}
@@ -1228,8 +1344,8 @@ function Itineraries() {
                     <Iit.Arrow s={18} />
                   </button>
                 </>
-              )}
-              <div className={`trip-slider-track cat-grid reiseplaner-grid ${filter !== 'Themes' && filter !== 'Romance & Family' ? 'reiseplaner-grid-feature' : ''}`}>
+              ) : null}
+              <div className={`trip-slider-track cat-grid reiseplaner-grid ${featureMode ? 'reiseplaner-grid-feature' : ''}`}>
               {visibleItems.map((t, i) => {
                 // Derive rating + reviews deterministically — Marrakechstory's actually booked these
                 const seed = t.slug.split('').reduce((s, c) => s + c.charCodeAt(0), 0);
@@ -1237,7 +1353,7 @@ function Itineraries() {
                 const reviews = 180 + (seed * 7) % 1620;                  // 180 – 1800
                 const key = `itin-${t.slug}`;
                 const isTheme = !!t.__theme;
-                const isFeature = filter !== 'Themes' && filter !== 'Romance & Family' && !isTheme && !t.__special;
+                const isFeature = featureMode && !isTheme && !t.__special;
                 const handleOpen = () => isTheme ? openTheme(t) : setOpenTrip(t);
                 const priceTxt = t.priceFromEUR ? adjustedPrice(t.priceFromEUR) : null;
                 if (isFeature) {
@@ -1255,7 +1371,10 @@ function Itineraries() {
                       </div>
                       <div className="trip-feature-body">
                         <div className="trip-feature-eyebrow">
-                          {tx('Chapter', 'Kapittel', 'Chapitre')} {t.chapter} · {t.duration}
+                          {t.__season
+                            ? <>{tx('Seasonal trip', 'Sesongtur', 'Voyage saisonnier')} · {t.chapter}</>
+                            : <>{tx('Chapter', 'Kapittel', 'Chapitre')} {t.chapter}</>} · {t.duration}
+                          {t.__season && SEASONS_ALL[seasonIdx] && <span className="trip-feature-dates"> · {SEASONS_ALL[seasonIdx].dateLabel}</span>}
                         </div>
                         <h3 className="trip-feature-title">{typeof t.title === 'object' ? (t.title[lang] || t.title.en) : t.title}</h3>
                         <p className="trip-feature-teaser">{typeof t.teaser === 'object' ? (t.teaser[lang] || t.teaser.en) : t.teaser}</p>
@@ -1315,6 +1434,7 @@ function Itineraries() {
               })}
               </div>
             </div>
+        )}
 
         {hasMore && (
           <div className="cat-showmore-row">

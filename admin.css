@@ -1473,3 +1473,100 @@
 /* The attached-documents box is an interactive affordance ("click to open") —
    drop it from the static PDF so the itinerary stays on one page. */
 .msa-print-page .msa-doc-docs { display: none !important; }
+
+/* ============================================================
+   Request detail — flat, minimal, agent draft (2026-06)
+   ============================================================ */
+/* Section headline — a simple coloured-accent label, no box */
+.msa-rq-sec-h { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--msa-ink); margin: 18px 0 9px; display: flex; align-items: center; gap: 8px; }
+.msa-rq-sec-h::after { content: ''; flex: 1; height: 1px; background: var(--msa-line); }
+
+/* Slim client + trip header — one clean line each, no boxes */
+.msa-rq-head { display: flex; flex-direction: column; gap: 3px; padding: 2px 0 4px; }
+.msa-rq-head-contact { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; font-size: 13.5px; }
+.msa-rq-head-contact a { color: var(--msa-blue); text-decoration: none; font-weight: 600; }
+.msa-rq-head-trip { font-size: 13px; color: var(--msa-dim); }
+
+/* More details — one clean collapsible grid, collapsed by default */
+.msa-rq-dump { margin-top: 12px; border-top: 1px solid var(--msa-line); }
+.msa-rq-dump-sum { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; padding: 11px 0 2px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--msa-dim); user-select: none; }
+.msa-rq-dump-sum::-webkit-details-marker { display: none; }
+.msa-rq-dump-sum:hover { color: var(--msa-ink); }
+.msa-rq-chev { font-size: 13px; transition: transform .15s; }
+.msa-rq-dump[open] .msa-rq-chev { transform: rotate(180deg); }
+.msa-rq-dump-count { background: var(--msa-ink); color: #fff; border-radius: 999px; font-size: 10px; padding: 1px 8px; font-weight: 700; letter-spacing: 0; }
+.msa-rq-dump-body { display: flex; flex-direction: column; gap: 14px; padding: 12px 0 4px; }
+.msa-rq-grp-h { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px; }
+.msa-rq-grp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px 22px; }
+.msa-rq-grp--trip  .msa-rq-grp-h { color: var(--msa-brand); }
+.msa-rq-grp--who   .msa-rq-grp-h { color: var(--msa-blue); }
+.msa-rq-grp--style .msa-rq-grp-h { color: #8b5cf6; }
+.msa-rq-grp--log   .msa-rq-grp-h { color: #14a37f; }
+.msa-rq-grp--notes .msa-rq-grp-h { color: var(--msa-orange); }
+.msa-rq-grp--other .msa-rq-grp-h { color: var(--msa-dim); }
+.msa-rq-dump-wide { grid-column: 1 / -1; }
+.msa-rq-dump-item { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.msa-rq-dump-k { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; color: var(--msa-dim); font-weight: 700; }
+.msa-rq-dump-v { font-size: 13px; color: var(--msa-ink); word-break: break-word; white-space: pre-wrap; font-weight: 600; }
+
+/* MarrakechStory agent — a single calm panel */
+.msa-agent { border: 1px solid var(--msa-line); border-radius: 14px; background: #fff; padding: 12px 14px; }
+.msa-agent-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.msa-agent-id { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.msa-agent-av { width: 22px; height: 22px; border-radius: 7px; background: var(--msa-brand); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.msa-agent-av-busy { animation: msa-agent-pulse 1s ease-in-out infinite; }
+@keyframes msa-agent-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.88); } }
+.msa-agent-name { font-weight: 700; font-size: 13.5px; }
+.msa-agent-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--msa-orange); background: #fff4e5; padding: 2px 9px; border-radius: 999px; }
+.msa-agent-badge-edit { color: var(--msa-blue); background: #e7f1ff; }
+.msa-agent-ta { width: 100%; min-height: 150px; line-height: 1.5; resize: vertical; }
+.msa-agent-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+
+/* Internal note — minimal */
+.msa-rq-note { margin-top: 14px; }
+.msa-rq-note .msa-fin-k { display: block; margin-bottom: 5px; }
+
+/* Manage — two clusters, destructive Delete pushed right */
+.msa-bt-detail-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.msa-rq-act-grp { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.msa-rq-act-end { margin-left: auto; }
+.msa-rq-del { color: var(--msa-red); }
+.msa-rq-del:hover:not(:disabled) { background: #ffe8e6; border-color: var(--msa-red); }
+
+.msa-dark .msa-agent { background: #1c1c20; }
+.msa-dark .msa-rq-dump-count { background: #fff; color: #111; }
+
+/* Request "all submitted details" — plain simple list */
+.msa-rq-simplelist { list-style: none; margin: 10px 0 4px; padding: 0; }
+.msa-rq-sl-row { display: flex; justify-content: space-between; gap: 18px; align-items: baseline; padding: 7px 2px; border-bottom: 1px solid var(--msa-line); font-size: 13px; }
+.msa-rq-sl-row:last-child { border-bottom: none; }
+.msa-rq-sl-k { color: var(--msa-dim); font-weight: 600; flex: 0 0 auto; }
+.msa-rq-sl-v { color: var(--msa-ink); font-weight: 600; text-align: right; word-break: break-word; white-space: pre-wrap; }
+
+/* Dashboard calendar — instant hover tooltip with the day's bookings + activities */
+.msa-cal-cell { position: relative; }
+.msa-cal-tip { display: none; position: absolute; z-index: 60; left: 50%; top: 100%; transform: translateX(-50%);
+  margin-top: 6px; min-width: 210px; max-width: 300px; background: #fff; border: 1px solid var(--msa-line);
+  border-radius: 12px; box-shadow: 0 18px 44px -16px rgba(20,15,10,.45); padding: 10px 12px; text-align: left; pointer-events: none; }
+.msa-cal-cell:hover .msa-cal-tip { display: block; }
+.msa-cal-tip-date { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--msa-dim); margin-bottom: 6px; }
+.msa-cal-tip-row { display: flex; align-items: flex-start; gap: 7px; padding: 4px 0; }
+.msa-cal-tip-row .msa-key-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.msa-cal-tip-txt { min-width: 0; }
+.msa-cal-tip-txt strong { display: block; font-size: 13px; color: var(--msa-ink); }
+.msa-cal-tip-act { font-size: 11.5px; color: var(--msa-dim); }
+.msa-cal-tip-more { font-size: 11px; color: var(--msa-dim); margin-top: 4px; }
+/* keep tooltip from clipping on right-edge cells */
+.msa-cal-grid .msa-cal-cell:nth-child(7n) .msa-cal-tip { left: auto; right: 0; transform: none; }
+.msa-cal-grid .msa-cal-cell:nth-child(7n-1) .msa-cal-tip { left: auto; right: 0; transform: none; }
+
+/* New Booking — auto-built collaborator hand-off boxes (driver + hotel) */
+.msa-collab-send { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .msa-collab-send { grid-template-columns: 1fr; } }
+.msa-collab-box { border: 1px solid var(--msa-line); border-radius: 12px; background: #fafafa; overflow: hidden; }
+.msa-collab-box-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; background: #fff; border-bottom: 1px solid var(--msa-line); }
+.msa-collab-box-t { font-size: 12.5px; font-weight: 800; color: var(--msa-ink); display: inline-flex; align-items: center; gap: 6px; }
+.msa-collab-ta { width: 100%; border: none; background: transparent; padding: 11px 13px; font: inherit; font-size: 12.5px; line-height: 1.55; color: var(--msa-ink); resize: vertical; min-height: 150px; white-space: pre; }
+.msa-collab-ta:focus { outline: none; }
+.msa-dark .msa-collab-box { background: #1c1c20; }
+.msa-dark .msa-collab-box-head { background: #232329; }

@@ -5476,3 +5476,415 @@ textarea, select {
 }
 .cat-tab-v2.active .count,
 .filter-chip.active .count { color: rgba(255,255,255,0.85) !important; }
+
+/* ============================================================
+   Season Trip — Norwegian-calendar "event trip" band
+   ============================================================ */
+.season { max-width: 1180px; margin: 64px auto; padding: 0 20px; }
+.season-card {
+  position: relative; border-radius: 28px; overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(24,14,10,0.72) 0%, rgba(24,14,10,0.86) 42%, rgba(20,12,9,0.96) 100%),
+    var(--season-img) center/cover no-repeat;
+  box-shadow: 0 30px 80px -30px rgba(40,18,10,0.55);
+  color: #fff; padding: 30px clamp(20px, 4vw, 52px) 40px;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.season-ribbon {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--msa-brand, #e0432a); color: #fff;
+  font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  font-size: 12px; padding: 8px 16px; border-radius: 999px;
+  box-shadow: 0 8px 22px -8px rgba(224,67,42,0.8);
+}
+.season-ribbon::before { content: "★"; font-size: 12px; }
+.season-head { margin-top: 18px; max-width: 760px; }
+.season-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.season-chip {
+  font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+}
+.season-chip-date { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+.season-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(30px, 4.6vw, 52px); line-height: 1.04; margin: 4px 0 10px;
+  font-weight: 700; letter-spacing: -0.01em;
+}
+.season-intro { font-size: clamp(15px, 1.6vw, 18px); line-height: 1.55; color: rgba(255,255,255,0.9); margin: 0 0 18px; }
+.season-bookearly {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px;
+  background: rgba(224,67,42,0.16); border: 1px solid rgba(224,67,42,0.4);
+  border-radius: 14px; padding: 12px 16px; font-size: 14px; line-height: 1.45;
+}
+.season-bookearly strong { color: #ffd9cf; font-weight: 800; }
+.season-bookearly span:last-child { color: rgba(255,255,255,0.86); }
+.season-be-dot { width: 9px; height: 9px; border-radius: 50%; background: #ff6a4d; align-self: center;
+  box-shadow: 0 0 0 0 rgba(255,106,77,0.7); animation: seasonPulse 2s infinite; }
+@keyframes seasonPulse { 0% { box-shadow: 0 0 0 0 rgba(255,106,77,0.65);} 70% { box-shadow: 0 0 0 10px rgba(255,106,77,0);} 100% { box-shadow: 0 0 0 0 rgba(255,106,77,0);} }
+
+.season-tabs { display: flex; gap: 8px; margin: 24px 0 0; flex-wrap: wrap; }
+.season-tab {
+  flex: 1 1 0; min-width: 120px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+  color: #fff; padding: 12px 14px; border-radius: 14px; font-size: 16px; font-weight: 700;
+  transition: background .2s, border-color .2s, transform .15s;
+}
+.season-tab:hover { background: rgba(255,255,255,0.14); }
+.season-tab.active { background: #fff; color: #1c120d; border-color: #fff; transform: translateY(-1px);
+  box-shadow: 0 10px 26px -12px rgba(0,0,0,0.6); }
+.season-tab-sub { font-size: 12px; font-weight: 500; opacity: .7; }
+.season-tab.active .season-tab-sub { opacity: .6; }
+
+.season-body {
+  margin-top: 18px; background: rgba(255,255,255,0.96); color: #241a14;
+  border-radius: 18px; padding: clamp(18px, 2.6vw, 28px);
+}
+.season-pitch-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.season-pitch { flex: 1 1 320px; font-size: 16px; line-height: 1.55; margin: 0; color: #3a2c22; }
+.season-priceblock { display: flex; flex-direction: column; align-items: flex-end; min-width: 140px; }
+.season-price-label { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: #9a7e6a; }
+.season-price { font-size: 30px; font-weight: 800; color: var(--msa-brand, #e0432a); line-height: 1; }
+.season-price-unit { font-size: 12px; color: #8a7565; margin-top: 2px; }
+
+.season-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 4px; }
+.season-hi { font-size: 13px; font-weight: 600; color: #6a4a2f;
+  background: #f3ece0; border: 1px solid #e6d8c4; padding: 6px 12px; border-radius: 999px; }
+
+.season-timeline { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 0; }
+.season-day { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid #efe6d8; }
+.season-day:first-child { border-top: none; }
+.season-day-n { flex: 0 0 64px; font-size: 12px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--msa-brand, #e0432a); padding-top: 2px; }
+.season-day-body { display: flex; flex-direction: column; gap: 3px; }
+.season-day-title { font-size: 15.5px; font-weight: 700; color: #2a1f17; }
+.season-day-text { font-size: 14.5px; line-height: 1.5; color: #5c4a3b; }
+
+.season-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+.season-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  font-size: 15px; font-weight: 700; padding: 13px 22px; border-radius: 999px; border: 1px solid transparent;
+  text-decoration: none; transition: transform .15s, box-shadow .2s, background .2s; }
+.season-btn-primary { background: var(--msa-brand, #e0432a); color: #fff;
+  box-shadow: 0 12px 28px -10px rgba(224,67,42,0.75); }
+.season-btn-primary:hover { transform: translateY(-2px); }
+.season-btn-ghost { background: #fff; color: #241a14; border-color: #e2d6c4; }
+.season-btn-ghost:hover { background: #f6efe2; }
+
+@media (max-width: 640px) {
+  .season { margin: 40px auto; }
+  .season-card { padding: 22px 18px 28px; border-radius: 22px; }
+  .season-pitch-row { flex-direction: column; }
+  .season-priceblock { align-items: flex-start; }
+  .season-day-n { flex-basis: 52px; }
+  .season-cta .season-btn { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ============================================================
+   Trips tabs — clean, premium, minimal
+   Top: segmented control · Vacation: underline tabs ·
+   Audience: small segmented control
+   ============================================================ */
+
+/* ── Top tabs: Season tours · Tours · Lag din egen reise ── */
+.trip-toptabs { display: flex; justify-content: center; gap: 3px; width: fit-content;
+  margin: 0 auto 30px; padding: 4px; background: #fff; border: 1px solid #ece3d4;
+  border-radius: 999px; box-shadow: 0 10px 34px -24px rgba(80,50,30,0.45); }
+.trip-toptab { cursor: pointer; border: none; background: transparent; color: #8a7560;
+  font-size: 14.5px; font-weight: 600; letter-spacing: .005em; padding: 11px 26px; border-radius: 999px;
+  line-height: 1; white-space: nowrap; transition: color .16s, background .16s; }
+.trip-toptab:hover { color: #2f2118; }
+.trip-toptab.active { background: var(--msa-brand, #e0432a); color: #fff; font-weight: 700; }
+@media (max-width: 620px) {
+  .trip-toptabs { display: flex; width: 100%; gap: 2px; }
+  .trip-toptab { padding: 11px 8px; font-size: 12.5px; flex: 1 1 0; text-align: center; justify-content: center; }
+}
+
+/* ── Vacation picker (whole year) → understated underline tabs ── */
+.season-vac-tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 2px 26px;
+  margin: 0 auto 18px; max-width: 860px; border-bottom: 1px solid #ece3d4; }
+.season-vac-tab { position: relative; cursor: pointer; background: transparent; border: none;
+  color: #a8957e; font-size: 14px; font-weight: 600; padding: 11px 2px 13px;
+  border-radius: 0 !important; transition: color .16s; }
+.season-vac-tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  background: var(--msa-brand, #e0432a); transform: scaleX(0); transition: transform .2s ease; }
+.season-vac-tab:hover { color: #3a2c22; }
+.season-vac-tab.active { color: #2a1f17; font-weight: 700; }
+.season-vac-tab.active::after { transform: scaleX(1); }
+.season-vac-now { margin-left: 6px; font-size: 9.5px; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--msa-brand, #e0432a); vertical-align: middle; }
+
+/* ── Audience sub-tabs (Couple / Friends / Family) + date caption ── */
+.season-subtabs { display: flex; flex-direction: column; align-items: center; gap: 9px; margin: 2px 0 32px; }
+.season-subtabs-date { font-size: 13px; font-weight: 500; color: #a08a72; letter-spacing: .01em; }
+.season-subtabs-track { display: inline-flex; gap: 3px; background: #fff;
+  border: 1px solid #ece3d4; border-radius: 999px; padding: 4px; }
+.season-subtab { cursor: pointer; border: none; background: transparent; color: #8a7560;
+  font-size: 14px; font-weight: 600; padding: 9px 26px; border-radius: 999px; line-height: 1;
+  transition: color .16s, background .16s; }
+.season-subtab:hover { color: #3a2c22; }
+.season-subtab.active { background: var(--msa-brand, #e0432a); color: #fff; font-weight: 700; }
+@media (max-width: 560px) { .season-subtab { padding: 9px 18px; } }
+
+/* Keep the feature card softly rounded */
+.trip-slider-feature .trip-feature { border-radius: 22px; overflow: hidden; }
+
+/* Plan prompt panel */
+.plan-prompt { max-width: 720px; margin: 8px auto 8px; text-align: center;
+  background: linear-gradient(180deg, #fff, #fdf6ee); border: 1.5px solid #ecd9c4;
+  border-radius: 24px; padding: 38px 28px; box-shadow: 0 20px 50px -30px rgba(120,70,40,0.35); }
+.plan-prompt-title { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(24px, 3.4vw, 34px);
+  color: #2a1f17; margin: 0 0 10px; }
+.plan-prompt-text { font-size: 16px; line-height: 1.55; color: #5c4a3b; margin: 0 auto 22px; max-width: 540px; }
+.plan-prompt-btn { cursor: pointer; border: none; background: var(--msa-brand, #e0432a); color: #fff;
+  font-size: 16px; font-weight: 800; padding: 14px 30px; border-radius: 999px;
+  box-shadow: 0 14px 30px -12px rgba(224,67,42,0.8); transition: transform .15s; }
+.plan-prompt-btn:hover { transform: translateY(-2px); }
+
+/* ============================================================
+   Global rounded corners — tabs, sub-tabs & background boxes
+   (overrides the editorial sharp-corner reset in styles.css,
+   which sets border-radius:0 !important on button/input/.btn …)
+   ============================================================ */
+/* Tab/sub-tab containers (segmented-control tracks) → pill track */
+.trip-toptabs, .season-subtabs-track, .trip-filter-bar,
+.ms-profile-tabs { border-radius: 999px !important; }
+
+/* Tabs · sub-tabs · chips · pills · buttons → fully rounded */
+.nav-pill, .nav-pill-btn, .nav-cta,
+.cat-tab-v2, .filter-chip, .trip-filter-chip, .trip-filter-cta,
+.trip-toptab, .season-subtab,
+.itin-chip, .ms-lc-pill, .trip-card-tag, .reiseplan-badge,
+.ms-profile-tabs button, .day-nav-pills button, .day-nav-pill,
+.btn, .btn-primary, .btn-ghost, .btn-outline, .btn-ink, .btn-text, .btn-sm,
+.wa-btn, .wa-cta, .ms-hero-cta, .ms-hero-cta-alt, .ms-cookie-btn,
+.flight-help-btn, .ig-scroll-btn, .ig-scroll-cta, .plan-prompt-btn,
+.trip-feature-cta, .trip-feature-badge, .trip-feature-duration,
+.hero-v2-cta { border-radius: 999px !important; }
+
+/* Cards · panels · background boxes → soft rounded */
+.cat-card, .trip-feature, .opt-card, .contact-card, .contact-cta-row,
+.itin-card, .itin-tl-card, .itin-tl-card-top, .itin-contact-card, .itin-summary,
+.ms-profile-card, .ms-profile-panel, .ms-rev-card,
+.rental-card, .flight-help-box, .flight-help-fields, .ms-chat-panel,
+.wa-panel, .plan-prompt, .hero-flight-cta-wrap,
+.hero-tab, .hero-tabs-grid, .weather-widget, .hero-stat-card,
+.season-subtabs, .season-vac-tabs { border-radius: 20px !important; }
+
+/* Clip card imagery to the rounded card */
+.cat-card, .trip-feature, .opt-card, .rental-card, .ms-rev-card { overflow: hidden; }
+
+/* Form fields → rounded */
+#plan input, #plan select, #plan textarea,
+.flight-help-fields input, .flight-help-fields select, .flight-help-fields textarea,
+.contact-card input, .contact-card select, .contact-card textarea,
+.ms-chat-panel input, .ms-chat-panel textarea { border-radius: 14px !important; }
+
+/* ============================================================
+   Trips section — compact, minimalist redesign (preview only)
+   ============================================================ */
+.reiseplaner-section { padding-top: 44px !important; padding-bottom: 52px !important; }
+.reiseplaner-section .section-head { margin: 0 auto 20px !important; }
+.reiseplaner-section .section-head .eyebrow { font-size: 11px !important; letter-spacing: .14em !important; margin-bottom: 5px !important; opacity: .8; }
+.reiseplaner-section .section-head h2 { font-size: clamp(25px, 3.2vw, 38px) !important; margin: 0 0 5px !important; line-height: 1.05 !important; }
+.reiseplaner-section .section-head p { font-size: 13.5px !important; opacity: .75; margin: 0 auto !important; }
+
+/* Primary tab bar — clean & tight (the "top bar" of the section) */
+.reiseplaner-section .trip-toptabs { margin: 0 auto 12px !important; padding: 4px !important;
+  box-shadow: 0 6px 24px -20px rgba(80,50,30,0.4) !important; }
+.reiseplaner-section .trip-toptab { padding: 9px 20px !important; font-size: 13.5px !important; }
+
+/* Season vacation picker — single compact scrollable row */
+.reiseplaner-section .season-vac-tabs { gap: 0 22px !important; margin: 0 auto 10px !important; max-width: 760px !important;
+  flex-wrap: nowrap !important; overflow-x: auto !important; justify-content: center !important;
+  scrollbar-width: none; padding-bottom: 0 !important; }
+.reiseplaner-section .season-vac-tabs::-webkit-scrollbar { display: none; }
+.reiseplaner-section .season-vac-tab { font-size: 13px !important; padding: 8px 2px 9px !important; white-space: nowrap; flex: 0 0 auto; }
+
+/* Audience segment + date on ONE tight row */
+.reiseplaner-section .season-subtabs { flex-direction: row !important; align-items: center !important;
+  justify-content: center !important; gap: 12px !important; margin: 0 0 20px !important; flex-wrap: wrap; }
+.reiseplaner-section .season-subtabs-date { font-size: 12px !important; color: #a08a72 !important; order: 2; }
+.reiseplaner-section .season-subtabs-track { padding: 3px !important; order: 1; }
+.reiseplaner-section .season-subtab { padding: 8px 20px !important; font-size: 13.5px !important; }
+
+/* ============================================================
+   Trips section v2 — ONE unified horizontal bar (preview only)
+   ============================================================ */
+.reiseplaner-section .trip-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 10px 14px; margin: 0 auto 22px !important; max-width: 1040px;
+}
+.reiseplaner-section .trip-bar .trip-toptabs { margin: 0 !important; }
+.reiseplaner-section .trip-bar-ctx {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+}
+.reiseplaner-section .trip-bar-sep { width: 1px; height: 26px; background: #ece3d4; margin: 0 2px; }
+@media (max-width: 760px) { .reiseplaner-section .trip-bar-sep { display: none; } }
+
+/* Season selector — compact pill dropdown (replaces 6 underline tabs) */
+.reiseplaner-section .trip-season-select { display: inline-flex; }
+.reiseplaner-section .trip-season-select select {
+  -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer;
+  background-color: #fff; border: 1px solid #ece3d4; border-radius: 999px;
+  padding: 9px 34px 9px 16px; font: inherit; font-size: 13.5px; font-weight: 600; color: #2a1f17;
+  line-height: 1; box-shadow: 0 6px 24px -20px rgba(80,50,30,0.4);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a8957e' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 13px center;
+}
+.reiseplaner-section .trip-season-select select:hover { border-color: #d9cbb5; }
+.reiseplaner-section .trip-season-select select:focus { outline: none; border-color: var(--msa-brand, #e0432a); }
+
+/* Date caption inside the bar */
+.reiseplaner-section .trip-bar-date { font-size: 12px; color: #a08a72; white-space: nowrap; }
+
+/* Keep the audience segment tidy in the bar */
+.reiseplaner-section .trip-bar .season-subtabs-track { padding: 3px !important; margin: 0 !important; }
+.reiseplaner-section .trip-bar .season-subtab { padding: 8px 18px !important; font-size: 13.5px !important; }
+
+/* ============================================================
+   Master tab bar — trips + catalog folded into one (preview only)
+   ============================================================ */
+/* Bar = column: tab row on top, contextual controls beneath */
+.reiseplaner-section .trip-bar { display: block !important; max-width: none !important; margin: 0 0 14px !important; }
+/* Master tab row reuses the catalog .cat-tabs-v2 look, centered, one tight line */
+.reiseplaner-section .trip-maintabs-v2 {
+  max-width: 1120px; margin: 0 auto 12px !important; justify-content: flex-start;
+  scrollbar-width: thin;
+}
+@media (min-width: 1180px) { .reiseplaner-section .trip-maintabs-v2 { justify-content: center; } }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 .ico { font-size: 14px; opacity: .85; }
+.reiseplaner-section .trip-maintabs-sep { flex: 0 0 auto; width: 1px; height: 22px; background: #e4d9c8; align-self: center; margin: 0 6px; }
+/* contextual season row sits directly under the bar, centered & tight */
+.reiseplaner-section .trip-bar-ctx { margin: 0 auto 4px !important; }
+
+/* Catalog, when shown via the master bar — sits right under the bar, no own header */
+.catalog-hub.catalog.section { padding-top: 8px !important; padding-bottom: 40px !important; }
+.catalog-hub .cat-filters { margin-top: 0 !important; }
+.reiseplaner-section { padding-bottom: 22px !important; }
+
+/* Compact the master tab row so all 10 fit one line (incl. Basseng) */
+.reiseplaner-section .trip-maintabs-v2 { gap: 2px !important; padding: 5px !important; max-width: 100% !important; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 { padding: 7px 9px !important; font-size: 12px !important; gap: 5px !important; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 .ico { font-size: 12.5px; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 .count { padding: 1px 5px !important; font-size: 9px !important; }
+.reiseplaner-section .trip-maintabs-sep { margin: 0 4px !important; }
+
+/* Fit all 10 on one line — tighter still */
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 { padding: 6px 8px !important; font-size: 11.5px !important; gap: 4px !important; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 .ico { font-size: 11.5px; }
+.reiseplaner-section .trip-maintabs-sep { margin: 0 3px !important; }
+
+/* Let the master bar use a touch more width so all 10 tabs fit one line */
+.reiseplaner-section .trip-maintabs-v2 {
+  width: min(1380px, calc(100vw - 36px)) !important; max-width: none !important;
+  margin-left: 50% !important; transform: translateX(-50%) !important;
+}
+
+/* Final nudge to fit all 10 on one line */
+.reiseplaner-section .trip-maintabs-v2 { width: min(1400px, calc(100vw - 24px)) !important; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 { padding: 6px 7px !important; gap: 4px !important; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 .count { margin-left: -1px; }
+
+/* exact fit */
+.reiseplaner-section .trip-maintabs-v2 { width: min(1420px, calc(100vw - 14px)) !important; gap: 1px !important; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 { gap: 3px !important; }
+
+/* ============================================================
+   Polish: uniform headlines · emoji-less master bar (preview only)
+   ============================================================ */
+/* All section headlines match "Våre beste reiser" */
+.section .section-head h2, .section-head h2 { font-size: clamp(25px, 3.2vw, 38px) !important; line-height: 1.06 !important; }
+
+/* Master bar without emojis: fits the column, centered, tighter, group divider */
+.reiseplaner-section .trip-maintabs-v2 {
+  width: auto !important; max-width: 1265px !important; margin: 0 auto 12px !important;
+  transform: none !important; left: auto !important; justify-content: center !important;
+}
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 { padding: 7px 11px !important; gap: 6px !important; font-size: 12.5px !important; }
+.reiseplaner-section .trip-maintabs-v2 .cat-tab-v2 .count { padding: 1px 6px !important; font-size: 9.5px !important; }
+.reiseplaner-section .trip-maintabs-sep { flex: 0 0 auto; width: 1px; height: 24px; background: #d9ccb8; align-self: center; margin: 0 8px !important; }
+
+/* Season vacations inline (one line) — no dropdown, no date (date is in the trip details) */
+.reiseplaner-section .trip-bar-ctx { gap: 6px 10px !important; }
+.reiseplaner-section .season-vac-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px 3px; }
+.reiseplaner-section .season-vac-pill {
+  border: none; background: transparent; cursor: pointer; color: #8a7560;
+  font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 999px;
+  white-space: nowrap; transition: color .15s, background .15s;
+}
+.reiseplaner-section .season-vac-pill:hover { color: #2f2118; background: #f3ece1; }
+.reiseplaner-section .season-vac-pill.active { background: var(--msa-brand, #e0432a); color: #fff; font-weight: 700; }
+.reiseplaner-section .season-vac-pill .season-vac-now { margin-left: 5px; font-size: 8.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--msa-brand, #e0432a); }
+.reiseplaner-section .season-vac-pill.active .season-vac-now { color: #fff; opacity: .9; }
+.trip-feature-dates { white-space: nowrap; }
+
+/* When a catalog category or the planner is active, the trips section is just the
+   header + bar — drop its bottom padding so the sub-tabs / form sit right under it. */
+.reiseplaner-section.cat-active, .reiseplaner-section.plan-active { padding-bottom: 0 !important; }
+.reiseplaner-section.cat-active .trip-bar, .reiseplaner-section.plan-active .trip-bar { margin-bottom: 0 !important; }
+.reiseplaner-section.cat-active + .catalog-hub, .catalog-hub.catalog.section { padding-top: 6px !important; }
+
+/* ============================================================
+   Trips section polish (2026-07) — subtab pills, nav align, plan gap
+   ============================================================ */
+/* Par / Venner / Familie — same bare rounded-pill style as Vinterferie/Påske */
+.reiseplaner-section .season-subtabs-track {
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  padding: 0 !important; border-radius: 999px !important; display: inline-flex; gap: 2px 3px !important;
+}
+.reiseplaner-section .trip-bar .season-subtab,
+.reiseplaner-section .season-subtab {
+  border: none !important; background: transparent !important; cursor: pointer; color: #8a7560 !important;
+  font-size: 12.5px !important; font-weight: 600 !important; padding: 7px 12px !important;
+  border-radius: 999px !important; white-space: nowrap; transition: color .15s, background .15s;
+}
+.reiseplaner-section .season-subtab:hover { color: #2f2118 !important; background: #f3ece1 !important; }
+.reiseplaner-section .season-subtab.active { background: var(--msa-brand, #e0432a) !important; color: #fff !important; font-weight: 700 !important; }
+
+/* Top bar — align the compact search with language/currency + login */
+.nav .nav-cta { align-items: center !important; }
+.ms-hero-search-wrap--nav { display: flex; align-items: center; }
+.ms-hero-search-wrap--nav .ms-hero-search { height: 36px; display: flex; align-items: center; }
+.ms-hero-search-wrap--nav .ms-hero-search input { height: 34px; }
+
+/* "Lag din egen" — kill the empty gap between the tab bar and the form */
+#plan.itin-section { padding-top: 10px !important; }
+#plan .section-head { margin-bottom: 24px !important; }
+
+/* Hero search — sits under the "Hei & Velkommen til MarrakechStory" heading */
+.ms-hero .ms-hero-searchrow { display: flex; justify-content: center; margin-top: 22px; }
+.ms-hero .ms-hero-searchrow .ms-hero-search-wrap { width: min(560px, 82vw); max-width: 560px; margin: 0; }
+.ms-hero .ms-hero-searchrow .ms-hero-search { width: 100%; }
+@media (max-width: 700px) { .ms-hero .ms-hero-searchrow { margin-top: 16px; } }
+
+/* ============================================================
+   Hero fix (2026-07): remove black band above the parallax image
+   + reduce the darkening overlays by ~40%
+   ============================================================ */
+/* Bleed the parallax background past the hero edges so the translate never shows black */
+.ms-hero.ms-hero-static .ms-hero-bg { top: -140px !important; bottom: -140px !important; height: auto !important; }
+/* Lighter shadow (each dark overlay alpha cut ~40%) */
+.ms-slide-grad-1 { background: linear-gradient(to right, rgba(0,0,0,0.33), rgba(0,0,0,0.12)) !important; }
+.ms-slide-grad-2 { background: linear-gradient(to bottom, rgba(0,0,0,0.12), rgba(0,0,0,0.27)) !important; }
+.ms-slide-vignette { background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.18)) !important; }
+.nav.over-hero { background-image: linear-gradient(rgba(0,0,0,0.21), rgba(0,0,0,0.11)) !important; }
+
+/* Season contextual bar (Vinterferie…/Par…) — boxed rounded container like the master bar */
+.reiseplaner-section .trip-bar-ctx {
+  background: #fff !important;
+  border: 1px solid var(--line, #e6e6ea) !important;
+  border-radius: 18px !important;
+  padding: 8px 14px !important;
+  box-shadow: var(--shadow-soft, 0 10px 30px -22px rgba(80,50,30,0.45)) !important;
+  width: fit-content;
+  max-width: min(1120px, calc(100vw - 24px));
+  margin: 0 auto 16px !important;
+  gap: 6px 10px !important;
+}
+.reiseplaner-section .trip-bar-ctx .trip-bar-sep { height: 22px; }
+
+/* Season pills (Vinterferie…) — ensure the active red background is a rounded pill */
+.reiseplaner-section .trip-bar-ctx .season-vac-pill,
+.reiseplaner-section .trip-bar-ctx .season-vac-pill.active,
+.reiseplaner-section .trip-bar-ctx .season-vac-pill.is-now { border-radius: 999px !important; }

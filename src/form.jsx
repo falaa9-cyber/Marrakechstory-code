@@ -317,6 +317,16 @@ function ItineraryBuilder() {
   const t = useT();
   const ctx = useMS();
   const price = usePrice();
+  // The planner now lives inside the "Lag din egen reise" tab — hidden until that
+  // tab (or "Planlegg min reise" / a booking-context CTA) opens it.
+  const [planShown, setPlanShown] = useSF(false);
+  useEF(() => {
+    const onOpen = (e) => { const d = e && e.detail; if (d && typeof d.open === 'boolean') setPlanShown(d.open); };
+    const onCtx = () => setPlanShown(true);
+    window.addEventListener('ms:plan-open', onOpen);
+    window.addEventListener('ms:booking-context', onCtx);
+    return () => { window.removeEventListener('ms:plan-open', onOpen); window.removeEventListener('ms:booking-context', onCtx); };
+  }, []);
 
   const [data, setData] = useSF({
     duration: 0,
@@ -683,7 +693,7 @@ function ItineraryBuilder() {
   ];
 
   return (
-    <section className="itin-section section" id="plan">
+    <section className="itin-section section" id="plan" style={{ display: planShown ? undefined : 'none' }}>
       <div className="wrap-wide">
         <div className="section-head reveal" style={{ textAlign: 'center', margin: '0 auto 56px' }}>
           <span className="eyebrow">{t('itin_eyebrow')}</span>

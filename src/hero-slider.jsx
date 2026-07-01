@@ -101,7 +101,7 @@ function scoreMatch(item, qLower) {
   return 0;
 }
 
-function HeroSearch({ lang, tx }) {
+function HeroSearch({ lang, tx, compact }) {
   const [q, setQ] = useStateHs('');
   const [open, setOpen] = useStateHs(false);
   const [active, setActive] = useStateHs(0);
@@ -161,8 +161,8 @@ function HeroSearch({ lang, tx }) {
   };
 
   return (
-    <div className="ms-hero-search-wrap" ref={wrapRef}>
-      <form className="ms-hero-search" onSubmit={onSubmit}>
+    <div className={`ms-hero-search-wrap${compact ? ' ms-hero-search-wrap--nav' : ''}`} ref={wrapRef} style={compact ? { width: '170px', maxWidth: '22vw', margin: 0 } : undefined}>
+      <form className="ms-hero-search" onSubmit={onSubmit} style={compact ? { width: '100%' } : undefined}>
         <svg className="ms-hero-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
@@ -235,7 +235,7 @@ function useResolvedHeroImage(primary, fallback) {
 }
 
 function HeroSlider() {
-  const { useMS } = window.MS_CTX;
+  const { useMS, COMPANY } = window.MS_CTX;
   const ctx = useMS();
   const lang = ctx.lang || 'no';
   const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
@@ -249,72 +249,44 @@ function HeroSlider() {
         <div className="ms-slide-vignette" />
       </div>
 
-      <div className="ms-hero-content ms-hero-content-centered">
-        <h1 className="ms-hero-h1 ms-hero-brand">
-          <span className="ms-hero-h1-line">
-            {tx('Hello &', 'Hei &', 'Bonjour &', 'Hej &')}
-          </span>
-          <span className="ms-hero-h1-line">
-            {tx('Welcome to', 'Velkommen til', 'Bienvenue chez', 'Välkommen till')}
-          </span>
-          <span className="ms-hero-h1-line ms-hero-brandmark">
-            Marrakech<em>Story</em>
-          </span>
+      <div className="ms-hero-content ms-hero-content-centered ms-hero-content-top">
+        <h1 className="ms-hero-h1 ms-hero-brand ms-hero-h1-sm">
+          <span className="ms-hero-h1-line">{tx('Hello &', 'Hei &', 'Bonjour &', 'Hej &')}</span>
+          <span className="ms-hero-h1-line">{tx('Welcome to', 'Velkommen til', 'Bienvenue chez', 'Välkommen till')}</span>
+          <span className="ms-hero-h1-line ms-hero-brandmark">Marrakech<em>Story</em></span>
         </h1>
-        <HeroSearch lang={lang} tx={tx} />
-
-        <div className="ms-hero-cta-row">
-          <a href="#plan" className="btn btn-primary ms-hero-cta">
-            {tx('Plan my trip', 'Planlegg min reise', 'Planifier mon voyage', 'Planera min resa')} →
-          </a>
-          <a href="https://wa.me/4745774743" target="_blank" rel="noopener" className="btn btn-outline ms-hero-cta ms-hero-cta-alt">
-            {tx('Chat on WhatsApp', 'Chat på WhatsApp', 'WhatsApp', 'Chatta på WhatsApp')}
-          </a>
+        <div className="ms-hero-searchrow">
+          <HeroSearch lang={lang} tx={tx} />
         </div>
-
-        <span className="ms-hero-eyebrow ms-hero-eyebrow-below">
-          {tx('Boutique travel · Marrakech, Morocco',
-              'Skreddersydde reiser · Marrakech, Marokko',
-              'Voyages sur mesure · Marrakech, Maroc',
-              'Skräddarsydda resor · Marrakech, Marocko')}
-        </span>
       </div>
 
-      <div className="ms-hero-credibility">
-        <div className="ms-cred-item">
-          <span className="ms-cred-icon">★★★★★</span>
-          <div>
-            <strong>4.9 / 5</strong>
-            <span>1,800+ {tx('reviews', 'anmeldelser', 'avis', 'recensioner')}</span>
-          </div>
+      <div className="ms-hero-bottom">
+        <div className="ms-hero-cta-row">
+          <a href="#itineraries" className="btn btn-primary ms-hero-cta"
+            onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('ms:open-plan')); }}>
+            {tx('Plan my trip', 'Planlegg min reise', 'Planifier mon voyage', 'Planera min resa')} →
+          </a>
+          <a href="#itineraries" className="btn btn-outline ms-hero-cta ms-hero-cta-alt">
+            {tx('Trips', 'Turer', 'Voyages', 'Resor')}
+          </a>
         </div>
-        <div className="ms-cred-item">
-          <span className="ms-cred-num">2022</span>
-          <div>
-            <strong>{tx('Since 2022', 'Siden 2022', 'Depuis 2022', 'Sedan 2022')}</strong>
-            <span>{tx('Marrakech & beyond', 'Marrakech & utenfor', 'Marrakech et au-delà', 'Marrakech & runt om')}</span>
-          </div>
-        </div>
-        <div className="ms-cred-item">
-          <span className="ms-cred-icon">🛡️</span>
-          <div>
-            <strong>{tx('Licensed agency', 'Lisensiert byrå', 'Agence licenciée', 'Licensierad byrå')}</strong>
-            <span>{tx('Moroccan tourism authority', 'Marokkos turistmyndighet', 'Office du tourisme du Maroc', 'Marockos turistmyndighet')}</span>
-          </div>
-        </div>
-        <div className="ms-cred-item">
-          <span className="ms-cred-icon">📞</span>
-          <div>
-            <strong>24 / 7</strong>
-            <span>{tx('Concierge on the ground', 'Concierge på bakken', 'Conciergerie sur place', 'Concierge på plats')}</span>
-          </div>
-        </div>
-        <div className="ms-cred-item">
-          <span className="ms-cred-icon">✨</span>
-          <div>
-            <strong>{tx('100% tailor-made', '100% skreddersydd', '100% sur mesure', '100 % skräddarsydd')}</strong>
-            <span>{tx('Built around you', 'Bygget rundt deg', 'Conçu pour vous', 'Byggd kring dig')}</span>
-          </div>
+        <div className="ms-hero-socials-bar">
+        {[
+          ['Instagram', COMPANY.igFollowers, `https://instagram.com/${COMPANY.instagram}`,
+            'M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm0 1.8A4 4 0 0 0 3.8 7.8v8.4a4 4 0 0 0 4 4h8.4a4 4 0 0 0 4-4V7.8a4 4 0 0 0-4-4H7.8zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zM17.6 6a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z'],
+          ['Facebook', COMPANY.fbFollowers, `https://facebook.com/${COMPANY.facebook}`,
+            'M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12z'],
+          ['TikTok', COMPANY.ttFollowers, `https://tiktok.com/@${COMPANY.tiktok}`,
+            'M16.5 2c.3 2.2 1.6 3.9 3.8 4.1v2.6c-1.3.1-2.6-.3-3.8-1v6.7c0 4.5-4.9 7.3-8.8 5-2.5-1.5-3.1-5-1.3-7.3 1.2-1.6 3.2-2.4 5.2-2v2.7c-.5-.1-1-.2-1.5-.1-1.3.2-2.2 1.5-1.8 2.8.4 1.5 2.3 2 3.4.9.6-.5.8-1.3.8-2.1V2h3z'],
+        ].map(([name, count, href, path], i) => (
+          <a key={i} className="ms-social-item" href={href} target="_blank" rel="noopener" aria-label={name}>
+            <span className="ms-social-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d={path} /></svg></span>
+            <div>
+              <strong>{count}</strong>
+              <span>{name}</span>
+            </div>
+          </a>
+        ))}
         </div>
       </div>
     </section>
@@ -322,3 +294,4 @@ function HeroSlider() {
 }
 
 window.MS_HeroSlider = HeroSlider;
+window.MS_HeroSearch = HeroSearch;

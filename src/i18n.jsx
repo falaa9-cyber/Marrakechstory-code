@@ -10,6 +10,12 @@ const COMPANY = {
   whatsapp: "4745774743",
   address: "La Kasbah, Marrakech 40000, Marokko",
   instagram: "marrakechstory",
+  // Social follower counts — PLACEHOLDERS, update with the real numbers/handles.
+  facebook: "marrakechstory",
+  tiktok: "marrakechstory",
+  igFollowers: "15K",
+  fbFollowers: "9K",
+  ttFollowers: "6K",
 };
 
 const TRANSLATIONS = {
