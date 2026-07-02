@@ -5909,3 +5909,14 @@ textarea, select {
 @media (max-width: 600px) {
   .reiseplaner-section .trip-maintabs-v2 { justify-content: flex-start !important; }
 }
+
+/* ============================================================
+   Hero spacing fix (2026-07): give room so heading clears the nav
+   and the search doesn't collide with the CTA / social bar
+   ============================================================ */
+.ms-hero.ms-hero-static { height: 64vh !important; min-height: 560px !important; }
+.ms-hero.ms-hero-static .ms-hero-content.ms-hero-content-centered.ms-hero-content-top { top: 96px !important; }
+@media (max-width: 600px) {
+  .ms-hero.ms-hero-static { min-height: 600px !important; align-items: flex-start !important; }
+  .ms-hero.ms-hero-static .ms-hero-content.ms-hero-content-centered.ms-hero-content-top { top: 92px !important; }
+}
