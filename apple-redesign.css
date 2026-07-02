@@ -5950,3 +5950,27 @@ textarea, select {
   .ig-scroll-widget { bottom: 198px !important; }
   .ms-weather-fab, .ms-weather { bottom: 82px !important; }
 }
+
+/* Hero social stats — 40% smaller */
+.ms-hero .ms-hero-socials-bar { gap: 6px !important; }
+.ms-hero .ms-hero-socials-bar .ms-social-item { padding: 4px 9px !important; gap: 5px !important; }
+.ms-hero .ms-hero-socials-bar .ms-social-icon { width: 18px !important; height: 18px !important; }
+.ms-hero .ms-hero-socials-bar .ms-social-icon svg { width: 13px !important; height: 13px !important; }
+.ms-hero .ms-hero-socials-bar strong { font-size: 10px !important; }
+.ms-hero .ms-hero-socials-bar span { font-size: 8px !important; }
+
+/* ============================================================
+   Airbnb-style catalog (offer) cards — mobile only
+   ============================================================ */
+@media (max-width: 600px) {
+  #catalog .cat-card { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+  #catalog .cat-img, #catalog .cat-img-resolved { border-radius: 14px !important; overflow: hidden; aspect-ratio: 1/1 !important; }
+  #catalog .cat-body { padding: 9px 2px 2px !important; }
+  #catalog .cat-desc, #catalog .cat-duration { display: none !important; }
+  #catalog .cat-title { font-size: 14.5px !important; font-weight: 600 !important; margin: 1px 0 2px !important; line-height: 1.25 !important; }
+  #catalog .cat-rating { font-size: 12.5px !important; margin-bottom: 1px !important; }
+  #catalog .cat-area { font-size: 12px !important; }
+  #catalog .cat-foot { margin-top: 4px !important; padding-top: 0 !important; border-top: none !important; }
+  #catalog .cat-price, #catalog .cat-price-amount, #catalog .cat-price-offers { font-weight: 700 !important; font-size: 13.5px !important; }
+  #catalog .cat-fav { top: 8px !important; right: 8px !important; }
+}
