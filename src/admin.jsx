@@ -1940,7 +1940,8 @@
             h('div', { className: 'sm-inv-trow' }, h('span', null, 'SUB-TOTAL:'), h('span', null, SM_INVOICE.subtotal)),
             h('div', { className: 'sm-inv-trow' }, h('span', null, 'TVA (10 %)'), h('span', null, SM_INVOICE.tva)),
             h('div', { className: 'sm-inv-trow sm-inv-total' }, h('span', null, 'TOTAL:'), h('span', null, SM_INVOICE.total)))),
-        h('div', { className: 'sm-inv-foot' }, '📞 ' + SM_INVOICE.phone + '      ' + SM_INVOICE.web + '      ICE : ' + SM_INVOICE.bankIce)));
+        h('div', { className: 'sm-inv-foot' }, '📞 ' + SM_INVOICE.phone + '      ' + SM_INVOICE.web + '      ICE : ' + SM_INVOICE.bankIce),
+        h('img', { src: 'assets/stamp.png', className: 'sm-inv-stamp', alt: '', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } })));
 
     return h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head' }, h('h1', null, 'Social media'), h('p', { className: 'msa-subtitle' }, 'Monthly management invoice — the right company & date, ready to send.')),

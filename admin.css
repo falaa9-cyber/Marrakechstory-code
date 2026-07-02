@@ -1585,10 +1585,11 @@
 .sm-preview { display: flex; justify-content: center; }
 
 /* The invoice itself (also used by the PDF export at 794px) */
-.sm-invoice { width: 794px; min-height: 1123px; background: #fff; color: #111; box-sizing: border-box;
+.sm-invoice { position: relative; width: 794px; min-height: 1123px; background: #fff; color: #111; box-sizing: border-box;
   padding: 62px 58px; border: 1px solid #cfcfcf; font-family: Arial, Helvetica, "Segoe UI", sans-serif;
   display: flex; flex-direction: column; }
 .sm-inv-spacer { flex: 1 1 auto; min-height: 30px; }
+.sm-inv-stamp { position: absolute; left: 44px; bottom: 74px; width: 270px; opacity: .96; pointer-events: none; }
 .sm-inv-head { display: flex; align-items: center; gap: 16px; }
 .sm-inv-logo { width: 54px; height: 54px; object-fit: contain; }
 .sm-inv-agency { font-size: 22px; font-weight: 500; letter-spacing: .01em; }
