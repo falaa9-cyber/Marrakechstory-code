@@ -5888,3 +5888,24 @@ textarea, select {
 .reiseplaner-section .trip-bar-ctx .season-vac-pill,
 .reiseplaner-section .trip-bar-ctx .season-vac-pill.active,
 .reiseplaner-section .trip-bar-ctx .season-vac-pill.is-now { border-radius: 999px !important; }
+
+/* ============================================================
+   Mobile polish (2026-07) — fit hero name, single-column reviews,
+   tidy hero social stats
+   ============================================================ */
+@media (max-width: 600px) {
+  /* Hero brand name fits one line on phones (54px floor was too big) */
+  .ms-hero-content-centered .ms-hero-h1.ms-hero-h1-sm.ms-hero-brand .ms-hero-brandmark { font-size: clamp(30px, 9vw, 46px) !important; }
+  /* Reviews: one clean full-width column instead of two cramped ones */
+  .ms-rev-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  /* Hero social stats + CTAs: centered, wrap, never clipped by the FAB */
+  .ms-hero .ms-hero-bottom { flex-direction: column !important; align-items: center !important; gap: 12px !important; left: 4vw !important; right: 4vw !important; }
+  .ms-hero .ms-hero-cta-row { justify-content: center !important; }
+  .ms-hero .ms-hero-socials-bar { gap: 8px 16px !important; flex-wrap: wrap; justify-content: center; }
+}
+
+/* Mobile: the master tab bar must start at "Sesongturer" (centering hides the start
+   in an overflow-scroll container) */
+@media (max-width: 600px) {
+  .reiseplaner-section .trip-maintabs-v2 { justify-content: flex-start !important; }
+}
