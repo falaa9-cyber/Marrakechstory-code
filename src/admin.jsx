@@ -876,8 +876,8 @@
   // a much wider white frame and captured at desktop windowWidth, so no edge can be
   // clipped; we then auto-crop the canvas to the real content bounds and fit that to
   // one A4 page. No reliance on exact pixel positioning.
-  function exportPDF(filename) {
-    const src = document.getElementById('msa-print-both'); if (!src) return;
+  function exportPDF(filename, srcId) {
+    const src = document.getElementById(srcId || 'msa-print-both'); if (!src) return;
     if (!window.html2pdf) { window.print(); return; }
     const pageHTMLs = Array.prototype.slice.call(src.querySelectorAll('.msa-print-page')).map((p) => p.outerHTML);
     if (!pageHTMLs.length) return;
@@ -1873,6 +1873,95 @@
   }
 
   // =====================================================================
+  // SOCIAL MEDIA — monthly invoice for the riad (2 companies, alternating)
+  // =====================================================================
+  // Two client companies billed for the social-media management, one per month.
+  const SM_COMPANIES = [
+    { key: 'colombani', name: "COLOMBANI D´EXPLOITATION DES RIAD", ice: '001458075000007' },
+    { key: 'stegor', name: 'STREGOR SARL', ice: '000071621000025' },
+  ];
+  // Everything below is identical on every invoice — only the company, ICE,
+  // invoice number and date change month to month.
+  const SM_INVOICE = {
+    services: [
+      'Création du rétro-planning des publications / Stories SM',
+      'Création des accroches selon la ligne éditoriale',
+      'Réalisation des réels convenus',
+      'Publication des posts selon le planning confirmé',
+    ],
+    price: '5000 DH', subtotal: '5000 DH', tva: '1000 DH', total: '6000 DH',
+    bankIce: '003408266000039', bank: 'ATTIJARI WAFA BANK', account: 'MARRAEKCHSTORY SARL', iban: '007450000488800000203358',
+    phone: '+212 6 94 34 53 54', web: 'www.marrakechstory.com',
+  };
+  // Anchor the alternation: March 2026 = Colombani, invoice #1608.
+  // (matches the two issued invoices; July 2026 → Colombani, Aug 2026 → Stegor)
+  const SM_ANCHOR = { y: 2026, m: 3, no: 1608 };
+  function smForMonth(y, m) {
+    const k = (y - SM_ANCHOR.y) * 12 + (m - SM_ANCHOR.m);
+    const company = ((k % 2) + 2) % 2 === 0 ? SM_COMPANIES[0] : SM_COMPANIES[1];
+    const date = '01/' + String(m).padStart(2, '0') + '/' + String(y).slice(-2);
+    return { company, no: SM_ANCHOR.no + k, date };
+  }
+  const SM_MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  function SocialMedia() {
+    const now = new Date();
+    const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() + 1 });
+    const auto = smForMonth(ym.y, ym.m);
+    const [override, setOverride] = useState({}); // { companyKey?, no?, date? }
+    const company = override.companyKey ? (SM_COMPANIES.find(c => c.key === override.companyKey) || auto.company) : auto.company;
+    const no = override.no != null ? override.no : auto.no;
+    const date = override.date != null ? override.date : auto.date;
+    const shiftMonth = (d) => { let m = ym.m + d, y = ym.y; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; } setYm({ y, m }); setOverride({}); };
+    const download = () => exportPDF('MARRAKECHSTORY ' + company.name.split(' ')[0] + ' ' + date.replace(/\//g, '.') + '.pdf', 'msa-sm-print');
+
+    const invoice = h('div', { id: 'msa-sm-print' },
+      h('div', { className: 'msa-print-page sm-invoice' },
+        h('div', { className: 'sm-inv-head' },
+          h('img', { src: 'assets/logo.png', className: 'sm-inv-logo', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }),
+          h('div', null, h('div', { className: 'sm-inv-agency' }, 'MARRAKECHSTORY ', h('strong', null, 'SARL.')), h('div', { className: 'sm-inv-sub' }, 'Agence de communication'))),
+        h('div', { className: 'sm-inv-hr' }),
+        h('div', { className: 'sm-inv-row' },
+          h('div', null, h('div', { className: 'sm-inv-title' }, 'FACTURE'), h('div', { className: 'sm-inv-meta' }, 'FACTURE #' + no), h('div', { className: 'sm-inv-meta' }, 'Date: ' + date)),
+          h('div', { className: 'sm-inv-client' }, h('div', { className: 'sm-inv-ch' }, 'CLIENT INFORMATION:'), h('div', { className: 'sm-inv-cname' }, company.name), h('div', { className: 'sm-inv-meta' }, 'ICE: ' + company.ice))),
+        h('div', { className: 'sm-inv-hr' }),
+        h('div', { className: 'sm-inv-row' },
+          h('div', null, h('div', { className: 'sm-inv-ch' }, 'SERVICE:'), h('ul', { className: 'sm-inv-serv' }, SM_INVOICE.services.map((s, i) => h('li', { key: i }, s)))),
+          h('div', { className: 'sm-inv-pricecol' }, h('div', { className: 'sm-inv-ch' }, 'PRICE:'), h('div', { className: 'sm-inv-price' }, SM_INVOICE.price))),
+        h('div', { className: 'sm-inv-spacer' }),
+        h('div', { className: 'sm-inv-hr' }),
+        h('div', { className: 'sm-inv-row' },
+          h('div', null, h('div', { className: 'sm-inv-ch' }, 'COORDONNÉES :'),
+            h('div', { className: 'sm-inv-bank' }, 'ICE : ' + SM_INVOICE.bankIce),
+            h('div', { className: 'sm-inv-bank' }, SM_INVOICE.bank),
+            h('div', { className: 'sm-inv-bank' }, 'NOM DU COMPTE : ' + SM_INVOICE.account),
+            h('div', { className: 'sm-inv-bank' }, 'IBAN : ' + SM_INVOICE.iban)),
+          h('div', { className: 'sm-inv-totals' },
+            h('div', { className: 'sm-inv-trow' }, h('span', null, 'SUB-TOTAL:'), h('span', null, SM_INVOICE.subtotal)),
+            h('div', { className: 'sm-inv-trow' }, h('span', null, 'TVA (10 %)'), h('span', null, SM_INVOICE.tva)),
+            h('div', { className: 'sm-inv-trow sm-inv-total' }, h('span', null, 'TOTAL:'), h('span', null, SM_INVOICE.total)))),
+        h('div', { className: 'sm-inv-foot' }, '📞 ' + SM_INVOICE.phone + '      ' + SM_INVOICE.web + '      ICE : ' + SM_INVOICE.bankIce)));
+
+    return h('div', { className: 'msa-page' },
+      h('header', { className: 'msa-page-head' }, h('h1', null, 'Social media'), h('p', { className: 'msa-subtitle' }, 'Monthly management invoice — the right company & date, ready to send.')),
+      h('div', { className: 'msa-card' },
+        h('div', { className: 'sm-controls' },
+          h('div', { className: 'sm-monthnav' },
+            h('button', { className: 'msa-icon-btn', onClick: () => shiftMonth(-1) }, ICON.chevL()),
+            h('div', { className: 'sm-monthlbl' }, SM_MON[ym.m - 1] + ' ' + ym.y),
+            h('button', { className: 'msa-icon-btn', onClick: () => shiftMonth(1) }, ICON.chevR()),
+            h('button', { className: 'msa-btn msa-btn-sm', onClick: () => { setYm({ y: now.getFullYear(), m: now.getMonth() + 1 }); setOverride({}); } }, 'This month')),
+          h('div', { className: 'sm-fields' },
+            h('div', { className: 'msa-field' }, h('label', null, 'Company (this month)'),
+              h('select', { value: company.key, onChange: (e) => setOverride(o => ({ ...o, companyKey: e.target.value })) }, SM_COMPANIES.map(c => h('option', { key: c.key, value: c.key }, c.name)))),
+            h('div', { className: 'msa-field' }, h('label', null, 'Invoice #'), h('input', { value: no, onChange: (e) => setOverride(o => ({ ...o, no: e.target.value })) })),
+            h('div', { className: 'msa-field' }, h('label', null, 'Date'), h('input', { value: date, onChange: (e) => setOverride(o => ({ ...o, date: e.target.value })) }))),
+          h('button', { className: 'msa-btn msa-btn-primary', onClick: download }, ICON.invoice(), 'Download invoice PDF')),
+        h('p', { className: 'msa-dim', style: { fontSize: 12.5, marginTop: 4 } }, 'Alternates automatically each month: ' + SM_COMPANIES[0].name.split(' ')[0] + ' ↔ ' + SM_COMPANIES[1].name.split(' ')[0] + '. Everything else stays the same — change the company/number/date above if you ever need to.')),
+      h('div', { className: 'msa-card sm-preview-card' }, h('div', { className: 'sm-preview' }, invoice)));
+  }
+
+  // =====================================================================
   // GLOBAL SEARCH RESULTS
   // =====================================================================
   function SearchResults({ q, data, route, openBooking, clear }) {
@@ -2277,7 +2366,7 @@
         h('button', { className: 'msa-btn', style: { marginTop: 12 }, onClick: changePw }, 'Update password')));
   }
 
-  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Workspace', 'tasks'], ['requests', 'Requests', 'requests'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
+  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Workspace', 'tasks'], ['requests', 'Requests', 'requests'], ['social', 'Social media', 'invoice'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
 
   function Shell({ user, role, onLogout }) {
     const isAdmin = role === 'admin';
@@ -2347,6 +2436,7 @@
         case 'finance': return isAdmin ? h(Finance, { bookings, suppliers }) : h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
         case 'tasks': return h(Workspace, { tasks, reload: reloadAll });
         case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings, suppliers });
+        case 'social': return h(SocialMedia, {});
         case 'insights': return h(Insights, {});
         case 'settings': return h(Settings, { settings, onSaved: reloadAll });
         default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
