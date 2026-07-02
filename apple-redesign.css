@@ -5920,3 +5920,33 @@ textarea, select {
   .ms-hero.ms-hero-static { min-height: 600px !important; align-items: flex-start !important; }
   .ms-hero.ms-hero-static .ms-hero-content.ms-hero-content-centered.ms-hero-content-top { top: 92px !important; }
 }
+
+/* ============================================================
+   Mobile app bottom tab bar (Airbnb-style) — mobile only
+   ============================================================ */
+.ms-tabbar { display: none; }
+@media (max-width: 600px) {
+  .ms-tabbar {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
+    background: #fff; border-top: 1px solid #ebebeb;
+    padding: 7px 4px calc(7px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -3px 18px -10px rgba(0,0,0,.16);
+  }
+  .ms-tab { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: none; cursor: pointer; color: #6f6f73; padding: 4px 2px; -webkit-tap-highlight-color: transparent; }
+  .ms-tab-ico { width: 24px; height: 24px; display: inline-flex; }
+  .ms-tab-ico svg { width: 24px; height: 24px; }
+  .ms-tab-lbl { font-size: 10px; font-weight: 600; letter-spacing: .01em; }
+  .ms-tab.active { color: var(--msa-brand, #e0432a); }
+  .ms-tab.active .ms-tab-ico svg { stroke-width: 2.1; }
+  /* leave room for the fixed bar so nothing hides behind it */
+  body { padding-bottom: calc(62px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Lift the floating widgets above the mobile tab bar */
+@media (max-width: 600px) {
+  .wa-widget        { bottom: 82px  !important; }
+  .ms-chat-fab      { bottom: 140px !important; }
+  .ig-scroll-widget { bottom: 198px !important; }
+  .ms-weather-fab, .ms-weather { bottom: 82px !important; }
+}

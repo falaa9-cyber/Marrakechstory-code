@@ -293,8 +293,56 @@ function AppInner() {
       {window.MS_Chatbot && <window.MS_Chatbot />}
       <window.MS_InstagramWidget />
       {window.MS_Weather && <window.MS_Weather />}
+      <MobileTabBar />
       {/* Cookie banner removed per request */}
     </>
+  );
+}
+
+// ── Mobile bottom tab bar (Airbnb-style app navigation) — mobile only ──
+function MobileTabBar() {
+  const { useMS } = window.MS_CTX;
+  const ctx = useMS();
+  const lang = ctx.lang || 'no';
+  const tx = (en, no, fr, sv) => lang === 'no' ? no : lang === 'fr' ? fr : lang === 'sv' ? (sv || no || en) : lang === 'da' ? (no || en) : en;
+  const [active, setActive] = useStateA(0);
+  const svg = (d) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
+  const ICON = {
+    home: svg(<><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" /></>),
+    trips: svg(<><rect x="6" y="7" width="12" height="13" rx="2" /><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M9 11h6" /></>),
+    search: svg(<><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></>),
+    gallery: svg(<><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9.5" r="1.6" /><path d="m4 18 5-5 4 4 3-3 4 4" /></>),
+    contact: svg(<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></>),
+  };
+  const goSection = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  const items = [
+    { key: 'home', label: tx('Home', 'Hjem', 'Accueil', 'Hem'), icon: ICON.home, go: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    { key: 'trips', label: tx('Trips', 'Turer', 'Voyages', 'Resor'), icon: ICON.trips, go: () => goSection('itineraries') },
+    { key: 'search', label: tx('Search', 'Søk', 'Recherche', 'Sök'), icon: ICON.search, go: () => window.dispatchEvent(new CustomEvent('ms:open-cat', { detail: { cat: 'activities' } })) },
+    { key: 'gallery', label: tx('Gallery', 'Galleri', 'Galerie', 'Galleri'), icon: ICON.gallery, go: () => goSection('gallery') },
+    { key: 'contact', label: tx('Contact', 'Kontakt', 'Contact', 'Kontakt'), icon: ICON.contact, go: () => goSection('contact') },
+  ];
+  useEffectA(() => {
+    const order = [['home', 0], ['itineraries', 1], ['catalog', 2], ['gallery', 3], ['contact', 4]];
+    const onScroll = () => {
+      const mid = window.scrollY + window.innerHeight * 0.4;
+      let idx = 0;
+      order.forEach(([id, i]) => { const el = document.getElementById(id); if (el && el.offsetParent !== null && (el.getBoundingClientRect().top + window.scrollY) <= mid) idx = i; });
+      setActive(idx);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <nav className="ms-tabbar" aria-label="Primary">
+      {items.map((it, i) => (
+        <button key={it.key} className={`ms-tab${active === i ? ' active' : ''}`} onClick={it.go} aria-current={active === i ? 'page' : undefined}>
+          <span className="ms-tab-ico">{it.icon}</span>
+          <span className="ms-tab-lbl">{it.label}</span>
+        </button>
+      ))}
+    </nav>
   );
 }
 
