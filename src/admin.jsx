@@ -465,9 +465,16 @@
     const isAdmin = isAdminRole();
     const [addTask, setAddTask] = useState(false);
     const [reqPop, setReqPop] = useState(false);
-    const active = bookings.filter(b => !b.archived && b.arrival_date && b.departure_date && new Date(b.arrival_date) <= startOfToday() && startOfToday() <= new Date(b.departure_date)).length;
-    const future = bookings.filter(b => !b.archived && b.arrival_date && new Date(b.arrival_date) > startOfToday() && !['cancelled','completed'].includes(b.status)).sort((a, b) => new Date(a.arrival_date) - new Date(b.arrival_date));
-    const past = bookings.filter(b => b.archived || ['completed','cancelled'].includes(b.status) || (b.departure_date && new Date(b.departure_date) < startOfToday())).length;
+    // Compare on YYYY-MM-DD strings vs the LOCAL date so bookings arriving/leaving
+    // "today" aren't dropped by the UTC-vs-local midnight offset.
+    const _now = new Date();
+    const T = _now.getFullYear() + '-' + String(_now.getMonth() + 1).padStart(2, '0') + '-' + String(_now.getDate()).padStart(2, '0');
+    const dStr = (v) => (v || '').slice(0, 10);
+    const activeList = bookings.filter(b => !b.archived && b.status !== 'cancelled' && b.arrival_date && b.departure_date && dStr(b.arrival_date) <= T && T <= dStr(b.departure_date))
+      .sort((a, b) => dStr(a.departure_date).localeCompare(dStr(b.departure_date)));
+    const active = activeList.length;
+    const future = bookings.filter(b => !b.archived && b.arrival_date && dStr(b.arrival_date) > T && !['cancelled', 'completed'].includes(b.status)).sort((a, b) => dStr(a.arrival_date).localeCompare(dStr(b.arrival_date)));
+    const past = bookings.filter(b => b.archived || ['completed', 'cancelled'].includes(b.status) || (b.departure_date && dStr(b.departure_date) < T)).length;
     const toggleTask = async (t, e) => { if (e) e.stopPropagation(); const done = t.status === 'completed'; await dbUpdate('tasks', t.id, done ? { status: 'pending', done_by: null, done_at: null } : { status: 'completed', done_by: CURRENT_EMAIL, done_at: new Date().toISOString() }); logAudit(done ? 'reopened task' : 'completed task', 'workspace', t.id, t.title); reload && reload(); };
     const revenue = bookings.reduce((s, b) => s + (+b.selling_price || 0), 0);
     const cost = bookings.reduce((s, b) => s + (+b.total_cost || 0), 0);
@@ -539,9 +546,15 @@
           h('div', { className: 'msa-cal-legend', style: { marginTop: 12 } }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today'), h('span', null, h('i', { className: 'msa-lg msa-lg-single' }), 'Single booking'), h('span', null, h('i', { className: 'msa-lg msa-lg-multi' }), 'Multiple bookings'))),
         h('div', { className: 'msa-dash-side' },
           h('div', { className: 'msa-card msa-dash-box' },
-            h('div', { className: 'msa-card-head' }, h('h3', null, ICON.bell(), ' Upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All →')),
-            h('div', { className: 'msa-dash-scroll' }, future.length === 0 ? h('div', { className: 'msa-empty' }, 'No upcoming bookings.')
-              : h('div', { className: 'msa-remind-list' }, future.slice(0, 5).map(b => { const n = daysUntil(b.arrival_date); const cd = n === 0 ? 'msa-cd-today' : n <= 7 ? 'msa-cd-soon' : 'msa-cd-far';
+            h('div', { className: 'msa-card-head' }, h('h3', null, ICON.bell(), ' Active & upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All →')),
+            h('div', { className: 'msa-dash-scroll' }, (activeList.length === 0 && future.length === 0) ? h('div', { className: 'msa-empty' }, 'No active or upcoming bookings.')
+              : h('div', { className: 'msa-remind-list' },
+                activeList.map(b => { const n = daysUntil(dStr(b.departure_date));
+                  return h('button', { key: 'a' + b.id, className: 'msa-remind msa-remind-live', onClick: () => openBooking(b) },
+                    h('div', { className: 'msa-remind-cd msa-cd-live' }, h('strong', null, '●'), h('span', null, 'now')),
+                    h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, 'On trip · ' + (n === 0 ? 'ends today' : 'ends in ' + n + (n === 1 ? ' day' : ' days')) + ' · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
+                    h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-live' }, 'On trip'), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-text-red', style: { fontWeight: 600 } }, 'Owes ' + kr(b.balance)))); }),
+                future.slice(0, 6).map(b => { const n = daysUntil(dStr(b.arrival_date)); const cd = n === 0 ? 'msa-cd-today' : n <= 7 ? 'msa-cd-soon' : 'msa-cd-far';
                   return h('button', { key: b.id, className: 'msa-remind', onClick: () => openBooking(b) },
                     h('div', { className: 'msa-remind-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days'))),
                     h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + (b.total_days || '?') + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),

@@ -1613,3 +1613,8 @@
 .sm-inv-total { border-top: 2px solid #111; margin-top: 6px; padding-top: 8px; font-size: 20px; font-weight: 800; }
 .sm-inv-foot { margin-top: 34px; padding-top: 14px; border-top: 2px dashed #222; text-align: center; font-size: 11.5px; font-weight: 700; color: #c0392b; letter-spacing: .04em; }
 @media (max-width: 900px) { .sm-preview { justify-content: flex-start; } }
+
+/* Dashboard — active ("on trip now") bookings */
+.msa-remind-cd.msa-cd-live { background: var(--msa-green-soft, #e3f9e9); color: #15803d; }
+.msa-badge.msa-st-live { background: var(--msa-green, #34c759); color: #fff; }
+.msa-remind-live { box-shadow: inset 3px 0 0 var(--msa-green, #34c759); }
