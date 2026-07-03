@@ -44,7 +44,7 @@
 .msa-user-info { padding: 4px 8px 12px; display: flex; flex-direction: column; }
 .msa-user-info strong { font-size: 14px; }
 .msa-main { flex: 1; overflow-y: auto; }
-.msa-page { max-width: 1240px; margin: 0 auto; padding: 30px 36px 80px; }
+.msa-page { max-width: 1426px; margin: 0 auto; padding: 30px 36px 80px; }
 .msa-narrow { max-width: 860px; }
 .msa-page-head { margin-bottom: 22px; }
 .msa-page-head h1 { font-size: 28px; font-weight: 700; margin: 0 0 3px; letter-spacing: -0.025em; }
@@ -1615,6 +1615,32 @@
 @media (max-width: 900px) { .sm-preview { justify-content: flex-start; } }
 
 /* Dashboard — active ("on trip now") bookings */
-.msa-remind-cd.msa-cd-live { background: var(--msa-green-soft, #e3f9e9); color: #15803d; }
+.msa-remind-cd.msa-cd-live { background: var(--msa-green-soft, #e3f9e9) !important; color: #111 !important; box-shadow: 0 4px 12px rgba(52,199,89,.22) !important; }
+.msa-remind-cd.msa-cd-live span { color: #111 !important; font-weight: 700; }
+.msa-remind-cd.msa-cd-live strong { color: #15803d !important; }
 .msa-badge.msa-st-live { background: var(--msa-green, #34c759); color: #fff; }
 .msa-remind-live { box-shadow: inset 3px 0 0 var(--msa-green, #34c759); }
+
+/* ── Today/tomorrow activity — slow blinking green soft glow ── */
+@keyframes msa-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(52,199,89,.35), 0 0 6px rgba(52,199,89,.15); }
+  50%      { box-shadow: 0 0 0 1px rgba(52,199,89,.85), 0 0 16px rgba(52,199,89,.55); }
+}
+@keyframes msa-glow-bg {
+  0%, 100% { background: #f2fcf5; }
+  50%      { background: #e0f8e8; }
+}
+@keyframes msa-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52,199,89,.55); opacity: .9; }
+  50%      { box-shadow: 0 0 0 5px rgba(52,199,89,0); opacity: 1; }
+}
+/* Dashboard remind cards */
+.msa-remind-glow { border-color: rgba(52,199,89,.5) !important; animation: msa-glow-pulse 2.6s ease-in-out infinite, msa-glow-bg 2.6s ease-in-out infinite; }
+.msa-remind-glow.msa-remind-live { box-shadow: inset 3px 0 0 var(--msa-green, #34c759); }
+.msa-remind-act { font-size: 12px; font-weight: 700; color: #15803d; line-height: 1.2; }
+/* Bookings table rows */
+.msa-bt-row.msa-bt-glow > td { background: #f2fcf5; box-shadow: inset 3px 0 0 var(--msa-green, #34c759); animation: msa-glow-bg 2.6s ease-in-out infinite; }
+.msa-bt-glowdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--msa-green, #34c759); margin-right: 5px; vertical-align: middle; animation: msa-dot-pulse 2.6s ease-in-out infinite; }
+.msa-bt-act { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--msa-green-soft, #e3f9e9); color: #15803d; font-size: 11px; font-weight: 700; vertical-align: middle; }
+.msa-dark .msa-bt-row.msa-bt-glow > td { background: rgba(52,199,89,.10); }
+.msa-dark .msa-remind-glow { animation: msa-glow-pulse 2.6s ease-in-out infinite; }

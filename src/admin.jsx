@@ -172,6 +172,27 @@
   const startOfToday = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
   const daysUntil = (d) => { if (!d) return null; const a = new Date(d); a.setHours(0, 0, 0, 0); return Math.round((a - startOfToday()) / 864e5); };
   const countdownLabel = (d) => { const n = daysUntil(d); if (n == null) return ''; if (n === 0) return 'Today'; if (n === 1) return 'Tomorrow'; if (n > 1) return 'in ' + n + ' days'; if (n === -1) return 'yesterday'; return Math.abs(n) + ' days ago'; };
+  // Local YYYY-MM-DD helpers used for the "today / tomorrow" activity glow.
+  const localDayStr = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const dayOf = (v) => (v || '').slice(0, 10);
+  const shiftDay = (s, n) => { const p = s.split('-').map(Number); const dt = new Date(p[0], p[1] - 1, p[2] + n); return localDayStr(dt); };
+  const itinOn = (b, day) => { const it = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : []; const d = it.find(x => dayOf(x.date) === day); if (!d) return ''; const acts = (d.activities || []).map(a => a.type || a.details).filter(Boolean); return d.city || acts[0] || ''; };
+  // Returns {when:'today'|'tomorrow', label} when a booking has an arrival, departure or
+  // on-trip activity today or tomorrow — otherwise null. Drives the slow green glow.
+  const bookingActivity = (b) => {
+    if (!b || b.status === 'cancelled') return null;
+    const T = localDayStr(new Date()), TM = shiftDay(T, 1);
+    const a = dayOf(b.arrival_date), dep = dayOf(b.departure_date);
+    if (!a) return null;
+    const tail = (s) => s ? ' · ' + s : '';
+    if (a === T) return { when: 'today', label: 'Arrives today' + tail(itinOn(b, T)) };
+    if (a === TM) return { when: 'tomorrow', label: 'Arrives tomorrow' + tail(itinOn(b, TM)) };
+    if (dep === T) return { when: 'today', label: 'Departs today' + tail(itinOn(b, T)) };
+    if (dep === TM) return { when: 'tomorrow', label: 'Departs tomorrow' };
+    if (dep && a <= T && T <= dep) { const act = itinOn(b, T); return { when: 'today', label: act ? 'Today · ' + act : 'On trip today' }; }
+    if (dep && a <= TM && TM <= dep) { const act = itinOn(b, TM); return { when: 'tomorrow', label: act ? 'Tomorrow · ' + act : 'On trip tomorrow' }; }
+    return null;
+  };
   const waLink = (p) => 'https://wa.me/' + String(p || '').replace(/[^0-9]/g, '');
 
   const STATUS_LABEL = { new: 'New', quotation_sent: 'Quotation Sent', waiting_confirmation: 'Awaiting', confirmed: 'Confirmed', deposit_paid: 'Deposit Paid', fully_paid: 'Fully Paid', ongoing: 'Ongoing', completed: 'Completed', cancelled: 'Cancelled' };
@@ -549,15 +570,19 @@
             h('div', { className: 'msa-card-head' }, h('h3', null, ICON.bell(), ' Active & upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All →')),
             h('div', { className: 'msa-dash-scroll' }, (activeList.length === 0 && future.length === 0) ? h('div', { className: 'msa-empty' }, 'No active or upcoming bookings.')
               : h('div', { className: 'msa-remind-list' },
-                activeList.map(b => { const n = daysUntil(dStr(b.departure_date));
-                  return h('button', { key: 'a' + b.id, className: 'msa-remind msa-remind-live', onClick: () => openBooking(b) },
+                activeList.map(b => { const n = daysUntil(dStr(b.departure_date)); const act = bookingActivity(b);
+                  return h('button', { key: 'a' + b.id, className: 'msa-remind msa-remind-live' + (act ? ' msa-remind-glow' : ''), onClick: () => openBooking(b) },
                     h('div', { className: 'msa-remind-cd msa-cd-live' }, h('strong', null, '●'), h('span', null, 'now')),
-                    h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, 'On trip · ' + (n === 0 ? 'ends today' : 'ends in ' + n + (n === 1 ? ' day' : ' days')) + ' · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
+                    h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name),
+                      act ? h('span', { className: 'msa-remind-act' }, act.label) : null,
+                      h('span', { className: 'msa-dim' }, 'On trip · ' + (n === 0 ? 'ends today' : 'ends in ' + n + (n === 1 ? ' day' : ' days')) + ' · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
                     h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-live' }, 'On trip'), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-text-red', style: { fontWeight: 600 } }, 'Owes ' + kr(b.balance)))); }),
-                future.slice(0, 6).map(b => { const n = daysUntil(dStr(b.arrival_date)); const cd = n === 0 ? 'msa-cd-today' : n <= 7 ? 'msa-cd-soon' : 'msa-cd-far';
-                  return h('button', { key: b.id, className: 'msa-remind', onClick: () => openBooking(b) },
+                future.slice(0, 6).map(b => { const n = daysUntil(dStr(b.arrival_date)); const cd = n === 0 ? 'msa-cd-today' : n <= 7 ? 'msa-cd-soon' : 'msa-cd-far'; const act = bookingActivity(b);
+                  return h('button', { key: b.id, className: 'msa-remind' + (act ? ' msa-remind-glow' : ''), onClick: () => openBooking(b) },
                     h('div', { className: 'msa-remind-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days'))),
-                    h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + (b.total_days || '?') + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
+                    h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name),
+                      act ? h('span', { className: 'msa-remind-act' }, act.label) : null,
+                      h('span', { className: 'msa-dim' }, (b.arrival_city || '') + ' → ' + (b.departure_city || '') + ' · ' + (b.total_days || '?') + 'D · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
                     h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-' + b.status }, STATUS_LABEL[b.status]), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-text-red', style: { fontWeight: 600 } }, 'Owes ' + kr(b.balance)))); })))),
           h('div', { className: 'msa-card msa-dash-box' },
             h('div', { className: 'msa-card-head' }, h('h3', null, ICON.tasks(), ' Workspace'),
@@ -1167,11 +1192,11 @@
 
     const COLS = [['reference', 'Reference'], ['client_name', 'Client'], ['arrival_date', 'Dates'], ['travelers', 'Travelers'], ['selling_price', 'Price (NOK)'], ['total_cost', 'Cost (NOK)'], ['profit', 'Profit (NOK)'], ['status', 'Status']].filter(c => isAdminRole() || !['selling_price', 'total_cost', 'profit'].includes(c[0]));
     const headCell = (k, l) => h('th', { key: k, className: 'msa-th-sort' + (['selling_price','total_cost','profit'].includes(k) ? ' msa-right' : ''), onClick: () => toggleSort(k) }, l, h('span', { className: 'msa-sort-ar' }, sort.k === k ? (sort.d === 'asc' ? ' ↑' : ' ↓') : ''));
-    const row = (b) => { const profit = (+b.selling_price || 0) - (+b.total_cost || 0); const n = daysUntil(b.arrival_date); const cd = n == null ? '' : (n === 0 ? 'msa-text-green' : (n > 0 && n <= 14 ? 'msa-text-orange' : n < 0 ? 'msa-dim' : 'msa-text-brand')); const ex = !!expanded[b.id];
-      const main = h('tr', { key: b.id, className: 'msa-bt-row' + (ex ? ' open' : ''), onClick: () => setExpanded(s => ({ ...s, [b.id]: !s[b.id] })) },
-        h('td', { className: 'msa-bt-chev', 'data-label': '' }, h('span', { className: 'msa-chevtog' }, ex ? '⌃' : '⌄')),
+    const row = (b) => { const profit = (+b.selling_price || 0) - (+b.total_cost || 0); const n = daysUntil(b.arrival_date); const cd = n == null ? '' : (n === 0 ? 'msa-text-green' : (n > 0 && n <= 14 ? 'msa-text-orange' : n < 0 ? 'msa-dim' : 'msa-text-brand')); const ex = !!expanded[b.id]; const act = bookingActivity(b);
+      const main = h('tr', { key: b.id, className: 'msa-bt-row' + (ex ? ' open' : '') + (act ? ' msa-bt-glow' : ''), onClick: () => setExpanded(s => ({ ...s, [b.id]: !s[b.id] })) },
+        h('td', { className: 'msa-bt-chev', 'data-label': '' }, act ? h('span', { className: 'msa-bt-glowdot', title: act.label }) : null, h('span', { className: 'msa-chevtog' }, ex ? '⌃' : '⌄')),
         h('td', { 'data-label': 'Reference' }, h('span', { className: 'msa-ref-chip' }, b.reference || '—')),
-        h('td', { 'data-label': 'Client' }, h('strong', null, b.client_name)),
+        h('td', { 'data-label': 'Client' }, h('strong', null, b.client_name), act ? h('span', { className: 'msa-bt-act' }, act.label) : null),
         h('td', { 'data-label': 'Dates' }, h('div', null, (b.arrival_date || '—') + ' to ' + (b.departure_date || '—')), n != null && h('div', { className: 'msa-cd-text ' + cd }, countdownLabel(b.arrival_date))),
         h('td', { 'data-label': 'Travelers' }, h('span', { className: 'msa-trav' }, ICON.clients(), (b.adults || 0) + (b.kids || 0))),
         isAdminRole() && h('td', { 'data-label': 'Price', className: 'msa-right' }, kr(b.selling_price)),
