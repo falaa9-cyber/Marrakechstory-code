@@ -200,6 +200,9 @@
   const LEAD_SOURCES = ['website', 'whatsapp', 'instagram', 'referral', 'recommended', 'email', 'other'];
   const ACTIVITY_TYPES = ['Transport','Airport Transfer','Private Driver','Check-in','Check-out','Guided Tour','City Tour','Medina Tour','Ourika Valley','Atlas Mountains','Agafay Day Pass','Agafay Dinner','Desert Camp','Sahara Trip','Essaouira Day Trip','Cooking Class','Hot Air Balloon','Paragliding','Quad/Buggy','Camel Ride','Horse Riding','Jet Ski','Surfing','Boat Trip','Golf','Waterfalls Trip','Shopping Tour','Photography Tour','Restaurant','Breakfast','Lunch','Dinner','Show / Entertainment','Spa/Hammam','Massage','Pool Day','Free Time','Other'];
   const SUP_TYPES = [['hotel','Hotel / Riad'],['restaurant','Restaurant'],['driver','Transport / Driver'],['guide','Guide'],['camp','Desert Camp'],['activity','Activity Provider']];
+  // Collaborators are grouped into three business categories.
+  const SUP_CAT = { hotel: 'accommodation', camp: 'accommodation', driver: 'transport', guide: 'activities', restaurant: 'activities', activity: 'activities' };
+  const SUP_CATS = [['accommodation', 'Accommodation'], ['transport', 'Transport'], ['activities', 'Activities']];
   const CURRENCIES = ['NOK', 'MAD', 'EUR', 'USD', 'SEK', 'DKK', 'GBP'];
   const CUR_SYMBOL = { NOK: 'kr', SEK: 'kr', DKK: 'kr', MAD: 'DH', EUR: '€', USD: '$', GBP: '£' };
   const money = (n, cur) => { const v = Math.round((+n || 0)).toLocaleString('nb-NO'); const c = cur || 'NOK'; return (c === 'EUR' || c === 'USD' || c === 'GBP') ? (CUR_SYMBOL[c] + ' ' + v) : (v + ' ' + (CUR_SYMBOL[c] || c)); };
@@ -567,7 +570,7 @@
           h('div', { className: 'msa-cal-legend', style: { marginTop: 12 } }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today'), h('span', null, h('i', { className: 'msa-lg msa-lg-single' }), 'Single booking'), h('span', null, h('i', { className: 'msa-lg msa-lg-multi' }), 'Multiple bookings'))),
         h('div', { className: 'msa-dash-side' },
           h('div', { className: 'msa-card msa-dash-box' },
-            h('div', { className: 'msa-card-head' }, h('h3', null, ICON.bell(), ' Active & upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All →')),
+            h('div', { className: 'msa-card-head' }, h('h3', { className: 'msa-h3-sm' }, ICON.bell(), ' Active & upcoming bookings'), h('button', { className: 'msa-link', onClick: () => go('bookings') }, 'All →')),
             h('div', { className: 'msa-dash-scroll' }, (activeList.length === 0 && future.length === 0) ? h('div', { className: 'msa-empty' }, 'No active or upcoming bookings.')
               : h('div', { className: 'msa-remind-list' },
                 activeList.map(b => { const n = daysUntil(dStr(b.departure_date)); const act = bookingActivity(b);
@@ -577,7 +580,7 @@
                       act ? h('span', { className: 'msa-remind-act' }, act.label) : null,
                       h('span', { className: 'msa-dim' }, 'On trip · ' + (n === 0 ? 'ends today' : 'ends in ' + n + (n === 1 ? ' day' : ' days')) + ' · ' + ((b.adults || 0) + (b.kids || 0)) + ' pax')),
                     h('div', { className: 'msa-remind-meta' }, h('span', { className: 'msa-badge msa-st-live' }, 'On trip'), (isAdmin && +b.balance > 0) && h('span', { className: 'msa-text-red', style: { fontWeight: 600 } }, 'Owes ' + kr(b.balance)))); }),
-                future.slice(0, 6).map(b => { const n = daysUntil(dStr(b.arrival_date)); const cd = n === 0 ? 'msa-cd-today' : n <= 7 ? 'msa-cd-soon' : 'msa-cd-far'; const act = bookingActivity(b);
+                future.slice(0, 6).map(b => { const n = daysUntil(dStr(b.arrival_date)); const cd = n <= 30 ? 'msa-cd-soon' : 'msa-cd-far'; const act = bookingActivity(b);
                   return h('button', { key: b.id, className: 'msa-remind' + (act ? ' msa-remind-glow' : ''), onClick: () => openBooking(b) },
                     h('div', { className: 'msa-remind-cd ' + cd }, h('strong', null, n === 0 ? '•' : n), h('span', null, n === 0 ? 'today' : (n === 1 ? 'day' : 'days'))),
                     h('div', { className: 'msa-remind-body' }, h('strong', null, b.client_name),
@@ -987,7 +990,7 @@
         }).then(() => {}, () => {});
     }, 250);
   }
-  function DocModal({ booking, initialType, onClose, settings }) {
+  function DocModal({ booking, initialType, onClose, settings, onEdit }) {
     const [type, setType] = useState(initialType || 'itinerary');
     const [lang, setLang] = useState((booking && booking.doc_lang) || 'no');
     const b = booking; const S = settings || {};
@@ -1138,7 +1141,9 @@
             h('div', { className: 'msa-doc-balance' }, h('span', null, paid > 0 ? t('balance_due') : t('to_pay')), h('span', { className: (bal > 0 ? 'msa-text-red' : 'msa-text-green') }, kr(bal)))),
           h('p', { className: 'msa-doc-paynote' }, payNote),
           paymentBox,
-          S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, t('terms')), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null),
+          S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, t('terms')), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null,
+          // Company stamp / signature — sits in the empty space bottom-right, never over text.
+          h('div', { className: 'msa-doc-sign' }, h('img', { src: 'assets/stamp.png', alt: '', className: 'msa-doc-stamp', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }))),
         h('div', { className: 'msa-doc-foot' }, h('p', null, lang === 'no' ? (S.invoice_footer || t('foot_thanks')) : t('foot_thanks')), h('p', null, cWeb + ' | ' + cPhone))); };
     const fname = 'MarrakechStory-' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + '-' + (b.reference || 'MS') + '.pdf';
     const docLabel = type === 'invoice' ? 'fakturaen' : 'reiseplanen';
@@ -1153,7 +1158,8 @@
           h('label', { className: 'msa-doc-lang', title: 'Document language — translates the itinerary & invoice' },
             ICON.globe ? ICON.globe() : null,
             h('select', { value: lang, onChange: (e) => setLang(e.target.value) }, DOC_LANGS.map(l => h('option', { key: l[0], value: l[0] }, l[1])))),
-          h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice'))),
+          h('div', { className: 'msa-seg' }, h('button', { className: type === 'itinerary' ? 'active' : '', onClick: () => setType('itinerary') }, 'Itinerary'), isAdminRole() && h('button', { className: type === 'invoice' ? 'active' : '', onClick: () => setType('invoice') }, 'Invoice')),
+          (onEdit && b && b.id) ? h('button', { className: 'msa-btn msa-btn-primary msa-doc-edit', onClick: () => onEdit(b), title: 'Edit this trip' }, ICON.edit(), 'Edit trip') : null),
         h('label', { className: 'msa-btn msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
           h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
         h('div', null, h('button', { className: 'msa-btn msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download'),
@@ -1176,7 +1182,9 @@
     const [edit, setEdit] = useState(null); const [doc, setDoc] = useState(null);
     const [q, setQ] = useState(''); const [statusF, setStatusF] = useState('all'); const [showFilters, setShowFilters] = useState(false);
     const [sort, setSort] = useState({ k: 'arrival_date', d: 'asc' }); const [expanded, setExpanded] = useState({}); const [archiveOpen, setArchiveOpen] = useState(false);
-    useEffect(() => { if (focusBooking) { if (focusBooking.id) setEdit(focusBooking); else setEdit(EMPTY_BOOKING); clearFocus && clearFocus(); } }, [focusBooking]);
+    // Opening a booking (e.g. from the dashboard) shows the itinerary document first;
+    // the itinerary has an "Edit trip" button to jump into the full editor.
+    useEffect(() => { if (focusBooking) { if (focusBooking.id) setDoc({ booking: focusBooking, type: 'itinerary' }); else setEdit(EMPTY_BOOKING); clearFocus && clearFocus(); } }, [focusBooking]);
     const isArch = (b) => b.archived || b.status === 'completed' || b.status === 'cancelled';
     const matchB = (b) => { if (statusF !== 'all' && b.status !== statusF) return false; if (!q) return true; return [b.client_name, b.reference, b.email, b.phone, b.arrival_date, b.departure_date, b.selling_price, b.total_cost, b.arrival_city].join(' ').toLowerCase().includes(q.toLowerCase()); };
     const val = (b, k) => k === 'profit' ? ((+b.selling_price || 0) - (+b.total_cost || 0)) : k === 'travelers' ? ((+b.adults || 0) + (+b.kids || 0)) : b[k];
@@ -1238,7 +1246,7 @@
         h('button', { className: 'msa-archive-bar', onClick: () => setArchiveOpen(o => !o) }, h('span', { className: 'msa-archive-count' }, archived.length), 'Past bookings archive', h('span', { className: 'msa-archive-chev' }, archiveOpen ? '⌃' : '⌄'))),
       archiveOpen && h('div', { className: 'msa-table-card', style: { marginTop: 14 } }, archived.length === 0 ? h('div', { className: 'msa-empty' }, 'No archived bookings.') : table(archived)),
       edit && h(BookingModal, { initial: edit.id ? edit : EMPTY_BOOKING, onClose: () => setEdit(null), onSaved: () => { setEdit(null); reload(); }, onView: (bk, t) => setDoc({ booking: bk, type: t }), suppliers }),
-      doc && h(DocModal, { booking: doc.booking, initialType: doc.type, settings: settings, onClose: () => setDoc(null) }));
+      doc && h(DocModal, { booking: doc.booking, initialType: doc.type, settings: settings, onClose: () => setDoc(null), onEdit: (bk) => { setDoc(null); setEdit(bk); } }));
   }
 
   // =====================================================================
@@ -1437,8 +1445,11 @@
           h('div', null, h('strong', null, l.name || l.email || 'Anonymous'), h('div', { className: 'msa-dim' }, [(l.payload && l.payload.collaborationType), l.email, l.phone].filter(Boolean).join(' · '))),
           h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => addFromLead(l) }, 'Add as collaborator'))))),
       h('div', { className: 'msa-searchbar' }, h('div', { className: 'msa-searchbar-in' }, ICON.search(), h('input', { placeholder: 'Search collaborators…', value: q, onChange: (e) => setQ(e.target.value) }))),
-      h('div', { className: 'msa-table-card' }, list.length === 0 ? h('div', { className: 'msa-empty' }, 'No collaborators yet. Click “Add” to create one.')
-        : h('table', { className: 'msa-table msa-btable' }, h('thead', null, h('tr', null, h('th', { className: 'msa-bt-chev' }, ''), COLS.map(([k, l]) => headCell(k, l)), h('th', null, ''))), h('tbody', null, list.map(row)))),
+      list.length === 0 ? h('div', { className: 'msa-table-card' }, h('div', { className: 'msa-empty' }, 'No collaborators yet. Click “Add” to create one.'))
+        : SUP_CATS.map(([cat, label]) => { const rows = list.filter(s => (SUP_CAT[s.type] || 'activities') === cat); if (!rows.length) return null;
+            return h('div', { key: cat, className: 'msa-supcat' },
+              h('div', { className: 'msa-supcat-head' }, h('h3', null, label), h('span', { className: 'msa-supcat-count' }, rows.length)),
+              h('div', { className: 'msa-table-card' }, h('table', { className: 'msa-table msa-btable' }, h('thead', null, h('tr', null, h('th', { className: 'msa-bt-chev' }, ''), COLS.map(([k, l]) => headCell(k, l)), h('th', null, ''))), h('tbody', null, rows.map(row))))); }),
       edit !== null ? h(CollaboratorModal, { initial: edit, onClose: () => setEdit(null), onSaved: reload }) : null);
   }
 
@@ -1538,7 +1549,7 @@
     const role = isAdminRole() ? 'admin' : 'partner';
     const meName = CURRENT_NAME || (role === 'admin' ? 'Admin' : 'Partner');
     const [edit, setEdit] = useState(null); const [q, setQ] = useState('');
-    const [seg, setSeg] = useState('mine');   // mine | all | done
+    const [seg, setSeg] = useState('all');   // mine | all | done — default: all open tasks
     const [quick, setQuick] = useState(''); const [quickTo, setQuickTo] = useState(role === 'admin' ? 'partner' : 'admin');
     const mineFor = (t) => t.assigned_to === 'team' || t.assigned_to === role || !t.assigned_to;
     const toggle = async (t) => {
@@ -1596,7 +1607,7 @@
   // CALENDAR (full month, today green, single brand / multiple blue)
   // =====================================================================
   function CalendarTab({ bookings, openBooking }) {
-    const [view, setView] = useState('month');           // 'year' | 'month' | 'day'
+    const [view, setView] = useState('year');           // 'year' | 'month' | 'day' — default yearly overview
     const [cursor, setCursor] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
     const [sel, setSel] = useState(todayISO());
     const Y = cursor.getFullYear(), M = cursor.getMonth();
@@ -1622,7 +1633,16 @@
         cells.push(h('span', { key: d, className: 'msa-yr-day' + (k === todayStr ? ' today' : ''), style: st, onClick: () => openDay(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
       return h('div', { key: mi, className: 'msa-yr-month' }, h('div', { className: 'msa-yr-name', onClick: () => { setCursor(new Date(Y, mi, 1)); setView('month'); } }, MON[mi]), h('div', { className: 'msa-yr-days' }, cells));
     };
-    const yearView = () => h('div', { className: 'msa-card' }, h('div', { className: 'msa-yr-grid' }, MON.map((_, i) => miniMonth(i))));
+    const todayLong = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const todayInfo = dayMap[todayStr] || { arr: [], dep: [], on: [] };
+    const todayCount = new Set([].concat(todayInfo.arr, todayInfo.dep, todayInfo.on).map(b => b.id)).size;
+    const yearView = () => h('div', null,
+      h('div', { className: 'msa-card' }, h('div', { className: 'msa-yr-grid' }, MON.map((_, i) => miniMonth(i)))),
+      h('div', { className: 'msa-card', style: { marginTop: 16 } },
+        h('div', { className: 'msa-card-head' },
+          h('h3', null, 'Today · ' + todayLong + (todayCount ? ('  ·  ' + todayCount + ' booking' + (todayCount === 1 ? '' : 's')) : '')),
+          h('button', { className: 'msa-link', onClick: () => openDay(todayStr) }, 'Day view →')),
+        dayPanel(todayStr, false)));
 
     // ---- MONTH VIEW ----
     const monthGrid = () => { const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate(); const cells = [];
@@ -2233,24 +2253,14 @@
           h('div', { className: 'msa-kpi-grid' },
             gaCard('Active now', nf(ga.active), 'msa-kpi-income'),
             gaCard('Users', nf(ga.summary.users), 'msa-kpi-benefit', (ga.summary.newUsers ? (Math.round(ga.summary.newUsers / Math.max(1, ga.summary.users) * 100) + '% new') : null)),
-            gaCard('New users', nf(ga.summary.newUsers)),
             gaCard('Sessions', nf(ga.summary.sessions)),
             gaCard('Pageviews', nf(ga.summary.pageviews)),
-            gaCard('Engagement', Math.round((ga.summary.engagementRate || 0) * 100) + '%'),
-            gaCard('Avg. engaged', gaFmtDur(ga.summary.users ? ga.summary.engagementTime / ga.summary.users : 0)),
-            gaCard('Events', nf(ga.summary.events))),
+            gaCard('Engagement', Math.round((ga.summary.engagementRate || 0) * 100) + '%')),
           gaTrend(ga.trend, 'Visitors — ' + gaPeriodLabel),
-          h('div', { className: 'msa-dash-grid' },
-            (ga.realtimePages && ga.realtimePages.length) ? gaList('Being viewed now', ga.realtimePages, true) : null,
-            gaList('Top pages', ga.pages),
-            gaList('Landing pages', ga.landing),
+          h('div', { className: 'msa-cols msa-cols-3' },
+            (ga.realtimePages && ga.realtimePages.length) ? gaList('Being viewed now', ga.realtimePages, true) : gaList('Top pages', ga.pages),
             gaList('Channels', ga.channels),
-            gaList('Source / Medium', ga.sourceMedium),
-            gaList('Countries', ga.countries),
-            gaList('Cities', ga.cities),
-            gaList('Devices', ga.devices),
-            gaList('Top events', ga.topEvents),
-            gaList('Languages', ga.languages))));
+            gaList('Countries', ga.countries))));
 
     return h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head msa-row' },
@@ -2267,7 +2277,12 @@
 
       rows.length === 0 ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-empty' }, 'No visits recorded yet. Data appears here automatically as people browse the public site.')) : h('div', null,
 
-        // KPI ROW
+        // PLAIN-LANGUAGE SUMMARY — the whole picture in a few sentences, first
+        h('div', { className: 'msa-card msa-insights-sum' },
+          h('div', { className: 'msa-card-head' }, h('h3', null, '📌 At a glance')),
+          h('ul', { className: 'msa-smart' }, smart.map((t, i) => h('li', { key: i }, t)))),
+
+        // KPI ROW — the six numbers that matter
         h('div', { className: 'msa-kpi-grid' },
           kpi('Total visits', nf(M.visits), dPct(M.visits, Mp.visits), 'msa-kpi-income'),
           kpi('Unique visitors', nf(M.uniq), dPct(M.uniq, Mp.uniq), 'msa-kpi-benefit'),
@@ -2276,59 +2291,20 @@
           kpi('Bounce rate', M.bounce + '%', dPct(M.bounce, Mp.bounce) == null ? null : -dPct(M.bounce, Mp.bounce), 'msa-kpi-cost', 'lower is better'),
           kpi('Mobile share', M.mobilePct + '%', dPct(M.mobilePct, Mp.mobilePct), 'msa-kpi-plain')),
 
-        // TREND + DEVICE
-        h('div', { className: 'msa-dash-charts' },
-          card(period === '24h' ? 'Visits by hour (today)' : ('Visits — ' + (period === 'all' ? 'all time' : 'last ' + period)),
-            series.length ? barChart(series) : h('div', { className: 'msa-empty' }, 'Not enough data.')),
-          card('Device mix', h('div', { className: 'msa-chart-row' },
-            h(Donut, { segments: [{ label: 'Desktop', value: dev.desktop, color: '#0a84ff' }, { label: 'Mobile', value: dev.mobile, color: '#e0432a' }, { label: 'Tablet', value: dev.tablet, color: '#34c759' }] }),
-            h('div', { className: 'msa-legend' },
-              h('div', null, h('span', { className: 'msa-dot', style: { background: '#0a84ff' } }), 'Desktop ', h('strong', null, dev.desktop)),
-              h('div', null, h('span', { className: 'msa-dot', style: { background: '#e0432a' } }), 'Mobile ', h('strong', null, dev.mobile)),
-              h('div', null, h('span', { className: 'msa-dot', style: { background: '#34c759' } }), 'Tablet ', h('strong', null, dev.tablet))))) ),
+        // ONE TREND CHART
+        card(period === '24h' ? 'Visits by hour (today)' : ('Visits — ' + (period === 'all' ? 'all time' : 'last ' + period)),
+          series.length ? barChart(series) : h('div', { className: 'msa-empty' }, 'Not enough data.')),
 
-        // AUDIENCE GEO
-        h('div', { className: 'msa-cols msa-cols-12' },
-          card('Top countries', srcBars(countries, { pct: true, label: (k) => h('span', null, flagOf(ccByName[k]), ' ', k) })),
-          card('Top cities', srcBars(cities, { pct: true }))),
-
-        // AUDIENCE TECH
+        // THREE ESSENTIALS — who, what, where from
         h('div', { className: 'msa-cols msa-cols-3' },
-          card('Languages', srcBars(langs, { pct: true, label: (k) => LANG_LABEL[k] || (k || '—').toUpperCase() })),
-          card('Browsers', srcBars(browsers, { pct: true })),
-          card('Operating system', srcBars(oses, { pct: true }))),
-
-        // BEHAVIOUR
-        h('div', { className: 'msa-cols msa-cols-12' },
+          card('Where visitors are from', srcBars(countries, { pct: true, label: (k) => h('span', null, flagOf(ccByName[k]), ' ', k) })),
           card('Most-visited sections', srcBars(secEntries.map(([k, v]) => [SEC_LABEL[k] || k, v]), { pct: true })),
-          card('Conversion funnel', h('div', { className: 'msa-funnel' }, funnel.map((f, i) => h('div', { key: i, className: 'msa-funnel-row' },
-            h('div', { className: 'msa-funnel-top' }, h('span', null, f.label), h('strong', null, f.n + ' · ' + Math.round(f.n / funnelTop * 100) + '%')),
-            h('div', { className: 'msa-funnel-track' }, h('div', { className: 'msa-funnel-fill', style: { width: (f.n / funnelTop * 100) + '%' } }))))))),
+          card('How they found us', srcBars(refs, { label: (k) => k === 'direct' ? 'Direct / app' : k }))),
 
-        // SOURCES + LANDINGS
-        h('div', { className: 'msa-cols msa-cols-12' },
-          card('Traffic sources', srcBars(refs, { label: (k) => k === 'direct' ? 'Direct / app' : k })),
-          card('Top landing pages', srcBars(landings))),
-
-        // PEAK TIMES
-        h('div', { className: 'msa-dash-charts' },
-          card('Busiest hours', byHour.some(v => v) ? barChart(hourBars, '#5e5ce6') : h('div', { className: 'msa-empty' }, 'Not enough data.')),
-          card('Busiest days', byWd.some(v => v) ? barChart(wdBars, '#ff9f0a') : h('div', { className: 'msa-empty' }, 'Not enough data.'))),
-
-        // LIVE FEED + SMART INSIGHTS
-        h('div', { className: 'msa-cols msa-cols-12' },
-          card('Live visitor feed', h('div', { className: 'msa-feed' }, feed.map((r, i) => {
-            const u = uaParse(r.user_agent); const liveOn = (now - new Date(r.updated_at || r.created_at).getTime()) < 5 * 60000;
-            const where = [r.city, r.country].filter(Boolean).join(', ') || 'Unknown location';
-            const secs = (Array.isArray(r.sections) ? r.sections : []).map(s => SEC_LABEL[s] || s).slice(0, 4).join(' · ');
-            return h('div', { key: r.id || i, className: 'msa-feed-row' },
-              h('span', { className: 'msa-feed-flag' }, flagOf(r.country_code)),
-              h('div', { className: 'msa-feed-main' },
-                h('div', { className: 'msa-feed-l1' }, h('strong', null, where), liveOn ? h('span', { className: 'msa-feed-live' }, '● live') : null),
-                h('div', { className: 'msa-feed-l2' }, (r.device || 'desktop') + ' · ' + u.browser + ' · ' + fmtDur(r.duration_seconds) + (secs ? ' · ' + secs : ''))),
-              h('span', { className: 'msa-feed-ago' }, agoOf(r.updated_at || r.created_at)));
-          })), h('span', { className: 'msa-dim msa-feed-count' }, rows.length + ' total')),
-          card('Smart insights', h('ul', { className: 'msa-smart' }, smart.map((t, i) => h('li', { key: i }, t))))) ));
+        // CONVERSION FUNNEL — where people drop off
+        card('From visit to contact', h('div', { className: 'msa-funnel' }, funnel.map((f, i) => h('div', { key: i, className: 'msa-funnel-row' },
+          h('div', { className: 'msa-funnel-top' }, h('span', null, f.label), h('strong', null, f.n + ' · ' + Math.round(f.n / funnelTop * 100) + '%')),
+          h('div', { className: 'msa-funnel-track' }, h('div', { className: 'msa-funnel-fill', style: { width: (f.n / funnelTop * 100) + '%' } })))))) ));
   }
 
   // SHELL

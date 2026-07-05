@@ -1644,3 +1644,31 @@
 .msa-bt-act { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--msa-green-soft, #e3f9e9); color: #15803d; font-size: 11px; font-weight: 700; vertical-align: middle; }
 .msa-dark .msa-bt-row.msa-bt-glow > td { background: rgba(52,199,89,.10); }
 .msa-dark .msa-remind-glow { animation: msa-glow-pulse 2.6s ease-in-out infinite; }
+
+/* Dashboard side-panel headline — 30% smaller (base is the global 32px h3) */
+.msa-card-head h3.msa-h3-sm { font-size: 22px !important; letter-spacing: -0.01em; }
+.msa-card-head h3.msa-h3-sm svg { width: 18px; height: 18px; }
+
+/* Upcoming proximity markers — soft style matching the light-green "now":
+   orange up to one month, red beyond a month. */
+.msa-remind-cd.msa-cd-soon { background: #fff2dd !important; color: #9a6400 !important; box-shadow: 0 4px 12px rgba(240,146,46,.18) !important; }
+.msa-remind-cd.msa-cd-soon strong, .msa-remind-cd.msa-cd-soon span { color: #9a6400 !important; }
+.msa-remind-cd.msa-cd-far  { background: #fde8e4 !important; color: #b3311c !important; box-shadow: 0 4px 12px rgba(224,67,42,.16) !important; }
+.msa-remind-cd.msa-cd-far strong, .msa-remind-cd.msa-cd-far span { color: #b3311c !important; }
+
+/* Trip invoice — company stamp in the empty bottom-right space */
+.msa-doc-sign { display: flex; justify-content: flex-end; margin-top: 26px; padding-right: 6px; }
+.msa-doc-stamp { width: 150px; height: auto; opacity: .95; }
+
+/* Collaborators grouped by category */
+.msa-supcat { margin-bottom: 26px; }
+.msa-supcat-head { display: flex; align-items: center; gap: 10px; margin: 0 2px 10px; }
+.msa-supcat-head h3 { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+.msa-supcat-count { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--msa-brand-soft, #fde7e2); color: var(--msa-brand-deep, #b3311c); font-size: 12px; font-weight: 700; }
+
+/* Doc modal — Edit trip button spacing */
+.msa-doc-edit { margin-left: 10px; }
+
+/* Insights — plain-language summary highlight */
+.msa-insights-sum { background: linear-gradient(180deg, #fff, #fbf7f5); border-left: 4px solid var(--msa-brand, #e0432a); }
+.msa-insights-sum .msa-smart { margin: 0; }
