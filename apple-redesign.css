@@ -5974,3 +5974,6 @@ textarea, select {
   #catalog .cat-price, #catalog .cat-price-amount, #catalog .cat-price-offers { font-weight: 700 !important; font-size: 13.5px !important; }
   #catalog .cat-fav { top: 8px !important; right: 8px !important; }
 }
+
+/* Free-consultation (contact) heading — same size as the "best offers" heading */
+.contact .contact-info h2 { font-size: clamp(25px, 3.2vw, 38px) !important; line-height: 1.06 !important; }

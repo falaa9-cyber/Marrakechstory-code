@@ -49,7 +49,7 @@ function ContactSection() {
         <div className="contact-card reveal">
           <div className="contact-info">
             <span className="eyebrow" style={{ color: '#ffae7c' }}>{t('contact_eyebrow')}</span>
-            <h2 className="serif" style={{ fontSize: 'clamp(36px, 5vw, 60px)', fontWeight: 400, color: '#fff', margin: '14px 0 12px', letterSpacing: '-0.025em', lineHeight: 1 }}>
+            <h2 className="serif" style={{ fontSize: 'clamp(25px, 3.2vw, 38px)', fontWeight: 400, color: '#fff', margin: '14px 0 12px', letterSpacing: '-0.025em', lineHeight: 1 }}>
               {t('contact_title_a')}
             </h2>
             <span style={{ display: 'block', width: 56, height: 3, borderRadius: 3, background: '#ffae7c', margin: '0 0 18px' }} aria-hidden="true" />
