@@ -1343,7 +1343,7 @@
         h('div', { className: 'msa-doc-head-right' },
           h('label', { className: 'msa-btn msa-btn-sm msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
             h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
-          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: downloadPdf, disabled: dlBusy, title: 'Download the itinerary + invoice as a PDF file' }, ICON.pdf(), dlBusy ? 'Preparing…' : 'Download PDF'),
+          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => exportPDF(fname), title: 'Download the itinerary + invoice as a PDF file' }, ICON.pdf(), 'Download PDF'),
           h('a', { className: 'msa-btn msa-btn-sm', href: mailHref, title: b.email ? ('Send via email to ' + b.email) : 'Compose email (no address on file)' }, ICON.requests(), 'Email'),
           h('a', { className: 'msa-btn msa-btn-sm', href: waHref, target: '_blank', title: b.phone ? ('Send via WhatsApp to ' + b.phone) : 'Send via WhatsApp' }, ICON.whatsapp(), 'WhatsApp'),
           h('button', { className: 'msa-btn msa-btn-sm msa-doc-close', onClick: onClose }, ICON.x()))),
