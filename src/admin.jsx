@@ -257,6 +257,8 @@
     paid: { no: "Betalt", en: "Paid", sv: "Betalt", fr: "Payé", de: "Bezahlt" },
     balance_due: { no: "Restbeløp", en: "Balance Due", sv: "Återstående", fr: "Solde dû", de: "Restbetrag" },
     to_pay: { no: "Å betale", en: "To pay", sv: "Att betala", fr: "À payer", de: "Zu zahlen" },
+    total_amount: { no: "Totalbeløp", en: "Total amount", sv: "Totalbelopp", fr: "Montant total", de: "Gesamtbetrag" },
+    rest_to_pay: { no: "Resten å betale", en: "Rest to pay", sv: "Resten att betala", fr: "Reste à payer", de: "Restzahlung" },
     paynote_deposit: { no: "Et depositum på {dep} ({pct}%) bekrefter bestillingen. Resten på {rest} betales før avreise.", en: "A deposit of {dep} ({pct}%) confirms your booking. The remaining {rest} is due before departure.", sv: "En handpenning på {dep} ({pct}%) bekräftar bokningen. Resterande {rest} betalas före avresa.", fr: "Un acompte de {dep} ({pct}%) confirme votre réservation. Le solde de {rest} est dû avant le départ.", de: "Eine Anzahlung von {dep} ({pct}%) bestätigt Ihre Buchung. Der Restbetrag von {rest} ist vor Abreise fällig." },
     paynote_full: { no: "Full betaling på {sub} kreves for å bekrefte bestillingen.", en: "Full payment of {sub} is required to confirm your booking.", sv: "Full betalning på {sub} krävs för att bekräfta bokningen.", fr: "Le paiement intégral de {sub} est requis pour confirmer votre réservation.", de: "Die vollständige Zahlung von {sub} ist zur Bestätigung Ihrer Buchung erforderlich." },
     bank_details: { no: "Bankoverføring", en: "Bank transfer details", sv: "Banköverföring", fr: "Coordonnées bancaires", de: "Bankverbindung" },
@@ -1099,8 +1101,9 @@
       const paid = +b.paid_amount || 0;
       const depEnabled = b.deposit_enabled !== false;
       const depPct = +S.deposit_pct || 20;
-      const dep = depEnabled ? (+b.deposit_amount || Math.round(sub * depPct / 100)) : 0;
-      const bal = sub - paid;
+      const dep = depEnabled ? Math.round(sub * depPct / 100) : 0;   // deposit is always depPct% of the total
+      const restToPay = sub - dep;                                    // rest after the deposit
+      const balanceHighlight = paid > 0 ? (sub - paid) : restToPay;   // if payments made, show real balance
       const method = b.payment_method || 'Bank Transfer';
       const isBank = /bank|transfer|virement/i.test(method);
       const isCash = /cash/i.test(method);
@@ -1138,10 +1141,10 @@
           h('table', { className: 'msa-table msa-doc-table' }, h('thead', null, h('tr', null, h('th', null, t('description')), h('th', { className: 'msa-right' }, t('amount')))),
             h('tbody', null, h('tr', null, h('td', null, h('strong', null, t('package')), h('div', { className: 'msa-dim' }, (b.total_nights || 0) + ' ' + t('nights') + ': ' + (b.arrival_city || '') + ' → ' + (b.departure_city || '')), h('div', { className: 'msa-dim' }, ((b.adults || 0) + (b.kids || 0)) + ' ' + t('travelers_word'))), h('td', { className: 'msa-right' }, m(sub))))),
           h('div', { className: 'msa-doc-totals' },
-            h('div', null, h('span', { className: 'msa-dim' }, t('subtotal')), h('span', null, m(sub))),
-            (depEnabled && paid <= 0) ? h('div', null, h('span', { className: 'msa-dim' }, t('deposit_confirm') + ' (' + depPct + '%)'), h('span', { className: 'msa-text-brand' }, m(dep))) : null,
+            h('div', null, h('span', { className: 'msa-dim' }, t('total_amount')), h('span', null, m(sub))),
+            depEnabled ? h('div', null, h('span', { className: 'msa-dim' }, t('deposit_confirm') + ' (' + depPct + '%)'), h('span', { className: 'msa-text-brand' }, m(dep))) : null,
             (paid > 0) ? h('div', null, h('span', { className: 'msa-dim' }, t('paid')), h('span', { className: 'msa-text-green' }, '-' + m(paid))) : null,
-            h('div', { className: 'msa-doc-balance' }, h('span', null, paid > 0 ? t('balance_due') : t('to_pay')), h('span', { className: (bal > 0 ? 'msa-text-red' : 'msa-text-green') }, m(bal)))),
+            h('div', { className: 'msa-doc-balance' }, h('span', null, paid > 0 ? t('balance_due') : t('rest_to_pay')), h('span', { className: (balanceHighlight > 0 ? 'msa-text-red' : 'msa-text-green') }, m(balanceHighlight)))),
           h('p', { className: 'msa-doc-paynote' }, payNote),
           paymentBox,
           S.terms_conditions ? h('details', { className: 'msa-doc-terms msa-doc-collapsible' }, h('summary', null, h('span', null, t('terms')), h('span', { className: 'msa-doc-chevron' }, '▾')), h('p', { className: 'msa-doc-terms-text' }, S.terms_conditions)) : null,
