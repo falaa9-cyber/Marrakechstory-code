@@ -1024,26 +1024,30 @@
     const logo = await loadImg('assets/logo.png');
     const stamp = await loadImg('assets/stamp.png');
     let y = 52;
-    const setF = (sz, style, c) => { doc.setFont('helvetica', style || 'normal'); doc.setFontSize(sz); const k = c || INK; doc.setTextColor(k[0], k[1], k[2]); };
+    // Standard PDF fonts are Latin-1 only — swap glyphs they can't draw (→, smart quotes…).
+    const sx = (s) => String(s == null ? '' : s).replace(/→/g, '->').replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/…/g, '...');
+    const setF = (sz, style, c) => { doc.setFont('helvetica', style || 'normal'); doc.setFontSize(sz); const k = c || INK; doc.setTextColor(k[0], k[1], k[2]); doc.setCharSpace(0); };
     const draw = (c) => doc.setDrawColor(c[0], c[1], c[2]);
     const fill = (c) => doc.setFillColor(c[0], c[1], c[2]);
+    const split = (s, w) => doc.splitTextToSize(sx(s), w);
+    const T = (s, x, yy, o) => doc.text(Array.isArray(s) ? s.map(sx) : sx(s), x, yy, o);
     const ensure = (sp) => { if (y + sp > BOTTOM) { doc.addPage(); y = 52; } };
     const header = (kicker, title) => {
       y = 52;
       if (logo) { const lw = 42, lh = lw * logo.h / logo.w; doc.addImage(logo.d, 'PNG', W - MX - lw, y - 16, lw, lh); }
-      setF(8.5, 'bold', RED); doc.text(String(kicker).toUpperCase(), MX, y, { charSpace: 1 });
-      y += 20; setF(24, 'bold', INK); doc.text(title, MX, y);
+      setF(8.5, 'bold', RED); T(String(kicker).toUpperCase(), MX, y);
+      y += 21; setF(24, 'bold', INK); T(title, MX, y);
       y += 9; draw(RED); doc.setLineWidth(2.5); doc.line(MX, y, MX + 44, y); y += 24;
     };
     const infoRow = (items) => {
-      const n = items.length, colW = CW / n;
-      items.forEach((it, i) => { const x = MX + i * colW; setF(7.5, 'bold', DIM); doc.text(String(it[0]).toUpperCase(), x, y, { charSpace: 0.4 });
-        setF(9.5, 'bold', INK); doc.text(doc.splitTextToSize(String(it[1] == null || it[1] === '' ? '—' : it[1]), colW - 6), x, y + 13); });
-      y += 36; draw(LN); doc.setLineWidth(1); doc.line(MX, y, W - MX, y); y += 20;
+      const n = items.length, colW = CW / n; let maxLines = 1;
+      items.forEach((it, i) => { const x = MX + i * colW; setF(7.5, 'bold', DIM); T(String(it[0]).toUpperCase(), x, y);
+        setF(9.5, 'bold', INK); const ls = split(it[1] == null || it[1] === '' ? '—' : it[1], colW - 8); if (ls.length > maxLines) maxLines = ls.length; T(ls, x, y + 13); });
+      y += 18 + maxLines * 11; draw(LN); doc.setLineWidth(1); doc.line(MX, y, W - MX, y); y += 20;
     };
     const foot = () => { const fy = H - 40; draw(LN); doc.setLineWidth(1); doc.line(MX, fy - 12, W - MX, fy - 12);
-      setF(9, 'normal', DIM); doc.text(lang === 'no' ? (S_.invoice_footer || tr('foot_thanks')) : tr('foot_thanks'), MX, fy);
-      doc.text(cWeb + '  |  ' + cPhone, W - MX, fy, { align: 'right' }); };
+      setF(9, 'normal', DIM); T(lang === 'no' ? (S_.invoice_footer || tr('foot_thanks')) : tr('foot_thanks'), MX, fy);
+      T(cWeb + '  |  ' + cPhone, W - MX, fy, { align: 'right' }); };
 
     // ---------- ITINERARY (page 1) ----------
     header(tr('itin_kicker'), tr('itin_title'));
@@ -1051,18 +1055,20 @@
       [tr('dates'), fmtDate(b.arrival_date) + ' - ' + fmtDate(b.departure_date)],
       [tr('travelers'), ((b.adults || 0) + (b.kids || 0)) + ' ' + tr('persons')], [tr('ref'), b.reference]]);
     const days = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
-    if (!days.length) { setF(10, 'normal', DIM); doc.text(tr('no_itin'), MX, y); y += 20; }
+    if (!days.length) { setF(10, 'normal', DIM); T(tr('no_itin'), MX, y); y += 20; }
     days.forEach((day, i) => {
       const acts = day.activities || [];
-      ensure(24 + acts.length * 22 + 12);
-      fill(RED); doc.circle(MX + 7, y - 3, 8, 'F'); setF(9, 'bold', [255, 255, 255]); doc.text(String(day.day || i + 1), MX + 7, y - 3, { align: 'center', baseline: 'middle' });
-      setF(11.5, 'bold', INK); doc.text(tr('day') + ' ' + (day.day || i + 1) + (day.date ? (' · ' + fmtDate(day.date)) : '') + (day.city ? (' · ' + day.city) : ''), MX + 22, y);
-      y += 17;
+      const titleStr = tr('day') + ' ' + (day.day || i + 1) + (day.date ? (' · ' + fmtDate(day.date)) : '') + (day.city ? (' · ' + day.city) : '');
+      setF(11, 'bold', INK); const tLines = split(titleStr, CW - 26);
+      ensure(6 + tLines.length * 14 + acts.length * 20 + 14);
+      fill(RED); doc.circle(MX + 7, y - 3, 8, 'F'); setF(9, 'bold', [255, 255, 255]); T(String(day.day || i + 1), MX + 7, y - 3, { align: 'center', baseline: 'middle' });
+      setF(11, 'bold', INK); T(tLines, MX + 24, y); y += tLines.length * 14 + 2;
       acts.forEach((a) => {
-        ensure(22);
-        setF(9, 'bold', RED); doc.text(String(a.time || ''), MX + 22, y);
-        setF(9.5, 'bold', INK); doc.text(trAct(a.type || ''), MX + 74, y);
-        if (a.details) { setF(9, 'normal', DIM); const dl = doc.splitTextToSize(String(a.details), CW - 74); doc.text(dl, MX + 74, y + 12); y += 12 + (dl.length - 1) * 11; }
+        const dLines = a.details ? split(a.details, CW - 78) : [];
+        ensure(14 + dLines.length * 11);
+        setF(9, 'bold', RED); T(String(a.time || ''), MX + 24, y);
+        setF(9.5, 'bold', INK); T(trAct(a.type || ''), MX + 78, y);
+        if (dLines.length) { setF(9, 'normal', DIM); T(dLines, MX + 78, y + 12); y += 12 + (dLines.length - 1) * 11; }
         y += 16;
       });
       y += 10;
@@ -1070,14 +1076,16 @@
     const inc = (b.included || []).filter((x) => x && String(x).trim());
     const exc = (b.excluded || []).filter((x) => x && String(x).trim());
     if (inc.length || exc.length) {
-      ensure(28); const colW = CW / 2;
-      setF(9.5, 'bold', INK); if (inc.length) doc.text(tr('included'), MX, y); if (exc.length) doc.text(tr('not_included'), MX + colW, y); y += 15;
-      const rows = Math.max(inc.length, exc.length);
-      for (let r = 0; r < rows; r++) { ensure(13);
-        if (inc[r]) { setF(9, 'normal', GRN); doc.text('+ ' + inc[r], MX, y, { maxWidth: colW - 8 }); }
-        if (exc[r]) { setF(9, 'normal', [180, 60, 45]); doc.text('- ' + exc[r], MX + colW, y, { maxWidth: colW - 8 }); }
-        y += 13;
-      }
+      const colW = CW / 2 - 10;
+      setF(9, 'normal', INK);
+      const incL = inc.map((it) => split('+  ' + it, colW)), excL = exc.map((it) => split('-  ' + it, colW));
+      const colH = (arr) => arr.reduce((s, ls) => s + ls.length * 11 + 3, 0);
+      ensure(20 + Math.max(colH(incL), colH(excL)));
+      setF(9.5, 'bold', INK); if (inc.length) T(tr('included'), MX, y); if (exc.length) T(tr('not_included'), MX + CW / 2, y); y += 15;
+      let yL = y, yR = y;
+      setF(9, 'normal', GRN); incL.forEach((ls) => { T(ls, MX, yL); yL += ls.length * 11 + 3; });
+      setF(9, 'normal', [180, 60, 45]); excL.forEach((ls) => { T(ls, MX + CW / 2, yR); yR += ls.length * 11 + 3; });
+      y = Math.max(yL, yR) + 6;
     }
     foot();
 
@@ -1088,22 +1096,22 @@
     infoRow([[tr('billed_to'), b.client_name], [tr('invoice_no'), (S_.invoice_prefix || 'INV') + '-' + ((b.reference || '').split('-').pop())],
       [tr('date'), new Date().toLocaleDateString(DOC_LOCALE[lang] || undefined)], [tr('method'), method], [tr('status'), STATUS_LABEL[b.status] || b.status]]);
     if (b.address || b.email || b.phone) {
-      setF(8, 'bold', DIM); doc.text(tr('bill_to').toUpperCase(), MX, y); y += 14;
-      setF(12, 'bold', INK); doc.text(String(b.client_name || ''), MX, y); y += 14;
-      setF(9, 'normal', DIM); if (b.address) { doc.text(String(b.address), MX, y); y += 12; }
-      const cp = [b.email, b.phone].filter(Boolean).join('   ·   '); if (cp) { doc.text(cp, MX, y); y += 12; } y += 10;
+      setF(8, 'bold', DIM); T(tr('bill_to').toUpperCase(), MX, y); y += 14;
+      setF(12, 'bold', INK); T(String(b.client_name || ''), MX, y); y += 14;
+      setF(9, 'normal', DIM); if (b.address) { const al = split(b.address, CW); T(al, MX, y); y += al.length * 12; }
+      const cp = [b.email, b.phone].filter(Boolean).join('   ·   '); if (cp) { T(cp, MX, y); y += 12; } y += 10;
     }
-    setF(8, 'bold', DIM); doc.text(tr('description').toUpperCase(), MX, y); doc.text(tr('amount').toUpperCase(), W - MX, y, { align: 'right' });
+    setF(8, 'bold', DIM); T(tr('description').toUpperCase(), MX, y); T(tr('amount').toUpperCase(), W - MX, y, { align: 'right' });
     y += 6; draw(LN); doc.setLineWidth(1); doc.line(MX, y, W - MX, y); y += 17;
     const sub = +b.selling_price || 0;
-    setF(11, 'bold', INK); doc.text(tr('package'), MX, y); doc.text(m(sub), W - MX, y, { align: 'right' }); y += 14;
-    setF(9, 'normal', DIM); doc.text((b.total_nights || 0) + ' ' + tr('nights') + ': ' + (b.arrival_city || '') + ' -> ' + (b.departure_city || ''), MX, y); y += 12;
-    doc.text(((b.adults || 0) + (b.kids || 0)) + ' ' + tr('travelers_word'), MX, y); y += 24;
+    setF(11, 'bold', INK); T(tr('package'), MX, y); T(m(sub), W - MX, y, { align: 'right' }); y += 14;
+    setF(9, 'normal', DIM); T((b.total_nights || 0) + ' ' + tr('nights') + ': ' + (b.arrival_city || '') + ' -> ' + (b.departure_city || ''), MX, y); y += 12;
+    T(((b.adults || 0) + (b.kids || 0)) + ' ' + tr('travelers_word'), MX, y); y += 24;
     const depEnabled = b.deposit_enabled !== false, depPct = +S_.deposit_pct || 20;
     const dep = depEnabled ? Math.round(sub * depPct / 100) : 0, paid = +b.paid_amount || 0;
     const restToPay = sub - dep, balance = paid > 0 ? (sub - paid) : restToPay;
     const tLX = W - MX - 180, tVX = W - MX;
-    const totRow = (label, val, c, bold) => { setF(bold ? 11 : 10, bold ? 'bold' : 'normal', bold ? INK : DIM); doc.text(label, tLX, y); setF(bold ? 12 : 10, bold ? 'bold' : 'normal', c || INK); doc.text(val, tVX, y, { align: 'right' }); y += 16; };
+    const totRow = (label, val, c, bold) => { setF(bold ? 11 : 10, bold ? 'bold' : 'normal', bold ? INK : DIM); T(label, tLX, y); setF(bold ? 12 : 10, bold ? 'bold' : 'normal', c || INK); T(val, tVX, y, { align: 'right' }); y += 16; };
     totRow(tr('total_amount'), m(sub), INK);
     if (depEnabled) totRow(tr('deposit_confirm') + ' (' + depPct + '%)', m(dep), RED);
     if (paid > 0) totRow(tr('paid'), '-' + m(paid), GRN);
@@ -1111,20 +1119,20 @@
     totRow(paid > 0 ? tr('balance_due') : tr('rest_to_pay'), m(balance), balance > 0 ? [200, 50, 40] : GRN, true);
     y += 8;
     const payNote = depEnabled ? trFmt('paynote_deposit', { dep: m(dep), pct: depPct, rest: m(sub - dep) }) : trFmt('paynote_full', { sub: m(sub) });
-    setF(9, 'normal', DIM); const nl = doc.splitTextToSize(payNote, CW - 20); const nh = nl.length * 12 + 16; fill([247, 247, 245]); doc.roundedRect(MX, y - 2, CW, nh, 4, 4, 'F'); setF(9, 'normal', [70, 70, 76]); doc.text(nl, MX + 10, y + 12); y += nh + 18;
+    setF(9, 'normal', DIM); const nl = split(payNote, CW - 20); const nh = nl.length * 12 + 16; fill([247, 247, 245]); doc.roundedRect(MX, y - 2, CW, nh, 4, 4, 'F'); setF(9, 'normal', [70, 70, 76]); T(nl, MX + 10, y + 12); y += nh + 18;
     const isBank = /bank|transfer|virement/i.test(method);
     const bank = isBank ? [[tr('bank_name'), S_.bank_name || 'BMCE Bank of Africa'], [tr('account_name'), S_.account_name || cName], ['RIB:', S_.rib || '011 450 0000 123456789012 34'], ['SWIFT:', S_.swift || 'BMCE MAMC']]
       : [[method + ':', S_.payment_info || S_.company_email || cPhone]];
     const boxH = 30 + bank.length * 14;
     ensure(boxH + 10);
     draw(LN); doc.setLineWidth(1); doc.roundedRect(MX, y, CW, boxH, 6, 6, 'S');
-    let by = y + 20; setF(14, 'bold', INK); doc.text(isBank ? tr('bank_details') : (tr('pay_via') + ' ' + method), MX + 14, by); by += 18;
-    bank.forEach((row) => { setF(9, 'bold', DIM); doc.text(String(row[0]), MX + 14, by); setF(9, 'normal', INK); doc.text(String(row[1]), MX + 130, by); by += 14; });
+    let by = y + 20; setF(14, 'bold', INK); T(isBank ? tr('bank_details') : (tr('pay_via') + ' ' + method), MX + 14, by); by += 18;
+    bank.forEach((row) => { setF(9, 'bold', DIM); T(String(row[0]), MX + 14, by); setF(9, 'normal', INK); T(String(row[1]), MX + 130, by); by += 14; });
     y += boxH + 16;
     if (S_.terms_conditions) {
-      ensure(30); setF(9, 'bold', INK); doc.text(tr('terms'), MX, y); y += 14;
-      setF(8.5, 'normal', DIM); const tl = doc.splitTextToSize(String(S_.terms_conditions), CW);
-      tl.forEach((ln) => { ensure(11); doc.text(ln, MX, y); y += 11; });
+      ensure(30); setF(9, 'bold', INK); T(tr('terms'), MX, y); y += 14;
+      setF(8.5, 'normal', DIM); const tl = split(S_.terms_conditions, CW);
+      tl.forEach((ln) => { ensure(11); T(ln, MX, y); y += 11; });
       y += 8;
     }
     if (stamp) { const sw = 118, sh = sw * stamp.h / stamp.w; const sy = Math.min(y + 6, BOTTOM - sh); doc.addImage(stamp.d, 'PNG', W - MX - sw, sy, sw, sh); }
