@@ -1001,6 +1001,137 @@
         }).then(() => {}, () => {});
     }, 250);
   }
+
+  // Direct programmatic PDF (jsPDF) for a booking's itinerary + invoice. Draws text/lines,
+  // so it downloads a real file that can NEVER be blank (unlike the DOM-rasterising html2canvas).
+  async function buildBookingPdf(b, S, opts) {
+    const J = window.jspdf && window.jspdf.jsPDF; if (!J) return null;
+    const lang = (opts && opts.lang) || 'no';
+    const curr = (opts && opts.curr) || (b && b.sell_currency) || 'NOK';
+    const tr = (k) => (DOC_TR[k] && (DOC_TR[k][lang] || DOC_TR[k].en)) || k;
+    const trAct = (ty) => (ACT_TR[ty] && (ACT_TR[ty][lang] || ty)) || ty;
+    const trFmt = (k, vals) => { let s = tr(k); Object.keys(vals || {}).forEach((x) => { s = s.split('{' + x + '}').join(vals[x]); }); return s; };
+    const m = (n) => money(n, curr);
+    const S_ = S || {};
+    const cName = S_.company_name || 'MarrakechStory SARL';
+    const cPhone = S_.company_phone || COMPANY.phone;
+    const cWeb = (S_.website_url || 'https://marrakechstory.com').replace(/^https?:\/\//, '');
+    const doc = new J({ unit: 'pt', format: 'a4' });
+    const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+    const MX = 42, CW = W - 2 * MX, BOTTOM = H - 64;
+    const RED = [224, 67, 42], INK = [29, 29, 31], DIM = [130, 130, 138], LN = [228, 228, 232], GRN = [28, 122, 63];
+    const loadImg = (src) => new Promise((res) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { try { const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; c.getContext('2d').drawImage(im, 0, 0); res({ d: c.toDataURL('image/png'), w: im.naturalWidth, h: im.naturalHeight }); } catch (e) { res(null); } }; im.onerror = () => res(null); im.src = src; });
+    const logo = await loadImg('assets/logo.png');
+    const stamp = await loadImg('assets/stamp.png');
+    let y = 52;
+    const setF = (sz, style, c) => { doc.setFont('helvetica', style || 'normal'); doc.setFontSize(sz); const k = c || INK; doc.setTextColor(k[0], k[1], k[2]); };
+    const draw = (c) => doc.setDrawColor(c[0], c[1], c[2]);
+    const fill = (c) => doc.setFillColor(c[0], c[1], c[2]);
+    const ensure = (sp) => { if (y + sp > BOTTOM) { doc.addPage(); y = 52; } };
+    const header = (kicker, title) => {
+      y = 52;
+      if (logo) { const lw = 42, lh = lw * logo.h / logo.w; doc.addImage(logo.d, 'PNG', W - MX - lw, y - 16, lw, lh); }
+      setF(8.5, 'bold', RED); doc.text(String(kicker).toUpperCase(), MX, y, { charSpace: 1 });
+      y += 20; setF(24, 'bold', INK); doc.text(title, MX, y);
+      y += 9; draw(RED); doc.setLineWidth(2.5); doc.line(MX, y, MX + 44, y); y += 24;
+    };
+    const infoRow = (items) => {
+      const n = items.length, colW = CW / n;
+      items.forEach((it, i) => { const x = MX + i * colW; setF(7.5, 'bold', DIM); doc.text(String(it[0]).toUpperCase(), x, y, { charSpace: 0.4 });
+        setF(9.5, 'bold', INK); doc.text(doc.splitTextToSize(String(it[1] == null || it[1] === '' ? '—' : it[1]), colW - 6), x, y + 13); });
+      y += 36; draw(LN); doc.setLineWidth(1); doc.line(MX, y, W - MX, y); y += 20;
+    };
+    const foot = () => { const fy = H - 40; draw(LN); doc.setLineWidth(1); doc.line(MX, fy - 12, W - MX, fy - 12);
+      setF(9, 'normal', DIM); doc.text(lang === 'no' ? (S_.invoice_footer || tr('foot_thanks')) : tr('foot_thanks'), MX, fy);
+      doc.text(cWeb + '  |  ' + cPhone, W - MX, fy, { align: 'right' }); };
+
+    // ---------- ITINERARY (page 1) ----------
+    header(tr('itin_kicker'), tr('itin_title'));
+    infoRow([[tr('for'), b.client_name], [tr('trip'), (b.arrival_city || '') + ' -> ' + (b.departure_city || '')],
+      [tr('dates'), fmtDate(b.arrival_date) + ' - ' + fmtDate(b.departure_date)],
+      [tr('travelers'), ((b.adults || 0) + (b.kids || 0)) + ' ' + tr('persons')], [tr('ref'), b.reference]]);
+    const days = Array.isArray(b.daily_itinerary) ? b.daily_itinerary : [];
+    if (!days.length) { setF(10, 'normal', DIM); doc.text(tr('no_itin'), MX, y); y += 20; }
+    days.forEach((day, i) => {
+      const acts = day.activities || [];
+      ensure(24 + acts.length * 22 + 12);
+      fill(RED); doc.circle(MX + 7, y - 3, 8, 'F'); setF(9, 'bold', [255, 255, 255]); doc.text(String(day.day || i + 1), MX + 7, y - 3, { align: 'center', baseline: 'middle' });
+      setF(11.5, 'bold', INK); doc.text(tr('day') + ' ' + (day.day || i + 1) + (day.date ? (' · ' + fmtDate(day.date)) : '') + (day.city ? (' · ' + day.city) : ''), MX + 22, y);
+      y += 17;
+      acts.forEach((a) => {
+        ensure(22);
+        setF(9, 'bold', RED); doc.text(String(a.time || ''), MX + 22, y);
+        setF(9.5, 'bold', INK); doc.text(trAct(a.type || ''), MX + 74, y);
+        if (a.details) { setF(9, 'normal', DIM); const dl = doc.splitTextToSize(String(a.details), CW - 74); doc.text(dl, MX + 74, y + 12); y += 12 + (dl.length - 1) * 11; }
+        y += 16;
+      });
+      y += 10;
+    });
+    const inc = (b.included || []).filter((x) => x && String(x).trim());
+    const exc = (b.excluded || []).filter((x) => x && String(x).trim());
+    if (inc.length || exc.length) {
+      ensure(28); const colW = CW / 2;
+      setF(9.5, 'bold', INK); if (inc.length) doc.text(tr('included'), MX, y); if (exc.length) doc.text(tr('not_included'), MX + colW, y); y += 15;
+      const rows = Math.max(inc.length, exc.length);
+      for (let r = 0; r < rows; r++) { ensure(13);
+        if (inc[r]) { setF(9, 'normal', GRN); doc.text('+ ' + inc[r], MX, y, { maxWidth: colW - 8 }); }
+        if (exc[r]) { setF(9, 'normal', [180, 60, 45]); doc.text('- ' + exc[r], MX + colW, y, { maxWidth: colW - 8 }); }
+        y += 13;
+      }
+    }
+    foot();
+
+    // ---------- INVOICE (page 2) ----------
+    doc.addPage();
+    header(tr('inv_kicker'), tr('inv_title'));
+    const method = b.payment_method || 'Bank Transfer';
+    infoRow([[tr('billed_to'), b.client_name], [tr('invoice_no'), (S_.invoice_prefix || 'INV') + '-' + ((b.reference || '').split('-').pop())],
+      [tr('date'), new Date().toLocaleDateString(DOC_LOCALE[lang] || undefined)], [tr('method'), method], [tr('status'), STATUS_LABEL[b.status] || b.status]]);
+    if (b.address || b.email || b.phone) {
+      setF(8, 'bold', DIM); doc.text(tr('bill_to').toUpperCase(), MX, y); y += 14;
+      setF(12, 'bold', INK); doc.text(String(b.client_name || ''), MX, y); y += 14;
+      setF(9, 'normal', DIM); if (b.address) { doc.text(String(b.address), MX, y); y += 12; }
+      const cp = [b.email, b.phone].filter(Boolean).join('   ·   '); if (cp) { doc.text(cp, MX, y); y += 12; } y += 10;
+    }
+    setF(8, 'bold', DIM); doc.text(tr('description').toUpperCase(), MX, y); doc.text(tr('amount').toUpperCase(), W - MX, y, { align: 'right' });
+    y += 6; draw(LN); doc.setLineWidth(1); doc.line(MX, y, W - MX, y); y += 17;
+    const sub = +b.selling_price || 0;
+    setF(11, 'bold', INK); doc.text(tr('package'), MX, y); doc.text(m(sub), W - MX, y, { align: 'right' }); y += 14;
+    setF(9, 'normal', DIM); doc.text((b.total_nights || 0) + ' ' + tr('nights') + ': ' + (b.arrival_city || '') + ' -> ' + (b.departure_city || ''), MX, y); y += 12;
+    doc.text(((b.adults || 0) + (b.kids || 0)) + ' ' + tr('travelers_word'), MX, y); y += 24;
+    const depEnabled = b.deposit_enabled !== false, depPct = +S_.deposit_pct || 20;
+    const dep = depEnabled ? Math.round(sub * depPct / 100) : 0, paid = +b.paid_amount || 0;
+    const restToPay = sub - dep, balance = paid > 0 ? (sub - paid) : restToPay;
+    const tLX = W - MX - 180, tVX = W - MX;
+    const totRow = (label, val, c, bold) => { setF(bold ? 11 : 10, bold ? 'bold' : 'normal', bold ? INK : DIM); doc.text(label, tLX, y); setF(bold ? 12 : 10, bold ? 'bold' : 'normal', c || INK); doc.text(val, tVX, y, { align: 'right' }); y += 16; };
+    totRow(tr('total_amount'), m(sub), INK);
+    if (depEnabled) totRow(tr('deposit_confirm') + ' (' + depPct + '%)', m(dep), RED);
+    if (paid > 0) totRow(tr('paid'), '-' + m(paid), GRN);
+    draw(INK); doc.setLineWidth(1.2); doc.line(tLX, y - 4, tVX, y - 4); y += 4;
+    totRow(paid > 0 ? tr('balance_due') : tr('rest_to_pay'), m(balance), balance > 0 ? [200, 50, 40] : GRN, true);
+    y += 8;
+    const payNote = depEnabled ? trFmt('paynote_deposit', { dep: m(dep), pct: depPct, rest: m(sub - dep) }) : trFmt('paynote_full', { sub: m(sub) });
+    setF(9, 'normal', DIM); const nl = doc.splitTextToSize(payNote, CW - 20); const nh = nl.length * 12 + 16; fill([247, 247, 245]); doc.roundedRect(MX, y - 2, CW, nh, 4, 4, 'F'); setF(9, 'normal', [70, 70, 76]); doc.text(nl, MX + 10, y + 12); y += nh + 18;
+    const isBank = /bank|transfer|virement/i.test(method);
+    const bank = isBank ? [[tr('bank_name'), S_.bank_name || 'BMCE Bank of Africa'], [tr('account_name'), S_.account_name || cName], ['RIB:', S_.rib || '011 450 0000 123456789012 34'], ['SWIFT:', S_.swift || 'BMCE MAMC']]
+      : [[method + ':', S_.payment_info || S_.company_email || cPhone]];
+    const boxH = 30 + bank.length * 14;
+    ensure(boxH + 10);
+    draw(LN); doc.setLineWidth(1); doc.roundedRect(MX, y, CW, boxH, 6, 6, 'S');
+    let by = y + 20; setF(14, 'bold', INK); doc.text(isBank ? tr('bank_details') : (tr('pay_via') + ' ' + method), MX + 14, by); by += 18;
+    bank.forEach((row) => { setF(9, 'bold', DIM); doc.text(String(row[0]), MX + 14, by); setF(9, 'normal', INK); doc.text(String(row[1]), MX + 130, by); by += 14; });
+    y += boxH + 16;
+    if (S_.terms_conditions) {
+      ensure(30); setF(9, 'bold', INK); doc.text(tr('terms'), MX, y); y += 14;
+      setF(8.5, 'normal', DIM); const tl = doc.splitTextToSize(String(S_.terms_conditions), CW);
+      tl.forEach((ln) => { ensure(11); doc.text(ln, MX, y); y += 11; });
+      y += 8;
+    }
+    if (stamp) { const sw = 118, sh = sw * stamp.h / stamp.w; const sy = Math.min(y + 6, BOTTOM - sh); doc.addImage(stamp.d, 'PNG', W - MX - sw, sy, sw, sh); }
+    foot();
+    return doc;
+  }
+
   function DocModal({ booking, initialType, onClose, settings, onEdit }) {
     const [type, setType] = useState(initialType || 'itinerary');
     const [lang, setLang] = useState((booking && booking.doc_lang) || 'no');
@@ -1174,6 +1305,17 @@
       const go = () => { window.print(); setTimeout(cleanup, 1200); };
       if (document.fonts && document.fonts.ready) { document.fonts.ready.then(() => setTimeout(go, 60)); } else { setTimeout(go, 120); }
     };
+    // Real file download built with jsPDF (never blank). Falls back to native print only if jsPDF is unavailable.
+    const [dlBusy, setDlBusy] = useState(false);
+    const downloadPdf = async () => {
+      if (dlBusy) return; setDlBusy(true);
+      try {
+        const pdf = await buildBookingPdf(b, S, { lang, curr });
+        if (!pdf) { doPrint(); return; }
+        pdf.save(fname);
+      } catch (e) { console.error('PDF build failed', e); doPrint(); }
+      finally { setDlBusy(false); }
+    };
     const docLabel = type === 'invoice' ? 'fakturaen' : 'reiseplanen';
     const shareSubject = 'MarrakechStory — ' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + (b.reference ? (' ' + b.reference) : '');
     const shareBody = 'Hei ' + (b.client_name || '') + ',\n\nVedlagt finner du ' + docLabel + ' for reisen din til ' + (b.arrival_city || 'Marokko') + '.'
@@ -1193,7 +1335,7 @@
         h('div', { className: 'msa-doc-head-right' },
           h('label', { className: 'msa-btn msa-btn-sm msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
             h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
-          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: doPrint, title: 'Opens the print dialog — choose “Save as PDF”' }, ICON.pdf(), 'Download PDF'),
+          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: downloadPdf, disabled: dlBusy, title: 'Download the itinerary + invoice as a PDF file' }, ICON.pdf(), dlBusy ? 'Preparing…' : 'Download PDF'),
           h('a', { className: 'msa-btn msa-btn-sm', href: mailHref, title: b.email ? ('Send via email to ' + b.email) : 'Compose email (no address on file)' }, ICON.requests(), 'Email'),
           h('a', { className: 'msa-btn msa-btn-sm', href: waHref, target: '_blank', title: b.phone ? ('Send via WhatsApp to ' + b.phone) : 'Send via WhatsApp' }, ICON.whatsapp(), 'WhatsApp'),
           h('button', { className: 'msa-btn msa-btn-sm msa-doc-close', onClick: onClose }, ICON.x()))),

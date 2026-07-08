@@ -91,9 +91,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=426" />
-  <link rel="stylesheet" href="apple-redesign.css?v=426" />
-  <link rel="stylesheet" href="admin.css?v=426" />
+  <link rel="stylesheet" href="styles.css?v=427" />
+  <link rel="stylesheet" href="apple-redesign.css?v=427" />
+  <link rel="stylesheet" href="admin.css?v=427" />
 
   <!-- Google Analytics 4 (Measurement ID G-2KQ6SRF86C) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2KQ6SRF86C"></script>
@@ -280,6 +280,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <script>if (!window.html2pdf) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"><\/scr'+'ipt>'); }</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" crossorigin="anonymous"></script>
+  <script>if (!(window.jspdf && window.jspdf.jsPDF)) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"><\/scr'+'ipt>'); }</script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous"></script>
   <script>if (!window.supabase) { document.write('<scr'+'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>'); }</script>
@@ -289,35 +291,35 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
 
   <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
-  <script src="src/env.js?v=426"></script>
-  <script src="src/supabase.js?v=426"></script>
-  <script src="src/data.js?v=426"></script>
+  <script src="src/env.js?v=427"></script>
+  <script src="src/supabase.js?v=427"></script>
+  <script src="src/data.js?v=427"></script>
 
   <!--
     JSX modules. All bumped to the same cache version on every release
     so a stale CDN copy never co-exists with a fresh one.
   -->
-  <script type="text/babel" src="src/i18n.jsx?v=426"></script>
-  <script type="text/babel" src="src/icons.jsx?v=426"></script>
-  <script type="text/babel" src="src/motion.jsx?v=426"></script>
-  <script type="text/babel" src="src/hero.jsx?v=426"></script>
-  <script type="text/babel" src="src/insta-phone.jsx?v=426"></script>
-  <script type="text/babel" src="src/hero-tabs.jsx?v=426"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=426"></script>
-  <script type="text/babel" src="src/listing-detail.jsx?v=426"></script>
-  <script type="text/babel" src="src/season-trip.jsx?v=426"></script>
-  <script type="text/babel" src="src/itineraries.jsx?v=426"></script>
-  <script type="text/babel" src="src/booking.jsx?v=426"></script>
-  <script type="text/babel" src="src/catalog.jsx?v=426"></script>
-  <script type="text/babel" src="src/form.jsx?v=426"></script>
-  <script type="text/babel" src="src/extras.jsx?v=426"></script>
-  <script type="text/babel" src="src/extras2.jsx?v=426"></script>
-  <script type="text/babel" src="src/weather.jsx?v=426"></script>
-  <script type="text/babel" src="src/auth.jsx?v=426"></script>
-  <script type="text/babel" src="src/reviews.jsx?v=426"></script>
-  <script type="text/babel" src="src/app.jsx?v=426"></script>
-  <script type="text/babel" src="src/admin.jsx?v=426"></script>
-  <script type="text/babel" src="src/apple-fx.jsx?v=426"></script>
+  <script type="text/babel" src="src/i18n.jsx?v=427"></script>
+  <script type="text/babel" src="src/icons.jsx?v=427"></script>
+  <script type="text/babel" src="src/motion.jsx?v=427"></script>
+  <script type="text/babel" src="src/hero.jsx?v=427"></script>
+  <script type="text/babel" src="src/insta-phone.jsx?v=427"></script>
+  <script type="text/babel" src="src/hero-tabs.jsx?v=427"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=427"></script>
+  <script type="text/babel" src="src/listing-detail.jsx?v=427"></script>
+  <script type="text/babel" src="src/season-trip.jsx?v=427"></script>
+  <script type="text/babel" src="src/itineraries.jsx?v=427"></script>
+  <script type="text/babel" src="src/booking.jsx?v=427"></script>
+  <script type="text/babel" src="src/catalog.jsx?v=427"></script>
+  <script type="text/babel" src="src/form.jsx?v=427"></script>
+  <script type="text/babel" src="src/extras.jsx?v=427"></script>
+  <script type="text/babel" src="src/extras2.jsx?v=427"></script>
+  <script type="text/babel" src="src/weather.jsx?v=427"></script>
+  <script type="text/babel" src="src/auth.jsx?v=427"></script>
+  <script type="text/babel" src="src/reviews.jsx?v=427"></script>
+  <script type="text/babel" src="src/app.jsx?v=427"></script>
+  <script type="text/babel" src="src/admin.jsx?v=427"></script>
+  <script type="text/babel" src="src/apple-fx.jsx?v=427"></script>
 
   <!-- ── Auto-syncing trip structured data (TouristTrip ItemList from live data) ── -->
   <script>
