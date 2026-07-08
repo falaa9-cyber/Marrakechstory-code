@@ -1160,6 +1160,20 @@
           h('div', { className: 'msa-doc-sign' }, h('img', { src: 'assets/stamp.png', alt: '', className: 'msa-doc-stamp', crossOrigin: 'anonymous', onError: (e) => { e.target.style.display = 'none'; } }))),
         h('div', { className: 'msa-doc-foot' }, h('p', null, lang === 'no' ? (S.invoice_footer || t('foot_thanks')) : t('foot_thanks')), h('p', null, cWeb + ' | ' + cPhone))); };
     const fname = 'MarrakechStory-' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + '-' + (b.reference || 'MS') + '.pdf';
+    // Native print-to-PDF — uses the browser's own renderer (never blank/squished, crisp
+    // selectable text). Isolates #msa-print-both via body.ms-print-doc + the @media print CSS.
+    const doPrint = () => {
+      try { document.querySelectorAll('#msa-print-both details').forEach((d) => { d.open = true; }); } catch (e) {}
+      const oldTitle = document.title;
+      document.title = fname.replace(/\.pdf$/i, '');
+      document.body.classList.add('ms-print-doc');
+      let cleaned = false;
+      const cleanup = () => { if (cleaned) return; cleaned = true; document.body.classList.remove('ms-print-doc'); document.title = oldTitle; window.removeEventListener('afterprint', cleanup); };
+      window.addEventListener('afterprint', cleanup);
+      // Give web fonts a beat to be ready, then open the print dialog.
+      const go = () => { window.print(); setTimeout(cleanup, 1200); };
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(() => setTimeout(go, 60)); } else { setTimeout(go, 120); }
+    };
     const docLabel = type === 'invoice' ? 'fakturaen' : 'reiseplanen';
     const shareSubject = 'MarrakechStory — ' + (type === 'invoice' ? 'Faktura' : 'Reiseplan') + (b.reference ? (' ' + b.reference) : '');
     const shareBody = 'Hei ' + (b.client_name || '') + ',\n\nVedlagt finner du ' + docLabel + ' for reisen din til ' + (b.arrival_city || 'Marokko') + '.'
@@ -1179,7 +1193,7 @@
         h('div', { className: 'msa-doc-head-right' },
           h('label', { className: 'msa-btn msa-btn-sm msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
             h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
-          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => exportPDF(fname) }, ICON.pdf(), 'Download'),
+          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: doPrint, title: 'Opens the print dialog — choose “Save as PDF”' }, ICON.pdf(), 'Download PDF'),
           h('a', { className: 'msa-btn msa-btn-sm', href: mailHref, title: b.email ? ('Send via email to ' + b.email) : 'Compose email (no address on file)' }, ICON.requests(), 'Email'),
           h('a', { className: 'msa-btn msa-btn-sm', href: waHref, target: '_blank', title: b.phone ? ('Send via WhatsApp to ' + b.phone) : 'Send via WhatsApp' }, ICON.whatsapp(), 'WhatsApp'),
           h('button', { className: 'msa-btn msa-btn-sm msa-doc-close', onClick: onClose }, ICON.x()))),

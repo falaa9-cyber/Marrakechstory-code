@@ -1706,3 +1706,29 @@
 .msa-sup-spend .msa-srcbar-v { width: auto; min-width: 96px; white-space: nowrap; }
 .msa-sup-spend .msa-legend { font-size: 12.5px; }
 @media (max-width: 860px) { .msa-sup-spend-grid { grid-template-columns: 1fr; gap: 22px; } }
+
+/* ============================================================
+   Native print-to-PDF for the itinerary + invoice document.
+   Triggered by adding body.ms-print-doc before window.print().
+   Uses the browser's own renderer — never blank, never squished.
+   ============================================================ */
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  body.ms-print-doc * { visibility: hidden !important; }
+  body.ms-print-doc #msa-print-both,
+  body.ms-print-doc #msa-print-both * { visibility: visible !important; }
+  body.ms-print-doc #msa-print-both {
+    position: absolute !important; left: 0 !important; top: 0 !important;
+    width: 100% !important; margin: 0 !important; background: #fff !important; z-index: 2147483000 !important;
+  }
+  body.ms-print-doc #msa-print-both .msa-print-page {
+    width: 100% !important; box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important;
+  }
+  body.ms-print-doc #msa-print-both .msa-print-page-2 { break-before: page; page-break-before: always; }
+  body.ms-print-doc #msa-print-both .msa-doc-docs,
+  body.ms-print-doc #msa-print-both .msa-print-hide { display: none !important; }
+  /* keep colours/backgrounds in the printout */
+  body.ms-print-doc #msa-print-both, body.ms-print-doc #msa-print-both * {
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+  }
+}
