@@ -940,6 +940,13 @@
       window.html2pdf().set({ html2canvas: { scale: SCALE, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: -window.scrollY } })
         .from(el).toCanvas().get('canvas', (c) => resolve(c)).then(() => {}, () => resolve(null));
     });
+    const waitReady = async () => {
+      try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+      // Wait for logo/stamp images inside the print pages to finish loading.
+      const imgs = Array.prototype.slice.call(src.querySelectorAll('img'));
+      await Promise.all(imgs.map((im) => (im.complete && im.naturalWidth) ? null : new Promise((r) => { im.onload = im.onerror = r; setTimeout(r, 2500); })));
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    };
     const cropToContent = (canvas) => {
       const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
       const img = ctx.getImageData(0, 0, W, H).data;
@@ -966,6 +973,7 @@
     };
     setTimeout(async () => {
       reveal();
+      await waitReady();
       const cropped = [];
       try { for (const el of pages) { const c = await captureOne(el); if (c) cropped.push(cropToContent(c)); } }
       finally { restore(); }
