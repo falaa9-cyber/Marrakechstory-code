@@ -923,24 +923,22 @@
   function exportPDF(filename, srcId) {
     const src = document.getElementById(srcId || 'msa-print-both'); if (!src) return;
     if (!window.html2pdf) { window.print(); return; }
-    const pageHTMLs = Array.prototype.slice.call(src.querySelectorAll('.msa-print-page')).map((p) => p.outerHTML);
-    if (!pageHTMLs.length) return;
-    const WRAP = 1160, PAGEW = 794, SCALE = 2.5;
-    const captureOne = (html) => new Promise((resolve) => {
-      const holder = document.createElement('div');
-      holder.style.cssText = 'position:absolute; top:0; left:0; width:' + WRAP + 'px; background:#fff; z-index:-1; display:flex; justify-content:center;';
-      const inner = document.createElement('div');
-      inner.style.cssText = 'width:' + PAGEW + 'px; background:#fff;';
-      inner.innerHTML = html;
-      inner.querySelectorAll('details').forEach((d) => { d.open = true; });
-      holder.appendChild(inner);
-      document.body.appendChild(holder);
-      const H = holder.scrollHeight;
-      const done = (c) => { try { holder.remove(); } catch (e) {} resolve(c); };
-      // windowWidth stays desktop (1280) so the responsive CSS renders the desktop
-      // layout, not the narrow mobile one.
-      window.html2pdf().set({ html2canvas: { scale: SCALE, useCORS: true, backgroundColor: '#ffffff', width: WRAP, height: H, windowWidth: 1280, windowHeight: H, scrollX: 0, scrollY: 0 } })
-        .from(holder).toCanvas().get('canvas', (c) => done(c)).then(() => {}, () => done(null));
+    const pages = Array.prototype.slice.call(src.querySelectorAll('.msa-print-page'));
+    if (!pages.length) return;
+    const PAGEW = 794, SCALE = 2.5;
+    // html2canvas shrink-wraps re-parsed/off-screen HTML to min-content (the "narrow
+    // squished PDF" bug). It DOES render the live, styled element correctly — so we
+    // briefly move the real print container on-screen (hidden behind a white cover)
+    // and capture each page element directly, then restore it off-screen.
+    const prevCss = src.style.cssText;
+    const cover = document.createElement('div');
+    cover.style.cssText = 'position:fixed; inset:0; background:#fff; z-index:2147483646;';
+    const reveal = () => { document.body.appendChild(cover); src.style.cssText = 'position:fixed; top:0; left:0; width:' + PAGEW + 'px; background:#fff; z-index:2147483000;'; };
+    const restore = () => { src.style.cssText = prevCss; try { cover.remove(); } catch (e) {} };
+    pages.forEach((p) => p.querySelectorAll('details').forEach((d) => { d.open = true; }));
+    const captureOne = (el) => new Promise((resolve) => {
+      window.html2pdf().set({ html2canvas: { scale: SCALE, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: -window.scrollY } })
+        .from(el).toCanvas().get('canvas', (c) => resolve(c)).then(() => {}, () => resolve(null));
     });
     const cropToContent = (canvas) => {
       const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
@@ -967,8 +965,10 @@
       return o;
     };
     setTimeout(async () => {
+      reveal();
       const cropped = [];
-      for (const html of pageHTMLs) { const c = await captureOne(html); if (c) cropped.push(cropToContent(c)); }
+      try { for (const el of pages) { const c = await captureOne(el); if (c) cropped.push(cropToContent(c)); } }
+      finally { restore(); }
       if (!cropped.length) return;
       const tiny = document.createElement('div'); tiny.style.cssText = 'width:1px;height:1px;'; document.body.appendChild(tiny);
       window.html2pdf().set({ jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, html2canvas: { scale: 1 }, margin: 0 })
