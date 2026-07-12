@@ -1693,10 +1693,47 @@
     const bySource = {}; bookings.forEach(b => { const k = b.lead_source || 'other'; bySource[k] = (bySource[k] || 0) + 1; });
     const sources = Object.entries(bySource).sort((a, b) => b[1] - a[1]);
     const maxSrc = Math.max(1, ...sources.map(s => s[1]));
+    // ── Benefit breakdown — average net profit per day / month / year, and the earning period ──
+    const profitOf = (b) => (+b.selling_price || 0) - (+b.total_cost || 0);
+    const datedB = bookings.filter(b => b.arrival_date);
+    const dayKeys = datedB.map(b => b.arrival_date.slice(0, 10)).sort();
+    const firstD = dayKeys[0] || null, lastD = dayKeys[dayKeys.length - 1] || null;
+    const spanDays = firstD ? Math.max(1, Math.round((new Date(lastD) - new Date(firstD)) / 864e5) + 1) : 0;
+    const perDay = spanDays ? profit / spanDays : 0;
+    const perMonth = perDay * 30.44, perYear = perDay * 365.25;
+    const byYearP = {}; datedB.forEach(b => { const y = b.arrival_date.slice(0, 4); byYearP[y] = (byYearP[y] || 0) + profitOf(b); });
+    const yearsP = Object.keys(byYearP).sort();
+    const maxYearP = Math.max(1, ...yearsP.map(y => Math.abs(byYearP[y])));
+    const byMonthP = {}; datedB.forEach(b => { const k = b.arrival_date.slice(0, 7); byMonthP[k] = (byMonthP[k] || 0) + profitOf(b); });
+    const monthsP = Object.keys(byMonthP).sort().slice(-12);
+    const maxMonthP = Math.max(1, ...monthsP.map(k => Math.abs(byMonthP[k])));
+    const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monLbl = (k) => MON3[+k.slice(5, 7) - 1] + ' ' + k.slice(2, 4);
     const fin = (label, value, cls, sub) => h('div', { className: 'msa-fin-card ' + (cls || '') }, h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-fin-value' }, value), sub && h('span', { className: 'msa-dim' }, sub));
     return h('div', { className: 'msa-page' },
       h('header', { className: 'msa-page-head' }, h('h1', null, 'Finance'), h('p', null, 'Revenue, costs and profitability · ' + bookings.length + ' bookings')),
       h('div', { className: 'msa-fin-grid' }, fin('Total Revenue', kr(sales), 'msa-kpi-income', bookings.length + ' bookings'), fin('Total Costs', kr(costs), 'msa-kpi-cost', 'operational'), fin('Net Profit', kr(profit), 'msa-kpi-benefit', margin.toFixed(1) + '% margin')),
+
+      // Benefit breakdown — average earnings per day / month / year + earning period
+      h('div', { className: 'msa-card msa-fin-breakdown' },
+        h('div', { className: 'msa-card-head' }, h('h3', null, 'Benefit breakdown'),
+          firstD ? h('span', { className: 'msa-dim' }, 'From ' + fmtDate(firstD) + (lastD && lastD !== firstD ? (' to ' + fmtDate(lastD)) : '') + ' · ' + spanDays + ' days') : null),
+        firstD ? h(R.Fragment, null,
+          h('div', { className: 'msa-fin-grid' },
+            fin('Per day', kr(perDay), 'msa-kpi-benefit', 'avg net profit'),
+            fin('Per month', kr(perMonth), 'msa-kpi-benefit', 'avg net profit'),
+            fin('Per year', kr(perYear), 'msa-kpi-benefit', 'avg net profit')),
+          h('div', { className: 'msa-cols msa-cols-12', style: { marginTop: 16 } },
+            h('div', null, h('div', { className: 'msa-fin-k', style: { marginBottom: 8 } }, 'Net profit by year'),
+              h('div', { className: 'msa-srcbars' }, yearsP.map((yy, i) => { const v = byYearP[yy]; return h('div', { key: i, className: 'msa-srcbar' },
+                h('span', { className: 'msa-srcbar-l' }, yy), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (Math.abs(v) / maxYearP * 100) + '%', background: v >= 0 ? '#34c759' : '#e0432a' } })),
+                h('span', { className: 'msa-srcbar-v' }, kr(v))); }))),
+            h('div', null, h('div', { className: 'msa-fin-k', style: { marginBottom: 8 } }, 'Net profit by month'),
+              h('div', { className: 'msa-srcbars' }, monthsP.map((k, i) => { const v = byMonthP[k]; return h('div', { key: i, className: 'msa-srcbar' },
+                h('span', { className: 'msa-srcbar-l' }, monLbl(k)), h('div', { className: 'msa-srcbar-track' }, h('div', { className: 'msa-srcbar-fill', style: { width: (Math.abs(v) / maxMonthP * 100) + '%', background: v >= 0 ? '#34c759' : '#e0432a' } })),
+                h('span', { className: 'msa-srcbar-v' }, kr(v))); })))))
+          : h('div', { className: 'msa-empty' }, 'No dated bookings yet — add arrival dates to see your earning rate.')),
+
       h('div', { className: 'msa-cols msa-cols-12' },
         h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Cost breakdown')),
           h('div', { className: 'msa-chart-row' }, h(Donut, { segments: [{ label: 'Accommodation', value: acc, color: '#e0432a' }, { label: 'Transportation', value: tr, color: '#0a84ff' }, { label: 'Activities', value: ac, color: '#34c759' }] }),

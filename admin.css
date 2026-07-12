@@ -1732,3 +1732,8 @@
     -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
   }
 }
+
+/* Finance — benefit breakdown (per day/month/year + by year/month) */
+.msa-fin-breakdown .msa-srcbar-l { width: 64px; text-transform: none; font-variant-numeric: tabular-nums; }
+.msa-fin-breakdown .msa-srcbar-v { width: auto; min-width: 104px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.msa-fin-breakdown .msa-fin-grid { margin-top: 4px; }
