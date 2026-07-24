@@ -40,7 +40,7 @@
       };
       const { error } = await window.MS_SB
         .from('subscribers')
-        .upsert(row, { onConflict: 'email', ignoreDuplicates: false });
+        .upsert(row, { onConflict: 'email', ignoreDuplicates: true });
       if (error) {
         console.warn('[MS_SB] subscribers upsert failed', error.message);
         return { ok: false, error: error.message };

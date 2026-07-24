@@ -1,5 +1,17 @@
 # Marrakech Story — Website
 
+## Repository status (July 24, 2026)
+
+This repository is no longer a "static HTML only / no build step" site in practice.
+
+- The project builds with `vite` via `npm run dev` and `npm run build`.
+- The site is connected to the existing Supabase project `xcpkujguvrhpsmftgxtn`.
+- Browser code uses the publishable key only.
+- The admin console uses signed URLs for Supabase Storage files.
+- The checked-in `supabase/` folder now includes the live edge-function set plus the July 24, 2026 security migrations.
+
+Some sections below are historical implementation notes from before the Vite/Supabase integration. Treat [`SUPABASE.md`](SUPABASE.md) and `package.json` as the source of truth for current setup and commands.
+
 Boutique luxury travel agency operating between Norway and Morocco, primarily serving Norwegian and Scandinavian travellers. Marrakechstory.com is a fully static single-page React app — no build step, no npm, no backend — runnable from any plain HTTP server.
 
 > **Brand voice:** quiet luxury, editorial, generous white space, never markety.  

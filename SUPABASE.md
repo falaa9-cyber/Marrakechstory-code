@@ -1,52 +1,80 @@
-# Supabase — operations notes
+# Supabase — current project notes
 
-## What's deployed
+## Project
 
-| Piece | Location |
-|---|---|
-| Table | `public.form_submissions` (RLS on, anon-insert only) |
-| Trigger | `trg_notify_form_submission` → `net.http_post` → Edge Function |
-| Edge Function | `notify-submission` (DB webhook target, no JWT) |
+- Project name: `falaa9-cyber's Project`
+- Project ID: `xcpkujguvrhpsmftgxtn`
+- Region: `eu-west-1`
 
-## Schema
+## Current architecture
 
-See [`supabase/migrations/20260519_form_submissions.sql`](supabase/migrations/20260519_form_submissions.sql).
-Apply with `supabase db push` once the CLI is wired up.
+The website uses the Supabase browser client with the existing project's publishable key for:
 
-## Edge Function secrets
+- Website account sign-in and password reset
+- Customer itinerary / booking inquiry capture
+- Customer portal bookings and messages
+- Admin console data access under RLS
+- Admin file uploads in the `booking-files` bucket
+- Lightweight page-view analytics
 
-Set in **Supabase Studio → Project Settings → Edge Functions → Secrets**:
+The repo now tracks these live edge functions:
 
-| Key | Purpose |
-|---|---|
-| `WEBHOOK_SHARED_SECRET` | Optional. If set, the function rejects calls that don't send the matching `X-Webhook-Secret` header. Also add the same value to **Vault** under name `WEBHOOK_SHARED_SECRET` so the database trigger can read it. |
-| `SLACK_WEBHOOK_URL` | Optional. Slack incoming-webhook URL — every new submission is posted as a Slack message. |
-| `RESEND_API_KEY` | Optional. Resend API key. |
-| `ADMIN_EMAIL_TO` | Optional. Inbox that receives the email summary. |
-| `ADMIN_EMAIL_FROM` | Optional. Defaults to `Marrakech Story <noreply@marrakechstory.com>`. Must be a Resend-verified sender. |
+- `notify-submission`
+- `agent-draft`
+- `client-account`
+- `manage-partner`
+- `list-submissions`
+- `ga4-insights`
 
-After updating any secret, Supabase redeploys the function automatically.
+## July 24, 2026 hardening changes
 
-## Reading submissions
+- `booking-files` is now a private bucket.
+- Admin file links now use signed URLs instead of public URLs.
+- Staff/helper RLS functions were moved into a private schema for policy use.
+- Public execution was revoked from privileged helper functions and trigger functions.
+- `form_submissions`, `subscribers`, and `page_views` now have validated public-write policies instead of blanket `true` checks.
+- Subscriber writes are insert-only from the browser; duplicate emails are ignored instead of merged client-side.
 
-Use Supabase Studio (Table editor → `public.form_submissions`) or any SQL client connected with the service role:
+Migration files added in this repo:
 
-```sql
-select created_at, kind, name, email, phone, start_date, end_date, duration, payload
-from public.form_submissions
-order by created_at desc
-limit 50;
-```
+- [`supabase/migrations/20260724113000_harden_rls_and_storage.sql`](supabase/migrations/20260724113000_harden_rls_and_storage.sql)
+- [`supabase/migrations/20260724121500_rls_policy_cleanup.sql`](supabase/migrations/20260724121500_rls_policy_cleanup.sql)
+- [`supabase/migrations/20260724124500_current_user_email_helper.sql`](supabase/migrations/20260724124500_current_user_email_helper.sql)
 
-## Local dev
+## Required env vars
 
-The site is static — open `index.html` or run `python3 -m http.server 8080`. `src/env.js` is committed with the public URL + publishable key so submissions go straight to the live Supabase project.
+Frontend build/runtime:
 
-To rotate the publishable key for a build:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+
+Edge Function secrets:
+
+- `WEBHOOK_SHARED_SECRET`
+- `SLACK_WEBHOOK_URL`
+- `RESEND_API_KEY`
+- `ADMIN_EMAIL_TO`
+- `ADMIN_EMAIL_FROM`
+- `ADMIN_PASSWORD` for `list-submissions`
+
+The service-role key must stay server-side only. Never expose it in `src/`, `dist/`, or any `NEXT_PUBLIC_` / `VITE_` variable.
+
+## Remaining platform warnings
+
+- `citext` is still installed in `public`; moving it would require a separate schema/extension migration.
+- Supabase Auth leaked-password protection is still disabled and should be enabled in the Auth settings.
+- Some database indexes are currently unused; they are safe to leave in place until query patterns are reviewed with production traffic.
+
+## Local and deploy flow
+
+Build with the publishable key only:
 
 ```sh
-VITE_SUPABASE_URL=...    VITE_SUPABASE_PUBLISHABLE_KEY=... \
-  npm run build
+VITE_SUPABASE_URL=... \
+VITE_SUPABASE_PUBLISHABLE_KEY=... \
+npm run build
 ```
 
-The `generate-env-js` Vite plugin overwrites `dist/src/env.js` with whatever's in `VITE_SUPABASE_*` so the deployed bundle uses those values instead of the source defaults.
+The Vite `generate-env-js` step writes those public values into `dist/src/env.js` for deployment output.

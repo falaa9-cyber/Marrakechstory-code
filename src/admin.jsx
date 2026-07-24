@@ -59,6 +59,29 @@
     let j = null; try { j = await r.json(); } catch (e) {}
     return j || { ok: r.ok };
   }
+  function roleFromUser(user) {
+    const email = String((user && user.email) || '').trim().toLowerCase();
+    if (!email) return null;
+    return email === ADMIN_EMAIL ? 'admin' : 'partner';
+  }
+  async function ensureStaffAccess(user) {
+    const sb = getSB();
+    if (!sb || !user || !user.email) return null;
+    const { data, error } = await sb.from('admin_settings').select('id').eq('id', 1).maybeSingle();
+    if (error || !data) return null;
+    return roleFromUser(user);
+  }
+  async function openStorageFile(bucket, path) {
+    try {
+      const sb = getSB();
+      if (!sb || !bucket || !path) return;
+      const { data, error } = await sb.storage.from(bucket).createSignedUrl(path, 60 * 30);
+      if (error || !data || !data.signedUrl) throw error || new Error('signed url unavailable');
+      window.open(data.signedUrl, '_blank', 'noopener');
+    } catch (e) {
+      alert('Could not open file: ' + ((e && e.message) || e || 'Unknown error'));
+    }
+  }
 
   // ---- format ----
   const nf = (n) => (Number(n) || 0).toLocaleString('en-US');
@@ -370,10 +393,10 @@
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
       const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pass });
       if (error) { setBusy(false); setErr(error.message); return; }
-      const { data: roleData } = await sb.rpc('ms_my_role');
+      const roleData = await ensureStaffAccess(data.user);
       setBusy(false);
       if (!data.user || !roleData) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
-      onAuthed(data.user);
+      onAuthed(data.user, roleData);
     };
     return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submit },
       h('div', { className: 'msa-login-logo-wrap' }, h('img', { src: 'assets/logo.png', alt: 'MarrakechStory', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } })),
@@ -661,7 +684,7 @@
       logAudit('deleted file', 'booking', initial.id, name);
       loadFiles();
     };
-    const fileUrl = (name) => { const sb = getSB(); if (!sb || !initial) return '#'; return sb.storage.from(FILE_BUCKET).getPublicUrl(`${initial.id}/${name}`).data.publicUrl; };
+    const openFile = (name) => openStorageFile(FILE_BUCKET, `${initial.id}/${name}`);
     const niceName = (n) => String(n || '').replace(/^\d{10,}-/, '');
     const fmtSize = (bytes) => { const n = +bytes || 0; if (!n) return ''; if (n < 1024) return n + ' B'; if (n < 1048576) return (n / 1024).toFixed(0) + ' KB'; return (n / 1048576).toFixed(1) + ' MB'; };
     const set = (k, v) => setB(p => ({ ...p, [k]: v }));
@@ -837,7 +860,7 @@
           files.length === 0
             ? h('div', { className: 'msa-dim', style: { padding: '6px 2px' } }, 'No files yet — upload contracts, vouchers, passports, PDFs or photos from your computer.')
             : files.map(f => h('div', { key: f.name, className: 'msa-file-row' },
-                h('a', { className: 'msa-file-name', href: fileUrl(f.name), target: '_blank', rel: 'noopener' }, ICON.doc(), h('span', null, niceName(f.name))),
+                h('a', { className: 'msa-file-name', href: '#', onClick: (e) => { e.preventDefault(); openFile(f.name); } }, ICON.doc(), h('span', null, niceName(f.name))),
                 h('span', { className: 'msa-file-size' }, fmtSize(f.metadata && f.metadata.size)),
                 h('button', { className: 'msa-icon-btn', title: 'Delete file', onClick: () => delFile(f.name) }, ICON.trash())))) : null,
         isAdminRole() ? h('h4', { className: 'msa-section' }, 'Costs (internal)') : null,
@@ -1183,7 +1206,7 @@
       logAudit('deleted document', 'booking', b.id, name);
       loadDocFiles();
     };
-    const docUrl = (name) => { const sb = getSB(); if (!sb || !b) return '#'; return sb.storage.from(DOC_BUCKET).getPublicUrl(`${b.id}/${name}`).data.publicUrl; };
+    const openDoc = (name) => openStorageFile(DOC_BUCKET, `${b.id}/${name}`);
     const docNice = (n) => String(n || '').replace(/^\d{10,}-/, '');
     const docSize = (bytes) => { const n = +bytes || 0; if (!n) return ''; if (n < 1024) return n + ' B'; if (n < 1048576) return (n / 1024).toFixed(0) + ' KB'; return (n / 1048576).toFixed(1) + ' MB'; };
     const docBox = () => h('div', { className: 'msa-doc-docs msa-print-hide' },
@@ -1192,7 +1215,7 @@
       docFiles.length === 0
         ? h('div', { className: 'msa-docbox-empty' }, 'No documents attached yet. Use “Upload” at the top to add files from your computer.')
         : h('div', { className: 'msa-docbox' }, docFiles.map(f => h('div', { key: f.name, className: 'msa-docbox-item' },
-            h('a', { className: 'msa-docbox-link', href: docUrl(f.name), target: '_blank', rel: 'noopener' }, ICON.doc(), h('span', null, docNice(f.name))),
+            h('a', { className: 'msa-docbox-link', href: '#', onClick: (e) => { e.preventDefault(); openDoc(f.name); } }, ICON.doc(), h('span', null, docNice(f.name))),
             h('span', { className: 'msa-docbox-size' }, docSize(f.metadata && f.metadata.size)),
             h('button', { className: 'msa-icon-btn', title: 'Delete document', onClick: () => delDoc(f.name) }, ICON.trash())))));
     const cName = S.company_name || 'MarrakechStory SARL';
@@ -1533,7 +1556,7 @@
       setUpBusy(false); loadDocs();
     };
     const delDoc = async (name) => { const sb = getSB(); if (!sb || !s.id) return; if (!confirm('Delete this file?')) return; await sb.storage.from(BUCKET).remove(['collab/' + s.id + '/' + name]); loadDocs(); };
-    const docUrl = (name) => { const sb = getSB(); return sb ? sb.storage.from(BUCKET).getPublicUrl('collab/' + s.id + '/' + name).data.publicUrl : '#'; };
+    const openDoc = (name) => openStorageFile(BUCKET, 'collab/' + s.id + '/' + name);
     const niceName = (n) => String(n || '').replace(/^\d{10,}-/, '');
     const save = async () => {
       if (!s.name.trim()) { alert('Name is required'); return; }
@@ -1568,7 +1591,7 @@
         h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Documents — price lists, menus, contracts'),
           s.id ? h('label', { className: 'msa-btn msa-btn-sm msa-btn-primary msa-upload-label' }, ICON.plus(), upBusy ? 'Uploading…' : 'Upload', h('input', { type: 'file', multiple: true, disabled: upBusy, style: { display: 'none' }, onChange: (e) => { upload(e.target.files); e.target.value = ''; } })) : h('span', { className: 'msa-dim', style: { fontSize: 12, fontWeight: 400 } }, 'Save first to attach files')),
         s.id ? h('div', { className: 'msa-files' }, docs.length === 0 ? h('div', { className: 'msa-dim', style: { padding: '6px 2px' } }, 'No documents yet — upload price lists, menus or contracts.') : docs.map(f => h('div', { key: f.name, className: 'msa-file-row' },
-          h('a', { className: 'msa-file-name', href: docUrl(f.name), target: '_blank', rel: 'noopener' }, ICON.doc(), h('span', null, niceName(f.name))),
+          h('a', { className: 'msa-file-name', href: '#', onClick: (e) => { e.preventDefault(); openDoc(f.name); } }, ICON.doc(), h('span', null, niceName(f.name))),
           h('button', { className: 'msa-icon-btn', title: 'Delete', onClick: () => delDoc(f.name) }, ICON.trash())))) : null)));
   }
 
@@ -2728,10 +2751,10 @@
   function AdminRoot() {
     const [user, setUser] = useState(undefined);
     const [role, setRole] = useState(null);
-    const applyUser = useCallback(async (u) => {
+    const applyUser = useCallback(async (u, resolvedRole) => {
       const sb = getSB();
       if (!u || !sb) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
-      const { data: r } = await sb.rpc('ms_my_role');
+      const r = resolvedRole || await ensureStaffAccess(u);
       if (!r) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
       CURRENT_ROLE = r; CURRENT_EMAIL = (u.email || '').toLowerCase();
       CURRENT_NAME = (u.user_metadata && u.user_metadata.name) || (r === 'admin' ? 'Aladdin' : 'Partner');
