@@ -20,6 +20,9 @@
   let CURRENT_NAME = null;
   const isAdminRole = () => CURRENT_ROLE === 'admin';   // money/finance gate
   const canMoney = () => CURRENT_ROLE === 'admin';
+  const CAL_DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const CAL_DOW_MINI = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const mondayOffset = (date) => (date.getDay() + 6) % 7;
 
   // ---- Supabase (persisted admin session) ----
   let SB = null;
@@ -444,8 +447,8 @@
     const dayMap = useMemo(() => { const m = {}; bookings.forEach(b => { if (!b.arrival_date || !b.departure_date) { if (b.arrival_date) (m[b.arrival_date] = m[b.arrival_date] || []).push(b); return; } let d = new Date(b.arrival_date); const e = new Date(b.departure_date); let g = 0; while (d <= e && g++ < 400) { const k = d.toISOString().slice(0, 10); (m[k] = m[k] || []).push(b); d = new Date(d.getTime() + 864e5); } }); return m; }, [bookings]);
 
     if (year) {
-      const miniMonth = (mi) => { const first = new Date(Y, mi, 1).getDay(); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
-        ['S','M','T','W','T','F','S'].forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
+      const miniMonth = (mi) => { const first = mondayOffset(new Date(Y, mi, 1)); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
+        CAL_DOW_MINI.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
         for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
         for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const items = dayMap[k] || []; const cnt = items.length;
           const st = cnt ? { background: bkColor(items[0]), color: '#fff', fontWeight: 700 } : null;
@@ -459,9 +462,9 @@
         h('div', { className: 'msa-yr-grid msa-yr-grid-dash' }, MON.map((_, i) => miniMonth(i))));
     }
 
-    const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate();
+    const first = mondayOffset(new Date(Y, M, 1)); const dim = new Date(Y, M + 1, 0).getDate();
     const cells = [];
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
+    CAL_DOW.forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
     for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
     for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const items = dayMap[k] || []; const cnt = items.length; const isToday = k === todayStr;
       cells.push(h('div', { key: d, className: 'msa-cal-cell' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : '') + (compact ? ' mini' : ''), onClick: () => onSelect && onSelect(k) },
@@ -1883,7 +1886,7 @@
     const [sel, setSel] = useState(todayISO());
     const Y = cursor.getFullYear(), M = cursor.getMonth();
     const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const DOW = CAL_DOW;
     const todayStr = todayISO();
     const dayMap = useMemo(() => { const m = {}; bookings.forEach(b => { if (b.arrival_date) (m[b.arrival_date] = m[b.arrival_date] || { arr: [], dep: [], on: [] }).arr.push(b); if (b.departure_date) (m[b.departure_date] = m[b.departure_date] || { arr: [], dep: [], on: [] }).dep.push(b);
       if (b.arrival_date && b.departure_date) { let d = new Date(b.arrival_date); const e = new Date(b.departure_date); let g = 0; while (d <= e && g++ < 400) { const k = d.toISOString().slice(0, 10); (m[k] = m[k] || { arr: [], dep: [], on: [] }).on.push(b); d = new Date(d.getTime() + 864e5); } } }); return m; }, [bookings]);
@@ -1896,8 +1899,8 @@
 
     // ---- YEAR VIEW ----
     const miniMonth = (mi) => {
-      const first = new Date(Y, mi, 1).getDay(); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
-      DOW.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d[0])));
+      const first = mondayOffset(new Date(Y, mi, 1)); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
+      CAL_DOW_MINI.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
       for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
       for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const info = dayMap[k]; const cnt = info ? info.on.length : 0;
         const st = cnt ? { background: bkColor(info.on[0]), color: '#fff', fontWeight: 700 } : null;
@@ -1916,7 +1919,7 @@
         dayPanel(todayStr, false)));
 
     // ---- MONTH VIEW ----
-    const monthGrid = () => { const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate(); const cells = [];
+    const monthGrid = () => { const first = mondayOffset(new Date(Y, M, 1)); const dim = new Date(Y, M + 1, 0).getDate(); const cells = [];
       DOW.forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
       for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
       for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const info = dayMap[k] || { arr: [], dep: [], on: [] }; const isToday = k === todayStr;
