@@ -63,6 +63,12 @@
     return j || { ok: r.ok };
   }
   const normEmail = (v) => String(v || '').trim().toLowerCase();
+  const adminRecoveryUrl = () => window.location.origin + window.location.pathname + '?admin_recovery=1';
+  const isAdminRecoveryLanding = () => {
+    const search = new URLSearchParams(window.location.search || '');
+    const hash = window.location.hash || '';
+    return search.get('admin_recovery') === '1' || /(^|[&#])type=recovery(?:&|$)/.test(hash);
+  };
   function roleFromSettings(user, settings) {
     const email = normEmail(user && user.email);
     if (!email) return null;
@@ -406,8 +412,8 @@
       e.preventDefault(); setErr(''); setNotice('');
       if (!email.trim()) { setErr('Enter your email first, then tap “Forgot password”.'); return; }
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); return; }
-      const { error } = await sb.auth.resetPasswordForEmail(email.trim());
-      if (error) setErr(error.message); else setNotice('Password-reset email sent to ' + email.trim() + '.');
+      const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: adminRecoveryUrl() });
+      if (error) setErr(error.message); else setNotice('Password-reset email sent to ' + email.trim() + '. It will return to this admin page.');
     };
     const submit = async (e) => {
       e.preventDefault(); setErr(''); setBusy(true);
@@ -2779,6 +2785,9 @@
       if (!r) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
       CURRENT_ROLE = r; CURRENT_EMAIL = (u.email || '').toLowerCase();
       CURRENT_NAME = (u.user_metadata && u.user_metadata.name) || (r === 'admin' ? 'Aladdin' : 'Partner');
+      if (isAdminRecoveryLanding() && window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname + '#admin');
+      }
       touchPresence('login');
       setRole(r); setUser(u);
     }, []);
