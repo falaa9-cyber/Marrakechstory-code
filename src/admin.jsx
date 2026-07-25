@@ -1,14 +1,14 @@
 // ============================================================
 // MarrakechStory — Private Admin / Operations console
 // Apple-style, fully connected to the website (Supabase).
-// Access: <site>/#admin   ·   Auth: f.alaa9@gmail.com only (RLS).
+// Access: <site>/#admin   ·   Auth: configured admin + partner staff accounts.
 // ============================================================
 (function () {
   const R = window.React;
   const { useState, useEffect, useMemo, useCallback } = R;
   const h = R.createElement;
 
-  const ADMIN_EMAIL = 'f.alaa9@gmail.com';
+  const LEGACY_ADMIN_EMAIL = 'f.alaa9@gmail.com';
   const PARTNER_HINT_EMAIL = 'faizsofia20@gmail.com';   // login prefill only — real access is RLS/role-gated
   const COMPANY = (window.MS_CTX && window.MS_CTX.COMPANY) || { phone: '+47 457 74 743', whatsapp: '4745774743' };
 
@@ -62,17 +62,22 @@
     let j = null; try { j = await r.json(); } catch (e) {}
     return j || { ok: r.ok };
   }
-  function roleFromUser(user) {
-    const email = String((user && user.email) || '').trim().toLowerCase();
+  const normEmail = (v) => String(v || '').trim().toLowerCase();
+  function roleFromSettings(user, settings) {
+    const email = normEmail(user && user.email);
     if (!email) return null;
-    return email === ADMIN_EMAIL ? 'admin' : 'partner';
+    const adminEmail = normEmail(settings && settings.admin_email);
+    const partnerEmail = normEmail(settings && settings.partner_email);
+    if (email === normEmail(LEGACY_ADMIN_EMAIL) || (adminEmail && email === adminEmail)) return 'admin';
+    if (partnerEmail && email === partnerEmail && !(settings && settings.partner_blocked)) return 'partner';
+    return null;
   }
   async function ensureStaffAccess(user) {
     const sb = getSB();
     if (!sb || !user || !user.email) return null;
-    const { data, error } = await sb.from('admin_settings').select('id').eq('id', 1).maybeSingle();
-    if (error || !data) return null;
-    return roleFromUser(user);
+    const { data, error } = await sb.from('admin_settings').select('id, admin_email, partner_email, partner_blocked').eq('id', 1).maybeSingle();
+    if (error || !data) return roleFromSettings(user, null);
+    return roleFromSettings(user, data);
   }
   async function openStorageFile(bucket, path) {
     try {
@@ -380,10 +385,23 @@
   // =====================================================================
   function Login({ onAuthed }) {
     const [mode, setMode] = useState('admin');   // 'admin' | 'partner'
-    const [email, setEmail] = useState(ADMIN_EMAIL); const [pass, setPass] = useState('');
+    const [adminHintEmail, setAdminHintEmail] = useState(LEGACY_ADMIN_EMAIL);
+    const [email, setEmail] = useState(LEGACY_ADMIN_EMAIL); const [pass, setPass] = useState('');
     const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
     const [remember, setRemember] = useState(true); const [notice, setNotice] = useState('');
-    const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setNotice(''); setEmail(m === 'admin' ? ADMIN_EMAIL : PARTNER_HINT_EMAIL); };
+    useEffect(() => {
+      let alive = true;
+      (async () => {
+        const sb = getSB(); if (!sb) return;
+        const { data } = await sb.from('admin_settings').select('admin_email').eq('id', 1).maybeSingle();
+        const nextAdminEmail = normEmail(data && data.admin_email) || LEGACY_ADMIN_EMAIL;
+        if (!alive) return;
+        setAdminHintEmail(nextAdminEmail);
+        setEmail((curr) => mode === 'admin' && (!curr || normEmail(curr) === normEmail(LEGACY_ADMIN_EMAIL)) ? nextAdminEmail : curr);
+      })();
+      return () => { alive = false; };
+    }, []);
+    const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setNotice(''); setEmail(m === 'admin' ? adminHintEmail : PARTNER_HINT_EMAIL); };
     const forgot = async (e) => {
       e.preventDefault(); setErr(''); setNotice('');
       if (!email.trim()) { setErr('Enter your email first, then tap “Forgot password”.'); return; }
@@ -807,7 +825,7 @@
       ['collab_transport','collab_accommodation','collab_activities'].forEach(k => { if (!row[k]) row[k] = null; });
       if (!row.arrival_date) delete row.arrival_date; if (!row.departure_date) delete row.departure_date;
       delete row.id; delete row.created_at; delete row.routed_booking_id;
-      const res = b.id ? await dbUpdate('bookings', b.id, row) : await dbInsert('bookings', { ...row, created_by: CURRENT_EMAIL || ADMIN_EMAIL });
+      const res = b.id ? await dbUpdate('bookings', b.id, row) : await dbInsert('bookings', { ...row, created_by: CURRENT_EMAIL || LEGACY_ADMIN_EMAIL });
       setBusy(false);
       if (res.error) { alert('Save failed: ' + res.error.message); return; }
       logAudit(b.id ? 'updated booking' : 'created booking', 'booking', b.id || (res.data && res.data[0] && res.data[0].id), row.client_name || row.reference);
@@ -1468,7 +1486,7 @@
     const [f, setF] = useState({ name: '', email: '', phone: '', country: '' });
     const [sort, setSort] = useState({ k: 'name', d: 'asc' }); const [expanded, setExpanded] = useState({});
     useEffect(() => { if (initialQuery) setQ(initialQuery); }, [initialQuery]);
-    const add = async () => { if (!f.name.trim()) { alert('Name required'); return; } await dbInsert('clients', { ...f, email: f.email ? f.email.toLowerCase() : null, trips: 0, created_by: ADMIN_EMAIL }); setF({ name: '', email: '', phone: '', country: '' }); setAdding(false); reload(); };
+    const add = async () => { if (!f.name.trim()) { alert('Name required'); return; } await dbInsert('clients', { ...f, email: f.email ? f.email.toLowerCase() : null, trips: 0, created_by: CURRENT_EMAIL || LEGACY_ADMIN_EMAIL }); setF({ name: '', email: '', phone: '', country: '' }); setAdding(false); reload(); };
     const del = async (c, e) => { e && e.stopPropagation(); if (confirm('Remove ' + c.name + '?')) { await dbDelete('clients', c.id); reload(); } };
     const bookingsFor = (c) => bookings.filter(b => (b.email && c.email && b.email.toLowerCase() === c.email.toLowerCase()) || b.client_name === c.name);
     const profitFor = (c) => bookingsFor(c).reduce((s, b) => s + ((+b.selling_price || 0) - (+b.total_cost || 0)), 0);
@@ -1844,7 +1862,7 @@
     const visible = seg === 'done' ? all.filter(t => t.status === 'completed')
       : seg === 'mine' ? open.filter(mineFor)
       : open;
-    const whoName = (email) => email === CURRENT_EMAIL ? 'you' : (email === ADMIN_EMAIL ? 'Admin' : 'Partner');
+    const whoName = (email) => email === CURRENT_EMAIL ? 'you' : (normEmail(email) === normEmail(LEGACY_ADMIN_EMAIL) ? 'Admin' : 'Partner');
 
     const card = (t) => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = t.status !== 'completed' && n != null && n < 0; const soon = t.status !== 'completed' && n != null && n >= 0 && n <= 2;
       return h('div', { key: t.id, className: 'msa-ws-task' + (t.status === 'completed' ? ' done' : '') + (overdue ? ' overdue' : soon ? ' soon' : '') },
@@ -2615,7 +2633,7 @@
     };
     const set = (k, v) => setS(p => ({ ...p, [k]: v }));
     const save = async () => { setBusy(true); setMsg('');
-      const row = { id: 1, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, revolut: s.revolut, wise: s.wise, paypal: s.paypal, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', terms_conditions: s.terms_conditions, payment_info: s.payment_info, updated_at: new Date().toISOString() };
+      const row = { id: 1, admin_email: s.admin_email, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, revolut: s.revolut, wise: s.wise, paypal: s.paypal, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', terms_conditions: s.terms_conditions, payment_info: s.payment_info, updated_at: new Date().toISOString() };
       const sb = getSB(); const { error } = await sb.from('admin_settings').upsert(row, { onConflict: 'id' });
       setBusy(false); setMsg(error ? 'Save failed: ' + error.message : 'Saved ✓'); if (!error) onSaved && onSaved(); };
     const changePw = async () => { setPwMsg(''); if (pw.length < 8) { setPwMsg('Min 8 characters'); return; } if (pw !== pw2) { setPwMsg('Passwords do not match'); return; }
@@ -2626,7 +2644,7 @@
         admin ? h('button', { className: 'msa-btn msa-btn-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save changes') : null),
       msg && h('div', { className: 'msa-savemsg' }, msg),
       admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Company')),
-        h('div', { className: 'msa-grid-2' }, fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))) : null,
+        h('div', { className: 'msa-grid-2' }, fld('Admin login email', 'admin_email', 'owner@example.com'), fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))) : null,
       admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Invoice & bank (admin only)')),
         h('div', { className: 'msa-grid-2' }, fld('Invoice prefix', 'invoice_prefix', 'INV'), fld('Default deposit %', 'deposit_pct'), fld('Bank name', 'bank_name'), fld('Account name', 'account_name'), fld('RIB', 'rib'), fld('SWIFT', 'swift')),
         h('h4', { className: 'msa-section', style: { marginTop: 16 } }, 'Online payment handles (shown on the invoice for the matching method)'),

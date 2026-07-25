@@ -1,6 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
-const ADMIN_EMAIL = 'f.alaa9@gmail.com';
+const LEGACY_ADMIN_EMAIL = 'f.alaa9@gmail.com';
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, content-type, apikey',
@@ -18,6 +18,20 @@ function callerEmail(req: Request): string {
   } catch (_e) {
     return '';
   }
+}
+
+async function allowedAdminEmails(url: string, srk: string): Promise<Set<string>> {
+  const adminHdr = { apikey: srk, Authorization: `Bearer ${srk}` };
+  const out = new Set<string>([LEGACY_ADMIN_EMAIL]);
+  try {
+    const r = await fetch(`${url}/rest/v1/admin_settings?id=eq.1&select=admin_email`, { headers: adminHdr });
+    if (r.ok) {
+      const rows = await r.json();
+      const adminEmail = String(rows?.[0]?.admin_email || '').trim().toLowerCase();
+      if (adminEmail) out.add(adminEmail);
+    }
+  } catch (_e) {}
+  return out;
 }
 
 function parseSA(raw: string): any {
@@ -98,7 +112,7 @@ Deno.serve(async (req) => {
   } catch (_e) {}
 
   if (body.action === 'save') {
-    if (email !== ADMIN_EMAIL) return json({ ok: false, error: 'forbidden — admin only' }, 403);
+    if (!(await allowedAdminEmails(url, srk)).has(email)) return json({ ok: false, error: 'forbidden — admin only' }, 403);
     const sa = parseSA(String(body.serviceAccount || '').trim());
     const pid = String(body.propertyId || '').trim().replace(/[^0-9]/g, '');
     if (!sa || !sa.client_email || !sa.private_key) {

@@ -1,6 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
-const ADMIN_EMAIL = 'f.alaa9@gmail.com';
+const LEGACY_ADMIN_EMAIL = 'f.alaa9@gmail.com';
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, content-type, apikey',
@@ -20,13 +20,27 @@ function callerEmail(req: Request): string {
   }
 }
 
+async function allowedAdminEmails(url: string, srk: string): Promise<Set<string>> {
+  const adminHdr = { apikey: srk, Authorization: `Bearer ${srk}` };
+  const out = new Set<string>([LEGACY_ADMIN_EMAIL]);
+  try {
+    const r = await fetch(`${url}/rest/v1/admin_settings?id=eq.1&select=admin_email`, { headers: adminHdr });
+    if (r.ok) {
+      const rows = await r.json();
+      const adminEmail = String(rows?.[0]?.admin_email || '').trim().toLowerCase();
+      if (adminEmail) out.add(adminEmail);
+    }
+  } catch (_e) {}
+  return out;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
-  if (callerEmail(req) !== ADMIN_EMAIL) return json({ ok: false, error: 'forbidden — admin only' }, 403);
 
   const url = Deno.env.get('SUPABASE_URL')!;
   const srk = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  if (!(await allowedAdminEmails(url, srk)).has(callerEmail(req))) return json({ ok: false, error: 'forbidden — admin only' }, 403);
   const adminHdr = { apikey: srk, Authorization: `Bearer ${srk}`, 'Content-Type': 'application/json' };
 
   let body: any = {};
