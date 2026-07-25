@@ -6,7 +6,7 @@ alter table public.admin_settings
   add column if not exists admin_email text;
 
 update public.admin_settings
-set admin_email = lower(coalesce(nullif(admin_email, ''), 'f.alaa@live.com'))
+set admin_email = lower(coalesce(nullif(admin_email, ''), 'f.alaa9@gmail.com'))
 where id = 1;
 
 create or replace function private.ms_admin_email()
