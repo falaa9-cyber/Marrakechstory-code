@@ -1260,6 +1260,10 @@
 .msa-login-divider { text-align: center; position: relative; margin: 4px 0 16px; color: var(--msa-dim); font-size: 12px; }
 .msa-login-divider span { background: #fff; padding: 0 10px; position: relative; z-index: 1; }
 .msa-login-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--msa-line); }
+.msa-login-help { margin: 0 0 14px; padding: 12px 14px; border: 1px solid rgba(224,67,42,.16); border-radius: 14px; background: linear-gradient(180deg, #fff6f2 0%, #fff 100%); }
+.msa-login-help strong { display: block; margin-bottom: 4px; font-size: 12.5px; }
+.msa-login-help p { margin: 0; color: var(--msa-dim); font-size: 12.5px; line-height: 1.45; }
+.msa-login-help-email { display: inline-block; margin-top: 8px; padding: 5px 9px; border-radius: 999px; background: rgba(224,67,42,.08); color: var(--msa-brand-deep); font-size: 12px; font-weight: 700; }
 .msa-login-card input[type=email], .msa-login-card input[type=password] { width: 100%; padding: 13px 15px; border: 1px solid var(--msa-line) !important; border-radius: 12px !important; font-size: 14px; margin-bottom: 12px; background: #fafafa !important; }
 .msa-login-card input[type=email]:focus, .msa-login-card input[type=password]:focus { border-color: var(--msa-brand) !important; background: #fff !important; outline: none; }
 .msa-login-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; font-size: 12.5px; }
@@ -1269,6 +1273,9 @@
 .msa-login-submit { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #1b1b20; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; transition: background .15s; }
 .msa-login-submit:hover { background: #000; }
 .msa-login-submit:disabled { opacity: .55; }
+.msa-login-secondary { width: 100%; margin-top: 10px; padding: 13px 14px; border: 1px solid var(--msa-line); border-radius: 12px; background: #fff; color: var(--msa-ink); font-weight: 700; font-size: 14px; cursor: pointer; transition: all .15s; }
+.msa-login-secondary:hover { border-color: var(--msa-brand); color: var(--msa-brand-deep); background: var(--msa-brand-soft); }
+.msa-login-secondary:disabled { opacity: .55; cursor: default; }
 .msa-login-notice { background: var(--msa-green-soft); color: #1c7a3f; padding: 9px 12px; border-radius: 10px; font-size: 12.5px; margin-bottom: 12px; }
 .msa-login-back { display: block; text-align: center; margin-top: 16px; color: var(--msa-dim); font-size: 12.5px; text-decoration: none; }
 .msa-login-back:hover { color: var(--msa-brand); }
@@ -1737,3 +1744,49 @@
 .msa-fin-breakdown .msa-srcbar-l { width: 64px; text-transform: none; font-variant-numeric: tabular-nums; }
 .msa-fin-breakdown .msa-srcbar-v { width: auto; min-width: 104px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .msa-fin-breakdown .msa-fin-grid { margin-top: 4px; }
+
+/* ============================================================
+   Codex admin mobile adjustments
+   ============================================================ */
+@media (max-width: 860px) {
+  #ms-admin-root .msa-dash-main {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  #ms-admin-root .msa-dash-cal { order: 1; }
+
+  #ms-admin-root .msa-dash-side {
+    order: 2;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  #ms-admin-root .msa-dash-side .msa-dash-box { width: 100%; }
+
+  #ms-admin-root .msa-dash-side .msa-dash-scroll {
+    max-height: none !important;
+  }
+
+  #ms-admin-root .msa-dash-cal .msa-yr-grid-dash {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px 12px !important;
+  }
+}
+
+html,
+body,
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
