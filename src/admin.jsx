@@ -69,8 +69,8 @@
     const hash = window.location.hash || '';
     return search.get('admin_recovery') === '1' || /(^|[&#])type=recovery(?:&|$)/.test(hash);
   };
-  function roleFromSettings(user, settings) {
-    const email = normEmail(user && user.email);
+  function roleFromSettings(user, settings, fallbackEmail) {
+    const email = normEmail((user && user.email) || fallbackEmail);
     if (!email) return null;
     const adminEmail = normEmail(settings && settings.admin_email);
     const partnerEmail = normEmail(settings && settings.partner_email);
@@ -78,12 +78,16 @@
     if (partnerEmail && email === partnerEmail && !(settings && settings.partner_blocked)) return 'partner';
     return null;
   }
-  async function ensureStaffAccess(user) {
+  async function ensureStaffAccess(user, fallbackEmail) {
+    const email = normEmail((user && user.email) || fallbackEmail);
+    if (!email) return null;
+    if (email === normEmail(LEGACY_ADMIN_EMAIL)) return 'admin';
     const sb = getSB();
-    if (!sb || !user || !user.email) return null;
+    if (!sb) return null;
+    const candidate = user && user.email ? user : { ...(user || {}), email };
     const { data, error } = await sb.from('admin_settings').select('id, admin_email, partner_email, partner_blocked').eq('id', 1).maybeSingle();
-    if (error || !data) return roleFromSettings(user, null);
-    return roleFromSettings(user, data);
+    if (error || !data) return roleFromSettings(candidate, null, email);
+    return roleFromSettings(candidate, data, email);
   }
   async function openStorageFile(bucket, path) {
     try {
@@ -418,12 +422,14 @@
     const submit = async (e) => {
       e.preventDefault(); setErr(''); setBusy(true);
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
-      const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pass });
+      const typedEmail = email.trim();
+      const { data, error } = await sb.auth.signInWithPassword({ email: typedEmail, password: pass });
       if (error) { setBusy(false); setErr(error.message); return; }
-      const roleData = await ensureStaffAccess(data.user);
+      const signedInUser = data.user || (data.session && data.session.user) || { email: typedEmail };
+      const roleData = await ensureStaffAccess(signedInUser, typedEmail);
       setBusy(false);
-      if (!data.user || !roleData) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
-      onAuthed(data.user, roleData);
+      if (!signedInUser || !roleData) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
+      onAuthed(signedInUser, roleData);
     };
     return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submit },
       h('div', { className: 'msa-login-logo-wrap' }, h('img', { src: 'assets/logo.png', alt: 'MarrakechStory', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } })),
