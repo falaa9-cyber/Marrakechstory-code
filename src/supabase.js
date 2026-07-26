@@ -4,6 +4,46 @@
 // the rest of the app can call without knowing anything about Supabase.
 
 (function () {
+  if (!window.MS_AdminAuthHotfixApplied && typeof window.fetch === 'function') {
+    window.MS_AdminAuthHotfixApplied = true;
+    const originalFetch = window.fetch;
+
+    function requestUrl(input) {
+      if (typeof input === 'string') return input;
+      if (input && typeof input.url === 'string') return input.url;
+      return '';
+    }
+
+    function isPasswordGrant(url) {
+      return /\/auth\/v1\/token(?:\?|$)/.test(url) && /(?:[?&])grant_type=password(?:&|$)/.test(url);
+    }
+
+    window.fetch = async function patchedFetch(input, init) {
+      const response = await originalFetch.call(this, input, init);
+      try {
+        const url = requestUrl(input);
+        if (!response || !response.ok || !isPasswordGrant(url)) return response;
+
+        const contentType = response.headers && response.headers.get && response.headers.get('content-type');
+        if (!contentType || !/application\/json/i.test(contentType)) return response;
+
+        const payload = await response.clone().json();
+        if (!payload || payload.user || !(payload.session && payload.session.user)) return response;
+
+        const headers = new Headers(response.headers);
+        const body = JSON.stringify({ ...payload, user: payload.session.user });
+        headers.delete('content-length');
+        return new Response(body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      } catch (_error) {
+        return response;
+      }
+    };
+  }
+
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     console.warn('[MS_SB] @supabase/supabase-js UMD not loaded yet');
     return;
