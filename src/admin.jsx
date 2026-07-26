@@ -1,14 +1,14 @@
 // ============================================================
 // MarrakechStory — Private Admin / Operations console
 // Apple-style, fully connected to the website (Supabase).
-// Access: <site>/#admin   ·   Auth: f.alaa9@gmail.com only (RLS).
+// Access: <site>/#admin   ·   Auth: configured admin + partner staff accounts.
 // ============================================================
 (function () {
   const R = window.React;
   const { useState, useEffect, useMemo, useCallback } = R;
   const h = R.createElement;
 
-  const ADMIN_EMAIL = 'f.alaa9@gmail.com';
+  const LEGACY_ADMIN_EMAIL = 'f.alaa9@gmail.com';
   const PARTNER_HINT_EMAIL = 'faizsofia20@gmail.com';   // login prefill only — real access is RLS/role-gated
   const COMPANY = (window.MS_CTX && window.MS_CTX.COMPANY) || { phone: '+47 457 74 743', whatsapp: '4745774743' };
 
@@ -20,6 +20,9 @@
   let CURRENT_NAME = null;
   const isAdminRole = () => CURRENT_ROLE === 'admin';   // money/finance gate
   const canMoney = () => CURRENT_ROLE === 'admin';
+  const CAL_DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const CAL_DOW_MINI = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const mondayOffset = (date) => (date.getDay() + 6) % 7;
 
   // ---- Supabase (persisted admin session) ----
   let SB = null;
@@ -59,17 +62,32 @@
     let j = null; try { j = await r.json(); } catch (e) {}
     return j || { ok: r.ok };
   }
-  function roleFromUser(user) {
-    const email = String((user && user.email) || '').trim().toLowerCase();
+  const normEmail = (v) => String(v || '').trim().toLowerCase();
+  const adminRecoveryUrl = () => window.location.origin + window.location.pathname + '?admin_recovery=1';
+  const isAdminRecoveryLanding = () => {
+    const search = new URLSearchParams(window.location.search || '');
+    const hash = window.location.hash || '';
+    return search.get('admin_recovery') === '1' || /(^|[&#])type=recovery(?:&|$)/.test(hash);
+  };
+  function roleFromSettings(user, settings, fallbackEmail) {
+    const email = normEmail((user && user.email) || fallbackEmail);
     if (!email) return null;
-    return email === ADMIN_EMAIL ? 'admin' : 'partner';
+    const adminEmail = normEmail(settings && settings.admin_email);
+    const partnerEmail = normEmail(settings && settings.partner_email);
+    if (email === normEmail(LEGACY_ADMIN_EMAIL) || (adminEmail && email === adminEmail)) return 'admin';
+    if (partnerEmail && email === partnerEmail && !(settings && settings.partner_blocked)) return 'partner';
+    return null;
   }
-  async function ensureStaffAccess(user) {
+  async function ensureStaffAccess(user, fallbackEmail) {
+    const email = normEmail((user && user.email) || fallbackEmail);
+    if (!email) return null;
+    if (email === normEmail(LEGACY_ADMIN_EMAIL)) return 'admin';
     const sb = getSB();
-    if (!sb || !user || !user.email) return null;
-    const { data, error } = await sb.from('admin_settings').select('id').eq('id', 1).maybeSingle();
-    if (error || !data) return null;
-    return roleFromUser(user);
+    if (!sb) return null;
+    const candidate = user && user.email ? user : { ...(user || {}), email };
+    const { data, error } = await sb.from('admin_settings').select('id, admin_email, partner_email, partner_blocked').eq('id', 1).maybeSingle();
+    if (error || !data) return roleFromSettings(candidate, null, email);
+    return roleFromSettings(candidate, data, email);
   }
   async function openStorageFile(bucket, path) {
     try {
@@ -377,27 +395,67 @@
   // =====================================================================
   function Login({ onAuthed }) {
     const [mode, setMode] = useState('admin');   // 'admin' | 'partner'
-    const [email, setEmail] = useState(ADMIN_EMAIL); const [pass, setPass] = useState('');
+    const [adminHintEmail, setAdminHintEmail] = useState(LEGACY_ADMIN_EMAIL);
+    const [email, setEmail] = useState(LEGACY_ADMIN_EMAIL); const [pass, setPass] = useState('');
     const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
     const [remember, setRemember] = useState(true); const [notice, setNotice] = useState('');
-    const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setNotice(''); setEmail(m === 'admin' ? ADMIN_EMAIL : PARTNER_HINT_EMAIL); };
+    useEffect(() => {
+      let alive = true;
+      (async () => {
+        const sb = getSB(); if (!sb) return;
+        const { data } = await sb.from('admin_settings').select('admin_email').eq('id', 1).maybeSingle();
+        const nextAdminEmail = normEmail(data && data.admin_email) || LEGACY_ADMIN_EMAIL;
+        if (!alive) return;
+        setAdminHintEmail(nextAdminEmail);
+        setEmail((curr) => mode === 'admin' && (!curr || normEmail(curr) === normEmail(LEGACY_ADMIN_EMAIL)) ? nextAdminEmail : curr);
+      })();
+      return () => { alive = false; };
+    }, []);
+    const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setNotice(''); setEmail(m === 'admin' ? adminHintEmail : PARTNER_HINT_EMAIL); };
     const forgot = async (e) => {
       e.preventDefault(); setErr(''); setNotice('');
       if (!email.trim()) { setErr('Enter your email first, then tap “Forgot password”.'); return; }
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); return; }
-      const { error } = await sb.auth.resetPasswordForEmail(email.trim());
-      if (error) setErr(error.message); else setNotice('Password-reset email sent to ' + email.trim() + '.');
+      const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: adminRecoveryUrl() });
+      if (error) setErr(error.message); else setNotice('Password-reset email sent to ' + email.trim() + '. It will return to this admin page.');
+    };
+    const sendSecureLink = async (e) => {
+      e.preventDefault(); setErr(''); setNotice('');
+      const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); return; }
+      const secureEmail = mode === 'admin' ? (adminHintEmail || email).trim() : email.trim();
+      if (!secureEmail) { setErr('Enter your email first, then request the secure sign-in link.'); return; }
+      setBusy(true);
+      const { error } = await sb.auth.signInWithOtp({
+        email: secureEmail,
+        options: {
+          emailRedirectTo: adminRecoveryUrl(),
+          shouldCreateUser: false,
+        },
+      });
+      setBusy(false);
+      if (error) { setErr(error.message); return; }
+      setNotice('Secure sign-in link sent to ' + secureEmail + '. Open it on this device to enter the admin area without changing your password.');
     };
     const submit = async (e) => {
       e.preventDefault(); setErr(''); setBusy(true);
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
-      const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pass });
+      const typedEmail = email.trim();
+      const { data, error } = await sb.auth.signInWithPassword({ email: typedEmail, password: pass });
       if (error) { setBusy(false); setErr(error.message); return; }
-      const roleData = await ensureStaffAccess(data.user);
+      // Some auth responses can be thin on the first round-trip, so re-check the
+      // persisted session and the current user before deciding whether this
+      // account is allowed in.
+      const { data: sessionData } = await sb.auth.getSession();
+      const { data: userData } = await sb.auth.getUser();
+      const sessionUser = sessionData && sessionData.session && sessionData.session.user;
+      const signedInUser = data.user || (data.session && data.session.user) || sessionUser || (userData && userData.user) || { email: typedEmail };
+      const roleData = await ensureStaffAccess(signedInUser, typedEmail)
+        || (normEmail(typedEmail) === normEmail(LEGACY_ADMIN_EMAIL) ? 'admin' : null);
       setBusy(false);
-      if (!data.user || !roleData) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
-      onAuthed(data.user, roleData);
+      if (!signedInUser || !roleData) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
+      onAuthed(signedInUser, roleData);
     };
+    const secureEmailTarget = mode === 'admin' ? (adminHintEmail || email).trim() : email.trim();
     return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submit },
       h('div', { className: 'msa-login-logo-wrap' }, h('img', { src: 'assets/logo.png', alt: 'MarrakechStory', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } })),
       h('h1', null, 'Sign in to your account'),
@@ -408,12 +466,19 @@
       h('div', { className: 'msa-login-divider' }, h('span', null, 'Sign in with email')),
       err && h('div', { className: 'msa-login-err' }, err),
       notice && h('div', { className: 'msa-login-notice' }, notice),
+      h('div', { className: 'msa-login-help' },
+        h('strong', null, mode === 'admin' ? 'Admin access' : 'Partner access'),
+        h('p', null, mode === 'admin'
+          ? 'Use your admin password first. If that fails, send a one-time secure sign-in link to the same admin email without creating a new account or changing your password.'
+          : 'Use the partner password first. If you are locked out, send a one-time secure sign-in link to the partner email on file.'),
+        secureEmailTarget && h('span', { className: 'msa-login-help-email' }, secureEmailTarget)),
       h('input', { type: 'email', autoComplete: 'email', placeholder: 'Email address', value: email, onChange: (e) => setEmail(e.target.value) }),
       h('input', { type: 'password', autoComplete: 'current-password', placeholder: 'Password', value: pass, onChange: (e) => setPass(e.target.value) }),
       h('div', { className: 'msa-login-row' },
         h('label', { className: 'msa-login-remember' }, h('input', { type: 'checkbox', checked: remember, onChange: (e) => setRemember(e.target.checked) }), 'Remember me on this device'),
-        h('a', { href: '#', className: 'msa-login-forgot', onClick: forgot }, 'Forgot password?')),
+        h('a', { href: '#', className: 'msa-login-forgot', onClick: forgot }, 'Reset password')),
       h('button', { type: 'submit', disabled: busy, className: 'msa-login-submit' }, busy ? 'Signing in…' : 'Sign In'),
+      h('button', { type: 'button', disabled: busy, className: 'msa-login-secondary', onClick: sendSecureLink }, busy ? 'Sending secure link…' : 'Send a one-time secure sign-in link'),
       h('a', { href: '#', className: 'msa-login-back' }, '← Back to website')));
   }
 
@@ -444,8 +509,8 @@
     const dayMap = useMemo(() => { const m = {}; bookings.forEach(b => { if (!b.arrival_date || !b.departure_date) { if (b.arrival_date) (m[b.arrival_date] = m[b.arrival_date] || []).push(b); return; } let d = new Date(b.arrival_date); const e = new Date(b.departure_date); let g = 0; while (d <= e && g++ < 400) { const k = d.toISOString().slice(0, 10); (m[k] = m[k] || []).push(b); d = new Date(d.getTime() + 864e5); } }); return m; }, [bookings]);
 
     if (year) {
-      const miniMonth = (mi) => { const first = new Date(Y, mi, 1).getDay(); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
-        ['S','M','T','W','T','F','S'].forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
+      const miniMonth = (mi) => { const first = mondayOffset(new Date(Y, mi, 1)); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
+        CAL_DOW_MINI.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
         for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
         for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const items = dayMap[k] || []; const cnt = items.length;
           const st = cnt ? { background: bkColor(items[0]), color: '#fff', fontWeight: 700 } : null;
@@ -459,9 +524,9 @@
         h('div', { className: 'msa-yr-grid msa-yr-grid-dash' }, MON.map((_, i) => miniMonth(i))));
     }
 
-    const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate();
+    const first = mondayOffset(new Date(Y, M, 1)); const dim = new Date(Y, M + 1, 0).getDate();
     const cells = [];
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
+    CAL_DOW.forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
     for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
     for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const items = dayMap[k] || []; const cnt = items.length; const isToday = k === todayStr;
       cells.push(h('div', { key: d, className: 'msa-cal-cell' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : '') + (compact ? ' mini' : ''), onClick: () => onSelect && onSelect(k) },
@@ -804,7 +869,7 @@
       ['collab_transport','collab_accommodation','collab_activities'].forEach(k => { if (!row[k]) row[k] = null; });
       if (!row.arrival_date) delete row.arrival_date; if (!row.departure_date) delete row.departure_date;
       delete row.id; delete row.created_at; delete row.routed_booking_id;
-      const res = b.id ? await dbUpdate('bookings', b.id, row) : await dbInsert('bookings', { ...row, created_by: CURRENT_EMAIL || ADMIN_EMAIL });
+      const res = b.id ? await dbUpdate('bookings', b.id, row) : await dbInsert('bookings', { ...row, created_by: CURRENT_EMAIL || LEGACY_ADMIN_EMAIL });
       setBusy(false);
       if (res.error) { alert('Save failed: ' + res.error.message); return; }
       logAudit(b.id ? 'updated booking' : 'created booking', 'booking', b.id || (res.data && res.data[0] && res.data[0].id), row.client_name || row.reference);
@@ -1465,7 +1530,7 @@
     const [f, setF] = useState({ name: '', email: '', phone: '', country: '' });
     const [sort, setSort] = useState({ k: 'name', d: 'asc' }); const [expanded, setExpanded] = useState({});
     useEffect(() => { if (initialQuery) setQ(initialQuery); }, [initialQuery]);
-    const add = async () => { if (!f.name.trim()) { alert('Name required'); return; } await dbInsert('clients', { ...f, email: f.email ? f.email.toLowerCase() : null, trips: 0, created_by: ADMIN_EMAIL }); setF({ name: '', email: '', phone: '', country: '' }); setAdding(false); reload(); };
+    const add = async () => { if (!f.name.trim()) { alert('Name required'); return; } await dbInsert('clients', { ...f, email: f.email ? f.email.toLowerCase() : null, trips: 0, created_by: CURRENT_EMAIL || LEGACY_ADMIN_EMAIL }); setF({ name: '', email: '', phone: '', country: '' }); setAdding(false); reload(); };
     const del = async (c, e) => { e && e.stopPropagation(); if (confirm('Remove ' + c.name + '?')) { await dbDelete('clients', c.id); reload(); } };
     const bookingsFor = (c) => bookings.filter(b => (b.email && c.email && b.email.toLowerCase() === c.email.toLowerCase()) || b.client_name === c.name);
     const profitFor = (c) => bookingsFor(c).reduce((s, b) => s + ((+b.selling_price || 0) - (+b.total_cost || 0)), 0);
@@ -1841,7 +1906,7 @@
     const visible = seg === 'done' ? all.filter(t => t.status === 'completed')
       : seg === 'mine' ? open.filter(mineFor)
       : open;
-    const whoName = (email) => email === CURRENT_EMAIL ? 'you' : (email === ADMIN_EMAIL ? 'Admin' : 'Partner');
+    const whoName = (email) => email === CURRENT_EMAIL ? 'you' : (normEmail(email) === normEmail(LEGACY_ADMIN_EMAIL) ? 'Admin' : 'Partner');
 
     const card = (t) => { const n = daysUntil((t.due || '').slice(0, 10)); const overdue = t.status !== 'completed' && n != null && n < 0; const soon = t.status !== 'completed' && n != null && n >= 0 && n <= 2;
       return h('div', { key: t.id, className: 'msa-ws-task' + (t.status === 'completed' ? ' done' : '') + (overdue ? ' overdue' : soon ? ' soon' : '') },
@@ -1883,7 +1948,7 @@
     const [sel, setSel] = useState(todayISO());
     const Y = cursor.getFullYear(), M = cursor.getMonth();
     const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const DOW = CAL_DOW;
     const todayStr = todayISO();
     const dayMap = useMemo(() => { const m = {}; bookings.forEach(b => { if (b.arrival_date) (m[b.arrival_date] = m[b.arrival_date] || { arr: [], dep: [], on: [] }).arr.push(b); if (b.departure_date) (m[b.departure_date] = m[b.departure_date] || { arr: [], dep: [], on: [] }).dep.push(b);
       if (b.arrival_date && b.departure_date) { let d = new Date(b.arrival_date); const e = new Date(b.departure_date); let g = 0; while (d <= e && g++ < 400) { const k = d.toISOString().slice(0, 10); (m[k] = m[k] || { arr: [], dep: [], on: [] }).on.push(b); d = new Date(d.getTime() + 864e5); } } }); return m; }, [bookings]);
@@ -1896,8 +1961,8 @@
 
     // ---- YEAR VIEW ----
     const miniMonth = (mi) => {
-      const first = new Date(Y, mi, 1).getDay(); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
-      DOW.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d[0])));
+      const first = mondayOffset(new Date(Y, mi, 1)); const dim = new Date(Y, mi + 1, 0).getDate(); const cells = [];
+      CAL_DOW_MINI.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
       for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
       for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const info = dayMap[k]; const cnt = info ? info.on.length : 0;
         const st = cnt ? { background: bkColor(info.on[0]), color: '#fff', fontWeight: 700 } : null;
@@ -1916,7 +1981,7 @@
         dayPanel(todayStr, false)));
 
     // ---- MONTH VIEW ----
-    const monthGrid = () => { const first = new Date(Y, M, 1).getDay(); const dim = new Date(Y, M + 1, 0).getDate(); const cells = [];
+    const monthGrid = () => { const first = mondayOffset(new Date(Y, M, 1)); const dim = new Date(Y, M + 1, 0).getDate(); const cells = [];
       DOW.forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
       for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
       for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const info = dayMap[k] || { arr: [], dep: [], on: [] }; const isToday = k === todayStr;
@@ -2612,7 +2677,7 @@
     };
     const set = (k, v) => setS(p => ({ ...p, [k]: v }));
     const save = async () => { setBusy(true); setMsg('');
-      const row = { id: 1, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, revolut: s.revolut, wise: s.wise, paypal: s.paypal, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', terms_conditions: s.terms_conditions, payment_info: s.payment_info, updated_at: new Date().toISOString() };
+      const row = { id: 1, admin_email: s.admin_email, company_name: s.company_name, company_email: s.company_email, company_phone: s.company_phone, company_address: s.company_address, website_url: s.website_url, bank_name: s.bank_name, account_name: s.account_name, rib: s.rib, swift: s.swift, revolut: s.revolut, wise: s.wise, paypal: s.paypal, invoice_prefix: s.invoice_prefix, invoice_footer: s.invoice_footer, deposit_pct: +s.deposit_pct || 20, currency: s.currency || 'NOK', terms_conditions: s.terms_conditions, payment_info: s.payment_info, updated_at: new Date().toISOString() };
       const sb = getSB(); const { error } = await sb.from('admin_settings').upsert(row, { onConflict: 'id' });
       setBusy(false); setMsg(error ? 'Save failed: ' + error.message : 'Saved ✓'); if (!error) onSaved && onSaved(); };
     const changePw = async () => { setPwMsg(''); if (pw.length < 8) { setPwMsg('Min 8 characters'); return; } if (pw !== pw2) { setPwMsg('Passwords do not match'); return; }
@@ -2623,7 +2688,7 @@
         admin ? h('button', { className: 'msa-btn msa-btn-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save changes') : null),
       msg && h('div', { className: 'msa-savemsg' }, msg),
       admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Company')),
-        h('div', { className: 'msa-grid-2' }, fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))) : null,
+        h('div', { className: 'msa-grid-2' }, fld('Admin login email', 'admin_email', 'owner@example.com'), fld('Company name', 'company_name'), fld('Email', 'company_email'), fld('Phone', 'company_phone'), fld('Website URL', 'website_url'), fld('Address', 'company_address'))) : null,
       admin ? h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Invoice & bank (admin only)')),
         h('div', { className: 'msa-grid-2' }, fld('Invoice prefix', 'invoice_prefix', 'INV'), fld('Default deposit %', 'deposit_pct'), fld('Bank name', 'bank_name'), fld('Account name', 'account_name'), fld('RIB', 'rib'), fld('SWIFT', 'swift')),
         h('h4', { className: 'msa-section', style: { marginTop: 16 } }, 'Online payment handles (shown on the invoice for the matching method)'),
@@ -2758,6 +2823,9 @@
       if (!r) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
       CURRENT_ROLE = r; CURRENT_EMAIL = (u.email || '').toLowerCase();
       CURRENT_NAME = (u.user_metadata && u.user_metadata.name) || (r === 'admin' ? 'Aladdin' : 'Partner');
+      if (isAdminRecoveryLanding() && window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname + '#admin');
+      }
       touchPresence('login');
       setRole(r); setUser(u);
     }, []);
