@@ -46,6 +46,12 @@ function siteRedirectUrl() {
   return window.location.origin + window.location.pathname;
 }
 
+async function safeSiteSession() {
+  if (window.MS_safeGetSession && window.MS_SB) return await window.MS_safeGetSession(window.MS_SB, 'ms-site-auth');
+  const { data, error } = await window.MS_SB.auth.getSession();
+  return { session: (data && data.session) || null, error: error || null };
+}
+
 function AuthModal({ view: initView, onClose, onLogin }) {
   const ctx = window.MS_CTX?.useMS?.() || {};
   const lang = ctx.lang || 'en';
@@ -302,13 +308,16 @@ function AuthSystem() {
 
   useEA(() => {
     if (!window.MS_SB?.auth?.getSession) return;
-    window.MS_SB.auth.getSession().then(({ data }) => {
-      const u = data?.session?.user;
+    safeSiteSession().then(({ session, error }) => {
+      if (error && window.MS_isStaleRefreshTokenError && window.MS_isStaleRefreshTokenError(error)) {
+        localStorage.removeItem(AUTH_KEY); setUser(null); return;
+      }
+      const u = session?.user;
       if (u) {
         const merged = { id: u.id, email: u.email, name: u.user_metadata?.name || nameFromEmail(u.email) || (u.email || '').split('@')[0], phone: u.user_metadata?.phone || '' };
         localStorage.setItem(AUTH_KEY, JSON.stringify(merged));
         setUser(merged);
-      } else if (!data?.session) {
+      } else if (!session) {
         // No live session — clear any stale local record so the UI is honest.
         if (getStoredUser()) { localStorage.removeItem(AUTH_KEY); setUser(null); }
       }
