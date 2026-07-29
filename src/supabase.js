@@ -4,6 +4,39 @@
 // the rest of the app can call without knowing anything about Supabase.
 
 (function () {
+  function normalizeSiteUrl(raw) {
+    try {
+      const fallback = new URL(window.location.origin + window.location.pathname);
+      const url = new URL(raw || fallback.toString(), fallback.toString());
+      url.hash = '';
+      url.search = '';
+      return url.toString();
+    } catch (_error) {
+      return window.location.origin + window.location.pathname;
+    }
+  }
+
+  function readCanonicalSiteUrl() {
+    const el = document.querySelector('link[rel="canonical"]');
+    return el && el.href ? el.href : '';
+  }
+
+  window.MS_getSiteUrl = function getSiteUrl() {
+    return normalizeSiteUrl(
+      (window.MS_ENV && window.MS_ENV.SITE_URL)
+      || readCanonicalSiteUrl()
+      || (window.location.origin + window.location.pathname)
+    );
+  };
+
+  window.MS_authRedirectUrl = function authRedirectUrl(opts) {
+    const options = opts || {};
+    const url = new URL(window.MS_getSiteUrl());
+    if (options.adminRecovery) url.searchParams.set('admin_recovery', '1');
+    if (options.hash) url.hash = options.hash;
+    return url.toString();
+  };
+
   if (!window.MS_AdminAuthHotfixApplied && typeof window.fetch === 'function') {
     window.MS_AdminAuthHotfixApplied = true;
     const originalFetch = window.fetch;
