@@ -8,7 +8,7 @@
 //   WEBHOOK_SHARED_SECRET — must match X-Webhook-Secret sent by the DB trigger.
 //   SLACK_WEBHOOK_URL     — (optional) Slack incoming webhook URL.
 //   RESEND_API_KEY        — Resend API key for email (or app_secrets.resend_api_key).
-//   ADMIN_EMAIL_TO        — where to send (default f.alaa9@gmail.com).
+//   ADMIN_EMAIL_TO        — where to send (default f.alaa@live.com).
 //   ADMIN_EMAIL_FROM      — sender (default MarrakechStory <onboarding@resend.dev>).
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
@@ -127,7 +127,7 @@ async function sendEmail(subject: string, html: string) {
   const s = await loadSecrets();
   const key = Deno.env.get('RESEND_API_KEY') || s.resend_api_key;
   const primary = Deno.env.get('ADMIN_EMAIL_TO') || s.admin_email_to || 'marrakechstory@outlook.com';
-  const fallback = Deno.env.get('ADMIN_EMAIL_FALLBACK') || s.admin_email_fallback || 'f.alaa9@gmail.com';
+  const fallback = Deno.env.get('ADMIN_EMAIL_FALLBACK') || s.admin_email_fallback || 'f.alaa@live.com';
   const from = Deno.env.get('ADMIN_EMAIL_FROM') || s.admin_email_from || 'MarrakechStory <onboarding@resend.dev>';
   if (!key) return { skipped: 'no resend key' };
   // Try the intended recipient first. Resend's sandbox (default onboarding@
