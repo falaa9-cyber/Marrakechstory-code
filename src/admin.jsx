@@ -30,7 +30,7 @@
     if (SB) return SB;
     if (!window.supabase || !window.MS_ENV || !window.MS_ENV.SUPABASE_URL) return null;
     SB = window.supabase.createClient(window.MS_ENV.SUPABASE_URL, window.MS_ENV.SUPABASE_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'ms-admin-auth' } });
+      { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'ms-admin-auth', detectSessionInUrl: false } });
     return SB;
   }
   async function dbList(t, order, asc) { const sb = getSB(); if (!sb) return []; let q = sb.from(t).select('*'); if (order) q = q.order(order, { ascending: asc !== false }); const { data, error } = await q; if (error) { console.warn('[admin]', t, error.message); return []; } return data || []; }
@@ -63,12 +63,35 @@
     return j || { ok: r.ok };
   }
   const normEmail = (v) => String(v || '').trim().toLowerCase();
-  const adminRecoveryUrl = () => window.location.origin + window.location.pathname + '?admin_recovery=1';
+  const adminRecoveryUrl = () => window.MS_authRedirectUrl
+    ? window.MS_authRedirectUrl({ adminRecovery: true })
+    : (window.location.origin + window.location.pathname + '?admin_recovery=1');
   const isAdminRecoveryLanding = () => {
     const search = new URLSearchParams(window.location.search || '');
     const hash = window.location.hash || '';
-    return search.get('admin_recovery') === '1' || /(^|[&#])type=recovery(?:&|$)/.test(hash);
+    return search.get('admin_recovery') === '1'
+      || search.get('type') === 'recovery'
+      || /(^|[&#])type=recovery(?:&|$)/.test(hash);
   };
+  async function recoverAdminSessionFromSiteClient() {
+    if (!isAdminRecoveryLanding() || !window.MS_SB || !window.MS_SB.auth) return null;
+    const sb = getSB();
+    if (!sb || !sb.auth || !sb.auth.setSession) return null;
+    const { data: adminData } = await sb.auth.getSession();
+    if (adminData && adminData.session) return adminData.session;
+    const { data: siteData } = await window.MS_SB.auth.getSession();
+    const siteSession = siteData && siteData.session;
+    if (!siteSession || !siteSession.access_token || !siteSession.refresh_token) return null;
+    const { data, error } = await sb.auth.setSession({
+      access_token: siteSession.access_token,
+      refresh_token: siteSession.refresh_token,
+    });
+    if (error) {
+      console.warn('[admin] could not recover site session', error.message);
+      return null;
+    }
+    return (data && data.session) || siteSession;
+  }
   function roleFromSettings(user, settings, fallbackEmail) {
     const email = normEmail((user && user.email) || fallbackEmail);
     if (!email) return null;
@@ -2830,10 +2853,20 @@
       setRole(r); setUser(u);
     }, []);
     useEffect(() => { const sb = getSB(); if (!sb) { setUser(null); return; }
-      sb.auth.getSession().then(({ data }) => { applyUser(data.session && data.session.user); });
+      (async () => {
+        const recovered = await recoverAdminSessionFromSiteClient();
+        if (recovered && recovered.user) { applyUser(recovered.user); return; }
+        const { data } = await sb.auth.getSession();
+        applyUser(data.session && data.session.user);
+      })();
       const { data: sub } = sb.auth.onAuthStateChange((_e, s) => { applyUser(s && s.user); });
       return () => sub && sub.subscription && sub.subscription.unsubscribe && sub.subscription.unsubscribe(); }, [applyUser]);
-    const logout = async () => { const sb = getSB(); if (sb) await sb.auth.signOut(); CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); location.hash = ''; };
+    const logout = async () => {
+      const sb = getSB();
+      if (sb) await sb.auth.signOut();
+      if (window.MS_SB && window.MS_SB.auth && window.MS_SB !== sb) await window.MS_SB.auth.signOut();
+      CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); location.hash = '';
+    };
     if (user === undefined) return h('div', { className: 'msa-login' }, h('div', { className: 'msa-empty' }, 'Loading…'));
     if (!user) return h(Login, { onAuthed: applyUser });
     return h(Shell, { user, role, onLogout: logout });
