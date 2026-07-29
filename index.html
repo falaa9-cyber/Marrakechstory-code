@@ -92,8 +92,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Inter:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="styles.css?v=430" />
-  <link rel="stylesheet" href="apple-redesign.css?v=430" />
-  <link rel="stylesheet" href="admin.css?v=430" />
+  <link rel="stylesheet" href="apple-redesign.css?v=431" />
+  <link rel="stylesheet" href="admin.css?v=435" />
 
   <!-- Google Analytics 4 (Measurement ID G-2KQ6SRF86C) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2KQ6SRF86C"></script>
@@ -114,7 +114,7 @@
   </script>
 
   <!--
-    Inline guard: if React / Babel fail to load (CDN outage, blocked
+    Inline guard: if the core runtime fails to load (CDN outage, blocked
     extension, integrity-hash mismatch in strict browsers), we show a
     visible error and a reload button instead of a blank white page.
   -->
@@ -216,7 +216,10 @@
       var start = Date.now(), MIN = 2200, MAX = 9000;
       function ready() {
         var r = document.getElementById('root');
-        return r && r.children.length > 0 && r.textContent.trim() !== '';
+        if (!r) return false;
+        if (r.children.length > 0) return true;
+        if (r.textContent.trim() !== '') return true;
+        return !!r.querySelector('img, svg, canvas, video, section, article, nav, main, header, footer, [role]');
       }
       function hide() {
         el.classList.add('ms-intro-hide');
@@ -265,7 +268,7 @@
   <!--
     Core libraries — primary CDN: unpkg. Fallback CDN: jsdelivr.
     Both serve the exact same pinned version so behaviour is identical.
-    The inline fallback checks window.React / window.Babel immediately
+    The inline fallback checks the expected runtime global immediately
     after the synchronous <script> and injects an alternative <script>
     if the global is missing, then halts further work until it loads.
   -->
@@ -274,9 +277,6 @@
 
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script>if (!window.ReactDOM) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"><\/scr'+'ipt>'); }</script>
-
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
-  <script>if (!window.Babel) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.0/babel.min.js"><\/scr'+'ipt>'); }</script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <script>if (!window.html2pdf) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"><\/scr'+'ipt>'); }</script>
@@ -290,9 +290,12 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
 
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.Babel) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.0/babel.min.js"><\/scr'+'ipt>'); }</script>
+
   <!-- Plain JS data files (run synchronously before any JSX is transformed) -->
-  <script src="src/env.js?v=430"></script>
-  <script src="src/supabase.js?v=430"></script>
+  <script src="src/env.js?v=431"></script>
+  <script src="src/supabase.js?v=432"></script>
   <script src="src/data.js?v=430"></script>
 
   <!--
@@ -305,7 +308,7 @@
   <script type="text/babel" src="src/hero.jsx?v=430"></script>
   <script type="text/babel" src="src/insta-phone.jsx?v=430"></script>
   <script type="text/babel" src="src/hero-tabs.jsx?v=430"></script>
-  <script type="text/babel" src="src/hero-slider.jsx?v=430"></script>
+  <script type="text/babel" src="src/hero-slider.jsx?v=431"></script>
   <script type="text/babel" src="src/listing-detail.jsx?v=430"></script>
   <script type="text/babel" src="src/season-trip.jsx?v=430"></script>
   <script type="text/babel" src="src/itineraries.jsx?v=430"></script>
@@ -315,10 +318,10 @@
   <script type="text/babel" src="src/extras.jsx?v=430"></script>
   <script type="text/babel" src="src/extras2.jsx?v=430"></script>
   <script type="text/babel" src="src/weather.jsx?v=430"></script>
-  <script type="text/babel" src="src/auth.jsx?v=430"></script>
+  <script type="text/babel" src="src/auth.jsx?v=431"></script>
   <script type="text/babel" src="src/reviews.jsx?v=430"></script>
-  <script type="text/babel" src="src/app.jsx?v=430"></script>
-  <script type="text/babel" src="src/admin.jsx?v=430"></script>
+  <script type="text/babel" src="src/app.jsx?v=431"></script>
+  <script type="text/babel" src="src/admin.jsx?v=442"></script>
   <script type="text/babel" src="src/apple-fx.jsx?v=430"></script>
 
   <!-- ── Auto-syncing trip structured data (TouristTrip ItemList from live data) ── -->
@@ -363,6 +366,12 @@
     (function () {
       var ROOT = document.getElementById('root');
       var ERR  = document.getElementById('ms-boot-error');
+      function appLooksMounted() {
+        if (!ROOT) return false;
+        if (ROOT.children.length > 0) return true;
+        if (ROOT.textContent.trim() !== '') return true;
+        return !!ROOT.querySelector('img, svg, canvas, video, section, article, nav, main, header, footer, [role]');
+      }
       // Surface any uncaught script error to the console so we can diagnose
       // remotely if a real user reports a blank page.
       window.addEventListener('error', function (e) {
@@ -370,7 +379,7 @@
       });
       setTimeout(function check() {
         if (!ROOT) return;
-        if (ROOT.children.length === 0 || ROOT.textContent.trim() === '') {
+        if (!appLooksMounted()) {
           ERR && ERR.classList.add('is-visible');
         }
       }, 6000);
