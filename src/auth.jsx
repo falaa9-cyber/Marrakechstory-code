@@ -41,6 +41,11 @@ function nameFromEmail(mail) {
     .map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
+function siteRedirectUrl() {
+  if (window.MS_authRedirectUrl) return window.MS_authRedirectUrl();
+  return window.location.origin + window.location.pathname;
+}
+
 function AuthModal({ view: initView, onClose, onLogin }) {
   const ctx = window.MS_CTX?.useMS?.() || {};
   const lang = ctx.lang || 'en';
@@ -133,7 +138,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     if (!email.trim()) { setErr(T('Enter your email first', 'Skriv inn e-posten din først', 'Saisissez votre e-mail')); return; }
     setBusy(true);
     try {
-      await window.MS_SB.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: window.location.origin + window.location.pathname });
+      await window.MS_SB.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: siteRedirectUrl() });
       setMsg(T('If that email has an account, a reset link is on its way. You can also message us on WhatsApp.', 'Hvis e-posten har en konto, sender vi en lenke. Du kan også melde oss på WhatsApp.', 'Si un compte existe, un lien arrive. Vous pouvez aussi nous écrire sur WhatsApp.'));
     } catch (e) { setErr(e?.message || 'Error'); } finally { setBusy(false); }
   };
@@ -145,7 +150,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     if (!window.MS_SB?.auth?.signInWithOAuth) { setErr(T('Social sign-in unavailable — use email.', 'Sosial innlogging utilgjengelig — bruk e-post.', 'Connexion sociale indisponible — utilisez l\'e-mail.')); return; }
     setBusy(true);
     try {
-      const { error } = await window.MS_SB.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin + window.location.pathname } });
+      const { error } = await window.MS_SB.auth.signInWithOAuth({ provider, options: { redirectTo: siteRedirectUrl() } });
       if (error) {
         if (/provider|not enabled|disabled|unsupported|validation/i.test(error.message || '')) {
           setErr(T(`${provider[0].toUpperCase() + provider.slice(1)} sign-in is being set up — please use email for now.`, `Innlogging med ${provider} settes opp — bruk e-post inntil videre.`, `Connexion ${provider} en cours de configuration — utilisez l'e-mail.`));
