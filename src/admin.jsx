@@ -23,6 +23,7 @@
   const CAL_DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const CAL_DOW_MINI = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   const mondayOffset = (date) => (date.getDay() + 6) % 7;
+  const ADMIN_AUTH_STORAGE_KEY = 'ms-admin-auth';
 
   // ---- Supabase (persisted admin session) ----
   let SB = null;
@@ -30,8 +31,17 @@
     if (SB) return SB;
     if (!window.supabase || !window.MS_ENV || !window.MS_ENV.SUPABASE_URL) return null;
     SB = window.supabase.createClient(window.MS_ENV.SUPABASE_URL, window.MS_ENV.SUPABASE_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'ms-admin-auth', detectSessionInUrl: false } });
+      { auth: { persistSession: true, autoRefreshToken: true, storageKey: ADMIN_AUTH_STORAGE_KEY, detectSessionInUrl: false } });
     return SB;
+  }
+  const clearAuthStorage = (key) => {
+    if (window.MS_clearSupabaseAuthStorage) window.MS_clearSupabaseAuthStorage(key);
+  };
+  async function safeGetSession(client, storageKey) {
+    if (!client || !client.auth || !client.auth.getSession) return { session: null, error: null };
+    if (window.MS_safeGetSession) return await window.MS_safeGetSession(client, storageKey);
+    const { data, error } = await client.auth.getSession();
+    return { session: (data && data.session) || null, error: error || null };
   }
   async function dbList(t, order, asc) { const sb = getSB(); if (!sb) return []; let q = sb.from(t).select('*'); if (order) q = q.order(order, { ascending: asc !== false }); const { data, error } = await q; if (error) { console.warn('[admin]', t, error.message); return []; } return data || []; }
   async function dbInsert(t, row) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).insert(row).select(); }
@@ -77,10 +87,9 @@
     if (!isAdminRecoveryLanding() || !window.MS_SB || !window.MS_SB.auth) return null;
     const sb = getSB();
     if (!sb || !sb.auth || !sb.auth.setSession) return null;
-    const { data: adminData } = await sb.auth.getSession();
-    if (adminData && adminData.session) return adminData.session;
-    const { data: siteData } = await window.MS_SB.auth.getSession();
-    const siteSession = siteData && siteData.session;
+    const { session: adminSession } = await safeGetSession(sb, ADMIN_AUTH_STORAGE_KEY);
+    if (adminSession) return adminSession;
+    const { session: siteSession } = await safeGetSession(window.MS_SB, 'ms-site-auth');
     if (!siteSession || !siteSession.access_token || !siteSession.refresh_token) return null;
     const { data, error } = await sb.auth.setSession({
       access_token: siteSession.access_token,
@@ -464,13 +473,16 @@
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
       const typedEmail = email.trim();
       const { data, error } = await sb.auth.signInWithPassword({ email: typedEmail, password: pass });
-      if (error) { setBusy(false); setErr(error.message); return; }
+      if (error) {
+        if (window.MS_isStaleRefreshTokenError && window.MS_isStaleRefreshTokenError(error)) clearAuthStorage(ADMIN_AUTH_STORAGE_KEY);
+        setBusy(false); setErr(error.message); return;
+      }
       // Some auth responses can be thin on the first round-trip, so re-check the
       // persisted session and the current user before deciding whether this
       // account is allowed in.
-      const { data: sessionData } = await sb.auth.getSession();
+      const { session: sessionUserData } = await safeGetSession(sb, ADMIN_AUTH_STORAGE_KEY);
       const { data: userData } = await sb.auth.getUser();
-      const sessionUser = sessionData && sessionData.session && sessionData.session.user;
+      const sessionUser = sessionUserData && sessionUserData.user;
       const signedInUser = data.user || (data.session && data.session.user) || sessionUser || (userData && userData.user) || { email: typedEmail };
       const roleData = await ensureStaffAccess(signedInUser, typedEmail)
         || (normEmail(typedEmail) === normEmail(LEGACY_ADMIN_EMAIL) ? 'admin' : null);
@@ -2856,8 +2868,8 @@
       (async () => {
         const recovered = await recoverAdminSessionFromSiteClient();
         if (recovered && recovered.user) { applyUser(recovered.user); return; }
-        const { data } = await sb.auth.getSession();
-        applyUser(data.session && data.session.user);
+        const { session } = await safeGetSession(sb, ADMIN_AUTH_STORAGE_KEY);
+        applyUser(session && session.user);
       })();
       const { data: sub } = sb.auth.onAuthStateChange((_e, s) => { applyUser(s && s.user); });
       return () => sub && sub.subscription && sub.subscription.unsubscribe && sub.subscription.unsubscribe(); }, [applyUser]);
