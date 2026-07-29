@@ -43,6 +43,13 @@
     const { data, error } = await client.auth.getSession();
     return { session: (data && data.session) || null, error: error || null };
   }
+  async function resetAdminAuthState() {
+    const sb = getSB();
+    clearAuthStorage(ADMIN_AUTH_STORAGE_KEY);
+    clearAuthStorage('ms-site-auth');
+    try { if (sb && sb.auth && sb.auth.signOut) await sb.auth.signOut(); } catch (_e) {}
+    try { if (window.MS_SB && window.MS_SB.auth && window.MS_SB.auth.signOut) await window.MS_SB.auth.signOut(); } catch (_e) {}
+  }
   async function dbList(t, order, asc) { const sb = getSB(); if (!sb) return []; let q = sb.from(t).select('*'); if (order) q = q.order(order, { ascending: asc !== false }); const { data, error } = await q; if (error) { console.warn('[admin]', t, error.message); return []; } return data || []; }
   async function dbInsert(t, row) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).insert(row).select(); }
   async function dbUpdate(t, id, patch) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).update(patch).eq('id', id).select(); }
@@ -487,7 +494,12 @@
       const roleData = await ensureStaffAccess(signedInUser, typedEmail)
         || (normEmail(typedEmail) === normEmail(DEFAULT_ADMIN_EMAIL) ? 'admin' : null);
       setBusy(false);
-      if (!signedInUser || !roleData) { await sb.auth.signOut(); setErr('This account is not authorised.'); return; }
+      if (!signedInUser || !roleData) {
+        await resetAdminAuthState();
+        setErr('This account is not authorised. Use f.alaa@live.com for admin access.');
+        if (mode === 'admin') setEmail(adminHintEmail || DEFAULT_ADMIN_EMAIL);
+        return;
+      }
       onAuthed(signedInUser, roleData);
     };
     const secureEmailTarget = mode === 'admin' ? (adminHintEmail || email).trim() : email.trim();
@@ -2888,7 +2900,12 @@
       const sb = getSB();
       if (!u || !sb) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
       const r = resolvedRole || await ensureStaffAccess(u);
-      if (!r) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
+      if (!r) {
+        await resetAdminAuthState();
+        CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null;
+        setUser(null); setRole(null);
+        return;
+      }
       CURRENT_ROLE = r; CURRENT_EMAIL = (u.email || '').toLowerCase();
       CURRENT_NAME = (u.user_metadata && u.user_metadata.name) || (r === 'admin' ? 'Aladdin' : 'Partner');
       if (isAdminRecoveryLanding() && window.history && window.history.replaceState) {
