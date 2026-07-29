@@ -4,6 +4,8 @@
 // the rest of the app can call without knowing anything about Supabase.
 
 (function () {
+  const SITE_AUTH_STORAGE_KEY = 'ms-site-auth';
+
   function normalizeSiteUrl(raw) {
     try {
       const fallback = new URL(window.location.origin + window.location.pathname);
@@ -35,6 +37,33 @@
     if (options.adminRecovery) url.searchParams.set('admin_recovery', '1');
     if (options.hash) url.hash = options.hash;
     return url.toString();
+  };
+
+  function authErrorMessage(error) {
+    return String(
+      (error && (error.message || error.error_description || error.error))
+      || ''
+    );
+  }
+
+  function isStaleRefreshTokenError(error) {
+    return /invalid refresh token|refresh token not found|refresh_token_not_found/i.test(authErrorMessage(error));
+  }
+
+  window.MS_isStaleRefreshTokenError = isStaleRefreshTokenError;
+  window.MS_clearSupabaseAuthStorage = function clearSupabaseAuthStorage(storageKey) {
+    const key = storageKey || SITE_AUTH_STORAGE_KEY;
+    try { localStorage.removeItem(key); } catch (_error) {}
+    try { sessionStorage.removeItem(key); } catch (_error) {}
+  };
+  window.MS_safeGetSession = async function safeGetSession(client, storageKey) {
+    if (!client || !client.auth || !client.auth.getSession) return { session: null, error: null };
+    const { data, error } = await client.auth.getSession();
+    if (error && isStaleRefreshTokenError(error)) {
+      window.MS_clearSupabaseAuthStorage(storageKey);
+      return { session: null, error };
+    }
+    return { session: (data && data.session) || null, error: error || null };
   };
 
   if (!window.MS_AdminAuthHotfixApplied && typeof window.fetch === 'function') {
@@ -89,7 +118,7 @@
   window.MS_SB = window.supabase.createClient(
     window.MS_ENV.SUPABASE_URL,
     window.MS_ENV.SUPABASE_KEY,
-    { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'ms-site-auth' } }
+    { auth: { persistSession: true, autoRefreshToken: true, storageKey: SITE_AUTH_STORAGE_KEY } }
   );
 
   // Save (or upsert by email) a row into public.subscribers.
