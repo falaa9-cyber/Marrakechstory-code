@@ -20,6 +20,10 @@ function callerEmail(req: Request): string {
   }
 }
 
+function mergeAppMeta(existing: any, role: string) {
+  return { ...(existing || {}), role };
+}
+
 async function patchSettings(url: string, adminHdr: HeadersInit, patch: Record<string, unknown>) {
   return await fetch(`${url}/rest/v1/admin_settings?id=eq.1`, {
     method: 'PATCH',
@@ -88,11 +92,13 @@ Deno.serve(async (req) => {
   const currentAdminUser = users.find((u) => allowed.has(String(u?.email || '').trim().toLowerCase())) || null;
   const targetUser = users.find((u) => String(u?.email || '').trim().toLowerCase() === nextEmail) || null;
 
+  const sourceUser = targetUser || currentAdminUser || null;
   const payload = {
     email: nextEmail,
     password: nextPassword,
     email_confirm: true,
-    user_metadata: { name: 'Admin', role: 'admin' },
+    app_metadata: mergeAppMeta(sourceUser && sourceUser.app_metadata, 'admin'),
+    user_metadata: { ...(sourceUser && sourceUser.user_metadata || {}), name: 'Admin', role: 'admin' },
   };
 
   if (targetUser) {

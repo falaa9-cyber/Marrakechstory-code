@@ -20,6 +20,10 @@ function callerEmail(req: Request): string {
   }
 }
 
+function mergeAppMeta(existing: any, role: string) {
+  return { ...(existing || {}), role };
+}
+
 async function allowedAdminEmails(url: string, srk: string): Promise<Set<string>> {
   const adminHdr = { apikey: srk, Authorization: `Bearer ${srk}` };
   const out = new Set<string>([DEFAULT_ADMIN_EMAIL]);
@@ -77,10 +81,11 @@ Deno.serve(async (req) => {
     return json({ ok: false, error: 'email and password (min 8 chars) required' }, 400);
   }
 
+  const createPayload = { email, password, email_confirm: true, app_metadata: { role: 'partner' }, user_metadata: { name, role: 'partner' } };
   const create = await fetch(`${url}/auth/v1/admin/users`, {
     method: 'POST',
     headers: adminHdr,
-    body: JSON.stringify({ email, password, email_confirm: true, user_metadata: { name, role: 'partner' } }),
+    body: JSON.stringify(createPayload),
   });
   let createdId: string | null = null;
   if (create.ok) {
@@ -97,7 +102,12 @@ Deno.serve(async (req) => {
     await fetch(`${url}/auth/v1/admin/users/${found.id}`, {
       method: 'PUT',
       headers: adminHdr,
-      body: JSON.stringify({ password, email_confirm: true, user_metadata: { name, role: 'partner' } }),
+      body: JSON.stringify({
+        password,
+        email_confirm: true,
+        app_metadata: mergeAppMeta(found.app_metadata, 'partner'),
+        user_metadata: { ...(found.user_metadata || {}), name, role: 'partner' },
+      }),
     });
     createdId = found.id;
   }

@@ -110,16 +110,21 @@
   }
   function roleFromSettings(user, settings, fallbackEmail) {
     const email = normEmail((user && user.email) || fallbackEmail);
+    const claimRole = String(user && user.app_metadata && user.app_metadata.role || '').trim().toLowerCase();
     if (!email) return null;
     const adminEmail = normEmail(settings && settings.admin_email);
     const partnerEmail = normEmail(settings && settings.partner_email);
+    if (claimRole === 'admin') return 'admin';
+    if (claimRole === 'partner' && !(settings && settings.partner_blocked)) return 'partner';
     if (email === normEmail(DEFAULT_ADMIN_EMAIL) || (adminEmail && email === adminEmail)) return 'admin';
     if (partnerEmail && email === partnerEmail && !(settings && settings.partner_blocked)) return 'partner';
     return null;
   }
   async function ensureStaffAccess(user, fallbackEmail) {
     const email = normEmail((user && user.email) || fallbackEmail);
+    const claimRole = String(user && user.app_metadata && user.app_metadata.role || '').trim().toLowerCase();
     if (!email) return null;
+    if (claimRole === 'admin') return 'admin';
     if (email === normEmail(DEFAULT_ADMIN_EMAIL)) return 'admin';
     const sb = getSB();
     if (!sb) return null;

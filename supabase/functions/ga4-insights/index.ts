@@ -9,14 +9,17 @@ const cors = {
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { 'Content-Type': 'application/json', ...cors } });
 
-function callerEmail(req: Request): string {
+function callerClaims(req: Request): { email: string; role: string } {
   try {
     const auth = req.headers.get('Authorization') || '';
     const tok = auth.replace(/^Bearer\s+/i, '');
     const payload = JSON.parse(atob(tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-    return String(payload.email || '').toLowerCase();
+    return {
+      email: String(payload.email || '').toLowerCase(),
+      role: String(payload?.app_metadata?.role || '').trim().toLowerCase(),
+    };
   } catch (_e) {
-    return '';
+    return { email: '', role: '' };
   }
 }
 
@@ -99,12 +102,13 @@ async function ga(token: string, propertyId: string, method: string, body: any) 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
-  const email = callerEmail(req);
+  const { email, role } = callerClaims(req);
   if (!email) return json({ ok: false, error: 'unauthorized' }, 401);
 
   const url = Deno.env.get('SUPABASE_URL')!;
   const srk = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  if (!(await allowedAdminEmails(url, srk)).has(email)) return json({ ok: false, error: 'forbidden — admin only' }, 403);
+  const isAdmin = role === 'admin' || (await allowedAdminEmails(url, srk)).has(email);
+  if (!isAdmin) return json({ ok: false, error: 'forbidden — admin only' }, 403);
   const adminHdr = { apikey: srk, Authorization: `Bearer ${srk}`, 'Content-Type': 'application/json' };
 
   let body: any = {};
@@ -113,7 +117,7 @@ Deno.serve(async (req) => {
   } catch (_e) {}
 
   if (body.action === 'save') {
-    if (email !== ADMIN_EMAIL) return json({ ok: false, error: 'forbidden — admin only' }, 403);
+    if (!isAdmin) return json({ ok: false, error: 'forbidden — admin only' }, 403);
     const sa = parseSA(String(body.serviceAccount || '').trim());
     const pid = String(body.propertyId || '').trim().replace(/[^0-9]/g, '');
     if (!sa || !sa.client_email || !sa.private_key) {
