@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MarrakechStory Admin</title>
+  <meta name="description" content="MarrakechStory operations console for staff, bookings, tasks, analytics, and partner workflows." />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="theme-color" content="#e0432a" />
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+  <link rel="canonical" href="https://marrakechstory.com/admin.html" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="admin.css?v=437" />
+
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #f5f5f7;
+    }
+    body[data-ms-surface="admin"] {
+      overflow: hidden;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+    #ms-admin-root {
+      min-height: 100vh;
+    }
+    .ms-admin-boot {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f7;
+      color: #111114;
+      font: 500 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: -0.01em;
+    }
+    .ms-admin-boot-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 24px 28px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 18px 44px rgba(17, 17, 20, 0.1);
+    }
+    .ms-admin-boot img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+    .ms-admin-boot p {
+      margin: 0;
+      color: #54545c;
+      font-size: 13px;
+    }
+    .ms-admin-error {
+      display: none;
+      position: fixed;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f7;
+      color: #111114;
+      z-index: 9999;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .ms-admin-error.is-visible {
+      display: flex;
+    }
+    .ms-admin-error-box {
+      max-width: 360px;
+      margin: 24px;
+      padding: 28px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 24px 56px rgba(17, 17, 20, 0.12);
+      text-align: center;
+    }
+    .ms-admin-error h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+    .ms-admin-error p {
+      margin: 0 0 18px;
+      color: #54545c;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .ms-admin-error a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      background: #e0432a;
+      color: #fff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body data-ms-surface="admin">
+  <div id="ms-admin-root">
+    <div class="ms-admin-boot" id="ms-admin-boot">
+      <div class="ms-admin-boot-card">
+        <img src="assets/logo.png" alt="MarrakechStory" />
+        <strong>Opening MarrakechStory Admin</strong>
+        <p>Loading your bookings, tasks, and operations workspace.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="ms-admin-error" class="ms-admin-error" role="alert">
+    <div class="ms-admin-error-box">
+      <h2>Admin couldn’t load</h2>
+      <p>The admin console did not finish starting. Reload once, or go back to the website and try again.</p>
+      <a href="./">Back to website</a>
+    </div>
+  </div>
+
+  <noscript>
+    <div style="padding:24px;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+      JavaScript is required to use the MarrakechStory admin console.
+    </div>
+  </noscript>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.React) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"><\/scr'+'ipt>'); }</script>
+
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.ReactDOM) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"><\/scr'+'ipt>'); }</script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.html2pdf) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"><\/scr'+'ipt>'); }</script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" crossorigin="anonymous"></script>
+  <script>if (!(window.jspdf && window.jspdf.jsPDF)) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"><\/scr'+'ipt>'); }</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous"></script>
+  <script>if (!window.supabase) { document.write('<scr'+'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>'); }</script>
+
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script>if (!window.Babel) { document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.0/babel.min.js"><\/scr'+'ipt>'); }</script>
+
+  <script src="src/env.js?v=433"></script>
+  <script src="src/supabase.js?v=434"></script>
+  <script type="text/babel" src="src/admin.jsx?v=445"></script>
+
+  <script>
+    (function () {
+      var rootEl = document.getElementById('ms-admin-root');
+      var bootEl = document.getElementById('ms-admin-boot');
+      var errorEl = document.getElementById('ms-admin-error');
+      var tries = 0;
+      function mounted() {
+        if (!rootEl) return false;
+        if (rootEl.children.length > 1) return true;
+        return !!rootEl.querySelector('.msa-login, .msa-shell');
+      }
+      function showError() {
+        if (errorEl) errorEl.classList.add('is-visible');
+      }
+      (function mount() {
+        if (typeof window.MS_AdminMount === 'function') {
+          window.MS_AdminMount(rootEl);
+        } else if (tries++ < 80) {
+          setTimeout(mount, 100);
+          return;
+        }
+        setTimeout(function check() {
+          if (mounted()) {
+            if (bootEl) bootEl.style.display = 'none';
+          } else {
+            showError();
+          }
+        }, 1200);
+      })();
+      setTimeout(function () {
+        if (!mounted()) showError();
+      }, 9000);
+    })();
+  </script>
+</body>
+</html>

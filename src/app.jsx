@@ -249,7 +249,7 @@ function Footer() {
         <CollabForm />
         <div className="footer-bottom">
           <span>© 2026 Marrakechstory · IATA accredited · ONMT licence #14872 · {t('foot_rights')}
-            {' '}<a href="#admin" className="footer-admin-link" title="Staff area" aria-label="Staff area">·</a>
+            {' '}<a href="admin.html" className="footer-admin-link" title="Staff area" aria-label="Staff area">·</a>
           </span>
           <span style={{ display: 'flex', gap: 18 }}>
             <a href="#">{t('foot_privacy')}</a>
@@ -357,40 +357,3 @@ function App() {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-
-// ============================================================
-// Private admin router — opens the operations dashboard at #admin.
-// No link on the public site; mounts into its own overlay container
-// and hides the main site while active.
-// ============================================================
-(function () {
-  function ensureAdminRoot() {
-    let el = document.getElementById('ms-admin-root');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'ms-admin-root';
-      document.body.appendChild(el);
-    }
-    return el;
-  }
-  function syncAdmin() {
-    const isAdmin = (location.hash || '').replace(/^#/, '').split('?')[0] === 'admin';
-    const siteRoot = document.getElementById('root');
-    if (isAdmin) {
-      const el = ensureAdminRoot();
-      el.style.display = 'block';
-      if (siteRoot) siteRoot.style.display = 'none';
-      let tries = 0;
-      (function mount() {
-        if (typeof window.MS_AdminMount === 'function') { window.MS_AdminMount(el); }
-        else if (tries++ < 50) { setTimeout(mount, 100); }
-      })();
-    } else {
-      const el = document.getElementById('ms-admin-root');
-      if (el) { el.style.display = 'none'; if (window.MS_AdminUnmount) window.MS_AdminUnmount(); }
-      if (siteRoot) siteRoot.style.display = '';
-    }
-  }
-  window.addEventListener('hashchange', syncAdmin);
-  syncAdmin();
-})();

@@ -1,7 +1,7 @@
 // ============================================================
 // MarrakechStory — Private Admin / Operations console
 // Apple-style, fully connected to the website (Supabase).
-// Access: <site>/#admin   ·   Auth: configured admin + partner staff accounts.
+// Access: <site>/admin.html   ·   Auth: configured admin + partner staff accounts.
 // ============================================================
 (function () {
   const R = window.React;
@@ -24,6 +24,40 @@
   const CAL_DOW_MINI = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   const mondayOffset = (date) => (date.getDay() + 6) % 7;
   const ADMIN_AUTH_STORAGE_KEY = 'ms-admin-auth';
+  const isStandaloneAdminPage = () => {
+    try {
+      return !!(document.body && document.body.dataset && document.body.dataset.msSurface === 'admin');
+    } catch (_error) {
+      return /(?:^|\/)admin(?:\.html)?$/i.test(window.location.pathname || '');
+    }
+  };
+  const isLocalHost = () => /^(localhost|127(?:\.\d{1,3}){3})$/i.test(window.location.hostname || '');
+  const websiteHomeUrl = () => {
+    try {
+      return new URL('./', window.location.href).toString();
+    } catch (_error) {
+      return '/';
+    }
+  };
+  const adminBaseUrl = () => {
+    const env = window.MS_ENV || {};
+    const currentAdmin = new URL('admin.html', window.location.href).toString();
+    if (isStandaloneAdminPage() && !isLocalHost()) return window.location.origin + window.location.pathname;
+    if (isLocalHost()) return currentAdmin;
+    if (env.ADMIN_URL) return String(env.ADMIN_URL);
+    if (env.SITE_URL) return new URL('admin.html', String(env.SITE_URL)).toString();
+    return currentAdmin;
+  };
+  const adminPageUrl = (opts) => {
+    const options = opts || {};
+    const url = new URL(adminBaseUrl());
+    url.hash = '';
+    url.search = '';
+    if (options.adminRecovery) url.searchParams.set('admin_recovery', '1');
+    if (options.hash) url.hash = options.hash;
+    return url.toString();
+  };
+  const adminCleanUrl = () => isStandaloneAdminPage() ? window.location.pathname : (window.location.pathname + '#admin');
 
   // ---- Supabase (persisted admin session) ----
   let SB = null;
@@ -80,9 +114,8 @@
     return j || { ok: r.ok };
   }
   const normEmail = (v) => String(v || '').trim().toLowerCase();
-  const adminRecoveryUrl = () => window.MS_authRedirectUrl
-    ? window.MS_authRedirectUrl({ adminRecovery: true })
-    : (window.location.origin + window.location.pathname + '?admin_recovery=1');
+  const adminSignInUrl = () => adminPageUrl();
+  const adminRecoveryUrl = () => adminPageUrl({ adminRecovery: true });
   const isAdminRecoveryLanding = () => {
     const search = new URLSearchParams(window.location.search || '');
     const hash = window.location.hash || '';
@@ -437,12 +470,15 @@
   // =====================================================================
   // LOGIN
   // =====================================================================
-  function Login({ onAuthed }) {
+  function Login({ onAuthed, recoveryMode, onRecoveryDone, recoveryNotice }) {
     const [mode, setMode] = useState('admin');   // 'admin' | 'partner'
     const [adminHintEmail, setAdminHintEmail] = useState(DEFAULT_ADMIN_EMAIL);
     const [email, setEmail] = useState(DEFAULT_ADMIN_EMAIL); const [pass, setPass] = useState('');
     const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
     const [remember, setRemember] = useState(true); const [notice, setNotice] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [nextPass, setNextPass] = useState(''); const [nextPass2, setNextPass2] = useState('');
+    const [showResetPassword, setShowResetPassword] = useState(false);
     useEffect(() => {
       let alive = true;
       (async () => {
@@ -455,12 +491,19 @@
       })();
       return () => { alive = false; };
     }, []);
+    useEffect(() => {
+      if (!recoveryMode) {
+        setNextPass(''); setNextPass2(''); setShowResetPassword(false);
+      }
+    }, [recoveryMode]);
     const pickMode = (m) => { setMode(m); setErr(''); setPass(''); setNotice(''); setEmail(m === 'admin' ? adminHintEmail : PARTNER_HINT_EMAIL); };
     const forgot = async (e) => {
       e.preventDefault(); setErr(''); setNotice('');
       if (!email.trim()) { setErr('Enter your email first, then tap “Forgot password”.'); return; }
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); return; }
+      setBusy(true);
       const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: adminRecoveryUrl() });
+      setBusy(false);
       if (error) setErr(error.message); else setNotice('Password-reset email sent to ' + email.trim() + '. It will return to this admin page.');
     };
     const sendSecureLink = async (e) => {
@@ -472,7 +515,7 @@
       const { error } = await sb.auth.signInWithOtp({
         email: secureEmail,
         options: {
-          emailRedirectTo: adminRecoveryUrl(),
+          emailRedirectTo: adminSignInUrl(),
           shouldCreateUser: false,
         },
       });
@@ -507,7 +550,40 @@
       }
       onAuthed(signedInUser, roleData);
     };
+    const submitRecovery = async (e) => {
+      e.preventDefault(); setErr(''); setNotice('');
+      if (nextPass.length < 8) { setErr('Use at least 8 characters for the new password.'); return; }
+      if (nextPass !== nextPass2) { setErr('The new passwords do not match.'); return; }
+      const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); return; }
+      setBusy(true);
+      const { error } = await sb.auth.updateUser({ password: nextPass });
+      setBusy(false);
+      if (error) { setErr(error.message); return; }
+      setNotice('Password updated successfully. You can continue into the admin area now.');
+      setNextPass(''); setNextPass2('');
+      setShowResetPassword(false);
+      if (window.history && window.history.replaceState) window.history.replaceState(null, '', adminCleanUrl());
+      if (typeof onRecoveryDone === 'function') onRecoveryDone();
+    };
     const secureEmailTarget = mode === 'admin' ? (adminHintEmail || email).trim() : email.trim();
+    if (recoveryMode) {
+      return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submitRecovery },
+        h('div', { className: 'msa-login-logo-wrap' }, h('img', { src: 'assets/logo.png', alt: 'MarrakechStory', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } })),
+        h('h1', null, 'Reset your admin password'),
+        h('p', { className: 'msa-login-sub' }, 'Choose a new password for your MarrakechStory admin account.'),
+        err && h('div', { className: 'msa-login-err' }, err),
+        notice && h('div', { className: 'msa-login-notice' }, notice),
+        h('div', { className: 'msa-login-help' },
+          h('strong', null, 'Password recovery'),
+          h('p', null, 'This secure link came from your password-reset email. Set a new password below, then continue straight into the admin area.')),
+        h('input', { type: showResetPassword ? 'text' : 'password', autoComplete: 'new-password', placeholder: 'New password', value: nextPass, onChange: (e) => setNextPass(e.target.value) }),
+        h('input', { type: showResetPassword ? 'text' : 'password', autoComplete: 'new-password', placeholder: 'Confirm new password', value: nextPass2, onChange: (e) => setNextPass2(e.target.value) }),
+        h('label', { className: 'msa-login-showpass' },
+          h('input', { type: 'checkbox', checked: showResetPassword, onChange: (e) => setShowResetPassword(e.target.checked) }),
+          'Show password'),
+        h('button', { type: 'submit', disabled: busy, className: 'msa-login-submit' }, busy ? 'Saving password…' : 'Save new password'),
+        h('a', { href: websiteHomeUrl(), className: 'msa-login-back' }, '← Back to website')));
+    }
     return h('div', { className: 'msa-login' }, h('form', { className: 'msa-login-card', onSubmit: submit },
       h('div', { className: 'msa-login-logo-wrap' }, h('img', { src: 'assets/logo.png', alt: 'MarrakechStory', className: 'msa-login-logo', onError: (e) => { e.target.style.display = 'none'; } })),
       h('h1', null, 'Sign in to your account'),
@@ -518,6 +594,7 @@
       h('div', { className: 'msa-login-divider' }, h('span', null, 'Sign in with email')),
       err && h('div', { className: 'msa-login-err' }, err),
       notice && h('div', { className: 'msa-login-notice' }, notice),
+      recoveryNotice && h('div', { className: 'msa-login-notice' }, recoveryNotice),
       h('div', { className: 'msa-login-help' },
         h('strong', null, mode === 'admin' ? 'Admin access' : 'Partner access'),
         h('p', null, mode === 'admin'
@@ -525,13 +602,16 @@
           : 'Use the partner password first. If you are locked out, send a one-time secure sign-in link to the partner email on file.'),
         secureEmailTarget && h('span', { className: 'msa-login-help-email' }, secureEmailTarget)),
       h('input', { type: 'email', autoComplete: 'email', placeholder: 'Email address', value: email, onChange: (e) => setEmail(e.target.value) }),
-      h('input', { type: 'password', autoComplete: 'current-password', placeholder: 'Password', value: pass, onChange: (e) => setPass(e.target.value) }),
+      h('input', { type: showPassword ? 'text' : 'password', autoComplete: 'current-password', placeholder: 'Password', value: pass, onChange: (e) => setPass(e.target.value) }),
+      h('label', { className: 'msa-login-showpass' },
+        h('input', { type: 'checkbox', checked: showPassword, onChange: (e) => setShowPassword(e.target.checked) }),
+        'Show password'),
       h('div', { className: 'msa-login-row' },
         h('label', { className: 'msa-login-remember' }, h('input', { type: 'checkbox', checked: remember, onChange: (e) => setRemember(e.target.checked) }), 'Remember me on this device'),
         h('a', { href: '#', className: 'msa-login-forgot', onClick: forgot }, 'Reset password')),
       h('button', { type: 'submit', disabled: busy, className: 'msa-login-submit' }, busy ? 'Signing in…' : 'Sign In'),
       h('button', { type: 'button', disabled: busy, className: 'msa-login-secondary', onClick: sendSecureLink }, busy ? 'Sending secure link…' : 'Send a one-time secure sign-in link'),
-      h('a', { href: '#', className: 'msa-login-back' }, '← Back to website')));
+      h('a', { href: websiteHomeUrl(), className: 'msa-login-back' }, '← Back to website')));
   }
 
   // ---- tiny SVG charts ----
@@ -2892,7 +2972,7 @@
         h('div', { className: 'msa-user' },
           h('div', { className: 'msa-emoji-row' },
             h('button', { className: 'msa-emoji-btn', onClick: () => setDark(d => !d), title: dark ? 'Light mode' : 'Night mode' }, dark ? '☀️' : '🌙'),
-            h('a', { className: 'msa-emoji-btn', href: '#', onClick: () => setNavOpen(false), title: 'Back to website' }, '🌐')),
+            h('a', { className: 'msa-emoji-btn', href: websiteHomeUrl(), onClick: () => setNavOpen(false), title: 'Back to website' }, '🌐')),
           h('div', { className: 'msa-user-info' }, h('strong', null, (user.user_metadata && user.user_metadata.name) || (isAdmin ? 'Aladdin faiz' : 'Partner')), h('span', { className: 'msa-dim' }, isAdmin ? 'Administrator' : 'Partner · assistant')),
           h('button', { className: 'msa-btn msa-btn-ghost msa-btn-block', onClick: onLogout, title: 'Log out' }, ICON.logout(), h('span', { className: 'msa-nav-label' }, 'Log out')))),
       h('main', { className: 'msa-main' }, body()));
@@ -2901,6 +2981,7 @@
   function AdminRoot() {
     const [user, setUser] = useState(undefined);
     const [role, setRole] = useState(null);
+    const [recoveryMode, setRecoveryMode] = useState(() => isAdminRecoveryLanding());
     const applyUser = useCallback(async (u, resolvedRole) => {
       const sb = getSB();
       if (!u || !sb) { CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); return; }
@@ -2913,9 +2994,6 @@
       }
       CURRENT_ROLE = r; CURRENT_EMAIL = (u.email || '').toLowerCase();
       CURRENT_NAME = (u.user_metadata && u.user_metadata.name) || (r === 'admin' ? 'Aladdin' : 'Partner');
-      if (isAdminRecoveryLanding() && window.history && window.history.replaceState) {
-        window.history.replaceState(null, '', window.location.pathname + '#admin');
-      }
       touchPresence('login');
       setRole(r); setUser(u);
     }, []);
@@ -2926,16 +3004,31 @@
         const { session } = await safeGetSession(sb, ADMIN_AUTH_STORAGE_KEY);
         applyUser(session && session.user);
       })();
-      const { data: sub } = sb.auth.onAuthStateChange((_e, s) => { applyUser(s && s.user); });
+      const { data: sub } = sb.auth.onAuthStateChange((event, s) => {
+        if (event === 'PASSWORD_RECOVERY') setRecoveryMode(true);
+        if (event === 'SIGNED_OUT') setRecoveryMode(false);
+        applyUser(s && s.user);
+      });
       return () => sub && sub.subscription && sub.subscription.unsubscribe && sub.subscription.unsubscribe(); }, [applyUser]);
     const logout = async () => {
       const sb = getSB();
       if (sb) await sb.auth.signOut();
       if (window.MS_SB && window.MS_SB.auth && window.MS_SB !== sb) await window.MS_SB.auth.signOut();
-      CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null); location.hash = '';
+      CURRENT_ROLE = CURRENT_EMAIL = CURRENT_NAME = null; setUser(null); setRole(null);
+      if (isStandaloneAdminPage()) {
+        if (window.history && window.history.replaceState) window.history.replaceState(null, '', adminCleanUrl());
+      } else {
+        location.hash = '';
+      }
     };
     if (user === undefined) return h('div', { className: 'msa-login' }, h('div', { className: 'msa-empty' }, 'Loading…'));
-    if (!user) return h(Login, { onAuthed: applyUser });
+    if (!user) return h(Login, {
+      onAuthed: applyUser,
+      recoveryMode: false,
+      onRecoveryDone: () => setRecoveryMode(false),
+      recoveryNotice: recoveryMode ? 'This recovery link is no longer active. Request a new password-reset email if needed.' : '',
+    });
+    if (recoveryMode) return h(Login, { onAuthed: applyUser, recoveryMode, onRecoveryDone: () => setRecoveryMode(false) });
     return h(Shell, { user, role, onLogout: logout });
   }
 

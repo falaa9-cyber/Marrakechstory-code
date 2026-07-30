@@ -1,6 +1,6 @@
 /* ============================================================
    MarrakechStory Admin — Apple-style operations console
-   Self-contained (msa- prefix). Loaded only on #admin.
+   Self-contained (msa- prefix). Loaded only on the dedicated admin page.
    ============================================================ */
 :root {
   --msa-brand: #e0432a; --msa-brand-soft: #fbe7e1; --msa-brand-deep: #c23a23;
@@ -1264,8 +1264,10 @@
 .msa-login-help strong { display: block; margin-bottom: 4px; font-size: 12.5px; }
 .msa-login-help p { margin: 0; color: var(--msa-dim); font-size: 12.5px; line-height: 1.45; }
 .msa-login-help-email { display: inline-block; margin-top: 8px; padding: 5px 9px; border-radius: 999px; background: rgba(224,67,42,.08); color: var(--msa-brand-deep); font-size: 12px; font-weight: 700; }
-.msa-login-card input[type=email], .msa-login-card input[type=password] { width: 100%; padding: 13px 15px; border: 1px solid var(--msa-line) !important; border-radius: 12px !important; font-size: 14px; margin-bottom: 12px; background: #fafafa !important; }
-.msa-login-card input[type=email]:focus, .msa-login-card input[type=password]:focus { border-color: var(--msa-brand) !important; background: #fff !important; outline: none; }
+.msa-login-card input[type=email], .msa-login-card input[type=password], .msa-login-card input[type=text] { width: 100%; padding: 13px 15px; border: 1px solid var(--msa-line) !important; border-radius: 12px !important; font-size: 14px; margin-bottom: 12px; background: #fafafa !important; }
+.msa-login-card input[type=email]:focus, .msa-login-card input[type=password]:focus, .msa-login-card input[type=text]:focus { border-color: var(--msa-brand) !important; background: #fff !important; outline: none; }
+.msa-login-showpass { display: flex; align-items: center; gap: 8px; margin: -4px 0 14px; color: var(--msa-dim); font-size: 12.5px; font-weight: 600; text-transform: none !important; letter-spacing: 0 !important; cursor: pointer; }
+.msa-login-showpass input { width: auto !important; margin: 0 !important; }
 .msa-login-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; font-size: 12.5px; }
 .msa-login-remember { display: flex; align-items: center; gap: 7px; color: var(--msa-dim); cursor: pointer; }
 .msa-login-remember input { width: auto !important; margin: 0 !important; }

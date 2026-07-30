@@ -5,6 +5,13 @@
 
 (function () {
   const SITE_AUTH_STORAGE_KEY = 'ms-site-auth';
+  const isAdminSurface = () => {
+    try {
+      return !!(document.body && document.body.dataset && document.body.dataset.msSurface === 'admin');
+    } catch (_error) {
+      return false;
+    }
+  };
 
   function normalizeSiteUrl(raw) {
     try {
@@ -200,7 +207,7 @@
     try {
       if (!window.MS_SB) return;
       // Don't track the admin console itself.
-      if ((location.hash || '').replace('#', '').split('?')[0] === 'admin') return;
+      if (isAdminSurface() || (location.hash || '').replace('#', '').split('?')[0] === 'admin') return;
       var SB = window.MS_SB;
       var uuid = function () {
         try { if (crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
