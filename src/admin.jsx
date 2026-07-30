@@ -1,7 +1,7 @@
 // ============================================================
 // MarrakechStory — Private Admin / Operations console
 // Apple-style, fully connected to the website (Supabase).
-// Access: <site>/admin.html   ·   Auth: configured admin + partner staff accounts.
+// Access: dedicated admin URL   ·   Auth: configured admin + partner staff accounts.
 // ============================================================
 (function () {
   const R = window.React;
@@ -33,6 +33,9 @@
   };
   const isLocalHost = () => /^(localhost|127(?:\.\d{1,3}){3})$/i.test(window.location.hostname || '');
   const websiteHomeUrl = () => {
+    const env = window.MS_ENV || {};
+    if (!isLocalHost() && env.SITE_URL) return String(env.SITE_URL);
+    if (!isLocalHost()) return 'https://marrakechstory.com/';
     try {
       return new URL('./', window.location.href).toString();
     } catch (_error) {
@@ -45,7 +48,11 @@
     if (isStandaloneAdminPage() && !isLocalHost()) return window.location.origin + window.location.pathname;
     if (isLocalHost()) return currentAdmin;
     if (env.ADMIN_URL) return String(env.ADMIN_URL);
-    if (env.SITE_URL) return new URL('admin.html', String(env.SITE_URL)).toString();
+    if (env.SITE_URL) {
+      const siteUrl = new URL(String(env.SITE_URL));
+      siteUrl.hostname = siteUrl.hostname.replace(/^www\./i, '');
+      return `https://admin.${siteUrl.hostname}/`;
+    }
     return currentAdmin;
   };
   const adminPageUrl = (opts) => {

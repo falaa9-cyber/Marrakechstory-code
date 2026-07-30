@@ -22,7 +22,10 @@
         || search.get('type') === 'recovery'
         || /(^|[&#])type=recovery(?:&|$)/.test(hash);
       if (!legacyAdminHash && !recoveryLanding) return;
-      var target = new URL('admin.html', window.location.href);
+      var onLocalHost = /^(localhost|127(?:\.\d{1,3}){3})$/i.test(window.location.hostname || '');
+      var target = onLocalHost
+        ? new URL('admin.html', window.location.href)
+        : new URL('https://admin.marrakechstory.com/');
       target.search = window.location.search || '';
       target.hash = legacyAdminHash ? '' : hash;
       window.location.replace(target.toString());

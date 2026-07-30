@@ -3,6 +3,11 @@
 // ============================================
 const { useState: useStateA, useEffect: useEffectA, useRef: useRefA } = React;
 const Ia = window.MS_I;
+const adminPortalHref = () => {
+  const env = window.MS_ENV || {};
+  if (/^(localhost|127(?:\.\d{1,3}){3})$/i.test(window.location.hostname || '')) return 'admin.html';
+  return env.ADMIN_URL || 'https://admin.marrakechstory.com/';
+};
 
 function NavPill({ label, items, value, onSelect, head, align = 'right' }) {
   const [open, setOpen] = useStateA(false);
@@ -249,7 +254,7 @@ function Footer() {
         <CollabForm />
         <div className="footer-bottom">
           <span>© 2026 Marrakechstory · IATA accredited · ONMT licence #14872 · {t('foot_rights')}
-            {' '}<a href="admin.html" className="footer-admin-link" title="Staff area" aria-label="Staff area">·</a>
+            {' '}<a href={adminPortalHref()} className="footer-admin-link" title="Staff area" aria-label="Staff area">·</a>
           </span>
           <span style={{ display: 'flex', gap: 18 }}>
             <a href="#">{t('foot_privacy')}</a>
