@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, transformWithEsbuild } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs';
 import path from 'path';
@@ -69,6 +69,57 @@ function generateEnvJs(env) {
   };
 }
 
+function compileBrowserJsx() {
+  const root = process.cwd();
+
+  const walk = (dir) => {
+    if (!fs.existsSync(dir)) return [];
+    const out = [];
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) out.push(...walk(full));
+      else if (entry.isFile() && full.endsWith('.jsx')) out.push(full);
+    }
+    return out;
+  };
+
+  const rewriteHtml = (file) => {
+    if (!fs.existsSync(file)) return;
+    let html = fs.readFileSync(file, 'utf8');
+    html = html.replace(
+      /\n\s*<script src="https:\/\/unpkg\.com\/@babel\/standalone@7\.29\.0\/babel\.min\.js" crossorigin="anonymous"><\/script>\n\s*<script>if \(!window\.Babel\) \{ document\.write\('<scr'\+'ipt src="https:\/\/cdn\.jsdelivr\.net\/npm\/@babel\/standalone@7\.29\.0\/babel\.min\.js"><\\\/scr'\+'ipt>'\); \}<\/script>\n/g,
+      '\n'
+    );
+    html = html.replace(/<script type="text\/babel" src="([^"]+)\.jsx(\?v=\d+)"><\/script>/g, '<script src="$1.js$2"></script>');
+    fs.writeFileSync(file, html);
+  };
+
+  return {
+    name: 'compile-browser-jsx',
+    apply: 'build',
+    async closeBundle() {
+      const srcDir = path.resolve(root, 'src');
+      const outDir = path.resolve(root, 'dist/src');
+      const files = walk(srcDir);
+      for (const file of files) {
+        const rel = path.relative(srcDir, file);
+        const dest = path.resolve(outDir, rel.replace(/\.jsx$/, '.js'));
+        const code = fs.readFileSync(file, 'utf8');
+        const transformed = await transformWithEsbuild(code, file, {
+          loader: 'jsx',
+          jsx: 'transform',
+          target: 'es2020',
+          sourcemap: false,
+        });
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.writeFileSync(dest, transformed.code);
+      }
+      rewriteHtml(path.resolve(root, 'dist/index.html'));
+      rewriteHtml(path.resolve(root, 'dist/admin.html'));
+    }
+  };
+}
+
 export default defineConfig(({ mode }) => {
   // Load .env / .env.[mode] including all keys (no prefix filter) so we
   // can read both NEXT_PUBLIC_* and VITE_* style names.
@@ -87,7 +138,8 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       copyStaticTree(),
-      generateEnvJs(env)
+      generateEnvJs(env),
+      compileBrowserJsx()
     ]
   };
 });

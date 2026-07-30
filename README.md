@@ -8,6 +8,7 @@ This repository is no longer a "static HTML only / no build step" site in practi
 - The site is connected to the existing Supabase project `xcpkujguvrhpsmftgxtn`.
 - Browser code uses the publishable key only.
 - The admin console uses signed URLs for Supabase Storage files.
+- Production builds now transpile the browser JSX into plain `.js` files in `dist/`, so Hostinger no longer depends on Babel-in-the-browser at runtime.
 - The checked-in `supabase/` folder now includes the live edge-function set plus the July 24, 2026 security migrations.
 
 Some sections below are historical implementation notes from before the Vite/Supabase integration. Treat [`SUPABASE.md`](SUPABASE.md) and `package.json` as the source of truth for current setup and commands.
@@ -38,7 +39,8 @@ Any static-file server works (`npx serve`, nginx, Caddy, GitHub Pages). No build
 | Layer | Choice | Why |
 |---|---|---|
 | Framework | **React 18 UMD** loaded from CDN | No build pipeline, the site is editable in any text editor |
-| Templating | **`<script type="text/babel">` + Babel standalone** | Lets us write JSX in raw `.jsx` files without compilation |
+| Source authoring | **Raw `.jsx` files** | Easy to edit in-place without introducing a full app-framework rewrite |
+| Production transpilation | **Vite build rewrites `.jsx` → `.js` in `dist/`** | Hostinger serves plain JavaScript in production instead of compiling JSX in the browser |
 | Styling | **Plain CSS** (`styles.css`) with CSS custom properties + a few brand tokens | Cacheable, no dependency chain |
 | State | **localStorage** for auth, profile, favourites, cookie consent | No backend, no third-party tracker, fully GDPR-friendly |
 | Data | **`src/data.js`** — one module exports `window.MS_DATA` | Easy to swap in a CMS later if needed |

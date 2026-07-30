@@ -17,6 +17,10 @@ The website uses the Supabase browser client with the existing project's publish
 - Admin file uploads in the `booking-files` bucket
 - Lightweight page-view analytics
 
+Production builds now transpile the browser `.jsx` sources into plain `.js`
+files inside `dist/`, so the live Hostinger deploy no longer depends on
+`@babel/standalone` at runtime.
+
 The repo now tracks these live edge functions:
 
 - `notify-submission`
@@ -40,6 +44,8 @@ Migration files added in this repo:
 - [`supabase/migrations/20260724113000_harden_rls_and_storage.sql`](supabase/migrations/20260724113000_harden_rls_and_storage.sql)
 - [`supabase/migrations/20260724121500_rls_policy_cleanup.sql`](supabase/migrations/20260724121500_rls_policy_cleanup.sql)
 - [`supabase/migrations/20260724124500_current_user_email_helper.sql`](supabase/migrations/20260724124500_current_user_email_helper.sql)
+- [`supabase/migrations/20260730211000_fix_public_staff_role_functions.sql`](supabase/migrations/20260730211000_fix_public_staff_role_functions.sql)
+- [`supabase/migrations/20260730223000_public_staff_rpcs_use_jwt_claims.sql`](supabase/migrations/20260730223000_public_staff_rpcs_use_jwt_claims.sql)
 
 ## Required env vars
 
@@ -61,7 +67,6 @@ Edge Function secrets:
 - `RESEND_API_KEY`
 - `ADMIN_EMAIL_TO`
 - `ADMIN_EMAIL_FROM`
-- `ADMIN_PASSWORD` for `list-submissions`
 
 The service-role key must stay server-side only. Never expose it in `src/`, `dist/`, or any `NEXT_PUBLIC_` / `VITE_` variable.
 
