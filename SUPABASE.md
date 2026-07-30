@@ -49,6 +49,10 @@ Frontend build/runtime:
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_SITE_URL`
+- `VITE_ADMIN_URL`
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_ADMIN_URL`
 
 Edge Function secrets:
 
@@ -78,3 +82,32 @@ npm run build
 ```
 
 The Vite `generate-env-js` step writes those public values into `dist/src/env.js` for deployment output.
+
+## Auth URL configuration
+
+Current live hosting on July 30, 2026:
+
+- Main website: `https://marrakechstory.com/`
+- Working admin entry: `https://marrakechstory.com/admin.html`
+- Planned future split domain: `https://admin.marrakechstory.com/`
+
+Live DNS check on July 30, 2026:
+
+- `marrakechstory.com` resolves and serves from Hostinger
+- `admin.marrakechstory.com` does not resolve yet
+
+Supabase Auth should currently use:
+
+- Site URL: `https://marrakechstory.com/`
+- Redirect URL: `https://marrakechstory.com/admin.html`
+- Redirect URL: `http://127.0.0.1:4173/admin.html`
+- Redirect URL: `http://localhost:3000/admin.html`
+
+Reason: until the admin subdomain is actually created in DNS and hosting, password reset and magic-link flows must return to `/admin.html` on the main site.
+
+When the admin subdomain is ready later:
+
+1. Point `admin.marrakechstory.com` to the live host.
+2. Set `VITE_ADMIN_URL` and `NEXT_PUBLIC_ADMIN_URL` to `https://admin.marrakechstory.com/`.
+3. Add that exact URL to the Supabase Auth redirect allow-list.
+4. Redeploy.

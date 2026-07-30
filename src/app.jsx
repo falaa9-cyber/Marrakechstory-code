@@ -6,7 +6,7 @@ const Ia = window.MS_I;
 const adminPortalHref = () => {
   const env = window.MS_ENV || {};
   if (/^(localhost|127(?:\.\d{1,3}){3})$/i.test(window.location.hostname || '')) return 'admin.html';
-  return env.ADMIN_URL || 'https://admin.marrakechstory.com/';
+  return env.ADMIN_URL || 'https://marrakechstory.com/admin.html';
 };
 
 function NavPill({ label, items, value, onSelect, head, align = 'right' }) {

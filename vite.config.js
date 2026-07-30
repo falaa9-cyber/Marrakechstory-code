@@ -50,7 +50,7 @@ function generateEnvJs(env) {
       const url = env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || '';
       const key = env.VITE_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
       const siteUrl = env.VITE_SITE_URL || env.NEXT_PUBLIC_SITE_URL || 'https://marrakechstory.com/';
-      const adminUrl = env.VITE_ADMIN_URL || env.NEXT_PUBLIC_ADMIN_URL || 'https://admin.marrakechstory.com/';
+      const adminUrl = env.VITE_ADMIN_URL || env.NEXT_PUBLIC_ADMIN_URL || 'https://marrakechstory.com/admin.html';
       if (!url || !key) {
         console.warn('[generate-env-js] No SUPABASE_URL / PUBLISHABLE_KEY in env — leaving dist/src/env.js untouched (will fall back to checked-in defaults).');
         return;

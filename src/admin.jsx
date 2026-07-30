@@ -1,7 +1,7 @@
 // ============================================================
 // MarrakechStory — Private Admin / Operations console
 // Apple-style, fully connected to the website (Supabase).
-// Access: dedicated admin URL   ·   Auth: configured admin + partner staff accounts.
+// Access: production admin page   ·   Auth: configured admin + partner staff accounts.
 // ============================================================
 (function () {
   const R = window.React;
@@ -48,11 +48,7 @@
     if (isStandaloneAdminPage() && !isLocalHost()) return window.location.origin + window.location.pathname;
     if (isLocalHost()) return currentAdmin;
     if (env.ADMIN_URL) return String(env.ADMIN_URL);
-    if (env.SITE_URL) {
-      const siteUrl = new URL(String(env.SITE_URL));
-      siteUrl.hostname = siteUrl.hostname.replace(/^www\./i, '');
-      return `https://admin.${siteUrl.hostname}/`;
-    }
+    if (env.SITE_URL) return new URL('admin.html', String(env.SITE_URL)).toString();
     return currentAdmin;
   };
   const adminPageUrl = (opts) => {
@@ -122,7 +118,7 @@
   }
   const normEmail = (v) => String(v || '').trim().toLowerCase();
   const adminSignInUrl = () => adminPageUrl();
-  const adminRecoveryUrl = () => adminPageUrl({ adminRecovery: true });
+  const adminRecoveryUrl = () => adminPageUrl();
   const isAdminRecoveryLanding = () => {
     const search = new URLSearchParams(window.location.search || '');
     const hash = window.location.hash || '';
