@@ -201,13 +201,13 @@ function FlightHelpBox() {
               </div>
             </div>
             <button className="flight-help-btn" onClick={send}>
-              <I.Mail s={15} />
+              <HI.Mail s={15} />
               {tx('Send request', 'Send forespørsel', 'Envoyer', 'Skicka förfrågan')}
             </button>
           </div>
         </>) : (
           <div className="flight-help-sent">
-            <I.Check s={20} />
+            <HI.Check s={20} />
             {tx(
               "Thanks! We'll send flight options shortly. Dates saved to your itinerary.",
               'Takk! Vi sender deg flygingsforslag snart. Datoene er koblet til planen din.',

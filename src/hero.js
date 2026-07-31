@@ -116,7 +116,7 @@ Skicka g\xE4rna de b\xE4sta alternativen!
     const p = people + 1;
     setPeople(p);
     syncContext(dep, ret, p);
-  } }, "+"))), /* @__PURE__ */ React.createElement("button", { className: "flight-help-btn", onClick: send }, /* @__PURE__ */ React.createElement(I.Mail, { s: 15 }), tx("Send request", "Send foresp\xF8rsel", "Envoyer", "Skicka f\xF6rfr\xE5gan")))) : /* @__PURE__ */ React.createElement("div", { className: "flight-help-sent" }, /* @__PURE__ */ React.createElement(I.Check, { s: 20 }), tx(
+  } }, "+"))), /* @__PURE__ */ React.createElement("button", { className: "flight-help-btn", onClick: send }, /* @__PURE__ */ React.createElement(HI.Mail, { s: 15 }), tx("Send request", "Send foresp\xF8rsel", "Envoyer", "Skicka f\xF6rfr\xE5gan")))) : /* @__PURE__ */ React.createElement("div", { className: "flight-help-sent" }, /* @__PURE__ */ React.createElement(HI.Check, { s: 20 }), tx(
     "Thanks! We'll send flight options shortly. Dates saved to your itinerary.",
     "Takk! Vi sender deg flygingsforslag snart. Datoene er koblet til planen din.",
     "Merci\xA0! Nous vous enverrons des options de vol rapidement. Dates enregistr\xE9es dans votre itin\xE9raire.",
