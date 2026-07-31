@@ -3,7 +3,7 @@
 // Flight search bar embedded directly under stats
 // ============================================
 const { useState, useEffect } = React;
-const I = window.MS_I;
+const HI = window.MS_I;
 
 function Hero() {
   const { useT, useMS } = window.MS_CTX;
@@ -46,7 +46,7 @@ function Hero() {
 
         <div className="hero-v2-cta">
           <a href="#packages" className="btn btn-primary">
-            {t('hero_cta_trips')} <I.Arrow s={14} />
+            {t('hero_cta_trips')} <HI.Arrow s={14} />
           </a>
           <a href="#plan" className="btn btn-ghost">{t('hero_cta_plan')}</a>
         </div>

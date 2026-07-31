@@ -146,58 +146,127 @@
     return single ? out.slice(0, 1) : out;
   }
 
+  function loadStyleTag(href, id) {
+    return new Promise((resolve, reject) => {
+      const existing = id ? document.getElementById(id) : null;
+      if (existing) { resolve(); return; }
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      if (id) link.id = id;
+      link.crossOrigin = 'anonymous';
+      link.addEventListener('load', () => resolve(), { once: true });
+      link.addEventListener('error', () => reject(new Error('Failed to load ' + href)), { once: true });
+      document.head.appendChild(link);
+    });
+  }
+
+  function loadScriptTag(src) {
+    return new Promise((resolve, reject) => {
+      const abs = new URL(src, window.location.href).toString();
+      const existing = Array.from(document.scripts).find((script) => script.src === abs);
+      if (existing) {
+        if (existing.dataset.msLoaded === '1') { resolve(); return; }
+        existing.addEventListener('load', () => resolve(), { once: true });
+        existing.addEventListener('error', () => reject(new Error('Failed to load ' + src)), { once: true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      script.addEventListener('load', () => { script.dataset.msLoaded = '1'; resolve(); }, { once: true });
+      script.addEventListener('error', () => reject(new Error('Failed to load ' + src)), { once: true });
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureLeaflet() {
+    if (window.L) return window.L;
+    if (!window.__msLeafletPromise) {
+      window.__msLeafletPromise = (async () => {
+        try {
+          await loadStyleTag('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', 'ms-leaflet-css');
+        } catch (_error) {
+          await loadStyleTag('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css', 'ms-leaflet-css');
+        }
+        const sources = [
+          'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+          'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+        ];
+        for (const src of sources) {
+          try {
+            await loadScriptTag(src);
+            if (window.L) return window.L;
+          } catch (_error) {}
+        }
+        return null;
+      })();
+    }
+    return window.__msLeafletPromise;
+  }
+
   /* ---- Map of the itinerary stops — Google-style basemap (CARTO Voyager) +
          real road-following route from OSRM, drawn as a blue Google route line.
          No API key required. ---- */
   function StopMap({ stops }) {
     const ref = useRef(null);
     useEffect(() => {
-      if (!window.L || !ref.current || !stops.length) return;
-      const map = window.L.map(ref.current, { scrollWheelZoom: false, zoomControl: true });
-      // Clean Google-Maps-like raster basemap (free, no key)
-      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19, subdomains: 'abcd', attribution: '© OpenStreetMap, © CARTO',
-      }).addTo(map);
-      const pts = stops.map(s => [s.lat, s.lng]);
+      let map = null;
+      let cancelled = false;
 
-      // Google-style numbered pins: green start · red end · blue waypoints
-      stops.forEach((s, i) => {
-        const single = stops.length === 1;
-        const isStart = i === 0, isEnd = i === stops.length - 1;
-        const color = single ? '#ea4335' : isStart ? '#34a853' : isEnd ? '#ea4335' : '#1a73e8';
-        const label = single ? '' : String(i + 1);
-        const icon = window.L.divIcon({
-          className: 'ms-ld-pinwrap',
-          html: '<div class="ms-ld-pin" style="background:' + color + '">' + label + '</div>',
-          iconSize: [28, 28], iconAnchor: [14, 14],
+      (async () => {
+        const Leaflet = await ensureLeaflet();
+        if (cancelled || !Leaflet || !ref.current || !stops.length) return;
+
+        map = Leaflet.map(ref.current, { scrollWheelZoom: false, zoomControl: true });
+        Leaflet.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19, subdomains: 'abcd', attribution: '© OpenStreetMap, © CARTO',
+        }).addTo(map);
+        const pts = stops.map(s => [s.lat, s.lng]);
+
+        stops.forEach((s, i) => {
+          const single = stops.length === 1;
+          const isStart = i === 0, isEnd = i === stops.length - 1;
+          const color = single ? '#ea4335' : isStart ? '#34a853' : isEnd ? '#ea4335' : '#1a73e8';
+          const label = single ? '' : String(i + 1);
+          const icon = Leaflet.divIcon({
+            className: 'ms-ld-pinwrap',
+            html: '<div class="ms-ld-pin" style="background:' + color + '">' + label + '</div>',
+            iconSize: [28, 28], iconAnchor: [14, 14],
+          });
+          Leaflet.marker([s.lat, s.lng], { icon }).addTo(map)
+            .bindTooltip((label ? label + '. ' : '') + s.name, { direction: 'top', offset: [0, -14] });
         });
-        window.L.marker([s.lat, s.lng], { icon }).addTo(map)
-          .bindTooltip((label ? label + '. ' : '') + s.name, { direction: 'top', offset: [0, -14] });
-      });
 
-      // Blue route line (Google Directions look): white casing under a blue line
-      let casing, line;
-      const drawRoute = (latlngs) => {
-        [casing, line].forEach(l => l && map.removeLayer(l));
-        casing = window.L.polyline(latlngs, { color: '#ffffff', weight: 9, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }).addTo(map);
-        line = window.L.polyline(latlngs, { color: '#1a73e8', weight: 5, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }).addTo(map);
+        let casing, line;
+        const drawRoute = (latlngs) => {
+          [casing, line].forEach(l => l && map.removeLayer(l));
+          casing = Leaflet.polyline(latlngs, { color: '#ffffff', weight: 9, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }).addTo(map);
+          line = Leaflet.polyline(latlngs, { color: '#1a73e8', weight: 5, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }).addTo(map);
+        };
+
+        if (pts.length > 1) {
+          drawRoute(pts);
+          const coords = stops.map(s => s.lng + ',' + s.lat).join(';');
+          fetch('https://router.project-osrm.org/route/v1/driving/' + coords + '?overview=full&geometries=geojson')
+            .then(r => (r.ok ? r.json() : null))
+            .then(j => {
+              const g = j && j.routes && j.routes[0] && j.routes[0].geometry;
+              if (g && g.coordinates && g.coordinates.length && !cancelled) drawRoute(g.coordinates.map(c => [c[1], c[0]]));
+            })
+            .catch(() => {});
+          map.fitBounds(pts, { padding: [40, 40] });
+        } else {
+          map.setView(pts[0], 12);
+        }
+        setTimeout(() => { if (!cancelled && map) map.invalidateSize(); }, 120);
+      })().catch(() => {});
+
+      return () => {
+        cancelled = true;
+        try { if (map) map.remove(); } catch (e) {}
       };
-      if (pts.length > 1) {
-        drawRoute(pts); // instant straight fallback
-        const coords = stops.map(s => s.lng + ',' + s.lat).join(';');
-        fetch('https://router.project-osrm.org/route/v1/driving/' + coords + '?overview=full&geometries=geojson')
-          .then(r => (r.ok ? r.json() : null))
-          .then(j => {
-            const g = j && j.routes && j.routes[0] && j.routes[0].geometry;
-            if (g && g.coordinates && g.coordinates.length) drawRoute(g.coordinates.map(c => [c[1], c[0]]));
-          })
-          .catch(() => {});
-        map.fitBounds(pts, { padding: [40, 40] });
-      } else {
-        map.setView(pts[0], 12);
-      }
-      setTimeout(() => map.invalidateSize(), 120);
-      return () => { try { map.remove(); } catch (e) {} };
     }, []);
     return <div className="ms-ld-map" ref={ref} />;
   }

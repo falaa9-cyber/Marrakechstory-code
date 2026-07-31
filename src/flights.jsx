@@ -126,7 +126,7 @@ function aviasalesLink({ origin, destination, outbound, returnDate, adults, curr
 
 // Skyscanner deep link — works without API approval for deep referral.
 function skyscannerLink({ origin, destination, outbound, returnDate, tripType, adults, children, infants, cabin, locale }) {
-  const yymmdd = (iso) => iso.replaceAll("-", "").slice(2);
+  const yymmdd = (iso) => iso.split("-").join("").slice(2);
   const out = yymmdd(outbound);
   const ret = returnDate ? yymmdd(returnDate) : "";
   const path = tripType === "round_trip"

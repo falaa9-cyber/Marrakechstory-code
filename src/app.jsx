@@ -43,7 +43,7 @@ function NavPill({ label, items, value, onSelect, head, align = 'right' }) {
 const CURR_EMOJI = { NOK: '🇳🇴', SEK: '🇸🇪', EUR: '🇪🇺', USD: '🇺🇸', MAD: '🇲🇦', GBP: '🇬🇧' };
 const CURR_SYMBOL = { NOK: 'kr', SEK: 'kr', DKK: 'kr.', EUR: '€', USD: '$', MAD: 'د.م', GBP: '£' };
 // Mirrors LANG_TO_CURR in i18n.jsx — currency follows language automatically.
-const LANG_TO_CURR = { no: 'NOK', sv: 'SEK', da: 'DKK', de: 'EUR', en: 'GBP', fr: 'EUR' };
+const NAV_LANG_TO_CURR = { no: 'NOK', sv: 'SEK', da: 'DKK', de: 'EUR', en: 'GBP', fr: 'EUR' };
 function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, setCurr, langHead, currHead }) {
   const [open, setOpen] = useStateA(false);
   const ref = useRefA(null);
@@ -68,7 +68,7 @@ function LangCurrPill({ lang, curr, langItem, LANG_LIST, CURR_LIST, setLang, set
                 aria-label={it.label}>
                 <span className="flag">{it.flag}</span>
                 <span className="ms-lc-lang-label">{it.label}</span>
-                <span className="ms-lc-lang-cur">{LANG_TO_CURR[it.id] || ''}</span>
+                <span className="ms-lc-lang-cur">{NAV_LANG_TO_CURR[it.id] || ''}</span>
                 {lang === it.id && <Ia.Check s={13} className="check" />}
               </button>
             ))}

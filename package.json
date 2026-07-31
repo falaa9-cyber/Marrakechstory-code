@@ -6,8 +6,9 @@
   "description": "Marrakech Story — premium travel in Morocco.",
   "homepage": "https://marrakechstory.com",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite",
+    "sync:browser-js": "node scripts/browser-js.mjs",
+    "build": "npm run sync:browser-js && vite build",
+    "dev": "npm run sync:browser-js && vite",
     "preview": "vite preview --port 8080",
     "start": "vite preview --port 8080"
   },

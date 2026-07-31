@@ -1,15 +1,17 @@
-import { defineConfig, loadEnv, transformWithEsbuild } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs';
 import path from 'path';
+import { compileJsxTree, rewriteHtmlScriptEntries } from './scripts/browser-js.mjs';
 
-// Marrakech Story is a "no-build" UMD React + Babel-in-browser app.
+// Marrakech Story is a UMD React app served as precompiled browser scripts.
 // Vite is only used so Hostinger detects a framework. The build step:
 //   1. Copies every static asset (src/, assets/, styles.css) into dist/.
 //   2. Generates dist/src/env.js from environment variables so the
 //      Supabase URL + publishable key are baked in at build time
 //      instead of being hard-coded in source.
-//   3. Builds both the public website and the dedicated admin entry.
+//   3. Transpiles browser-facing JSX to plain JS that is safe for Safari/WebKit.
+//   4. Builds both the public website and the dedicated admin entry.
 
 function copyStaticTree() {
   const root = process.cwd();
@@ -72,50 +74,17 @@ function generateEnvJs(env) {
 function compileBrowserJsx() {
   const root = process.cwd();
 
-  const walk = (dir) => {
-    if (!fs.existsSync(dir)) return [];
-    const out = [];
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) out.push(...walk(full));
-      else if (entry.isFile() && full.endsWith('.jsx')) out.push(full);
-    }
-    return out;
-  };
-
-  const rewriteHtml = (file) => {
-    if (!fs.existsSync(file)) return;
-    let html = fs.readFileSync(file, 'utf8');
-    html = html.replace(
-      /\n\s*<script src="https:\/\/unpkg\.com\/@babel\/standalone@7\.29\.0\/babel\.min\.js" crossorigin="anonymous"><\/script>\n\s*<script>if \(!window\.Babel\) \{ document\.write\('<scr'\+'ipt src="https:\/\/cdn\.jsdelivr\.net\/npm\/@babel\/standalone@7\.29\.0\/babel\.min\.js"><\\\/scr'\+'ipt>'\); \}<\/script>\n/g,
-      '\n'
-    );
-    html = html.replace(/<script type="text\/babel" src="([^"]+)\.jsx(\?v=\d+)"><\/script>/g, '<script src="$1.js$2"></script>');
-    fs.writeFileSync(file, html);
-  };
-
   return {
     name: 'compile-browser-jsx',
     apply: 'build',
     async closeBundle() {
-      const srcDir = path.resolve(root, 'src');
-      const outDir = path.resolve(root, 'dist/src');
-      const files = walk(srcDir);
-      for (const file of files) {
-        const rel = path.relative(srcDir, file);
-        const dest = path.resolve(outDir, rel.replace(/\.jsx$/, '.js'));
-        const code = fs.readFileSync(file, 'utf8');
-        const transformed = await transformWithEsbuild(code, file, {
-          loader: 'jsx',
-          jsx: 'transform',
-          target: 'es2020',
-          sourcemap: false,
-        });
-        fs.mkdirSync(path.dirname(dest), { recursive: true });
-        fs.writeFileSync(dest, transformed.code);
-      }
-      rewriteHtml(path.resolve(root, 'dist/index.html'));
-      rewriteHtml(path.resolve(root, 'dist/admin.html'));
+      await compileJsxTree({
+        srcDir: path.resolve(root, 'src'),
+        outDir: path.resolve(root, 'dist/src'),
+        target: 'es2018',
+      });
+      rewriteHtmlScriptEntries(path.resolve(root, 'dist/index.html'));
+      rewriteHtmlScriptEntries(path.resolve(root, 'dist/admin.html'));
     }
   };
 }

@@ -5,6 +5,46 @@
 const { useState: useSF, useEffect: useEF, useMemo: useMF, useRef: useRF } = React;
 const If = window.MS_I;
 
+function loadScriptTag(src) {
+  return new Promise((resolve, reject) => {
+    const abs = new URL(src, window.location.href).toString();
+    const existing = Array.from(document.scripts).find((script) => script.src === abs);
+    if (existing) {
+      if (existing.dataset.msLoaded === '1') { resolve(); return; }
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => reject(new Error('Failed to load ' + src)), { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.addEventListener('load', () => { script.dataset.msLoaded = '1'; resolve(); }, { once: true });
+    script.addEventListener('error', () => reject(new Error('Failed to load ' + src)), { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureHtml2Pdf() {
+  if (window.html2pdf) return window.html2pdf;
+  if (!window.__msHtml2pdfPromise) {
+    window.__msHtml2pdfPromise = (async () => {
+      const sources = [
+        'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+        'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js',
+      ];
+      for (const src of sources) {
+        try {
+          await loadScriptTag(src);
+          if (window.html2pdf) return window.html2pdf;
+        } catch (_error) {}
+      }
+      return null;
+    })();
+  }
+  return window.__msHtml2pdfPromise;
+}
+
 const ACT_EMOJI = {
   arrival: '✈️', medina: '🕌', food: '🍽️', agafay: '🐪',
   atlas: '🏔️', spa: '🛁', balloon: '🎈', quad: '🏍️',
@@ -578,7 +618,8 @@ function ItineraryBuilder() {
       </div>
     `;
 
-    if (window.html2pdf) {
+    ensureHtml2Pdf().then((html2pdfLib) => {
+      if (!html2pdfLib) return;
       const el = document.createElement('div');
       // Render off-screen but with a real layout box (width + visible) so
       // html2canvas captures content instead of a blank page.
@@ -588,7 +629,7 @@ function ItineraryBuilder() {
       const cleanup = () => { try { document.body.removeChild(el); } catch (e) {} };
       // Wait a frame so the browser lays the element out before capture.
       setTimeout(() => {
-        window.html2pdf().set({
+        html2pdfLib().set({
           margin: 0,
           filename: `Marrakechstory-Reiseplan-${data.name || 'gjest'}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
@@ -596,7 +637,7 @@ function ItineraryBuilder() {
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         }).from(el.firstElementChild || el).save().then(cleanup).catch(cleanup);
       }, 60);
-    }
+    }).catch(() => {});
   };
 
   const buildSummary = () => {

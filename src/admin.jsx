@@ -8,7 +8,7 @@
   const { useState, useEffect, useMemo, useCallback } = R;
   const h = R.createElement;
 
-  const DEFAULT_ADMIN_EMAIL = 'f.alaa@live.com';
+  const DEFAULT_ADMIN_EMAIL = 'f.alaa9@gmail.com';
   const PARTNER_HINT_EMAIL = 'faizsofia20@gmail.com';   // login prefill only — real access is RLS/role-gated
   const COMPANY = (window.MS_CTX && window.MS_CTX.COMPANY) || { phone: '+47 457 74 743', whatsapp: '4745774743' };
 
@@ -547,7 +547,7 @@
       setBusy(false);
       if (!signedInUser || !roleData) {
         await resetAdminAuthState();
-        setErr('This account is not authorised. Use f.alaa@live.com for admin access.');
+        setErr('This account is not authorised for the admin area.');
         if (mode === 'admin') setEmail(adminHintEmail || DEFAULT_ADMIN_EMAIL);
         return;
       }
