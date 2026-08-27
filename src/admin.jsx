@@ -2969,18 +2969,32 @@
       }
     };
 
+    const navButtons = [];
+    visibleTabs.forEach(([id, label, icon]) => {
+      if (id === 'requests') {
+        navButtons.push(
+          h('button', { key: 'refresh-nav', className: 'msa-nav-refresh', type: 'button', onClick: refreshNow, disabled: refreshing, title: 'Refresh latest updates' },
+            h('span', { className: 'msa-nav-ico' }, ICON.refresh()),
+            h('span', { className: 'msa-nav-label' }, refreshing ? 'Refreshing…' : 'Refresh')))
+      }
+      navButtons.push(
+        h('button', { key: id, title: label, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) },
+          h('span', { className: 'msa-nav-ico' }, ICON[icon]()),
+          h('span', { className: 'msa-nav-label' }, label),
+          (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))
+    });
+
     return h('div', { className: 'msa-shell' + (navOpen ? ' nav-open' : '') },
       h('header', { className: 'msa-topbar' },
         h('button', { className: 'msa-burger', 'aria-label': navOpen ? 'Close' : 'Menu', onClick: () => setNavOpen(o => !o) }, navOpen ? ICON.x() : ICON.menu()),
         h('span', { className: 'msa-topbar-title' }, currentLabel),
         h('div', { className: 'msa-topsearch' }, ICON.search(), h('input', { placeholder: 'Search everything…', value: search, onChange: (e) => setSearch(e.target.value) }), search && h('button', { className: 'msa-icon-btn', onClick: () => setSearch('') }, ICON.x())),
         h('button', { className: 'msa-btn msa-btn-sm msa-admin-refresh-mobile', type: 'button', onClick: refreshNow, disabled: refreshing, title: 'Refresh latest updates' }, ICON.refresh(), h('span', null, refreshing ? 'Refreshing…' : 'Refresh'))),
-      h('button', { className: 'msa-btn msa-btn-sm msa-admin-refresh', type: 'button', onClick: refreshNow, disabled: refreshing, title: 'Refresh latest updates' }, ICON.refresh(), h('span', null, refreshing ? 'Refreshing…' : 'Refresh')),
       h('button', { className: 'msa-edge-toggle', 'aria-label': navOpen ? 'Hide menu' : 'Show menu', onClick: () => setNavOpen(o => !o) }, h('span', { className: 'msa-edge-chev' }, navOpen ? '‹' : '›')),
       h('div', { className: 'msa-nav-overlay', onClick: () => setNavOpen(false) }),
       h('aside', { className: 'msa-sidebar' },
         h('div', { className: 'msa-brand' }, h('img', { src: 'assets/logo.png', alt: '', onError: (e) => { e.target.style.display = 'none'; } }), h('span', null, 'MarrakechStory'), h('button', { className: 'msa-drawer-close', onClick: () => setNavOpen(false) }, ICON.x())),
-        h('nav', { className: 'msa-nav' }, visibleTabs.map(([id, label, icon]) => h('button', { key: id, title: label, className: 'msa-nav-btn' + (tab === id && !search ? ' active' : ''), onClick: () => goTab(id) }, h('span', { className: 'msa-nav-ico' }, ICON[icon]()), h('span', { className: 'msa-nav-label' }, label), (NAV_BADGE[id] > 0) && h('span', { className: 'msa-nav-badge' }, NAV_BADGE[id])))),
+        h('nav', { className: 'msa-nav' }, navButtons),
         h('div', { className: 'msa-user' },
           h('div', { className: 'msa-emoji-row' },
             h('button', { className: 'msa-emoji-btn', onClick: () => setDark(d => !d), title: dark ? 'Light mode' : 'Night mode' }, dark ? '☀️' : '🌙'),
