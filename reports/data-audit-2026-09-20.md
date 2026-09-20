@@ -41,3 +41,5 @@ Duplicate checks on booking reference, email, and phone returned no duplicate gr
 - Deposits pending: 5
 
 These are warnings only. The admin health panel now exposes them live from the canonical dataset.
+
+The WhatsApp public tables had RLS enabled without authenticated admin policies. That access gap is now fixed with admin-only policies; the private `whatsapp_internal` schema remains service-role only.
