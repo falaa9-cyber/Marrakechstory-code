@@ -461,7 +461,8 @@
     return null;
   };
   const waLink = (p) => "https://wa.me/" + String(p || "").replace(/[^0-9]/g, "");
-  const STATUS_LABEL = { new: "New", quotation_sent: "Quotation Sent", waiting_confirmation: "Awaiting", confirmed: "Confirmed", deposit_paid: "Deposit Paid", fully_paid: "Fully Paid", ongoing: "Ongoing", completed: "Completed", cancelled: "Cancelled" };
+  const STATUS_LABEL = { draft: "Draft", new: "New", quotation_sent: "Quotation Sent", waiting_confirmation: "Awaiting", confirmed: "Confirmed", deposit_paid: "Deposit Paid", fully_paid: "Fully Paid", ongoing: "Ongoing", completed: "Completed", cancelled: "Cancelled" };
+  const CONFIRMED_BOOKING_STATUSES = /* @__PURE__ */ new Set(["confirmed", "deposit_paid", "fully_paid", "ongoing", "completed"]);
   const STATUS_ORDER = Object.keys(STATUS_LABEL);
   const LEAD_SOURCES = ["website", "whatsapp", "instagram", "referral", "recommended", "email", "other"];
   const ACTIVITY_TYPES = ["Transport", "Airport Transfer", "Private Driver", "Check-in", "Check-out", "Guided Tour", "City Tour", "Medina Tour", "Ourika Valley", "Atlas Mountains", "Agafay Day Pass", "Agafay Dinner", "Desert Camp", "Sahara Trip", "Essaouira Day Trip", "Cooking Class", "Hot Air Balloon", "Paragliding", "Quad/Buggy", "Camel Ride", "Horse Riding", "Jet Ski", "Surfing", "Boat Trip", "Golf", "Waterfalls Trip", "Shopping Tour", "Photography Tour", "Restaurant", "Breakfast", "Lunch", "Dinner", "Show / Entertainment", "Spa/Hammam", "Massage", "Pool Day", "Free Time", "Other"];
@@ -4985,7 +4986,10 @@
     const reloadAll = useCallback(async () => {
       const sb = getSB();
       const [bk, cl, su, tk, ld] = await Promise.all([dbListAll("bookings", "created_at", false), dbList("clients", "name", true), dbList("suppliers", "name", true), dbList("tasks", "created_at", false), dbList("form_submissions", "created_at", false)]);
-      setBookings(bk);
+      const needsDraft = bk.filter((b) => (b == null ? void 0 : b.id) && !["draft", "cancelled"].includes(b.status) && !CONFIRMED_BOOKING_STATUSES.has(b.status));
+      if (sb && needsDraft.length) await Promise.all(needsDraft.map((b) => dbUpdate("bookings", b.id, { status: "draft" })));
+      const normalizedBookings = bk.map((b) => needsDraft.some((x) => x.id === b.id) ? { ...b, status: "draft" } : b);
+      setBookings(normalizedBookings);
       setClients(cl);
       setSuppliers(su);
       setTasks(tk);

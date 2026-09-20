@@ -611,6 +611,11 @@
     const mapSelected = focusId && selected && String(selected.booking.id) !== String(focusId) ? null : selected;
     const mapHovered = focusId && hovered && String(hovered.booking.id) !== String(focusId) ? null : hovered;
     const selectPoint = (p) => {
+      if ((selected == null ? void 0 : selected.id) === p.id) {
+        setSelected(null);
+        setActiveBookingId(null);
+        return;
+      }
       setSelected(p);
       setActiveBookingId(p.booking.id);
     };

@@ -454,7 +454,12 @@
     const mapPoints = focusId ? enrichedRaw.filter(p => String(p.booking.id) === String(focusId)) : points;
     const mapSelected = focusId && selected && String(selected.booking.id) !== String(focusId) ? null : selected;
     const mapHovered = focusId && hovered && String(hovered.booking.id) !== String(focusId) ? null : hovered;
-    const selectPoint = p => { setSelected(p); setActiveBookingId(p.booking.id); };
+    const selectPoint = p => {
+      // Clicking the same activity again closes its detail panel and clears the
+      // focused route. A different activity still replaces the open detail.
+      if (selected?.id === p.id) { setSelected(null); setActiveBookingId(null); return; }
+      setSelected(p); setActiveBookingId(p.booking.id);
+    };
     const pick = (label, value, set, options) => h('label', { className: 'mso-filter' }, h('span', null, label), h('select', { value, onChange: e => set(e.target.value) }, options.map(([v, t]) => h('option', { key: v, value: v }, t))));
     return h('div', { className: 'msa-page mso-page' + (embedded ? ' mso-embedded' : '') },
       !embedded && h('header', { className: 'msa-page-head mso-hero' }, h('div', null, h('span', { className: 'mso-eyebrow' }, 'MARRAKECHSTORY · LIVE OPERATIONS'), h('h1', null, 'Operations Map'), h('p', null, 'A clear view of every journey, handoff and detail that needs attention.')), h('button', { className: 'msa-btn', onClick: reload }, '↻ Refresh')),
