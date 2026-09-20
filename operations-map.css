@@ -438,6 +438,12 @@
 #ms-admin-root .mso-panel-stats .is-previous{color:#7b61a8}
 #ms-admin-root .mso-booking-status.is-previous{background:#f0eafa;color:#6f4b9b}
 #ms-admin-root .mso-booking-countdown-block.is-previous{background:#7b61a8;color:#fff;box-shadow:0 4px 12px rgba(123,97,168,.22)}
+#ms-admin-root .mso-booking-section-label{position:sticky;top:0;z-index:2;margin:7px 2px 5px;padding:6px 8px;border-radius:7px;background:#eef0f2;color:#68717c;font-size:10px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}
+#ms-admin-root .mso-booking-entry.is-previous{background:#f1f2f4;border-color:#dfe2e6}
+#ms-admin-root .mso-booking-entry.is-previous .mso-booking-card{background:#f1f2f4;color:#616a75}
+#ms-admin-root .mso-booking-entry.is-previous .mso-booking-card:hover{background:#e9ebee}
+#ms-admin-root .mso-booking-entry.is-previous .mso-booking-status{background:#e2e5e9;color:#68717c}
+#ms-admin-root .mso-booking-entry.is-previous .mso-booking-countdown-block{background:#8a929c;color:#fff;box-shadow:none}
 #ms-admin-root .mso-booking-card strong{font-size:15.4px}
 #ms-admin-root .mso-booking-card small,#ms-admin-root .mso-booking-meta,#ms-admin-root .mso-booking-countdown{font-size:11px}
 #ms-admin-root .mso-booking-activity{font-size:12px}

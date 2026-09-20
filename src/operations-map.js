@@ -587,7 +587,8 @@
     const bookingCount = new Set(points.map((p) => p.booking.id)).size;
     const selectedIssues = issues.filter((x) => points.some((p) => p.id === x.point.id));
     const agendaBookings = bookings.filter((b) => {
-      if (archived !== "all" && !!b.archived !== (archived === "archived")) return false;
+      const previous = dateOnly(b.departure_date) && dateOnly(b.departure_date) < today;
+      if (!previous && archived !== "all" && !!b.archived !== (archived === "archived")) return false;
       if (status && b.status !== status) return false;
       if (!dateOnly(b.arrival_date) || b.status === "cancelled") return false;
       if (person && ![b.client_name, b.reference].join(" ").toLowerCase().includes(person.toLowerCase())) return false;
@@ -602,7 +603,9 @@
     const focusId = hoveredBookingId || activeBookingId;
     const activeAgendaCount = agendaBookings.filter((b) => dateOnly(b.arrival_date) <= today && dateOnly(b.departure_date) >= today).length;
     const upcomingAgendaCount = agendaBookings.filter((b) => dateOnly(b.arrival_date) > today).length;
-    const previousAgendaCount = agendaBookings.filter((b) => dateOnly(b.departure_date) && dateOnly(b.departure_date) < today).length;
+    const previousAgendaBookings = agendaBookings.filter((b) => dateOnly(b.departure_date) && dateOnly(b.departure_date) < today);
+    const previousAgendaCount = previousAgendaBookings.length;
+    const firstPreviousAgendaIndex = agendaBookings.findIndex((b) => dateOnly(b.departure_date) && dateOnly(b.departure_date) < today);
     const mapPoints = focusId ? enrichedRaw.filter((p) => String(p.booking.id) === String(focusId)) : points;
     const mapSelected = focusId && selected && String(selected.booking.id) !== String(focusId) ? null : selected;
     const mapHovered = focusId && hovered && String(hovered.booking.id) !== String(focusId) ? null : hovered;
@@ -634,7 +637,7 @@
           "aside",
           { className: "mso-panel" },
           h("div", { className: "mso-panel-head" }, h("span", { className: "mso-eyebrow" }, `${today} \xB7 ${now.clock} MOROCCO TIME`), h("h2", null, "Daily agenda"), h("div", { className: "mso-panel-stats" }, h("span", null, h("strong", null, activeAgendaCount), " active"), h("span", null, h("strong", null, upcomingAgendaCount), " upcoming"), h("span", { className: "is-previous" }, h("strong", null, previousAgendaCount), " previous"))),
-          h("div", { className: "mso-booking-list" }, agendaBookings.length ? agendaBookings.map((b) => {
+          h("div", { className: "mso-booking-list" }, agendaBookings.length ? agendaBookings.map((b, agendaIndex) => {
             const active = dateOnly(b.arrival_date) <= today && (!dateOnly(b.departure_date) || dateOnly(b.departure_date) >= today);
             const previous = dateOnly(b.departure_date) && dateOnly(b.departure_date) < today;
             const countdown = daysBetween(today, dateOnly(active ? b.departure_date : previous ? b.departure_date : b.arrival_date));
@@ -645,25 +648,30 @@
             const expanded = String(activeBookingId) === String(b.id);
             const bookingPoints = enrichedRaw.filter((p) => String(p.booking.id) === String(b.id));
             return h(
-              "div",
-              { className: "mso-booking-entry" + (expanded ? " is-open" : ""), key: b.id, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
+              React.Fragment,
+              { key: b.id },
+              agendaIndex === firstPreviousAgendaIndex && h("div", { className: "mso-booking-section-label" }, `Previous bookings \xB7 ${previousAgendaCount}`),
               h(
-                "button",
-                { className: "mso-booking-card", "aria-expanded": expanded, onFocus: () => setHoveredBookingId(b.id), onBlur: () => setHoveredBookingId(null), onClick: () => {
-                  setActiveBookingId(expanded ? null : b.id);
-                  setSelected(null);
-                } },
-                h("span", { className: "mso-booking-status " + (active ? "is-active" : previous ? "is-previous" : "is-upcoming") }, active ? "\u25CF ON TRIP" : previous ? "PREVIOUS" : "UPCOMING"),
-                h("strong", null, b.client_name || "Guest"),
-                h("small", { className: "mso-booking-dates" }, `${b.reference || "\u2014"} \xB7 ${dateOnly(b.arrival_date)} \u2192 ${dateOnly(b.departure_date) || "\u2014"}`),
-                activity && h("span", { className: "mso-booking-activity" }, activity),
-                h("span", { className: "mso-booking-countdown-block " + (active ? "is-active" : previous ? "is-previous" : countdown <= 30 ? "is-soon" : "is-far") }, h("strong", null, active ? "NOW" : previous ? "\u2713" : Math.max(0, countdown)), h("small", null, active ? "ON TRIP" : previous ? "DONE" : countdown === 1 ? "DAY" : "DAYS")),
-                h("span", { className: "mso-booking-countdown " + (active ? "is-active" : previous ? "is-previous" : "is-upcoming") }, timing),
-                h("span", { className: "mso-booking-meta" }, trip),
-                h("span", { className: "mso-booking-footer" }, h("span", { className: "msa-badge msa-st-" + b.status }, statusLabel[b.status] || b.status || "\u2014"), isAdmin && +b.balance > 0 && h("span", { className: "mso-booking-owed" }, "Owes " + money(b.balance))),
-                h("span", { className: "mso-booking-count" }, `${bookingPoints.length} stops`, h("span", null, expanded ? "\u2303" : "\u2304"))
-              ),
-              expanded && h("div", { className: "mso-booking-itinerary" }, h("div", { className: "mso-booking-actions" }, h("span", null, "Day-by-day itinerary"), h("button", { onClick: () => openBooking(b) }, "Open booking \u2197")), h(ItineraryDays, { points: bookingPoints, today, clock: now.clock, selected: (selected == null ? void 0 : selected.booking.id) === b.id ? selected : null, hovered: (hovered == null ? void 0 : hovered.booking.id) === b.id ? hovered : null, onSelect: selectPoint, onHover: setHovered, suppliers }), (hovered == null ? void 0 : hovered.booking.id) === b.id && hovered.id !== (selected == null ? void 0 : selected.id) && h(PointDetail, { point: hovered, suppliers, onBooking: openBooking }))
+                "div",
+                { className: "mso-booking-entry" + (expanded ? " is-open" : "") + (previous ? " is-previous" : ""), key: `${b.id}-entry`, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
+                h(
+                  "button",
+                  { className: "mso-booking-card", "aria-expanded": expanded, onFocus: () => setHoveredBookingId(b.id), onBlur: () => setHoveredBookingId(null), onClick: () => {
+                    setActiveBookingId(expanded ? null : b.id);
+                    setSelected(null);
+                  } },
+                  h("span", { className: "mso-booking-status " + (active ? "is-active" : previous ? "is-previous" : "is-upcoming") }, active ? "\u25CF ON TRIP" : previous ? "PREVIOUS" : "UPCOMING"),
+                  h("strong", null, b.client_name || "Guest"),
+                  h("small", { className: "mso-booking-dates" }, `${b.reference || "\u2014"} \xB7 ${dateOnly(b.arrival_date)} \u2192 ${dateOnly(b.departure_date) || "\u2014"}`),
+                  activity && h("span", { className: "mso-booking-activity" }, activity),
+                  h("span", { className: "mso-booking-countdown-block " + (active ? "is-active" : previous ? "is-previous" : countdown <= 30 ? "is-soon" : "is-far") }, h("strong", null, active ? "NOW" : previous ? "\u2713" : Math.max(0, countdown)), h("small", null, active ? "ON TRIP" : previous ? "DONE" : countdown === 1 ? "DAY" : "DAYS")),
+                  h("span", { className: "mso-booking-countdown " + (active ? "is-active" : previous ? "is-previous" : "is-upcoming") }, timing),
+                  h("span", { className: "mso-booking-meta" }, trip),
+                  h("span", { className: "mso-booking-footer" }, h("span", { className: "msa-badge msa-st-" + b.status }, statusLabel[b.status] || b.status || "\u2014"), isAdmin && +b.balance > 0 && h("span", { className: "mso-booking-owed" }, "Owes " + money(b.balance))),
+                  h("span", { className: "mso-booking-count" }, `${bookingPoints.length} stops`, h("span", null, expanded ? "\u2303" : "\u2304"))
+                ),
+                expanded && h("div", { className: "mso-booking-itinerary" }, h("div", { className: "mso-booking-actions" }, h("span", null, "Day-by-day itinerary"), h("button", { onClick: () => openBooking(b) }, "Open booking \u2197")), h(ItineraryDays, { points: bookingPoints, today, clock: now.clock, selected: (selected == null ? void 0 : selected.booking.id) === b.id ? selected : null, hovered: (hovered == null ? void 0 : hovered.booking.id) === b.id ? hovered : null, onSelect: selectPoint, onHover: setHovered, suppliers }), (hovered == null ? void 0 : hovered.booking.id) === b.id && hovered.id !== (selected == null ? void 0 : selected.id) && h(PointDetail, { point: hovered, suppliers, onBooking: openBooking }))
+              )
             );
           }) : h("p", { className: "mso-empty" }, "No bookings match this view."))
         )
