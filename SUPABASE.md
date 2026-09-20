@@ -118,3 +118,7 @@ When the admin subdomain is ready later:
 2. Set `VITE_ADMIN_URL` and `NEXT_PUBLIC_ADMIN_URL` to `https://admin.marrakechstory.com/`.
 3. Add that exact URL to the Supabase Auth redirect allow-list.
 4. Redeploy.
+
+## Trip planner data model
+
+The map-first planner is integrated with the existing `bookings` table. `daily_itinerary` remains the canonical persisted day/activity document and is normalized by the admin before display. The additive `planner_preferences` and `trip_generation_status` columns support resumable wizard preferences and explicit AI generation state without splitting booking data into a second source of truth.

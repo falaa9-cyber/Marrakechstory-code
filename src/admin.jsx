@@ -2956,7 +2956,7 @@
         h('button', { className: 'msa-btn', style: { marginTop: 12 }, onClick: changePw }, 'Update password')));
   }
 
-  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Workspace', 'tasks'], ['requests', 'Requests', 'requests'], ['social', 'Social media', 'invoice'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
+  const TABS = [['dashboard', 'Dashboard', 'dashboard'], ['planner', 'Trip planner', 'calendar'], ['bookings', 'Bookings', 'bookings'], ['calendar', 'Calendar', 'calendar'], ['clients', 'Clients', 'clients'], ['suppliers', 'Collaborators', 'collab'], ['finance', 'Finance', 'finance'], ['tasks', 'Workspace', 'tasks'], ['requests', 'Requests', 'requests'], ['social', 'Social media', 'invoice'], ['insights', 'Insights', 'insights'], ['settings', 'Settings', 'settings']];
 
   function Shell({ user, role, onLogout }) {
     const isAdmin = role === 'admin';
@@ -3043,12 +3043,14 @@
     }, [tab, reloadAll]);
 
     const openBooking = (b) => { setFocusBooking(b && b.id ? b : EMPTY_BOOKING); setSearch(''); setTab('bookings'); };
+    const savePlannerBooking = async (booking, patch) => { const r = await dbUpdate('bookings', booking.id, patch); return r && r.error ? r : { ok: true }; };
     const routeTo = (t, term) => { setSearch(''); if (t === 'clients' && term) setClientQuery(term); setTab(t); };
 
     const body = () => {
       if (loading) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading…'));
       if (search.trim()) return h(SearchResults, { q: search.trim(), data: { bookings, clients, suppliers, tasks, leads }, route: routeTo, openBooking, clear: () => setSearch('') });
       switch (tab) {
+        case 'planner': return window.MS_TripPlanner ? h(window.MS_TripPlanner, { bookings, suppliers, openBooking, saveBooking: savePlannerBooking, reload: reloadAll }) : h('div', { className: 'msa-empty' }, 'Trip planner unavailable.');
         case 'operations': return window.MS_OperationsMap ? h(window.MS_OperationsMap, { bookings, suppliers, openBooking, reload: reloadAll, isAdmin: isAdminRole() }) : h('div', { className: 'msa-empty' }, 'Operations map unavailable.');
         case 'bookings': return h(Bookings, { bookings, reload: reloadAll, settings, focusBooking, clearFocus: () => setFocusBooking(null), suppliers });
         case 'calendar': return h(CalendarTab, { bookings, openBooking });

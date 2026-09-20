@@ -15,7 +15,7 @@ import { compileJsxTree, rewriteHtmlScriptEntries } from './scripts/browser-js.m
 
 function copyStaticTree() {
   const root = process.cwd();
-  const include = ['src', 'assets', 'styles.css', 'apple-redesign.css', 'admin.css', 'robots.txt', 'sitemap.xml', 'googled9fb7d24e8ddbe07.html', 'site.webmanifest'];
+  const include = ['src', 'assets', 'styles.css', 'apple-redesign.css', 'admin.css', 'trip-planner.css', 'robots.txt', 'sitemap.xml', 'googled9fb7d24e8ddbe07.html', 'site.webmanifest'];
 
   return {
     name: 'copy-static-tree',
@@ -86,6 +86,7 @@ function compileBrowserJsx() {
       });
       rewriteHtmlScriptEntries(path.resolve(root, 'dist/index.html'));
       rewriteHtmlScriptEntries(path.resolve(root, 'dist/admin.html'));
+      rewriteHtmlScriptEntries(path.resolve(root, 'dist/trip-planner.html'));
     }
   };
 }
@@ -109,6 +110,7 @@ export default defineConfig(({ mode }) => {
         input: {
           main: resolve(process.cwd(), 'index.html'),
           admin: resolve(process.cwd(), 'admin.html'),
+          tripPlanner: resolve(process.cwd(), 'trip-planner.html'),
         }
       }
     },

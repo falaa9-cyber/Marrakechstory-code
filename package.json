@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Marrakech Story — premium travel in Morocco.",
+  "description": "Marrakech Story \u2014 premium travel in Morocco.",
   "homepage": "https://marrakechstory.com",
   "scripts": {
     "sync:browser-js": "node scripts/browser-js.mjs",
@@ -11,7 +11,8 @@
     "verify:data": "node scripts/verify-data.mjs",
     "dev": "npm run sync:browser-js && vite",
     "preview": "vite preview --port 8080",
-    "start": "vite preview --port 8080"
+    "start": "vite preview --port 8080",
+    "test:planner": "node scripts/test-trip-planner.mjs"
   },
   "devDependencies": {
     "vite": "^5.4.10"

@@ -62,6 +62,7 @@ if (isDirectRun) {
 
   rewriteHtmlScriptEntries(path.resolve(root, 'index.html'));
   rewriteHtmlScriptEntries(path.resolve(root, 'admin.html'));
+  rewriteHtmlScriptEntries(path.resolve(root, 'trip-planner.html'));
 
   console.log(`[sync-browser-js] compiled ${count} JSX files into src/*.js and rewrote HTML entrypoints.`);
 }
