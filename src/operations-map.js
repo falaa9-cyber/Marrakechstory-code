@@ -590,7 +590,8 @@
       const previous = dateOnly(b.departure_date) && dateOnly(b.departure_date) < today;
       if (!previous && archived !== "all" && !!b.archived !== (archived === "archived")) return false;
       if (status && b.status !== status) return false;
-      if (!dateOnly(b.arrival_date) || b.status === "cancelled") return false;
+      const paidBooking = b.status === "fully_paid" || +b.paid_amount > 0 || +b.balance === 0 && +b.selling_price > 0;
+      if (!dateOnly(b.arrival_date) || b.status === "cancelled" && !paidBooking) return false;
       if (person && ![b.client_name, b.reference].join(" ").toLowerCase().includes(person.toLowerCase())) return false;
       if (query && ![b.client_name, b.reference, b.arrival_city, b.departure_city, ...Array.isArray(b.daily_itinerary) ? b.daily_itinerary.flatMap((d) => (d.activities || []).map((a) => a.location_name || "")) : []].join(" ").toLowerCase().includes(query.toLowerCase())) return false;
       return true;
