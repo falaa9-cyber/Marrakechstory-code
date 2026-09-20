@@ -15,9 +15,11 @@ const key = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY |
 const expected = env.EXPECTED_SUPABASE_PROJECT_REF || '';
 let actual = '';
 try { actual = new URL(url).hostname.split('.')[0]; } catch (_) {}
-const headers = { apikey: key, Authorization: `Bearer ${env.SUPABASE_ACCESS_TOKEN || key}`, Accept: 'application/json' };
+const privileged = !!(env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ACCESS_TOKEN);
+const headers = { apikey: key, Authorization: `Bearer ${env.SUPABASE_ACCESS_TOKEN || env.SUPABASE_SERVICE_ROLE_KEY || key}`, Accept: 'application/json' };
 const tables = ['bookings', 'clients', 'form_submissions', 'suppliers', 'tasks', 'messages', 'whatsapp_contacts', 'whatsapp_conversations', 'whatsapp_messages'];
-const result = { environment: env.NODE_ENV || 'production', actual_supabase_project_ref: actual, expected_supabase_project_ref: expected, match: !!expected && actual === expected, counts: {}, latest_bookings: [], incomplete: {}, errors: [] };
+const result = { environment: env.NODE_ENV || 'production', actual_supabase_project_ref: actual, expected_supabase_project_ref: expected, match: !!expected && actual === expected, access_mode: privileged ? 'privileged' : 'publishable key (RLS-limited)', counts: {}, latest_bookings: [], incomplete: {}, errors: [] };
+if (!privileged) result.errors.push('Counts may be restricted by RLS. Set SUPABASE_ACCESS_TOKEN or SUPABASE_SERVICE_ROLE_KEY for a complete authenticated report.');
 async function request(path, options = {}) {
   const response = await fetch(`${url.replace(/\/$/, '')}/rest/v1/${path}`, { ...options, headers: { ...headers, ...(options.headers || {}) } });
   const text = await response.text();
