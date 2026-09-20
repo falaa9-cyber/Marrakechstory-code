@@ -4986,9 +4986,14 @@
     const reloadAll = useCallback(async () => {
       const sb = getSB();
       const [bk, cl, su, tk, ld] = await Promise.all([dbListAll("bookings", "created_at", false), dbList("clients", "name", true), dbList("suppliers", "name", true), dbList("tasks", "created_at", false), dbList("form_submissions", "created_at", false)]);
-      const needsDraft = bk.filter((b) => (b == null ? void 0 : b.id) && !["draft", "cancelled"].includes(b.status) && !CONFIRMED_BOOKING_STATUSES.has(b.status));
-      if (sb && needsDraft.length) await Promise.all(needsDraft.map((b) => dbUpdate("bookings", b.id, { status: "draft" })));
-      const normalizedBookings = bk.map((b) => needsDraft.some((x) => x.id === b.id) ? { ...b, status: "draft" } : b);
+      const hasRecordedPayment = (b) => +b.paid_amount > 0 || +b.deposit_amount > 0 || +b.balance === 0 && +b.selling_price > 0;
+      const needsDraft = bk.filter((b) => (b == null ? void 0 : b.id) && !["draft", "cancelled"].includes(b.status) && !CONFIRMED_BOOKING_STATUSES.has(b.status) && !hasRecordedPayment(b));
+      const needsDepositPaid = bk.filter((b) => (b == null ? void 0 : b.id) && !["draft", "cancelled"].includes(b.status) && !CONFIRMED_BOOKING_STATUSES.has(b.status) && hasRecordedPayment(b));
+      if (sb && (needsDraft.length || needsDepositPaid.length)) await Promise.all([
+        ...needsDraft.map((b) => dbUpdate("bookings", b.id, { status: "draft" })),
+        ...needsDepositPaid.map((b) => dbUpdate("bookings", b.id, { status: "deposit_paid" }))
+      ]);
+      const normalizedBookings = bk.map((b) => needsDraft.some((x) => x.id === b.id) ? { ...b, status: "draft" } : needsDepositPaid.some((x) => x.id === b.id) ? { ...b, status: "deposit_paid" } : b);
       setBookings(normalizedBookings);
       setClients(cl);
       setSuppliers(su);
