@@ -49,6 +49,8 @@ Migration files added in this repo:
 
 ## Required env vars
 
+The canonical production project is locked with `EXPECTED_SUPABASE_PROJECT_REF=xcpkujguvrhpsmftgxtn`. Vite fails a production build when the URL ref differs, and the browser clients block data operations at runtime. Run `npm run verify:data` before deployment; it reports the ref match and live table health.
+
 Frontend build/runtime:
 
 - `VITE_SUPABASE_URL`

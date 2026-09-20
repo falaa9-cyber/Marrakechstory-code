@@ -552,6 +552,12 @@
 
 /* ============ v189 — dashboard top section (symmetric) ============ */
 .msa-dash-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+.msa-data-health { margin-bottom: 14px; }
+.msa-health-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.msa-health-item { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 10px 12px; border: 1px solid var(--msa-line); border-radius: 12px; background: var(--msa-bg); color: var(--msa-ink); text-align: left; cursor: pointer; }
+.msa-health-item:hover { border-color: var(--msa-brand); background: var(--msa-brand-soft); }
+.msa-health-item strong { font-size: 18px; line-height: 1; }
+.msa-health-item span { color: var(--msa-dim); font-size: 11px; line-height: 1.25; }
 .msa-dash-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
 .msa-dash-charts .msa-card { margin-bottom: 0; min-height: 220px; display: flex; flex-direction: column; }
 .msa-dash-charts .msa-chart-row { flex: 1; align-items: center; }
@@ -561,7 +567,7 @@
 .msa-kpi-dual-row > div { display: flex; flex-direction: column; }
 .msa-kpi-sub { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--msa-dim); }
 .msa-kpi-divider { width: 1px; align-self: stretch; background: var(--msa-line); }
-@media (max-width: 980px) { .msa-dash-top { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 980px) { .msa-dash-top { grid-template-columns: repeat(2, 1fr); } .msa-health-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 860px) { .msa-dash-charts { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .msa-dash-top { grid-template-columns: 1fr; } }
 

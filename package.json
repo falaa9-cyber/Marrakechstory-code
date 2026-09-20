@@ -8,6 +8,7 @@
   "scripts": {
     "sync:browser-js": "node scripts/browser-js.mjs",
     "build": "npm run sync:browser-js && vite build",
+    "verify:data": "node scripts/verify-data.mjs",
     "dev": "npm run sync:browser-js && vite",
     "preview": "vite preview --port 8080",
     "start": "vite preview --port 8080"

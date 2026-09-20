@@ -122,6 +122,25 @@
     return;
   }
 
+  function projectRef(url) {
+    try { return new URL(url).hostname.split('.')[0]; } catch (_error) { return ''; }
+  }
+  const actualRef = projectRef(window.MS_ENV.SUPABASE_URL);
+  const expectedRef = String(window.MS_ENV.EXPECTED_SUPABASE_PROJECT_REF || '').trim();
+  if (expectedRef && actualRef !== expectedRef) {
+    const message = 'Database configuration error: this deployment points to Supabase project “' + actualRef + '”, but MarrakechStory requires “' + expectedRef + '”. Data operations are blocked.';
+    window.MS_DB_CONFIG_ERROR = message;
+    console.error('[MS_SB] ' + message);
+    const errorEl = document.getElementById('ms-admin-error');
+    if (errorEl && document.body && document.body.dataset && document.body.dataset.msSurface === 'admin') {
+      const title = errorEl.querySelector('h2'); const body = errorEl.querySelector('p');
+      if (title) title.textContent = 'Database configuration error';
+      if (body) body.textContent = message;
+      errorEl.classList.add('is-visible');
+    }
+    return;
+  }
+
   window.MS_SB = window.supabase.createClient(
     window.MS_ENV.SUPABASE_URL,
     window.MS_ENV.SUPABASE_KEY,

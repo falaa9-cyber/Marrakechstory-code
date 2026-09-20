@@ -67,6 +67,14 @@
   function getSB() {
     if (SB) return SB;
     if (!window.supabase || !window.MS_ENV || !window.MS_ENV.SUPABASE_URL) return null;
+    try {
+      const actualRef = new URL(window.MS_ENV.SUPABASE_URL).hostname.split('.')[0];
+      const expectedRef = String(window.MS_ENV.EXPECTED_SUPABASE_PROJECT_REF || '').trim();
+      if (expectedRef && actualRef !== expectedRef) {
+        window.MS_DB_CONFIG_ERROR = 'Database configuration error: expected Supabase project “' + expectedRef + '”, got “' + actualRef + '”. Data operations are blocked.';
+        return null;
+      }
+    } catch (_error) { window.MS_DB_CONFIG_ERROR = 'Database configuration error: invalid Supabase URL. Data operations are blocked.'; return null; }
     SB = window.supabase.createClient(window.MS_ENV.SUPABASE_URL, window.MS_ENV.SUPABASE_KEY,
       { auth: { persistSession: true, autoRefreshToken: true, storageKey: ADMIN_AUTH_STORAGE_KEY, detectSessionInUrl: false } });
     return SB;
@@ -186,6 +194,21 @@
   const nf = (n) => (Number(n) || 0).toLocaleString('en-US');
   // Money: always show 2 decimals, Norwegian style (e.g. "12 075,00 kr").
   const kr = (n) => (Number(n) || 0).toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' kr';
+  // Normalize legacy itinerary payloads into the canonical day/activity shape
+  // without dropping unknown fields from older imports.
+  function normalizeItinerary(raw, arrivalDate) {
+    const source = Array.isArray(raw) ? raw : [];
+    const addDays = (iso, n) => { if (!iso) return ''; const p = String(iso).slice(0, 10).split('-'); if (p.length !== 3) return ''; const d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+    return source.map((day, index) => {
+      const d = (day && typeof day === 'object' && !Array.isArray(day)) ? day : { details: day };
+      const rawActs = Array.isArray(d.activities) ? d.activities : (Array.isArray(d.items) ? d.items : (d.activity ? [d.activity] : []));
+      const activities = rawActs.map((activity) => {
+        const a = (activity && typeof activity === 'object' && !Array.isArray(activity)) ? activity : { details: activity };
+        return { ...a, time: a.time || '', type: a.type || a.title || a.name || 'Activity', details: a.details || a.description || a.address || (typeof activity === 'string' ? activity : '') };
+      });
+      return { ...d, day: Number(d.day) || index + 1, date: d.date ? String(d.date).slice(0, 10) : addDays(arrivalDate, index), city: d.city || d.location || d.route || '', activities };
+    });
+  }
   // ---- request/lead display helpers (used by Dashboard + Requests) ----
   const CAT_LABEL = { experiences: 'Experience', activities: 'Experience', transport: 'Transport', stays: 'Stay', riads: 'Stay', tours: 'Tour', desert: 'Desert trip', wellness: 'Wellness', food: 'Food & dining', day: 'Day trip', daytrips: 'Day trip' };
   // Localized values arrive as {en,no,fr,sv} objects OR plain strings.
@@ -750,6 +773,16 @@
     const openTasks = tasks.filter(t => t.status !== 'completed');
     const newRequests = leads.filter(l => !l.routed_booking_id || true).slice(0, 5);
     const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const confirmedStatuses = CONFIRMED_BOOKING_STATUSES;
+    const confirmedCount = bookings.filter(b => confirmedStatuses.has(b.status)).length;
+    const unconfirmedCount = bookings.filter(b => !confirmedStatuses.has(b.status) && b.status !== 'cancelled').length;
+    const pendingDepositCount = bookings.filter(b => b.status !== 'cancelled' && b.deposit_enabled !== false && +b.deposit_amount > (+b.paid_amount || 0)).length;
+    const unpaidCount = bookings.filter(b => b.status !== 'cancelled' && +b.balance > 0).length;
+    const missingItineraryCount = bookings.filter(b => b.status !== 'cancelled' && !(Array.isArray(b.daily_itinerary) && b.daily_itinerary.length)).length;
+    const missingAccommodationCount = bookings.filter(b => b.status !== 'cancelled' && !(b.accommodation_name || b.accommodation || b.collab_accommodation)).length;
+    const missingDriverCount = bookings.filter(b => b.status !== 'cancelled' && !(b.driver || b.transport || b.collab_transport)).length;
+    const pendingSupplierCount = bookings.filter(b => b.status !== 'cancelled' && (Array.isArray(b.daily_itinerary) ? b.daily_itinerary.some(d => (d.activities || []).some(a => a.confirmed === false || a.supplier_confirmed === false)) : false)).length;
+    const incompleteCount = bookings.filter(b => b.status !== 'cancelled' && (!b.client_name || !b.arrival_date || !b.departure_date || !(Array.isArray(b.daily_itinerary) && b.daily_itinerary.length) || !(b.accommodation_name || b.accommodation || b.collab_accommodation))).length;
 
     const kpi = (label, value, cls, tab) => h('button', { className: 'msa-kpi ' + cls, onClick: () => tab && go(tab) },
       h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, value));
@@ -791,6 +824,14 @@
         isAdmin ? kpi('Total Income', kr(revenue), 'msa-kpi-income', 'finance') : kpi('Clients', nf(clients.length), 'msa-kpi-plain', 'clients'),
         isAdmin ? kpi('Total Cost', kr(cost), 'msa-kpi-cost', 'finance') : kpi('Requests', nf(leads.length), 'msa-kpi-plain', 'requests'),
         isAdmin ? kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance') : kpi('Open tasks', nf(tasks.filter(t => t.status !== 'completed').length), 'msa-kpi-plain', 'tasks')),
+
+      h('section', { className: 'msa-card msa-data-health' },
+        h('div', { className: 'msa-card-head' }, h('h3', null, 'Data health'), h('span', { className: 'msa-dim' }, 'Live canonical database checks')),
+        h('div', { className: 'msa-health-grid' }, [
+          ['Total bookings', bookings.length, 'bookings'], ['Confirmed', confirmedCount, 'bookings'], ['Unconfirmed', unconfirmedCount, 'bookings'],
+          ['Deposits pending', pendingDepositCount, 'bookings'], ['Unpaid balances', unpaidCount, 'finance'], ['Missing itinerary', missingItineraryCount, 'bookings'],
+          ['Missing accommodation', missingAccommodationCount, 'bookings'], ['Missing driver', missingDriverCount, 'bookings'], ['Supplier confirmations pending', pendingSupplierCount, 'bookings'], ['Incomplete records', incompleteCount, 'bookings']
+        ].map(([label, value, tab]) => h('button', { key: label, className: 'msa-health-item', onClick: () => go(tab) }, h('strong', null, value), h('span', null, label))) )),
 
       window.MS_OperationsMap && h('section', { className: 'msa-dashboard-operations' },
         h('div', { className: 'msa-card-head msa-dashboard-operations-head' }, h('div', null, h('h2', null, 'Live operations')), h('button', { className: 'msa-link', onClick: () => go('operations') }, 'Open full map →')),
@@ -1004,7 +1045,7 @@
     const save = async (closeAfter) => {
       if (!b.client_name.trim()) { alert('Client name is required'); return; }
       setBusy(true);
-      const row = { ...b, reference: b.reference || ('MS-' + Math.random().toString(36).slice(2, 8).toUpperCase()), travelers: (+b.adults || 0) + (+b.kids || 0), sell_currency: normalizeCurrency(b.sell_currency), cost_currency: normalizeCurrency(b.cost_currency, 'MAD'), updated_at: new Date().toISOString() };
+      const row = { ...b, daily_itinerary: normalizeItinerary(b.daily_itinerary || b.itinerary, b.arrival_date), reference: b.reference || ('MS-' + Math.random().toString(36).slice(2, 8).toUpperCase()), travelers: (+b.adults || 0) + (+b.kids || 0), sell_currency: normalizeCurrency(b.sell_currency), cost_currency: normalizeCurrency(b.cost_currency, 'MAD'), updated_at: new Date().toISOString() };
       ['total_nights','total_days','adults','kids'].forEach(k => row[k] = +row[k] || 0);
       ['selling_price','deposit_amount','paid_amount','balance','cost_transportation','cost_activities','cost_accommodation','total_cost'].forEach(k => row[k] = +row[k] || 0);
       row.fx_rate = (row.fx_rate === '' || row.fx_rate == null) ? null : (parseFloat(row.fx_rate) || null);
@@ -1251,7 +1292,7 @@
     }, 250);
   }
 
-  // Direct programmatic PDF (jsPDF) for a booking's itinerary + invoice. Draws text/lines,
+  // Direct programmatic PDF (jsPDF) for a booking's itinerary and optional invoice. Draws text/lines,
   // so it downloads a real file that can NEVER be blank (unlike the DOM-rasterising html2canvas).
   async function buildBookingPdf(b, S, opts) {
     const J = window.jspdf && window.jspdf.jsPDF; if (!J) return null;
@@ -1338,6 +1379,7 @@
     }
     foot();
 
+    if (!(opts && opts.includeInvoice)) return doc;
     // ---------- INVOICE (page 2) ----------
     doc.addPage();
     header(tr('inv_kicker'), tr('inv_title'));
@@ -1567,7 +1609,7 @@
     const downloadPdf = async () => {
       if (dlBusy) return; setDlBusy(true);
       try {
-        const pdf = await buildBookingPdf(b, S, { lang, curr });
+        const pdf = await buildBookingPdf(b, S, { lang, curr, includeInvoice: type === 'invoice' && isAdminRole() });
         if (!pdf) { doPrint(); return; }
         pdf.save(fname);
       } catch (e) { console.error('PDF build failed', e); doPrint(); }
@@ -1592,17 +1634,20 @@
         h('div', { className: 'msa-doc-head-right' },
           h('label', { className: 'msa-btn msa-btn-sm msa-upload-label', title: 'Upload documents from your computer' }, ICON.pdf(), docUpBusy ? 'Uploading…' : 'Upload',
             h('input', { type: 'file', multiple: true, disabled: docUpBusy, style: { display: 'none' }, onChange: (e) => { uploadDocs(e.target.files); e.target.value = ''; } })),
-          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: () => exportPDF(fname), title: 'Download the itinerary + invoice as a PDF file' }, ICON.pdf(), 'Download PDF'),
+          h('button', { className: 'msa-btn msa-btn-sm msa-btn-primary', onClick: downloadPdf, title: type === 'invoice' ? 'Download invoice PDF' : 'Download client itinerary PDF' }, ICON.pdf(), 'Download PDF'),
           h('a', { className: 'msa-btn msa-btn-sm', href: mailHref, title: b.email ? ('Send via email to ' + b.email) : 'Compose email (no address on file)' }, ICON.requests(), 'Email'),
           h('a', { className: 'msa-btn msa-btn-sm', href: waHref, target: '_blank', title: b.phone ? ('Send via WhatsApp to ' + b.phone) : 'Send via WhatsApp' }, ICON.whatsapp(), 'WhatsApp'),
           h('button', { className: 'msa-btn msa-btn-sm msa-doc-close', onClick: onClose }, ICON.x()))),
       h('div', { className: 'msa-modal-body' },
         h('div', { id: 'msa-doc-preview' }, type === 'itinerary' ? itinerary() : invoice()),
-        // Always rendered off-screen so Download/Print export BOTH documents,
-        // itinerary on page 1 and invoice on page 2.
+        // Keep client itinerary downloads free of invoice amounts and payment details.
         h('div', { id: 'msa-print-both', className: 'msa-print-both', 'aria-hidden': 'true' },
           h('div', { className: 'msa-print-page' }, itinerary()),
-          h('div', { className: 'msa-print-page msa-print-page-2' }, invoice())))));
+          type === 'invoice' && isAdminRole() ? h('div', { className: 'msa-print-page msa-print-page-2' }, invoice()) : null
+        )
+      )
+    )
+    );
   }
 
   // =====================================================================
@@ -2973,7 +3018,11 @@
         ...needsDraft.map(b => dbUpdate('bookings', b.id, { status: 'draft' })),
         ...needsDepositPaid.map(b => dbUpdate('bookings', b.id, { status: 'deposit_paid' }))
       ]);
-      const normalizedBookings = bk.map(b => needsDraft.some(x => x.id === b.id) ? { ...b, status: 'draft' } : needsDepositPaid.some(x => x.id === b.id) ? { ...b, status: 'deposit_paid' } : b);
+      const normalizedBookings = bk.map(b => {
+        const itinerary = normalizeItinerary(b.daily_itinerary || b.itinerary, b.arrival_date);
+        const withItinerary = { ...b, daily_itinerary: itinerary };
+        return needsDraft.some(x => x.id === b.id) ? { ...withItinerary, status: 'draft' } : needsDepositPaid.some(x => x.id === b.id) ? { ...withItinerary, status: 'deposit_paid' } : withItinerary;
+      });
       setBookings(normalizedBookings); setClients(cl); setSuppliers(su); setTasks(tk); setLeads(ld); setLoading(false);
       if (sb) { const { data } = await sb.from('admin_settings').select('*').eq('id', 1).maybeSingle(); if (data) setSettings(data); }
     }, []);

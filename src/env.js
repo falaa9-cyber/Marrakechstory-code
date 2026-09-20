@@ -12,6 +12,7 @@
 window.MS_ENV = {
   SUPABASE_URL: "https://xcpkujguvrhpsmftgxtn.supabase.co",
   SUPABASE_KEY: "sb_publishable_FlUQb0R7pkGp4dVsWcnbKg_fRq6ccue",
+  EXPECTED_SUPABASE_PROJECT_REF: "xcpkujguvrhpsmftgxtn",
   SITE_URL: "https://marrakechstory.com/",
   ADMIN_URL: "https://marrakechstory.com/admin.html"
 };
