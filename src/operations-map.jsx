@@ -11,7 +11,7 @@
   const dateOnly = v => str(v).slice(0, 10);
   const daysBetween = (from, to) => Math.round((Date.parse(to + 'T12:00:00Z') - Date.parse(from + 'T12:00:00Z')) / 864e5);
   const money = n => (Number(n) || 0).toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' kr';
-  const statusLabel = { new: 'New', quotation_sent: 'Quotation Sent', waiting_confirmation: 'Awaiting', confirmed: 'Confirmed', deposit_paid: 'Deposit Paid', fully_paid: 'Fully Paid', ongoing: 'Ongoing', completed: 'Completed', cancelled: 'Cancelled' };
+  const statusLabel = { draft: 'Draft', new: 'New', quotation_sent: 'Quotation Sent', waiting_confirmation: 'Awaiting', confirmed: 'Confirmed', deposit_paid: 'Deposit Paid', fully_paid: 'Fully Paid', ongoing: 'Ongoing', completed: 'Completed', cancelled: 'Cancelled' };
   function bookingActivity(b, today) {
     const tomorrow = addDay(today, 1), arrival = dateOnly(b.arrival_date), departure = dateOnly(b.departure_date);
     const dayNote = day => {
