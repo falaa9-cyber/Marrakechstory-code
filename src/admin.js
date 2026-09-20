@@ -721,8 +721,20 @@
         setBusy(false);
         return;
       }
-      const typedEmail = email.trim();
-      const { data, error } = await sb.auth.signInWithPassword({ email: typedEmail, password: pass });
+      const typedEmail = normEmail(email);
+      if (!typedEmail || !pass) {
+        setErr("Enter your email and password.");
+        setBusy(false);
+        return;
+      }
+      clearAuthStorage(ADMIN_AUTH_STORAGE_KEY);
+      let data = null;
+      let error = null;
+      try {
+        ({ data, error } = await sb.auth.signInWithPassword({ email: typedEmail, password: pass }));
+      } catch (requestError) {
+        error = requestError;
+      }
       if (error) {
         if (window.MS_isStaleRefreshTokenError && window.MS_isStaleRefreshTokenError(error)) clearAuthStorage(ADMIN_AUTH_STORAGE_KEY);
         setBusy(false);

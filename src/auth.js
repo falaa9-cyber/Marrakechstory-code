@@ -95,7 +95,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     };
   };
   const doLogin = async () => {
-    var _a2;
+    var _a2, _b2;
     setErr("");
     setMsg("");
     if (!email.trim()) {
@@ -121,7 +121,9 @@ function AuthModal({ view: initView, onClose, onLogin }) {
         if (/invalid login/i.test(error.message || "")) throw new Error(T("Wrong email or password.", "Feil e-post eller passord.", "E-mail ou mot de passe incorrect."));
         throw error;
       }
-      finishAuth(userFromSession(data.user), "login");
+      const signedInUser = (data == null ? void 0 : data.user) || ((_b2 = data == null ? void 0 : data.session) == null ? void 0 : _b2.user);
+      if (!signedInUser) throw new Error(T("Login failed \u2014 no user session was returned.", "Innlogging feilet \u2014 ingen brukersesjon ble returnert.", "\xC9chec de la connexion \u2014 aucune session utilisateur re\xE7ue."));
+      finishAuth(userFromSession(signedInUser), "login");
     } catch (e) {
       setErr((e == null ? void 0 : e.message) || T("Login failed", "Innlogging feilet", "\xC9chec de la connexion"));
     } finally {
@@ -129,6 +131,7 @@ function AuthModal({ view: initView, onClose, onLogin }) {
     }
   };
   const doRegister = async () => {
+    var _a2;
     setErr("");
     setMsg("");
     if (!name.trim() || !email.trim()) {
@@ -153,7 +156,9 @@ function AuthModal({ view: initView, onClose, onLogin }) {
       }
       const { data, error } = await window.MS_SB.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
       if (error) throw error;
-      finishAuth(userFromSession(data.user, name.trim()), "register");
+      const signedInUser = (data == null ? void 0 : data.user) || ((_a2 = data == null ? void 0 : data.session) == null ? void 0 : _a2.user);
+      if (!signedInUser) throw new Error(T("Account created, but no session was returned. Please sign in.", "Konto opprettet, men ingen sesjon ble returnert. Logg inn p\xE5 nytt.", "Compte cr\xE9\xE9, mais aucune session re\xE7ue. Connectez-vous."));
+      finishAuth(userFromSession(signedInUser, name.trim()), "register");
     } catch (e) {
       setErr((e == null ? void 0 : e.message) || T("Sign-up failed", "Registrering feilet", "\xC9chec de l'inscription"));
     } finally {

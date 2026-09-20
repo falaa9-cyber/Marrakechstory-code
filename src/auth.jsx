@@ -113,7 +113,9 @@ function AuthModal({ view: initView, onClose, onLogin }) {
         if (/invalid login/i.test(error.message || '')) throw new Error(T('Wrong email or password.', 'Feil e-post eller passord.', 'E-mail ou mot de passe incorrect.'));
         throw error;
       }
-      finishAuth(userFromSession(data.user), 'login');
+      const signedInUser = data?.user || data?.session?.user;
+      if (!signedInUser) throw new Error(T('Login failed — no user session was returned.', 'Innlogging feilet — ingen brukersesjon ble returnert.', 'Échec de la connexion — aucune session utilisateur reçue.'));
+      finishAuth(userFromSession(signedInUser), 'login');
     } catch (e) {
       setErr(e?.message || T('Login failed', 'Innlogging feilet', 'Échec de la connexion'));
     } finally { setBusy(false); }
@@ -133,7 +135,9 @@ function AuthModal({ view: initView, onClose, onLogin }) {
       // Account is confirmed — sign straight in.
       const { data, error } = await window.MS_SB.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
       if (error) throw error;
-      finishAuth(userFromSession(data.user, name.trim()), 'register');
+      const signedInUser = data?.user || data?.session?.user;
+      if (!signedInUser) throw new Error(T('Account created, but no session was returned. Please sign in.', 'Konto opprettet, men ingen sesjon ble returnert. Logg inn på nytt.', 'Compte créé, mais aucune session reçue. Connectez-vous.'));
+      finishAuth(userFromSession(signedInUser, name.trim()), 'register');
     } catch (e) {
       setErr(e?.message || T('Sign-up failed', 'Registrering feilet', 'Échec de l\'inscription'));
     } finally { setBusy(false); }

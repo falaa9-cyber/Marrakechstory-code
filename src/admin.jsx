@@ -534,8 +534,18 @@
     const submit = async (e) => {
       e.preventDefault(); setErr(''); setBusy(true);
       const sb = getSB(); if (!sb) { setErr('Supabase not loaded'); setBusy(false); return; }
-      const typedEmail = email.trim();
-      const { data, error } = await sb.auth.signInWithPassword({ email: typedEmail, password: pass });
+      const typedEmail = normEmail(email);
+      if (!typedEmail || !pass) { setErr('Enter your email and password.'); setBusy(false); return; }
+      // A stale refresh token can block a new password grant before Supabase
+      // gets a chance to replace the session. Clear only the admin client’s
+      // local cache; this never signs out the public website client.
+      clearAuthStorage(ADMIN_AUTH_STORAGE_KEY);
+      let data = null; let error = null;
+      try {
+        ({ data, error } = await sb.auth.signInWithPassword({ email: typedEmail, password: pass }));
+      } catch (requestError) {
+        error = requestError;
+      }
       if (error) {
         if (window.MS_isStaleRefreshTokenError && window.MS_isStaleRefreshTokenError(error)) clearAuthStorage(ADMIN_AUTH_STORAGE_KEY);
         setBusy(false); setErr(error.message); return;
