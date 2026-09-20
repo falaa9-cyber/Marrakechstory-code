@@ -1,0 +1,501 @@
+.mso-page{max-width:1800px}.mso-hero{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:12px 0 20px}.mso-hero h1{font-family:Georgia,serif;font-size:clamp(32px,3vw,48px);letter-spacing:-.04em;margin:5px 0}.mso-eyebrow{display:block;text-transform:uppercase;letter-spacing:.16em;font-size:10px;font-weight:800;color:#a65e40}.mso-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 18px}.mso-summary-card{background:var(--msa-card,#fff);border:1px solid rgba(121,97,72,.15);border-radius:18px;padding:18px 20px;box-shadow:0 8px 26px rgba(53,37,21,.035)}.mso-summary-card span{display:block;color:#837669;font-size:12px}.mso-summary-card strong{display:block;font-family:Georgia,serif;font-size:29px;font-weight:500;margin-top:3px;color:#2c2824}.mso-range{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}.mso-range button{border:1px solid #e6ddd3;background:#fff;border-radius:999px;padding:9px 15px;cursor:pointer;color:#564c43;font:inherit;font-size:12px}.mso-range button.active{background:#342c27;border-color:#342c27;color:#fff}.mso-range input{border:1px solid #e6ddd3;border-radius:10px;padding:9px}.mso-filters{display:grid;grid-template-columns:repeat(4,minmax(145px,1fr));gap:10px;margin-bottom:16px}.mso-filter{display:flex;flex-direction:column;gap:5px;min-width:0}.mso-filter span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#837669;font-weight:700}.mso-filter input,.mso-filter select{min-width:0;width:100%;height:39px;padding:0 10px;border:1px solid #e3dcd4;border-radius:10px;background:#fff;color:#342c27;font:inherit;font-size:12px}.mso-main{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(300px,.8fr);gap:14px;align-items:stretch}.mso-map-card,.mso-panel{background:#fff;border:1px solid #e5ddd5;border-radius:19px;overflow:hidden;box-shadow:0 14px 40px rgba(45,32,23,.06)}.mso-map{height:620px;width:100%;background:#eee8dd;z-index:0}.mso-legend{display:flex;flex-wrap:wrap;gap:7px 13px;padding:14px 18px}.mso-legend span{display:flex;align-items:center;gap:5px;font-size:10px;color:#675e56}.mso-legend i,.mso-cat{display:inline-grid;place-items:center;background:var(--pin);color:#fff;border-radius:50%;width:21px;height:21px;font-style:normal;font-weight:800;flex:none}.mso-map-note{padding:0 18px 13px;margin:0;color:#8a7c6c;font-size:11px}.mso-icon-wrap{background:transparent;border:none}.mso-pin{display:grid;place-items:center;width:36px;height:36px;border:3px solid #fff;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);background:var(--pin);color:#fff;font-weight:900;font-size:16px;box-shadow:0 3px 13px rgba(32,25,19,.35)}.mso-pin::first-letter{transform:rotate(45deg)}.mso-panel{display:flex;flex-direction:column;max-height:710px}.mso-panel-head{padding:20px 20px 12px}.mso-panel h2{font-family:Georgia,serif;font-size:25px;font-weight:500;margin:5px 0}.mso-detail{margin:0 16px 14px;padding:17px;border-radius:14px;background:#f8f4ef}.mso-detail h3{font-family:Georgia,serif;font-size:21px;margin:5px 0 10px}.mso-detail-row{display:grid;grid-template-columns:90px 1fr;gap:8px;margin:7px 0;font-size:11px;line-height:1.4}.mso-detail-row span{color:#8b7d70}.mso-detail-row strong{font-weight:600;overflow-wrap:anywhere}.mso-detail .msa-btn{margin-top:11px}.mso-empty-detail{padding:17px;margin:0 16px 14px;border-radius:14px;background:#f8f4ef;color:#827467;font-size:12px}.mso-agenda{overflow:auto;padding:0 12px 16px}.mso-agenda-item{width:100%;display:flex;gap:10px;text-align:left;border:1px solid transparent;border-bottom-color:#eee7df;background:transparent;padding:11px 9px;border-radius:10px;cursor:pointer;color:#302a25}.mso-agenda-item:hover,.mso-agenda-item.selected{background:#f9f0e7;border-color:#ead9ca}.mso-agenda-item strong{display:block;font-size:12px}.mso-agenda-item small{display:block;color:#8a7d72;font-size:10px;margin-top:4px;line-height:1.4}.mso-agenda-item em{display:block;color:#b14d3d;font-size:10px;font-style:normal;margin-top:4px}.mso-empty{padding:20px;color:#827467;font-size:12px}.mso-alerts{margin:18px 0;background:#fff;border:1px solid #e8d9d1;border-radius:16px;padding:19px;display:grid;gap:7px}.mso-alerts h2{font-family:Georgia,serif;font-size:22px;margin:0 0 8px}.mso-alerts button{display:flex;justify-content:space-between;gap:15px;text-align:left;background:#fff8f4;border:0;border-radius:9px;padding:10px 12px;cursor:pointer;color:#7e4339;font-size:11px}.mso-alerts button span{color:#8b7970}.mso-journey{margin:10px 0 25px;padding:17px;background:#faf6f1;border:1px solid #e8ddd1;border-radius:16px}.mso-section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.mso-section-head h4{font-family:Georgia,serif;font-size:23px;margin:3px 0}.mso-count{font-size:11px;color:#8d7968}.mso-journey-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,.8fr);gap:12px}.mso-journey .mso-map{height:390px;border-radius:12px}.mso-journey-side{max-height:390px;overflow:auto;background:#fff;border-radius:12px;padding:8px}.mso-stop{width:24px;height:24px;border-radius:50%;background:#a65e40;color:#fff;display:grid;place-items:center;flex:none;font-size:10px;font-weight:800}.mso-journey .mso-detail{margin:10px 0 0}.msa-dark .mso-page .mso-summary-card,.msa-dark .mso-page .mso-map-card,.msa-dark .mso-page .mso-panel,.msa-dark .mso-page .mso-alerts{background:#272421;border-color:#484038}.msa-dark .mso-summary-card strong,.msa-dark .mso-panel h2,.msa-dark .mso-agenda-item{color:#f8f1e9}.msa-dark .mso-detail,.msa-dark .mso-empty-detail{background:#37302b;color:#f8f1e9}.msa-dark .mso-filter input,.msa-dark .mso-filter select,.msa-dark .mso-range button{background:#272421;color:#f8f1e9;border-color:#55483d}@media(max-width:1100px){.mso-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.mso-main{grid-template-columns:1fr}.mso-panel{max-height:480px}.mso-map{height:470px}}@media(max-width:650px){.mso-summary{grid-template-columns:repeat(2,1fr)}.mso-filters{grid-template-columns:1fr 1fr}.mso-hero{align-items:flex-start}.mso-hero .msa-btn{white-space:nowrap}.mso-map{height:390px}.mso-journey-grid{grid-template-columns:1fr}.mso-journey .mso-map{height:300px}}
+/* Scope heading sizes against the public site's global !important display scale. */
+#ms-admin-root .mso-panel h2{font-size:25px!important;line-height:1.15!important;font-weight:500!important}
+#ms-admin-root .mso-alerts h2{font-size:22px!important;line-height:1.2!important;font-weight:500!important}
+#ms-admin-root .mso-detail h3{font-size:21px!important;line-height:1.2!important}
+#ms-admin-root .mso-hero h1{font-size:clamp(32px,3vw,48px)!important;line-height:1.08!important}
+.mso-act-fields input,.mso-act-fields select{min-width:0;width:100%;padding:9px 10px;border:1px solid #ddd5cc;border-radius:9px;background:#fff;color:#302a25;font:inherit;font-size:12px}
+.mso-confirm{display:flex;align-items:center;gap:8px;font-size:12px;color:#65584e}
+.mso-confirm input{width:auto}
+/* MarrakechStory admin language: coral accents, warm white surfaces, restrained SF typography. */
+#ms-admin-root .mso-page{--mso-red:var(--msa-brand,#e0432a);--mso-ink:var(--msa-ink,#1d1d1f);--mso-muted:var(--msa-muted,#6e6e73);--mso-line:var(--msa-line,#e8e8e8);max-width:1600px}
+#ms-admin-root .mso-hero{padding:4px 0 23px;align-items:flex-end;border-bottom:1px solid var(--mso-line);margin-bottom:18px}
+#ms-admin-root .mso-hero h1,#ms-admin-root .mso-panel h2,#ms-admin-root .mso-detail h3,#ms-admin-root .mso-alerts h2,#ms-admin-root .mso-section-head h4{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif!important;color:var(--mso-ink);letter-spacing:-.035em;font-weight:650!important}
+#ms-admin-root .mso-hero h1{font-size:21px!important;line-height:1.2!important;margin:5px 0 6px}
+#ms-admin-root .mso-hero p{color:var(--mso-muted);font-size:13px;margin:0}
+#ms-admin-root .mso-eyebrow{color:var(--mso-red);font-size:10px;letter-spacing:.14em}
+#ms-admin-root .mso-summary{gap:10px;margin:0 0 18px}
+#ms-admin-root .mso-summary-card{background:var(--msa-card,#fff);border-color:var(--mso-line);border-radius:15px;box-shadow:none;padding:17px 19px;position:relative;overflow:hidden}
+#ms-admin-root .mso-summary-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mso-red);opacity:.7}
+#ms-admin-root .mso-summary-card span{color:var(--mso-muted);font-size:11px;font-weight:600}
+#ms-admin-root .mso-summary-card strong{font-family:inherit;color:var(--mso-ink);font-weight:650;font-size:28px}
+#ms-admin-root .mso-range{margin:0 0 13px;gap:7px}
+#ms-admin-root .mso-range button{background:#fff;border-color:var(--mso-line);color:var(--mso-ink);font-weight:600;padding:9px 14px}
+#ms-admin-root .mso-range button:hover{border-color:var(--mso-red)}
+#ms-admin-root .mso-range button.active{background:var(--mso-red);border-color:var(--mso-red);color:#fff;box-shadow:0 5px 15px rgba(224,67,42,.19)}
+#ms-admin-root .mso-toolbar{display:flex;align-items:end;gap:10px;margin:0 0 16px;flex-wrap:wrap}
+#ms-admin-root .mso-toolbar .mso-search{flex:1;min-width:240px;max-width:500px}
+#ms-admin-root .mso-filter span{color:var(--mso-muted)}
+#ms-admin-root .mso-filter input,#ms-admin-root .mso-filter select{border-color:var(--mso-line);border-radius:10px;height:42px;color:var(--mso-ink);background:#fff}
+#ms-admin-root .mso-filter input:focus,#ms-admin-root .mso-filter select:focus{outline:2px solid rgba(224,67,42,.22);border-color:var(--mso-red)}
+#ms-admin-root .mso-filter-drawer{position:relative}
+#ms-admin-root .mso-filter-drawer>summary{list-style:none;display:flex;gap:12px;align-items:center;justify-content:space-between;height:42px;min-width:102px;padding:0 13px;border:1px solid var(--mso-line);border-radius:10px;background:#fff;color:var(--mso-ink);font-size:12px;font-weight:650;cursor:pointer}
+#ms-admin-root .mso-filter-drawer>summary::-webkit-details-marker{display:none}
+#ms-admin-root .mso-filter-drawer[open]>summary{border-color:var(--mso-red);color:var(--mso-red)}
+#ms-admin-root .mso-filters{position:absolute;right:0;top:50px;z-index:700;width:min(680px,calc(100vw - 68px));padding:17px;background:#fff;border:1px solid var(--mso-line);border-radius:15px;box-shadow:0 18px 60px rgba(29,29,31,.16);grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
+#ms-admin-root .mso-map-card,#ms-admin-root .mso-panel,#ms-admin-root .mso-alerts{border-color:var(--mso-line);border-radius:16px;box-shadow:0 8px 28px rgba(29,29,31,.045)}
+#ms-admin-root .mso-main{grid-template-columns:minmax(0,1.7fr) minmax(330px,.8fr);gap:12px}
+#ms-admin-root .mso-map{background:#f5f2ed}
+#ms-admin-root .mso-panel-head{padding:19px 19px 9px;border-bottom:1px solid var(--mso-line)}
+#ms-admin-root .mso-panel h2{font-size:24px!important;margin:4px 0 8px}
+#ms-admin-root .mso-detail,#ms-admin-root .mso-empty-detail{background:#fff7f5;border:1px solid #f6dfd9}
+#ms-admin-root .mso-agenda-item:hover,#ms-admin-root .mso-agenda-item.selected{background:#fff5f2;border-color:#f5ded7}
+#ms-admin-root .mso-alerts button{background:#fff7f5;color:#a73827}
+#ms-admin-root .mso-stop{background:var(--mso-red)}
+#ms-admin-root .mso-journey{background:#fbfaf8;border-color:var(--mso-line)}
+#ms-admin-root .mso-source{display:inline-block;margin-top:9px;color:var(--mso-red);font-size:11px;font-weight:700;text-decoration:none}
+#ms-admin-root .mso-source:hover{text-decoration:underline}
+@media(max-width:1100px){#ms-admin-root .mso-main{grid-template-columns:1fr}#ms-admin-root .mso-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#ms-admin-root .mso-hero{align-items:flex-start;gap:10px}#ms-admin-root .mso-hero h1{font-size:32px!important}#ms-admin-root .mso-summary-card{padding:13px 15px}#ms-admin-root .mso-filters{grid-template-columns:1fr;width:min(320px,calc(100vw - 56px))}#ms-admin-root .mso-toolbar .mso-search{min-width:100%;max-width:none}}
+/* Booking-led live agenda and animated map relationship. */
+#ms-admin-root .mso-map-head{min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border-bottom:1px solid var(--mso-line)}
+#ms-admin-root .mso-map-head .mso-eyebrow{font-size:9px}
+#ms-admin-root .mso-map-head strong{display:block;font-size:15px;letter-spacing:-.02em;margin-top:2px}
+#ms-admin-root .mso-map-head button{border:1px solid #f0c8bf;background:#fff7f5;color:var(--mso-red);border-radius:8px;padding:7px 10px;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+#ms-admin-root .mso-panel{max-height:760px}
+#ms-admin-root .mso-panel-head p{font-size:11px;color:var(--mso-muted);margin:0 0 8px}
+#ms-admin-root .mso-booking-list{overflow:auto;min-height:0;padding:9px}
+#ms-admin-root .mso-booking-entry{border:1px solid var(--mso-line);border-radius:13px;margin-bottom:9px;background:#fff;overflow:hidden;transition:border-color .28s,box-shadow .28s,transform .28s}
+#ms-admin-root .mso-booking-entry:hover,#ms-admin-root .mso-booking-entry.is-open{border-color:#eeb4a7;box-shadow:0 7px 22px rgba(224,67,42,.09)}
+#ms-admin-root .mso-booking-entry:hover{transform:translateY(-1px)}
+#ms-admin-root .mso-booking-card{width:100%;border:0;background:transparent;display:grid;grid-template-columns:1fr auto;gap:4px 8px;text-align:left;padding:14px 15px;cursor:pointer;font:inherit;color:var(--mso-ink)}
+#ms-admin-root .mso-booking-card strong{grid-column:1/-1;font-size:14px;letter-spacing:-.015em}
+#ms-admin-root .mso-booking-card small{font-size:10px;color:var(--mso-muted)}
+#ms-admin-root .mso-booking-dates,#ms-admin-root .mso-booking-activity,#ms-admin-root .mso-booking-meta{grid-column:1/-1}
+#ms-admin-root .mso-booking-activity{font-size:11px;font-weight:650;color:#277749;line-height:1.4}
+#ms-admin-root .mso-booking-meta{font-size:10px;color:var(--mso-muted);line-height:1.4;overflow-wrap:anywhere}
+#ms-admin-root .mso-booking-footer{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+#ms-admin-root .mso-booking-owed{font-size:10px;color:#c34032;font-weight:700}
+#ms-admin-root .mso-booking-status{display:inline-flex;justify-self:start;align-items:center;border-radius:999px;padding:4px 7px;font-size:9px;font-weight:800;letter-spacing:.06em;background:#f3f3f4;color:#6e6e73}
+#ms-admin-root .mso-booking-status.is-active{background:#e9f7ee;color:#277749}
+#ms-admin-root .mso-booking-count{align-self:center;display:flex;gap:10px;align-items:center;color:var(--mso-red);font-size:10px;font-weight:700}
+#ms-admin-root .mso-booking-itinerary{border-top:1px solid var(--mso-line);background:#fff}
+#ms-admin-root .mso-booking-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 14px;background:#fff8f6;color:var(--mso-ink);font-size:11px;font-weight:700}
+#ms-admin-root .mso-booking-actions button{border:0;background:none;color:var(--mso-red);font:inherit;cursor:pointer}
+#ms-admin-root .mso-days{padding:4px 9px 10px}
+#ms-admin-root .mso-day-group{margin:7px 0 12px}
+#ms-admin-root .mso-day-group.is-past{opacity:.67}
+#ms-admin-root .mso-day-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-bottom:1px solid #f0eded;padding:6px 5px 7px}
+#ms-admin-root .mso-day-title span{color:var(--mso-red);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.09em}
+#ms-admin-root .mso-day-title strong{font-size:11px;font-weight:650;color:var(--mso-ink)}
+#ms-admin-root .mso-itinerary-stop{width:100%;display:flex;gap:10px;text-align:left;align-items:flex-start;border:1px solid transparent;border-radius:9px;background:#fff;padding:9px 7px;cursor:pointer;color:var(--mso-ink);font:inherit;transition:background .28s,border-color .28s,transform .28s,opacity .28s}
+#ms-admin-root .mso-itinerary-stop:hover,#ms-admin-root .mso-itinerary-stop.is-highlighted{background:#fff2ee;border-color:#f2c4b9;transform:translateX(2px)}
+#ms-admin-root .mso-itinerary-stop.is-past{background:#f4f4f4;color:#77777b;opacity:.62}
+#ms-admin-root .mso-itinerary-stop.is-past:hover,#ms-admin-root .mso-itinerary-stop.is-past.is-highlighted{opacity:1}
+#ms-admin-root .mso-itinerary-stop.is-now{background:#fff5ee;border-color:#f1c7a9}
+#ms-admin-root .mso-itinerary-dot{width:24px;height:24px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--mso-red);color:#fff;font-size:10px;font-weight:800;box-shadow:0 0 0 3px #fae9e4}
+#ms-admin-root .mso-itinerary-stop.is-past .mso-itinerary-dot{background:#939397;box-shadow:none}
+#ms-admin-root .mso-itinerary-stop.is-now .mso-itinerary-dot{animation:mso-now-pulse 2.94s ease-in-out infinite}
+#ms-admin-root .mso-itinerary-copy{min-width:0;flex:1}
+#ms-admin-root .mso-itinerary-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+#ms-admin-root .mso-itinerary-top strong{font-size:11px;line-height:1.3}
+#ms-admin-root .mso-itinerary-top em{font-size:8px;color:var(--mso-red);font-weight:800;font-style:normal;letter-spacing:.06em}
+#ms-admin-root .mso-itinerary-stop.is-past em{color:#77777b}
+#ms-admin-root .mso-itinerary-copy small{display:block;margin-top:3px;color:#77777b;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+#ms-admin-root .mso-booking-itinerary .mso-detail{margin:0 10px 12px}
+#ms-admin-root .mso-journey-side .mso-days{padding:4px 6px}
+#ms-admin-root .mso-icon-active .mso-pin{transform:scale(1.25);box-shadow:0 0 0 7px rgba(224,67,42,.18),0 8px 24px rgba(29,29,31,.3);z-index:5;animation:mso-marker-breathe 2.24s ease-in-out infinite}
+#ms-admin-root .mso-icon-muted .mso-pin{filter:grayscale(1);opacity:.52}
+#ms-admin-root .mso-route-live{animation:mso-route-flow 1.54s linear infinite}
+#ms-admin-root .mso-route-past{stroke:#a2a2a5;opacity:.45}
+#ms-admin-root .mso-map .leaflet-tooltip{border:1px solid #f1c5ba;border-radius:11px;padding:9px 11px;box-shadow:0 12px 32px rgba(29,29,31,.18);font-family:inherit;max-width:260px;white-space:normal}
+#ms-admin-root .mso-map-tooltip strong{display:block;font-size:12px;color:#1d1d1f;margin-bottom:3px}
+#ms-admin-root .mso-map-tooltip small,#ms-admin-root .mso-map-tooltip span{display:block;font-size:10px;color:#69696d;line-height:1.4}
+#ms-admin-root .mso-map-tooltip-note{margin-top:5px;padding-top:5px;border-top:1px solid #eee4dc;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#ms-admin-root .mso-map-wrap{position:relative;min-width:0}
+#ms-admin-root .mso-route-badge{position:absolute;left:14px;bottom:13px;z-index:500;background:rgba(255,255,255,.94);border:1px solid #d8e3f7;border-radius:999px;padding:7px 10px;color:#265ca8;font-size:10px;font-weight:800;letter-spacing:.02em;box-shadow:0 4px 14px rgba(36,76,132,.15)}
+#ms-admin-root .mso-pin{position:relative;transform:none;width:40px;height:40px;border-radius:50% 50% 50% 8px;display:grid;place-items:center}
+#ms-admin-root .mso-pin-glyph{font-size:18px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
+#ms-admin-root .mso-pin-index{position:absolute;right:-7px;top:-7px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#fff;color:#302a25;border:2px solid var(--pin);font-size:9px;line-height:13px;text-align:center;font-weight:800;box-shadow:0 2px 7px rgba(0,0,0,.2)}
+#ms-admin-root .mso-detail{padding:20px 21px;max-height:420px;overflow:auto}
+#ms-admin-root .mso-detail h3{font-size:24px;line-height:1.12;padding-right:8px}
+#ms-admin-root .mso-detail-row{grid-template-columns:105px minmax(0,1fr);padding:6px 0;margin:0;border-bottom:1px solid rgba(121,97,72,.1)}
+#ms-admin-root .mso-detail-row strong{font-size:12px;line-height:1.55;white-space:pre-wrap}
+#ms-admin-root .mso-source{display:inline-block;margin-top:12px;color:var(--mso-red);font-size:11px;font-weight:700}
+#ms-admin-root .mso-alerts button{align-items:flex-start;flex-direction:column;gap:4px}
+#ms-admin-root .mso-alerts button strong{font-size:12px}
+#ms-admin-root .mso-alerts button span{font-size:11px;line-height:1.4}
+@keyframes mso-route-flow{to{stroke-dashoffset:-18}}
+@keyframes mso-marker-breathe{50%{box-shadow:0 0 0 11px rgba(224,67,42,.09),0 8px 24px rgba(29,29,31,.3)}}
+@keyframes mso-now-pulse{50%{box-shadow:0 0 0 7px rgba(224,67,42,.12)}}
+@media(max-width:1100px){#ms-admin-root .mso-panel{max-height:560px}}
+@media(max-width:650px){#ms-admin-root .mso-map-head{padding:11px 13px}#ms-admin-root .mso-panel{max-height:570px}}
+@media(prefers-reduced-motion:reduce){#ms-admin-root .mso-route-live,#ms-admin-root .mso-icon-active .mso-pin,#ms-admin-root .mso-itinerary-stop.is-now .mso-itinerary-dot{animation:none}#ms-admin-root .mso-booking-entry,#ms-admin-root .mso-itinerary-stop{transition:none}}
+#ms-admin-root .msa-dashboard-operations{margin:22px 0 26px;padding:0}
+#ms-admin-root .msa-dashboard-operations-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 8px;padding:0 2px}
+#ms-admin-root .msa-dashboard-operations-head h2{font-size:28px!important;line-height:1.2!important;margin:0;letter-spacing:-.03em;font-weight:650}
+#ms-admin-root .msa-dashboard-operations-head p{font-size:12px;color:var(--msa-muted,#6e6e73);margin:5px 0 0}
+#ms-admin-root .msa-dashboard-operations>.mso-page{padding:0;max-width:none}
+#ms-admin-root .msa-dashboard-operations>.mso-page .mso-main{grid-template-columns:minmax(0,1.7fr) minmax(330px,.8fr)}
+/* The fused dashboard owns the live booking list; keep the older calendar/list area from duplicating it. */
+#ms-admin-root .msa-dashboard-operations~.msa-dash-main .msa-dash-cal{display:block;grid-column:1/-1;margin-top:0}
+#ms-admin-root .msa-dashboard-operations~.msa-dash-main .msa-dash-side{display:none}
+@media(max-width:1100px){#ms-admin-root .msa-dashboard-operations>.mso-page .mso-main{grid-template-columns:1fr}}
+@media(max-width:650px){#ms-admin-root .msa-dashboard-operations-head{align-items:flex-start;flex-direction:column}}
+
+/* Compact dashboard controls: the map is the hero, controls stay light and short. */
+#ms-admin-root .mso-embedded .mso-range{gap:4px;margin:0 0 8px}
+#ms-admin-root .mso-embedded .mso-range button{padding:6px 10px;height:30px;font-size:10px;border-radius:8px}
+#ms-admin-root .mso-embedded .mso-toolbar{margin:0 0 10px;gap:7px;align-items:center}
+#ms-admin-root .mso-embedded .mso-toolbar .mso-search{max-width:330px;min-width:190px}
+#ms-admin-root .mso-embedded .mso-toolbar .mso-search span{display:none}
+#ms-admin-root .mso-embedded .mso-toolbar .mso-search input{height:34px;font-size:11px;border-radius:8px;padding-left:11px}
+#ms-admin-root .mso-embedded .mso-filter-drawer>summary{height:34px;min-width:72px;padding:0 10px;border-radius:8px;font-size:10px}
+#ms-admin-root .mso-embedded .mso-main{gap:10px}
+#ms-admin-root .mso-embedded .mso-alerts{display:none}
+@media(max-width:650px){#ms-admin-root .mso-hero h1{font-size:21px!important}}
+@media(max-width:650px){#ms-admin-root .msa-dashboard-operations-head h2{font-size:23px!important}}
+
+/* Operations-first dashboard: map as the main workspace, agenda as the decision rail. */
+#ms-admin-root .msa-dashboard-operations{position:relative;margin:18px 0 24px;padding:18px 18px 20px;background:linear-gradient(145deg,#f8fafc 0%,#f5f7fb 100%);border:1px solid #e6e9ef;border-radius:20px;box-shadow:0 14px 40px rgba(35,45,62,.08)}
+#ms-admin-root .msa-dashboard-operations-head{margin:0 2px 14px;padding:0;}
+#ms-admin-root .msa-dashboard-operations-head h2{font-size:28px!important;line-height:1.2!important}
+#ms-admin-root .msa-dashboard-operations-head p{font-size:12px;margin-top:4px}
+#ms-admin-root .msa-dashboard-operations>.mso-page{background:transparent}
+#ms-admin-root .mso-embedded .mso-range{margin-bottom:8px}
+#ms-admin-root .mso-embedded .mso-toolbar{margin-bottom:12px}
+#ms-admin-root .mso-embedded .mso-main{grid-template-columns:minmax(0,1.55fr) minmax(340px,.8fr);gap:14px}
+#ms-admin-root .mso-embedded .mso-map-card,#ms-admin-root .mso-embedded .mso-panel{border-radius:16px;box-shadow:0 8px 22px rgba(38,53,74,.08)}
+#ms-admin-root .mso-embedded .mso-map-card,#ms-admin-root .mso-embedded .mso-panel{height:920px;max-height:920px}
+#ms-admin-root .mso-embedded .mso-map{height:520px}
+#ms-admin-root .mso-map-wrap{position:relative}
+#ms-admin-root .mso-map-layer-toggle{position:absolute;right:12px;top:12px;z-index:500;border:1px solid rgba(255,255,255,.8);border-radius:8px;background:rgba(255,255,255,.95);color:#374151;padding:7px 10px;font:inherit;font-size:10px;font-weight:750;cursor:pointer;box-shadow:0 2px 8px rgba(22,35,53,.2)}
+#ms-admin-root .mso-map-layer-toggle:hover{background:#fff;color:#1a73e8}
+#ms-admin-root .mso-embedded .mso-panel{max-height:680px}
+#ms-admin-root .mso-panel-stats{display:flex;gap:7px;margin-top:10px}
+#ms-admin-root .mso-panel-stats span{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;background:#f2f5f8;color:#667182;font-size:10px;font-weight:650}
+#ms-admin-root .mso-panel-stats span:first-child{background:#eaf7ef;color:#28774b}
+#ms-admin-root .mso-panel-stats strong{font-size:13px;margin-right:3px;color:inherit}
+#ms-admin-root .mso-booking-entry{animation:mso-card-in .49s ease both}
+#ms-admin-root .mso-booking-entry:nth-child(2){animation-delay:.04s}#ms-admin-root .mso-booking-entry:nth-child(3){animation-delay:.08s}#ms-admin-root .mso-booking-entry:nth-child(4){animation-delay:.12s}
+#ms-admin-root .mso-booking-card{padding:14px 15px}
+#ms-admin-root .mso-booking-card:hover .mso-booking-count{transform:translateX(2px)}
+#ms-admin-root .mso-booking-count{transition:transform .28s ease}
+#ms-admin-root .mso-calendar-strip{border-top:1px solid #edf0f3;padding:14px 15px 15px;background:#fbfcfe}
+#ms-admin-root .mso-calendar-strip-head{display:flex;justify-content:space-between;align-items:end;gap:10px;margin-bottom:10px}
+#ms-admin-root .mso-calendar-strip-head strong{display:block;color:#1d1d1f;font-size:14px;letter-spacing:-.02em;margin-top:2px}
+#ms-admin-root .mso-calendar-strip-head>span{color:#7a8492;font-size:10px}
+#ms-admin-root .mso-calendar-actions{display:flex;align-items:center;gap:8px}
+#ms-admin-root .mso-calendar-actions button{border:1px solid #dce3eb;border-radius:7px;background:#fff;color:#3f6e9e;font:inherit;font-size:10px;font-weight:700;padding:5px 8px;cursor:pointer}
+#ms-admin-root .mso-calendar-actions button:hover{border-color:#8db4db;background:#f5f9fd}
+#ms-admin-root .mso-calendar-months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+#ms-admin-root .mso-calendar-month>strong{display:block;color:#3d4652;font-size:11px;margin-bottom:7px}
+#ms-admin-root .mso-cal-weekdays,#ms-admin-root .mso-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+#ms-admin-root .mso-cal-weekdays{margin-bottom:3px}
+#ms-admin-root .mso-cal-weekdays span{font-size:8px;color:#9aa3af;text-align:center;font-weight:700}
+#ms-admin-root .mso-cal-day{position:relative;display:grid;place-items:center;min-height:24px;padding:0;border:0;border-radius:7px;background:transparent;color:#4b5563;font:inherit;font-size:10px;cursor:pointer;transition:background .252s ease,transform .252s ease}
+#ms-admin-root .mso-cal-day:hover{background:#eaf0f6;transform:translateY(-1px)}
+#ms-admin-root .mso-cal-day.is-empty{pointer-events:none}
+#ms-admin-root .mso-cal-day.is-today{background:var(--mso-red);color:#fff;font-weight:800}
+#ms-admin-root .mso-cal-day.has-bookings:not(.is-today){background:#eaf5ff;color:#2467a5;font-weight:750}
+#ms-admin-root .mso-cal-day i{position:absolute;right:2px;top:1px;display:grid;place-items:center;min-width:8px;height:8px;padding:0 2px;border-radius:99px;background:#e0432a;color:#fff;font-size:6px;font-style:normal;line-height:1}
+#ms-admin-root .mso-cal-day.is-today i{background:#fff;color:var(--mso-red)}
+#ms-admin-root .mso-calendar-months:has(.mso-calendar-month:nth-child(12)){grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+#ms-admin-root .mso-calendar-months:has(.mso-calendar-month:nth-child(12)) .mso-cal-day{min-height:20px;font-size:9px}
+#ms-admin-root .mso-itinerary-stop + .mso-detail{margin:2px 10px 10px 34px;padding:11px 12px;border-radius:10px;animation:mso-detail-in .308s ease both}
+#ms-admin-root .mso-itinerary-stop + .mso-detail h3{font-size:16px!important;margin:3px 0 7px}
+#ms-admin-root .mso-itinerary-stop + .mso-detail .mso-detail-row{grid-template-columns:76px 1fr;font-size:10px;margin:5px 0}
+#ms-admin-root .mso-itinerary-stop + .mso-detail .msa-btn{font-size:10px;padding:6px 9px}
+#ms-admin-root .mso-embedded .mso-panel{height:920px;max-height:920px}
+#ms-admin-root .mso-embedded .mso-booking-list{flex:1;min-height:0}
+@keyframes mso-detail-in{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+#ms-admin-root .msa-dashboard-operations~.msa-dash-main{display:none}
+@keyframes mso-card-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){#ms-admin-root .mso-embedded .mso-main{grid-template-columns:1fr}#ms-admin-root .mso-embedded .mso-map-card,#ms-admin-root .mso-embedded .mso-panel{height:760px;max-height:760px}#ms-admin-root .mso-embedded .mso-map{height:480px}}
+@media(max-width:650px){#ms-admin-root .msa-dashboard-operations{padding:13px 10px 14px;border-radius:15px}#ms-admin-root .mso-embedded .mso-map-card,#ms-admin-root .mso-embedded .mso-panel{height:auto;max-height:none}#ms-admin-root .mso-embedded .mso-map{height:360px}#ms-admin-root .mso-calendar-months,#ms-admin-root .mso-calendar-months:has(.mso-calendar-month:nth-child(12)){grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#ms-admin-root .mso-calendar-strip{padding:12px 10px}#ms-admin-root .mso-calendar-actions{align-items:flex-end;flex-direction:column;gap:5px}}
+@media(prefers-reduced-motion:reduce){#ms-admin-root .mso-booking-entry{animation:none}#ms-admin-root .mso-cal-day,#ms-admin-root .mso-booking-count{transition:none}}
+
+/* Compact operations header and calendar styling aligned with the admin calendar. */
+#ms-admin-root .msa-dashboard-operations-head{margin:0 2px 8px;min-height:0;align-items:center}
+#ms-admin-root .msa-dashboard-operations-head h2{font-size:22px!important;line-height:1.15!important}
+#ms-admin-root .msa-dashboard-operations-head p{display:none}
+#ms-admin-root .mso-embedded .mso-range{margin-bottom:5px;gap:5px}
+#ms-admin-root .mso-embedded .mso-range button{height:28px;padding:5px 9px;font-size:10px}
+#ms-admin-root .mso-embedded .mso-toolbar{margin-bottom:8px}
+#ms-admin-root .mso-booking-status.is-upcoming{background:#e7efff;color:#1f57c4;border-color:#c9d9ff}
+#ms-admin-root .mso-calendar-view-buttons{display:flex;gap:4px}
+#ms-admin-root .mso-calendar-nav{display:flex;align-items:center;gap:3px}
+#ms-admin-root .mso-calendar-nav button{min-width:28px;height:26px;padding:3px 7px;border:1px solid #dce3eb;border-radius:7px;background:#fff;color:#3f6e9e;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+#ms-admin-root .mso-calendar-nav button:hover{border-color:#8db4db;background:#f5f9fd}
+#ms-admin-root .mso-calendar-nav .mso-calendar-today{font-size:10px;min-width:42px}
+#ms-admin-root .mso-calendar-selection{display:block;color:#8b929d;font-size:10px;margin-top:3px}
+#ms-admin-root .mso-calendar-view-buttons button{min-width:42px;color:#5f6b78}
+#ms-admin-root .mso-calendar-view-buttons button.is-active{background:var(--msa-brand,#e0432a);border-color:var(--msa-brand,#e0432a);color:#fff}
+#ms-admin-root .mso-calendar-months{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+#ms-admin-root .mso-calendar-month>strong{font-size:13px;color:var(--msa-ink,#292929);margin-bottom:8px}
+#ms-admin-root .mso-cal-weekdays span{font-size:8px;color:#b0b0b8}
+#ms-admin-root .mso-cal-day{min-height:22px;border-radius:50%;font-size:10px;color:var(--msa-ink2,#686874)}
+#ms-admin-root .mso-cal-day:hover{background:#f2f2f5;transform:none}
+#ms-admin-root .mso-cal-day.has-bookings:not(.is-today){background:var(--msa-brand,#e0432a);color:#fff;font-weight:700}
+#ms-admin-root .mso-cal-day.has-bookings.is-multi:not(.is-today){background:var(--msa-blue,#1f57c4)}
+#ms-admin-root .mso-cal-day.is-today{background:transparent;color:var(--msa-green,#2e8b57);box-shadow:inset 0 0 0 2px var(--msa-green,#2e8b57);font-weight:700}
+#ms-admin-root .mso-cal-day.is-today.has-bookings{color:#fff;background:var(--msa-brand,#e0432a);box-shadow:inset 0 0 0 2px var(--msa-green,#2e8b57)}
+#ms-admin-root .mso-cal-day.is-today.has-bookings.is-multi{background:var(--msa-blue,#1f57c4)}
+#ms-admin-root .mso-calendar-focus{display:grid;gap:8px}
+#ms-admin-root .mso-calendar-week-view{grid-template-columns:repeat(7,minmax(0,1fr))}
+#ms-admin-root .mso-calendar-day-view{grid-template-columns:minmax(180px,320px)}
+#ms-admin-root .mso-calendar-focus-day{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:10px;border:1px solid #e3e7ed;border-radius:10px;background:#fff;color:var(--msa-ink,#292929);cursor:pointer;text-align:left}
+#ms-admin-root .mso-calendar-focus-day:hover{border-color:#b8cbe5;transform:translateY(-1px)}
+#ms-admin-root .mso-calendar-focus-day .mso-calendar-focus-label{font-size:9px;text-transform:uppercase;color:#8b929d;font-weight:700}
+#ms-admin-root .mso-calendar-focus-day strong{font-size:20px;line-height:1}
+#ms-admin-root .mso-calendar-focus-day small{font-size:9px;color:#7a8492}
+#ms-admin-root .mso-calendar-focus-day.has-bookings{background:#fff6f3;border-color:#f1c7bd}
+#ms-admin-root .mso-calendar-focus-day.is-today{box-shadow:inset 0 0 0 2px var(--msa-green,#2e8b57)}
+@media(max-width:900px){#ms-admin-root .mso-calendar-months{grid-template-columns:repeat(3,minmax(0,1fr))}#ms-admin-root .mso-calendar-week-view{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Operations refinements: calendar-first planning, map-only legend area, compact agenda. */
+#ms-admin-root .mso-embedded .mso-map-card,#ms-admin-root .mso-embedded .mso-panel{height:1120px;max-height:1120px}
+#ms-admin-root .mso-embedded .mso-map{height:520px}
+#ms-admin-root .mso-map-layer-buttons{position:absolute;right:12px;top:12px;z-index:500;display:flex;gap:3px;padding:3px;border-radius:10px;background:rgba(255,255,255,.96);box-shadow:0 2px 8px rgba(22,35,53,.2)}
+#ms-admin-root .mso-map-layer-buttons button{border:0;border-radius:7px;background:transparent;color:#3f4a58;padding:6px 8px;font:inherit;font-size:10px;font-weight:750;cursor:pointer}
+#ms-admin-root .mso-map-layer-buttons button:hover{background:#f1f5f9}
+#ms-admin-root .mso-map-layer-buttons button.is-active{background:#1a73e8;color:#fff}
+#ms-admin-root .mso-booking-list{padding:6px 8px}
+#ms-admin-root .mso-booking-entry{margin-bottom:6px;border-radius:10px}
+#ms-admin-root .mso-booking-card{padding:9px 11px;gap:2px 7px}
+#ms-admin-root .mso-booking-card strong{font-size:12px}
+#ms-admin-root .mso-booking-card small{font-size:9px}
+#ms-admin-root .mso-booking-activity{display:none}
+#ms-admin-root .mso-booking-meta{font-size:9px;line-height:1.25}
+#ms-admin-root .mso-booking-meta + .mso-booking-meta{display:none}
+#ms-admin-root .mso-booking-status{padding:3px 6px;font-size:8px}
+#ms-admin-root .mso-booking-footer{gap:5px}
+#ms-admin-root .mso-booking-owed{font-size:9px}
+#ms-admin-root .mso-booking-count{font-size:9px;gap:6px}
+#ms-admin-root .mso-panel-head{padding:14px 15px 8px}
+#ms-admin-root .mso-panel h2{font-size:20px;margin:3px 0}
+#ms-admin-root .mso-panel-stats{margin-top:7px}
+#ms-admin-root .mso-calendar-strip{padding-top:18px}
+#ms-admin-root .mso-calendar-months:has(.mso-calendar-month:nth-child(12)){row-gap:24px}
+#ms-admin-root .mso-calendar-scroll{max-height:760px;overflow-y:auto;overflow-x:hidden;padding-right:4px;scrollbar-width:thin;scrollbar-color:#c8d4e1 transparent}
+#ms-admin-root .mso-calendar-scroll::-webkit-scrollbar{width:7px}
+#ms-admin-root .mso-calendar-scroll::-webkit-scrollbar-thumb{background:#c8d4e1;border-radius:9px}
+#ms-admin-root .mso-cal-day.has-bookings:not(.is-today){background:#e84b35;color:#fff;box-shadow:inset 0 0 0 1px rgba(164,43,27,.2)}
+#ms-admin-root .mso-cal-day.has-bookings.is-multi:not(.is-today){background:#2367bd;color:#fff}
+#ms-admin-root .mso-cal-day.is-departure:not(.is-today){box-shadow:inset 0 -3px 0 #c83f31}
+#ms-admin-root .mso-cal-tooltip{position:absolute;z-index:20;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%);display:grid;gap:4px;min-width:150px;max-width:230px;padding:8px 9px;border:1px solid #d9e1ea;border-radius:9px;background:#fff;color:#263342;text-align:left;box-shadow:0 8px 22px rgba(37,52,71,.2);pointer-events:none}
+#ms-admin-root .mso-cal-tooltip:after{content:'';position:absolute;left:50%;bottom:-5px;width:8px;height:8px;background:#fff;border-right:1px solid #d9e1ea;border-bottom:1px solid #d9e1ea;transform:translateX(-50%) rotate(45deg)}
+#ms-admin-root .mso-cal-tooltip>span{display:grid;gap:2px}
+#ms-admin-root .mso-cal-tooltip strong{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ms-admin-root .mso-cal-tooltip small{font-size:8px;line-height:1.25;color:#6c7886;white-space:normal}
+#ms-admin-root .mso-cal-tooltip em{font-size:8px;color:#c83f31;font-style:normal;font-weight:750}
+#ms-admin-root .mso-booking-status.is-active{background:#ffe5e0;color:#c83f31}
+#ms-admin-root .mso-booking-countdown.is-active{background:#ffe5e0;color:#c83f31}
+#ms-admin-root .mso-cal-day.has-bookings:not(.is-today){background:#e96b5a}
+#ms-admin-root .mso-cal-day.has-bookings.is-multi:not(.is-today){background:#6c91ce}
+#ms-admin-root .mso-booking-countdown-block{display:flex;flex:0 0 42px;width:42px;height:42px;align-items:center;justify-content:center;flex-direction:column;border-radius:11px;font-variant-numeric:tabular-nums}
+#ms-admin-root .mso-booking-countdown-block strong{font-size:16px;line-height:1}
+#ms-admin-root .mso-booking-countdown-block small{font-size:7px;letter-spacing:.06em;margin-top:3px}
+#ms-admin-root .mso-booking-countdown-block.is-active{background:#e4f7e9;color:#15803d}
+#ms-admin-root .mso-booking-countdown-block.is-soon{background:#fff2dd;color:#9a6400;box-shadow:0 4px 12px rgba(240,146,46,.18)}
+#ms-admin-root .mso-booking-countdown-block.is-far{background:#fde8e4;color:#b3311c;box-shadow:0 4px 12px rgba(224,67,42,.16)}
+#ms-admin-root .mso-booking-card{position:relative;padding-right:58px}
+#ms-admin-root .mso-booking-card .mso-booking-countdown-block{position:absolute;right:8px;top:50%;transform:translateY(-50%)}
+#ms-admin-root .msa-dash-top .msa-kpi{min-height:76px;padding:11px 16px;border-radius:17px}
+#ms-admin-root .msa-dash-top .msa-kpi-dual{gap:6px}
+#ms-admin-root .msa-dash-top .msa-kpi-dual-row{gap:12px}
+#ms-admin-root .mso-booking-countdown{display:inline-flex;align-items:center;width:max-content;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:750;line-height:1.1}
+#ms-admin-root .mso-booking-countdown.is-active{background:#eaf7ef;color:#28774b}
+#ms-admin-root .mso-booking-countdown.is-upcoming{background:#e7efff;color:#1f57c4}
+#ms-admin-root .mso-embedded .mso-toolbar{position:absolute;z-index:5;top:8px;left:190px;right:165px;margin:0;display:flex;align-items:center;gap:7px}
+#ms-admin-root .mso-embedded .mso-toolbar .mso-search{flex:1;min-width:0}
+#ms-admin-root .mso-embedded .mso-toolbar .mso-search span{display:none}
+#ms-admin-root .mso-embedded .mso-toolbar .mso-search input{height:30px;padding:0 10px;font-size:10px;background:#fff}
+#ms-admin-root .mso-embedded .mso-toolbar .mso-filter-drawer summary{height:30px;padding:7px 9px;font-size:9px}
+#ms-admin-root .mso-embedded .mso-booking-card{padding:6px 8px;gap:1px 6px}
+#ms-admin-root .mso-embedded .mso-booking-card{padding-right:58px}
+#ms-admin-root .mso-calendar-months{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 20px}
+#ms-admin-root .mso-calendar-months{min-width:0}
+#ms-admin-root .mso-calendar-strip{background:#fff;border-top:0;padding:18px 20px 16px}
+#ms-admin-root .mso-calendar-strip-head{align-items:center;margin-bottom:18px}
+#ms-admin-root .mso-calendar-strip-head strong{font-size:16px;font-weight:700;color:#1d1d1f;letter-spacing:0}
+#ms-admin-root .mso-calendar-actions>span{display:none}
+#ms-admin-root .mso-calendar-nav button{border:0;background:transparent;color:#646b73;font-size:18px;font-weight:400;padding:3px 8px}
+#ms-admin-root .mso-calendar-nav .mso-calendar-today{border:1px solid #e1e5eb;border-radius:12px;background:#fff;color:#1d1d1f;font-size:12px;font-weight:700;padding:7px 14px}
+#ms-admin-root .mso-calendar-view-buttons button{border:1px solid #dfe3e8;border-radius:9px;background:#fff;color:#68717d;font-size:11px;padding:6px 9px}
+#ms-admin-root .mso-calendar-view-buttons button.is-active{background:#e0432a;border-color:#e0432a;color:#fff}
+#ms-admin-root .mso-calendar-month{display:flex;flex-direction:column;gap:8px}
+#ms-admin-root .mso-calendar-month>strong{font-size:14px;font-weight:700;color:var(--msa-ink,#1d1d1f);padding:2px 4px;margin:0}
+#ms-admin-root .mso-cal-grid{gap:2px}
+#ms-admin-root .mso-cal-weekdays{gap:2px;margin-bottom:0}
+#ms-admin-root .mso-cal-weekdays span{font-size:8px;text-align:center;color:#b0b0b8;font-weight:700}
+#ms-admin-root .mso-calendar-month{border:1px solid #edf0f4;border-radius:12px;background:#fff;padding:11px 10px 12px;box-shadow:0 2px 8px rgba(38,53,74,.045)}
+#ms-admin-root .mso-cal-day{font-size:10px;aspect-ratio:1;min-width:21px;min-height:21px;border-radius:50%;color:var(--msa-ink2,#686874);background:transparent}
+#ms-admin-root .mso-cal-day.is-empty{visibility:hidden}
+#ms-admin-root .mso-cal-day:hover{background:#eee;transform:none}
+#ms-admin-root .mso-cal-day.has-bookings:not(.is-today){box-shadow:none}
+#ms-admin-root .mso-cal-day.is-today{box-shadow:inset 0 0 0 2px var(--msa-green,#34c759);color:var(--msa-green,#34c759);background:transparent;font-weight:700}
+#ms-admin-root .mso-cal-day.is-today.has-bookings{color:#fff;box-shadow:inset 0 0 0 2px var(--msa-green,#34c759)}
+#ms-admin-root .mso-cal-day{overflow:visible}
+#ms-admin-root .mso-cal-day i{min-width:13px;height:13px;right:-5px;top:-5px;border-radius:9px;font-size:7px;line-height:13px;background:#fff;color:#50545a;box-shadow:0 1px 4px rgba(20,30,45,.18);z-index:3}
+#ms-admin-root .mso-calendar-legend{display:flex;gap:18px;margin-top:22px;font-size:12px;color:#6d7177}
+#ms-admin-root .mso-calendar-legend span{display:inline-flex;align-items:center;gap:6px}
+#ms-admin-root .mso-calendar-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+#ms-admin-root .mso-calendar-legend i.is-today{background:#34c759}
+#ms-admin-root .mso-calendar-legend i.is-single{background:#e0432a}
+#ms-admin-root .mso-calendar-legend i.is-multiple{background:#0a84ff}
+#ms-admin-root .mso-year-strip{display:none}
+#ms-admin-root .mso-year-strip::-webkit-scrollbar{height:5px}
+#ms-admin-root .mso-year-strip::-webkit-scrollbar-thumb{background:#c8d4e1;border-radius:9px}
+#ms-admin-root .mso-year-strip button{flex:0 0 auto;border:1px solid #e1e5eb;border-radius:9px;background:#fff;color:#68717d;padding:6px 12px;font:inherit;font-size:11px;cursor:pointer}
+#ms-admin-root .mso-year-strip button:hover{background:#f4f6f8}
+#ms-admin-root .mso-year-strip button.is-active{background:#e0432a;border-color:#e0432a;color:#fff;font-weight:700}
+@media(max-width:900px){#ms-admin-root .mso-calendar-months{grid-template-columns:repeat(2,minmax(180px,1fr));gap:22px 18px}#ms-admin-root .mso-calendar-strip{overflow-x:auto}}
+@media(max-width:560px){#ms-admin-root .mso-calendar-months{grid-template-columns:minmax(230px,1fr)}#ms-admin-root .mso-cal-day{min-width:24px;min-height:24px}}
+
+/* Wide glass operations canvas and compact visual language. */
+#ms-admin-root .mso-page{max-width:none;width:100%}
+#ms-admin-root .mso-main{grid-template-columns:minmax(0,2.1fr) minmax(300px,.75fr);width:100%}
+#ms-admin-root .mso-map-card{background:rgba(255,255,255,.66);backdrop-filter:blur(18px) saturate(135%);-webkit-backdrop-filter:blur(18px) saturate(135%)}
+#ms-admin-root .mso-map-wrap{background:linear-gradient(135deg,rgba(8,18,35,.2),rgba(54,120,154,.1));overflow:hidden}
+#ms-admin-root .mso-map-wrap::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:400;background:linear-gradient(115deg,rgba(14,30,54,.18),transparent 38%,rgba(0,184,211,.08));mix-blend-mode:screen}
+#ms-admin-root .mso-map{background:#0b1728;filter:saturate(1.08) contrast(1.04)}
+#ms-admin-root .mso-pin{width:29px;height:29px;border:2px solid rgba(255,255,255,.92);border-radius:50% 50% 50% 7px;box-shadow:0 3px 9px rgba(0,0,0,.3)}
+#ms-admin-root .mso-pin-glyph{font-size:12px}
+#ms-admin-root .mso-pin-index{right:-6px;top:-6px;min-width:13px;height:13px;padding:0 3px;border:1px solid var(--pin);font-size:7px;line-height:11px}
+#ms-admin-root .mso-map .leaflet-tooltip{border:1px solid rgba(139,221,255,.55);border-radius:8px;padding:6px 8px;box-shadow:0 8px 22px rgba(0,16,40,.28);max-width:185px;background:rgba(10,24,45,.9);backdrop-filter:blur(8px)}
+#ms-admin-root .mso-map-tooltip strong{font-size:10px;color:#fff;margin-bottom:2px}
+#ms-admin-root .mso-map-tooltip small{font-size:8px;color:#bfe8f5;line-height:1.25}
+#ms-admin-root .mso-map-tooltip-note,#ms-admin-root .mso-map-tooltip span{display:none}
+#ms-admin-root .mso-booking-countdown-block.is-active,#ms-admin-root .mso-booking-countdown-block.is-soon,#ms-admin-root .mso-booking-countdown-block.is-far{background:var(--msa-brand,#e0432a);color:#fff;box-shadow:0 4px 12px rgba(224,67,42,.22)}
+#ms-admin-root .msa-dash-top .msa-kpi{min-height:58px;padding:8px 14px;border-radius:15px}
+#ms-admin-root .mso-calendar-month{background:rgba(255,255,255,.82);backdrop-filter:blur(8px)}
+
+/* Google Night inspired map chrome and compact circular POIs. */
+#ms-admin-root .mso-pin{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.42);transition:transform .28s ease,box-shadow .28s ease,filter .28s ease}
+#ms-admin-root .mso-pin-glyph{font-size:10px}
+#ms-admin-root .mso-pin-index{right:-5px;top:-5px;min-width:12px;height:12px;font-size:7px;line-height:10px}
+#ms-admin-root .mso-map-layer-buttons{background:rgba(31,41,55,.88);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(9px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#ms-admin-root .mso-map-layer-buttons button{color:#dbeafe;padding:6px 9px;font-size:9px}
+#ms-admin-root .mso-map-layer-buttons button:hover{background:rgba(96,165,250,.22)}
+#ms-admin-root .mso-map-layer-buttons button.is-active{background:#4285f4;color:#fff}
+#ms-admin-root .mso-route-badge{background:rgba(24,40,67,.88);border-color:rgba(96,165,250,.65);color:#bfdbfe;backdrop-filter:blur(8px)}
+#ms-admin-root .mso-map .leaflet-control-zoom a{background:#273449;color:#e5eefc;border-bottom-color:#41516a}
+
+/* Light counterpart of the Night reference style. */
+#ms-admin-root .mso-map{background:#eef3f7;filter:saturate(.98) contrast(1.01)}
+#ms-admin-root .mso-map-wrap{background:linear-gradient(135deg,rgba(255,255,255,.28),rgba(216,236,248,.22))}
+#ms-admin-root .mso-map-wrap::after{background:linear-gradient(115deg,rgba(255,255,255,.16),transparent 42%,rgba(66,133,244,.06));mix-blend-mode:screen}
+#ms-admin-root .mso-map-layer-buttons{background:rgba(255,255,255,.9);border-color:rgba(130,148,168,.35);box-shadow:0 4px 16px rgba(42,67,94,.18)}
+#ms-admin-root .mso-map-layer-buttons button{color:#536273}
+#ms-admin-root .mso-map-layer-buttons button:hover{background:#edf4ff}
+#ms-admin-root .mso-map-layer-buttons button.is-active{background:#4285f4;color:#fff}
+#ms-admin-root .mso-map .leaflet-control-zoom a{background:#fff;color:#3c4043;border-bottom-color:#e1e7ee}
+#ms-admin-root .mso-map .leaflet-tooltip{background:rgba(255,255,255,.96);border-color:#cbd9e8;box-shadow:0 8px 22px rgba(42,67,94,.2)}
+#ms-admin-root .mso-map-tooltip strong{color:#1d2733}
+#ms-admin-root .mso-map-tooltip small{color:#536b82}
+#ms-admin-root .mso-map-tooltip-detail,#ms-admin-root .mso-map-tooltip-address,#ms-admin-root .mso-map-tooltip-ops{display:block!important;font-size:8px;color:#65778a;line-height:1.35;margin-top:2px}
+#ms-admin-root .mso-map-tooltip-address{padding-top:3px;border-top:1px solid #e5ebf2}
+#ms-admin-root .mso-map-tooltip-ops{color:#26704b}
+#ms-admin-root .mso-booking-countdown-block strong,#ms-admin-root .mso-booking-countdown-block small{color:#fff!important}
+#ms-admin-root .mso-map-wrap{background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(224,237,248,.18))}
+#ms-admin-root .mso-map{filter:saturate(1.04) contrast(1.025)}
+#ms-admin-root .mso-route-badge{border-color:rgba(66,133,244,.5);color:#245ca8}
+#ms-admin-root .mso-route-live{stroke:#1d73e8;filter:drop-shadow(0 1px 1px rgba(255,255,255,.8))}
+#ms-admin-root .mso-pin{box-shadow:0 2px 8px rgba(32,66,102,.3)}
+#ms-admin-root .mso-map .maplibregl-ctrl-attrib{font-size:9px;background:rgba(255,255,255,.86);color:#536273}
+#ms-admin-root .mso-map .maplibregl-ctrl-attrib a{color:#356ca8}
+#ms-admin-root .mso-embedded .mso-booking-entry{margin-bottom:4px}
+#ms-admin-root .mso-embedded .mso-map-card{height:auto;max-height:none;overflow:visible}
+@media(max-width:1100px){#ms-admin-root .mso-embedded .mso-map-card,#ms-admin-root .mso-embedded .mso-panel{height:900px;max-height:900px}}
+@media(max-width:650px){#ms-admin-root .mso-embedded .mso-map-card,#ms-admin-root .mso-embedded .mso-panel{height:auto;max-height:none}}
+
+/* Let the dashboard use the wide desktop canvas instead of leaving the side
+   gutters empty. The operations map and its calendar stay readable because
+   their internal columns retain explicit minimum widths. */
+#ms-admin-root .msa-page:has(.msa-dashboard-operations){
+  max-width:none;
+  width:100%;
+  padding-left:clamp(24px,3vw,58px);
+  padding-right:clamp(24px,3vw,58px);
+}
+#ms-admin-root .msa-page:has(.msa-dashboard-operations) .msa-dashboard-operations{
+  width:100%;
+  max-width:none;
+}
+#ms-admin-root .msa-page:has(.msa-dashboard-operations) .msa-dashboard-operations>.mso-page .mso-main{
+  grid-template-columns:minmax(0,2.35fr) minmax(350px,.8fr);
+}
+@media(max-width:1100px){
+  #ms-admin-root .msa-page:has(.msa-dashboard-operations){padding-left:20px;padding-right:20px}
+  #ms-admin-root .msa-page:has(.msa-dashboard-operations) .msa-dashboard-operations>.mso-page .mso-main{grid-template-columns:1fr}
+}
+
+/* Compact, centered dashboard KPIs. */
+#ms-admin-root .msa-dash-top .msa-kpi{
+  min-height:52px;
+  padding:10px 12px;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+#ms-admin-root .msa-dash-top .msa-kpi-dual-row{justify-content:center;gap:12px}
+#ms-admin-root .msa-dash-top .msa-kpi-value{font-size:22px}
+#ms-admin-root .msa-dash-top .msa-kpi-label,#ms-admin-root .msa-dash-top .msa-kpi-sub{font-size:9px}
+
+/* Keep one clear calendar row visible beneath the slightly taller map. */
+#ms-admin-root .mso-embedded .mso-map{height:572px}
+#ms-admin-root .mso-panel-stats .is-previous{color:#7b61a8}
+#ms-admin-root .mso-booking-status.is-previous{background:#f0eafa;color:#6f4b9b}
+#ms-admin-root .mso-booking-countdown-block.is-previous{background:#7b61a8;color:#fff;box-shadow:0 4px 12px rgba(123,97,168,.22)}
+#ms-admin-root .mso-booking-card strong{font-size:15.4px}
+#ms-admin-root .mso-booking-card small,#ms-admin-root .mso-booking-meta,#ms-admin-root .mso-booking-countdown{font-size:11px}
+#ms-admin-root .mso-booking-activity{font-size:12px}
+
+@media(max-width:650px){#ms-admin-root .mso-embedded .mso-map{height:396px}}
+
+/* Communications rail beside the daily agenda. Data is loaded through the
+   server bridge so Microsoft and WhatsApp tokens never reach the browser. */
+#ms-admin-root .mso-embedded .mso-main{grid-template-columns:minmax(0,2fr) minmax(330px,.78fr) minmax(300px,.78fr)}
+#ms-admin-root .mso-communications{min-width:0;background:#fff;border:1px solid #dadce0;border-radius:12px;box-shadow:0 2px 10px rgba(60,64,67,.14);overflow:hidden;display:flex;flex-direction:column;min-height:572px}
+#ms-admin-root .mso-communications-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 15px 8px;border-bottom:1px solid var(--mso-line)}
+#ms-admin-root .mso-communications h2{font-size:20px!important;margin:3px 0 0;letter-spacing:-.03em}
+#ms-admin-root .mso-communications-refresh{border:0;background:none;color:#4285f4;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+#ms-admin-root .mso-communications-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px 10px;border-bottom:1px solid #edf0f2}
+#ms-admin-root .mso-communications-tabs button{border:0;background:#f5f7fa;border-radius:7px;padding:7px;color:#617083;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+#ms-admin-root .mso-communications-tabs button.is-active{background:#4285f4;color:#fff}
+#ms-admin-root .mso-mailbox-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 11px;color:#7b8794;font-size:10px;border-bottom:1px solid #edf0f2}
+#ms-admin-root .mso-mailbox-toolbar .is-connected{color:#237a4d}
+#ms-admin-root .mso-mail-layout{display:grid;grid-template-columns:76px minmax(0,1fr);min-height:470px}
+#ms-admin-root .mso-mail-folders{padding:9px 5px;border-right:1px solid #edf0f2}
+#ms-admin-root .mso-mail-folders button{display:block;width:100%;border:0;background:none;text-align:left;border-radius:6px;padding:7px 6px;color:#65778a;font:inherit;font-size:10px;cursor:pointer}
+#ms-admin-root .mso-mail-folders button:first-child{background:#eaf2ff;color:#1a73e8;font-weight:700}
+#ms-admin-root .mso-mail-list{min-width:0;overflow:auto}
+#ms-admin-root .mso-mail-list button{display:block;width:100%;border:0;border-bottom:1px solid #edf0f2;background:#fff;text-align:left;padding:10px;cursor:pointer;color:#273443}
+#ms-admin-root .mso-mail-list button:hover,#ms-admin-root .mso-mail-list button.is-selected{background:#f5f9ff}
+#ms-admin-root .mso-mail-list strong,#ms-admin-root .mso-mail-list span,#ms-admin-root .mso-mail-list small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ms-admin-root .mso-mail-list strong{font-size:11px}#ms-admin-root .mso-mail-list span{font-size:10px;color:#596b7f;margin-top:3px}#ms-admin-root .mso-mail-list small{font-size:9px;color:#8a96a3;margin-top:3px}
+#ms-admin-root .mso-mail-reader{grid-column:1/-1;border-top:1px solid #edf0f2;padding:12px;max-height:260px;overflow:auto}
+#ms-admin-root .mso-mail-reader strong,#ms-admin-root .mso-mail-reader small{display:block}#ms-admin-root .mso-mail-reader strong{font-size:13px}#ms-admin-root .mso-mail-reader small{font-size:10px;color:#728093;margin-top:3px}#ms-admin-root .mso-mail-reader p{font-size:11px;line-height:1.45;white-space:pre-wrap;max-height:100px;overflow:auto}
+#ms-admin-root .mso-mail-reader textarea{width:100%;min-height:58px;border:1px solid #dce3eb;border-radius:7px;padding:7px;font:inherit;font-size:11px;resize:vertical}
+#ms-admin-root .mso-mail-reader .msa-btn{margin-top:7px;font-size:10px;padding:6px 9px}
+#ms-admin-root .mso-comms-empty{display:grid;place-items:center;text-align:center;gap:7px;padding:25px 18px;color:#728093;font-size:11px;min-height:210px}
+#ms-admin-root .mso-comms-empty strong{color:#273443;font-size:13px}#ms-admin-root .mso-comms-empty p{margin:0;line-height:1.45}
+#ms-admin-root .mso-comms-empty a{color:#1a73e8;font-size:11px;font-weight:700;text-decoration:none}
+#ms-admin-root .mso-wa-connect img{width:170px;height:170px;object-fit:contain;border:1px solid #e4e9ef;border-radius:8px;padding:5px;background:#fff}
+#ms-admin-root .mso-qr-placeholder{width:170px;height:170px;display:grid;place-items:center;border:1px dashed #cbd5e1;border-radius:8px;color:#91a0af;font-size:10px}
+#ms-admin-root .mso-wa-thread{padding:10px;overflow:auto}.mso-wa-message{padding:9px;border-bottom:1px solid #edf0f2}.mso-wa-message strong{font-size:11px}.mso-wa-message p{font-size:11px;margin:4px 0 0}
+@media(max-width:1250px){#ms-admin-root .mso-embedded .mso-main{grid-template-columns:minmax(0,1.7fr) minmax(300px,.8fr)}#ms-admin-root .mso-communications{grid-column:2;grid-row:2;min-height:420px}}
+@media(max-width:1100px){#ms-admin-root .mso-embedded .mso-main{grid-template-columns:1fr}#ms-admin-root .mso-communications{grid-column:auto;grid-row:auto;min-height:420px}}
+
+/* The dashboard keeps the map and daily agenda as its primary two-column view. */
+#ms-admin-root .mso-embedded .mso-main{grid-template-columns:minmax(0,2fr) minmax(330px,.78fr)}
+@media(max-width:1250px){#ms-admin-root .mso-embedded .mso-main{grid-template-columns:minmax(0,1.7fr) minmax(300px,.8fr)}}
+@media(max-width:1100px){#ms-admin-root .mso-embedded .mso-main{grid-template-columns:1fr}}
+
+/* Familiar Google Maps visual language: calm basemap, floating controls, blue route. */
+#ms-admin-root .mso-map-card{border-radius:12px;box-shadow:0 2px 10px rgba(60,64,67,.18);border-color:#dadce0}
+#ms-admin-root .mso-map{background:#e8eaed}
+#ms-admin-root .mso-map .leaflet-control-zoom{border:0;box-shadow:0 1px 5px rgba(60,64,67,.28);border-radius:8px;overflow:hidden;margin:12px}
+#ms-admin-root .mso-map .leaflet-control-zoom a{width:32px;height:32px;line-height:31px;border:0;color:#3c4043;background:#fff;font-size:20px;font-weight:400}
+#ms-admin-root .mso-map .leaflet-control-zoom a:hover{background:#f1f3f4;color:#1a73e8}
+#ms-admin-root .mso-route-badge{left:12px;bottom:12px;padding:6px 9px;border-color:#c7d8f5;color:#1a73e8;font-size:9px}
+#ms-admin-root .mso-legend{padding:9px 13px;gap:6px 10px;border-top:1px solid #edf0f2}
+#ms-admin-root .mso-legend span{font-size:9px}
+#ms-admin-root .mso-legend i{width:19px;height:19px}
+#ms-admin-root .mso-panel{border-radius:12px;box-shadow:0 2px 10px rgba(60,64,67,.14);border-color:#dadce0}
+#ms-admin-root .mso-panel-head{padding:14px 15px 8px}
+#ms-admin-root .mso-panel h2{font-size:20px!important}
+#ms-admin-root .mso-booking-entry{border-color:#e5e7eb;border-radius:10px}
+#ms-admin-root .mso-itinerary-stop{border-radius:7px;padding:8px 6px}
+#ms-admin-root .mso-itinerary-dot{width:22px;height:22px;box-shadow:0 0 0 2px #fae9e4}

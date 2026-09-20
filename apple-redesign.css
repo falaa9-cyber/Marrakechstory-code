@@ -5234,6 +5234,11 @@ button, a, label, .clickable { -webkit-tap-highlight-color: transparent; touch-a
 }
 .ms-ld-book-cta:hover { filter: brightness(1.06); }
 .ms-ld-book-note { text-align: center; font-size: 13px; color: #888; margin-top: 12px; }
+.ms-ld-book-error {
+  margin-top: 10px; color: #b42318; background: #fff1f0; border: 1px solid #fecdca;
+  border-radius: 9px; padding: 9px 11px; font-size: 12.5px; line-height: 1.4;
+}
+.ms-ld-book-contact [aria-invalid="true"] { background: #fff8f7; box-shadow: inset 3px 0 0 #d92d20; }
 .ms-ld-book-2nd { width: 100%; margin-top: 12px; border: 1px solid #ccc; background: #fff; border-radius: 11px; padding: 12px; font-size: 14px; font-weight: 600; color: #222; cursor: pointer; }
 .ms-ld-book-2nd:hover { background: #f7f7f7; }
 .ms-ld-book-sent { text-align: center; padding: 14px 0; }

@@ -131,7 +131,7 @@
     'al haouz': [31.30, -7.90], 'morocco': [31.6295, -7.9811], 'marrakesh': [31.6295, -7.9811],
     'targa': [31.6520, -8.0470], 'golf royal': [31.6010, -7.9300], 'route du golf': [31.6010, -7.9300],
     'barrage': [31.4200, -8.0800], 'aéroport': [31.6050, -8.0360], 'aeroport': [31.6050, -8.0360],
-    'amizmiz': [31.2200, -8.2400], "route d'amizmiz": [31.40, -8.10],
+    "route d'amizmiz": [31.40, -8.10],
   };
   const MARRAKECH = { name: 'Marrakech', lat: 31.6295, lng: -7.9811 };
   function resolveStops(route, single) {
@@ -284,13 +284,34 @@
     const [saved, setSaved] = useState(false);
     const [form, setForm] = useState({ name: '', email: '', phone: '', notes: '' });
     const [sent, setSent] = useState(false);
+    const [formError, setFormError] = useState('');
     const bookRef = useRef(null);
+    const dialogRef = useRef(null);
 
     useEffect(() => {
       const k = e => { if (e.key === 'Escape' && lightbox == null) L.onClose(); };
       document.addEventListener('keydown', k); document.body.style.overflow = 'hidden';
       return () => { document.removeEventListener('keydown', k); document.body.style.overflow = ''; };
     }, [lightbox]);
+    useEffect(() => {
+      const previousFocus = document.activeElement;
+      const dialog = dialogRef.current;
+      const focusable = () => dialog ? Array.from(dialog.querySelectorAll('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])')) : [];
+      const onTab = (e) => {
+        if (e.key !== 'Tab') return;
+        const items = focusable();
+        if (!items.length) { e.preventDefault(); dialog?.focus(); return; }
+        const first = items[0]; const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      };
+      document.addEventListener('keydown', onTab);
+      requestAnimationFrame(() => focusable()[0]?.focus());
+      return () => {
+        document.removeEventListener('keydown', onTab);
+        if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+      };
+    }, []);
     useEffect(() => { try { const w = JSON.parse(localStorage.getItem('ms_wishlist') || '[]'); setSaved(w.includes(L.id)); } catch {} }, []);
     useEffect(() => { try { const p = JSON.parse(localStorage.getItem('ms_profile_data') || '{}'); setForm(f => ({ name: p.name || '', email: p.email || '', phone: p.phone || '' })); } catch {} }, []);
 
@@ -309,7 +330,13 @@
 
     const reserve = () => {
       if (L.reserveForm) {
-        if (!form.name.trim() || !form.email.trim()) { bookRef.current && bookRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+        const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+        if (!form.name.trim() || !validEmail) {
+          setFormError(tx('Enter your full name and a valid email address.', 'Skriv inn fullt navn og en gyldig e-postadresse.', 'Saisissez votre nom complet et une adresse e-mail valide.'));
+          bookRef.current && bookRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+        setFormError('');
         L.onReserve && L.onReserve({ sel, guests, ...form });
         setSent(true);
       } else {
@@ -345,13 +372,14 @@
               </div>
               {L.reserveForm && (
                 <div className="ms-ld-book-contact">
-                  <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder={tx('Full name', 'Fullt navn', 'Nom complet')} autoComplete="name" />
-                  <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder={tx('Email', 'E-post', 'E-mail')} type="email" autoComplete="email" />
-                  <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder={tx('Phone (optional)', 'Telefon (valgfritt)', 'Téléphone (optionnel)')} autoComplete="tel" />
-                  <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder={tx('Anything we should know? (optional)', 'Noe vi bør vite? (valgfritt)', 'Quelque chose à signaler ? (optionnel)')} rows="2" />
+                  <input value={form.name} onChange={e => { setForm({ ...form, name: e.target.value }); setFormError(''); }} placeholder={tx('Full name', 'Fullt navn', 'Nom complet')} aria-label={tx('Full name', 'Fullt navn', 'Nom complet')} aria-invalid={!!formError && !form.name.trim()} autoComplete="name" required />
+                  <input value={form.email} onChange={e => { setForm({ ...form, email: e.target.value }); setFormError(''); }} placeholder={tx('Email', 'E-post', 'E-mail')} aria-label={tx('Email', 'E-post', 'E-mail')} aria-invalid={!!formError} type="email" autoComplete="email" required />
+                  <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder={tx('Phone (optional)', 'Telefon (valgfritt)', 'Téléphone (optionnel)')} aria-label={tx('Phone (optional)', 'Telefon (valgfritt)', 'Téléphone (optionnel)')} autoComplete="tel" />
+                  <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder={tx('Anything we should know? (optional)', 'Noe vi bør vite? (valgfritt)', 'Quelque chose à signaler ? (optionnel)')} aria-label={tx('Anything we should know? (optional)', 'Noe vi bør vite? (valgfritt)', 'Quelque chose à signaler ? (optionnel)')} rows="2" />
                 </div>
               )}
             </div>
+            {formError && <div className="ms-ld-book-error" role="alert">{formError}</div>}
             <button className="ms-ld-book-cta" type="button" onClick={reserve}>{L.reserveLabel || tx('Reserve', 'Reserver', 'Réserver')}</button>
             <div className="ms-ld-book-note">{tx("You won’t be charged yet", 'Du belastes ikke ennå', 'Vous ne serez pas débité')}</div>
             {L.onTweak && <button className="ms-ld-book-2nd" type="button" onClick={L.onTweak}>{L.tweakLabel || tx('Customise this trip', 'Tilpass denne reisen', 'Personnaliser')}</button>}
@@ -362,7 +390,7 @@
 
     return (
       <div className="ms-ld-backdrop" onClick={L.onClose}>
-        <div className="ms-ld-card" onClick={e => e.stopPropagation()}>
+        <div className="ms-ld-card" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="ms-ld-title" tabIndex="-1" onClick={e => e.stopPropagation()}>
           {/* sticky top bar */}
           <div className="ms-ld-topbar">
             <button className="ms-ld-close" type="button" onClick={L.onClose} aria-label="Close">✕</button>
@@ -373,7 +401,7 @@
           </div>
 
           <div className="ms-ld-scroll">
-            <h1 className="ms-ld-title">{L.title}</h1>
+            <h1 className="ms-ld-title" id="ms-ld-title">{L.title}</h1>
             <Mosaic images={images} alt={L.title} tx={tx} onShowAll={(i) => setLightbox(i)} />
             <MobileCarousel images={images} alt={L.title} />
 

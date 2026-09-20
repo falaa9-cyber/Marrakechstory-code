@@ -177,16 +177,16 @@ function CollabForm() {
       ) : (
         <form className="footer-collab-form" onSubmit={submit}>
           <div className="footer-collab-row">
-            <input autoComplete="name" required value={name}
+            <input autoComplete="name" name="name" aria-label={t('collab_name')} required value={name}
               onChange={e => setName(e.target.value)} placeholder={t('collab_name')} />
-            <input autoComplete="email" type="email" required value={email}
+            <input autoComplete="email" name="email" aria-label={t('collab_email')} type="email" required value={email}
               onChange={e => setEmail(e.target.value)} placeholder={t('collab_email')} />
           </div>
-          <select value={type} onChange={e => setType(e.target.value)}>
+          <select name="collaborationType" aria-label={t('collab_type')} value={type} onChange={e => setType(e.target.value)}>
             <option value="">{t('collab_type')}</option>
             {types.map(tp => <option key={tp.v} value={tp.v}>{tp.l}</option>)}
           </select>
-          <textarea rows={2} autoComplete="off" value={msg}
+          <textarea rows={2} name="message" aria-label={t('collab_msg')} autoComplete="off" value={msg}
             onChange={e => setMsg(e.target.value)} placeholder={t('collab_msg')} />
           <button type="submit">{t('collab_send')} →</button>
         </form>

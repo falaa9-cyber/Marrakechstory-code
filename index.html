@@ -116,6 +116,8 @@
 
   <link rel="stylesheet" href="styles.css?v=447" />
   <link rel="stylesheet" href="apple-redesign.css?v=447" />
+  <link rel="stylesheet" href="admin.css?v=448" />
+  <link rel="stylesheet" href="operations-map.css?v=448" />
 
   <!-- Google Analytics 4 (Measurement ID G-2KQ6SRF86C) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2KQ6SRF86C"></script>
@@ -294,6 +296,11 @@
   -->
   <script src="assets/vendor/react-globals.js"></script>
   <script src="assets/vendor/supabase-globals.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" crossorigin="anonymous" />
+  <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js" crossorigin="anonymous"></script>
 
   <!-- Plain JS data files (run synchronously before the UI scripts mount) -->
   <script src="src/env.js?v=447"></script>
@@ -323,6 +330,8 @@
   <script src="src/auth.js?v=447"></script>
   <script src="src/reviews.js?v=447"></script>
   <script src="src/app.js?v=447"></script>
+  <script src="src/operations-map.js?v=448"></script>
+  <script src="src/admin.js?v=448"></script>
   <script src="src/apple-fx.js?v=447"></script>
 
   <!-- ── Auto-syncing trip structured data (TouristTrip ItemList from live data) ── -->

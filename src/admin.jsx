@@ -88,6 +88,7 @@
     try { if (window.MS_SB && window.MS_SB.auth && window.MS_SB.auth.signOut) await window.MS_SB.auth.signOut(); } catch (_e) {}
   }
   async function dbList(t, order, asc) { const sb = getSB(); if (!sb) return []; let q = sb.from(t).select('*'); if (order) q = q.order(order, { ascending: asc !== false }); const { data, error } = await q; if (error) { console.warn('[admin]', t, error.message); return []; } return data || []; }
+  async function dbListAll(t, order, asc) { const sb = getSB(); if (!sb) return []; const all = []; for (let offset = 0; offset < 100000; offset += 1000) { let q = sb.from(t).select('*').range(offset, offset + 999); if (order) q = q.order(order, { ascending: asc !== false }); const { data, error } = await q; if (error) { console.warn('[admin]', t, error.message); break; } all.push(...(data || [])); if (!data || data.length < 1000) break; } return all; }
   async function dbInsert(t, row) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).insert(row).select(); }
   async function dbUpdate(t, id, patch) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).update(patch).eq('id', id).select(); }
   async function dbDelete(t, id) { const sb = getSB(); if (!sb) return { error: 'no client' }; return await sb.from(t).delete().eq('id', id); }
@@ -326,6 +327,7 @@
   const SUP_CATS = [['accommodation', 'Accommodation'], ['transport', 'Transport'], ['carrental', 'Car rental'], ['restaurants', 'Restaurants'], ['activities', 'Activities']];
   const SUP_CAT_COLOR = { accommodation: '#e0432a', transport: '#0a84ff', carrental: '#5e5ce6', restaurants: '#ff9f0a', activities: '#34c759' };
   const CURRENCIES = ['NOK', 'MAD', 'EUR', 'USD', 'SEK', 'DKK', 'GBP'];
+  const normalizeCurrency = (value, fallback = 'NOK') => CURRENCIES.includes(String(value || '').toUpperCase()) ? String(value).toUpperCase() : fallback;
   const CUR_SYMBOL = { NOK: 'kr', SEK: 'kr', DKK: 'kr', MAD: 'DH', EUR: '€', USD: '$', GBP: '£' };
   const money = (n, cur) => { const v = Math.round((+n || 0)).toLocaleString('nb-NO'); const c = cur || 'NOK'; return (c === 'EUR' || c === 'USD' || c === 'GBP') ? (CUR_SYMBOL[c] + ' ' + v) : (v + ' ' + (CUR_SYMBOL[c] || c)); };
   // Cost-line categories: each booking can have several collaborators per category.
@@ -443,6 +445,7 @@
   const P = (d) => h('path', { d });
   const ICON = {
     dashboard: () => svg([h('rect', { x: 3, y: 3, width: 7, height: 9, rx: 1.5 }), h('rect', { x: 14, y: 3, width: 7, height: 5, rx: 1.5 }), h('rect', { x: 14, y: 12, width: 7, height: 9, rx: 1.5 }), h('rect', { x: 3, y: 16, width: 7, height: 5, rx: 1.5 })]),
+    pin: () => svg([P('M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z'), h('circle', { cx: 12, cy: 10, r: 2.5 })]),
     bookings: () => svg([h('rect', { x: 3, y: 7, width: 18, height: 13, rx: 2 }), P('M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2')]),
     calendar: () => svg([h('rect', { x: 3, y: 4, width: 18, height: 17, rx: 2 }), P('M3 9h18M8 2v4M16 2v4')]),
     clients: () => svg([P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), h('circle', { cx: 9, cy: 7, r: 4 }), P('M22 21v-2a4 4 0 0 0-3-3.87')]),
@@ -450,6 +453,7 @@
     finance: () => svg([P('M3 3v18h18'), P('M7 14l4-4 3 3 5-6')]),
     tasks: () => svg([P('M9 11l3 3L22 4'), P('M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11')]),
     requests: () => svg([P('M22 12h-6l-2 3h-4l-2-3H2'), P('M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z')]),
+    mail: () => svg([P('M3 5h18v14H3z'), P('M3 6l9 7 9-7')]),
     search: () => svg([h('circle', { cx: 11, cy: 11, r: 8 }), P('M21 21l-4.3-4.3')]),
     plus: () => svg([P('M12 5v14M5 12h14')]),
     edit: () => svg([P('M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'), P('M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z')]),
@@ -712,7 +716,7 @@
             h('span', { className: 'msa-team-act' }, (a.actor_role === 'partner' ? '👤 ' : '🛡️ ') + (a.action || '') + ' ' + (a.entity || '') + (a.detail ? ' — ' + a.detail : ''))))));
   }
 
-  function Dashboard({ bookings, tasks, leads, clients, go, openBooking, reload }) {
+  function Dashboard({ bookings, tasks, leads, clients, suppliers, go, openBooking, reload }) {
     const isAdmin = isAdminRole();
     const [addTask, setAddTask] = useState(false);
     const [reqPop, setReqPop] = useState(false);
@@ -733,12 +737,6 @@
     const openTasks = tasks.filter(t => t.status !== 'completed');
     const newRequests = leads.filter(l => !l.routed_booking_id || true).slice(0, 5);
     const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    // finance figures for the charts
-    const acc = bookings.reduce((s, b) => s + (+b.cost_accommodation || 0), 0);
-    const tr = bookings.reduce((s, b) => s + (+b.cost_transportation || 0), 0);
-    const ac = bookings.reduce((s, b) => s + (+b.cost_activities || 0), 0);
-    const byMonth = {}; bookings.forEach(b => { if (!b.arrival_date) return; const k = b.arrival_date.slice(0, 7); byMonth[k] = (byMonth[k] || 0) + (+b.selling_price || 0); });
-    const months = Object.keys(byMonth).sort().slice(-8).map(k => ({ label: k.slice(5) + '/' + k.slice(2, 4), value: byMonth[k] }));
 
     const kpi = (label, value, cls, tab) => h('button', { className: 'msa-kpi ' + cls, onClick: () => tab && go(tab) },
       h('span', { className: 'msa-kpi-label' }, label), h('span', { className: 'msa-kpi-value' }, value));
@@ -763,6 +761,8 @@
         h('div', null, h('h1', null, 'Dashboard'), h('p', null, 'Status for ' + today)),
         h('div', { className: 'msa-head-actions' },
           h('button', { className: 'msa-notif-btn', onClick: () => setReqPop(true), title: 'Latest requests' }, ICON.requests(), newRequests.length > 0 ? h('span', { className: 'msa-notif-badge' }, newRequests.length) : null),
+          h('a', { className: 'msa-quick-contact msa-quick-mail', href: 'mailto:marrakechstory@outlook.com', title: 'Email MarrakechStory', 'aria-label': 'Email MarrakechStory' }, ICON.mail()),
+          h('a', { className: 'msa-quick-contact msa-quick-whatsapp', href: 'https://wa.me/212694345354', target: '_blank', rel: 'noopener noreferrer', title: 'WhatsApp MarrakechStory', 'aria-label': 'WhatsApp MarrakechStory' }, ICON.whatsapp()),
           h('button', { className: 'msa-btn msa-btn-primary', onClick: () => openBooking({}) }, ICON.plus(), 'New Booking'))),
 
       // Top section — 4 equal stat boxes
@@ -779,16 +779,9 @@
         isAdmin ? kpi('Total Cost', kr(cost), 'msa-kpi-cost', 'finance') : kpi('Requests', nf(leads.length), 'msa-kpi-plain', 'requests'),
         isAdmin ? kpi('Total Benefit', kr(benefit), 'msa-kpi-benefit', 'finance') : kpi('Open tasks', nf(tasks.filter(t => t.status !== 'completed').length), 'msa-kpi-plain', 'tasks')),
 
-      // Top section — 2 equal chart boxes (money — admin only)
-      isAdmin ? h('div', { className: 'msa-dash-charts' },
-        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Cost breakdown'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
-          h('div', { className: 'msa-chart-row' }, h(Donut, { segments: [{ label: 'Accommodation', value: acc, color: '#e0432a' }, { label: 'Transportation', value: tr, color: '#0a84ff' }, { label: 'Activities', value: ac, color: '#34c759' }] }),
-            h('div', { className: 'msa-legend' },
-              h('div', null, h('span', { className: 'msa-dot', style: { background: '#e0432a' } }), 'Accommodation ', h('strong', null, kr(acc))),
-              h('div', null, h('span', { className: 'msa-dot', style: { background: '#0a84ff' } }), 'Transportation ', h('strong', null, kr(tr))),
-              h('div', null, h('span', { className: 'msa-dot', style: { background: '#34c759' } }), 'Activities ', h('strong', null, kr(ac)))))),
-        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Revenue by month'), h('button', { className: 'msa-link', onClick: () => go('finance') }, 'Finance →')),
-          months.length ? h(Bars, { data: months }) : h('div', { className: 'msa-empty' }, 'No dated bookings.'))) : null,
+      window.MS_OperationsMap && h('section', { className: 'msa-dashboard-operations' },
+        h('div', { className: 'msa-card-head msa-dashboard-operations-head' }, h('div', null, h('h2', null, 'Live operations')), h('button', { className: 'msa-link', onClick: () => go('operations') }, 'Open full map →')),
+        h(window.MS_OperationsMap, { bookings, suppliers, openBooking, reload, embedded: true, isAdmin })),
 
       // Main row — calendar (left) + upcoming bookings / workspace stacked (right)
       h('div', { className: 'msa-dash-main' },
@@ -938,14 +931,14 @@
       setExtraSups(p => [...p, row]); setLine(idx, 'collab', row.id);
     };
     // Currency helpers (sell currency vs the currency you pay suppliers in)
-    const sc = b.sell_currency || 'NOK', cc = b.cost_currency || 'MAD';
+    const sc = normalizeCurrency(b.sell_currency), cc = normalizeCurrency(b.cost_currency, 'MAD');
     const fx = parseFloat(b.fx_rate) || 0;            // 1 cost-currency unit = fx sell-currency units
     const sameCur = sc === cc;
     const costInSell = sameCur ? (+b.total_cost || 0) : (+b.total_cost || 0) * fx;
     const profitSell = (+b.selling_price || 0) - costInSell;
     const addDay = () => setB(p => ({ ...p, daily_itinerary: [...p.daily_itinerary, { day: p.daily_itinerary.length + 1, city: '', date: '', activities: [] }] }));
     const setDay = (i, k, v) => setB(p => { const a = [...p.daily_itinerary]; a[i] = { ...a[i], [k]: v }; return { ...p, daily_itinerary: a }; });
-    const addAct = (i) => setB(p => { const a = [...p.daily_itinerary]; a[i] = { ...a[i], activities: [...(a[i].activities || []), { time: '09:00', type: 'Transport', details: '' }] }; return { ...p, daily_itinerary: a }; });
+    const addAct = (i) => setB(p => { const a = [...p.daily_itinerary]; a[i] = { ...a[i], activities: [...(a[i].activities || []), { time: '09:00', type: 'Transport', details: '', confirmed: false }] }; return { ...p, daily_itinerary: a }; });
     const setAct = (di, ai, k, v) => setB(p => { const a = [...p.daily_itinerary]; const ac = [...a[di].activities]; ac[ai] = { ...ac[ai], [k]: v }; a[di] = { ...a[di], activities: ac }; return { ...p, daily_itinerary: a }; });
     const delAct = (di, ai) => setB(p => { const a = [...p.daily_itinerary]; const ac = [...a[di].activities]; ac.splice(ai, 1); a[di] = { ...a[di], activities: ac }; return { ...p, daily_itinerary: a }; });
     const delDay = (i) => setB(p => ({ ...p, daily_itinerary: p.daily_itinerary.filter((_, x) => x !== i).map((d, x) => ({ ...d, day: x + 1 })) }));
@@ -998,7 +991,7 @@
     const save = async (closeAfter) => {
       if (!b.client_name.trim()) { alert('Client name is required'); return; }
       setBusy(true);
-      const row = { ...b, reference: b.reference || ('MS-' + Math.random().toString(36).slice(2, 8).toUpperCase()), travelers: (+b.adults || 0) + (+b.kids || 0), updated_at: new Date().toISOString() };
+      const row = { ...b, reference: b.reference || ('MS-' + Math.random().toString(36).slice(2, 8).toUpperCase()), travelers: (+b.adults || 0) + (+b.kids || 0), sell_currency: normalizeCurrency(b.sell_currency), cost_currency: normalizeCurrency(b.cost_currency, 'MAD'), updated_at: new Date().toISOString() };
       ['total_nights','total_days','adults','kids'].forEach(k => row[k] = +row[k] || 0);
       ['selling_price','deposit_amount','paid_amount','balance','cost_transportation','cost_activities','cost_accommodation','total_cost'].forEach(k => row[k] = +row[k] || 0);
       row.fx_rate = (row.fx_rate === '' || row.fx_rate == null) ? null : (parseFloat(row.fx_rate) || null);
@@ -1030,6 +1023,8 @@
           h('div', { className: 'msa-field' }, h('label', null, 'Lead Source'), h('select', { value: b.lead_source, onChange: (e) => set('lead_source', e.target.value) }, LEAD_SOURCES.map(s => h('option', { key: s, value: s }, s)))),
           field('Reference', 'reference'),
           h('div', { className: 'msa-field msa-field-wide' }, h('label', null, 'Address'), h('input', { type: 'text', value: b.address || '', placeholder: 'Street, city, postal code, country', onChange: (e) => set('address', e.target.value) }))),
+        h('h4', { className: 'msa-section' }, 'Client accommodation · operational location'),
+        h('div', { className: 'msa-grid-2' }, field('Accommodation name', 'accommodation_name'), field('Accommodation address', 'accommodation_address'), field('Latitude', 'accommodation_latitude', 'number'), field('Longitude', 'accommodation_longitude', 'number')),
         h('h4', { className: 'msa-section' }, 'Trip'),
         h('div', { className: 'msa-grid-2' }, field('Arrival City', 'arrival_city'), field('Departure City', 'departure_city'),
           h('div', { className: 'msa-field' }, h('label', null, 'Arrival Date'), h('input', { type: 'date', value: b.arrival_date || '', onChange: (e) => setDate('arrival_date', e.target.value) })),
@@ -1050,8 +1045,25 @@
               h('label', { className: 'msa-act-time' }, h('span', { className: 'msa-act-time-lbl' }, 'Time'), h('input', { type: 'time', value: a.time, onChange: (e) => setAct(di, ai, 'time', e.target.value) })),
               h('select', { value: a.type, onChange: (e) => setAct(di, ai, 'type', e.target.value) }, ACTIVITY_TYPES.map(t => h('option', { key: t, value: t }, t))),
               h('button', { className: 'msa-icon-btn', onClick: () => delAct(di, ai) }, ICON.x())),
-            h('input', { className: 'msa-day-in', placeholder: 'Details…', value: a.details, onChange: (e) => setAct(di, ai, 'details', e.target.value) }))),
+            h('input', { className: 'msa-day-in', placeholder: 'Details…', value: a.details || '', onChange: (e) => setAct(di, ai, 'details', e.target.value) }),
+            h('div', { className: 'msa-grid-2 mso-act-fields' },
+              h('input', { placeholder: 'Location name', value: a.location_name || '', onChange: e => setAct(di, ai, 'location_name', e.target.value) }),
+              h('input', { placeholder: 'Full operational address', value: a.address || '', onChange: e => setAct(di, ai, 'address', e.target.value) }),
+              h('input', { type: 'number', step: 'any', placeholder: 'Latitude', value: a.latitude ?? '', onChange: e => setAct(di, ai, 'latitude', e.target.value) }),
+              h('input', { type: 'number', step: 'any', placeholder: 'Longitude', value: a.longitude ?? '', onChange: e => setAct(di, ai, 'longitude', e.target.value) }),
+              h('input', { placeholder: 'Pickup address', value: a.pickup_address || '', onChange: e => setAct(di, ai, 'pickup_address', e.target.value) }),
+              h('input', { placeholder: 'Drop-off address', value: a.dropoff_address || '', onChange: e => setAct(di, ai, 'dropoff_address', e.target.value) }),
+              h('input', { type: 'number', step: 'any', placeholder: 'Pickup latitude', value: a.pickup_latitude ?? '', onChange: e => setAct(di, ai, 'pickup_latitude', e.target.value) }),
+              h('input', { type: 'number', step: 'any', placeholder: 'Pickup longitude', value: a.pickup_longitude ?? '', onChange: e => setAct(di, ai, 'pickup_longitude', e.target.value) }),
+              h('input', { type: 'number', step: 'any', placeholder: 'Drop-off latitude', value: a.dropoff_latitude ?? '', onChange: e => setAct(di, ai, 'dropoff_latitude', e.target.value) }),
+              h('input', { type: 'number', step: 'any', placeholder: 'Drop-off longitude', value: a.dropoff_longitude ?? '', onChange: e => setAct(di, ai, 'dropoff_longitude', e.target.value) }),
+              h('input', { placeholder: 'Pickup instructions', value: a.pickup_instructions || '', onChange: e => setAct(di, ai, 'pickup_instructions', e.target.value) }),
+              h('input', { placeholder: 'Drop-off instructions', value: a.dropoff_instructions || '', onChange: e => setAct(di, ai, 'dropoff_instructions', e.target.value) }),
+              ...[['supplier_id', 'Collaborator / supplier'], ['driver_id', 'Driver'], ['guide_id', 'Guide']].map(([key, label]) => h('select', { key, value: a[key] || '', 'aria-label': label, onChange: e => setAct(di, ai, key, e.target.value) }, h('option', { value: '' }, label + '…'), (suppliers || []).map(s => h('option', { key: s.id, value: s.id }, s.name)))),
+              h('select', { value: a.operational_status || '', 'aria-label': 'Operational status', onChange: e => setAct(di, ai, 'operational_status', e.target.value) }, [['', 'Status…'], ['planned', 'Planned'], ['ready', 'Ready'], ['in_progress', 'In progress'], ['completed', 'Completed'], ['issue', 'Issue']].map(([v, t]) => h('option', { key: v, value: v }, t))),
+              h('label', { className: 'mso-confirm' }, h('input', { type: 'checkbox', checked: a.confirmed === true, onChange: e => setAct(di, ai, 'confirmed', e.target.checked) }), 'Service confirmed')))),
           h('button', { className: 'msa-btn msa-btn-sm', onClick: () => addAct(di) }, '+ Activity')))),
+        window.MS_BookingJourney && h(window.MS_BookingJourney, { booking: b, suppliers }),
         h('h4', { className: 'msa-section msa-section-row' }, h('span', null, 'Files & documents'),
           (initial && initial.id)
             ? h('label', { className: 'msa-btn msa-btn-sm msa-btn-primary msa-upload-label' }, ICON.plus(), upBusy ? 'Uploading…' : 'Upload',
@@ -1367,7 +1379,7 @@
   function DocModal({ booking, initialType, onClose, settings, onEdit }) {
     const [type, setType] = useState(initialType || 'itinerary');
     const [lang, setLang] = useState((booking && booking.doc_lang) || 'no');
-    const [curr, setCurr] = useState((booking && booking.sell_currency) || 'NOK');
+    const [curr, setCurr] = useState(normalizeCurrency(booking && booking.sell_currency));
     const b = booking; const S = settings || {};
     // Translate a label key / an activity type / a template with {placeholders}.
     const t = (k) => (DOC_TR[k] && (DOC_TR[k][lang] || DOC_TR[k].en)) || k;
@@ -2937,7 +2949,7 @@
 
     const reloadAll = useCallback(async () => {
       const sb = getSB();
-      const [bk, cl, su, tk, ld] = await Promise.all([dbList('bookings', 'created_at', false), dbList('clients', 'name', true), dbList('suppliers', 'name', true), dbList('tasks', 'created_at', false), dbList('form_submissions', 'created_at', false)]);
+      const [bk, cl, su, tk, ld] = await Promise.all([dbListAll('bookings', 'created_at', false), dbList('clients', 'name', true), dbList('suppliers', 'name', true), dbList('tasks', 'created_at', false), dbList('form_submissions', 'created_at', false)]);
       setBookings(bk); setClients(cl); setSuppliers(su); setTasks(tk); setLeads(ld); setLoading(false);
       if (sb) { const { data } = await sb.from('admin_settings').select('*').eq('id', 1).maybeSingle(); if (data) setSettings(data); }
     }, []);
@@ -2947,6 +2959,15 @@
       setRefreshing(true);
       window.location.reload();
     }, [refreshing]);
+    // Realtime where bookings are published; polling is the fallback for deployments
+    // without Supabase Realtime publication enabled for this private table.
+    useEffect(() => {
+      if (tab !== 'operations' && tab !== 'dashboard') return;
+      const sb = getSB();
+      const timer = setInterval(reloadAll, 60000);
+      const channel = sb && sb.channel('ms-operations-bookings').on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, reloadAll).subscribe();
+      return () => { clearInterval(timer); if (sb && channel) sb.removeChannel(channel); };
+    }, [tab, reloadAll]);
 
     const openBooking = (b) => { setFocusBooking(b && b.id ? b : EMPTY_BOOKING); setSearch(''); setTab('bookings'); };
     const routeTo = (t, term) => { setSearch(''); if (t === 'clients' && term) setClientQuery(term); setTab(t); };
@@ -2955,17 +2976,18 @@
       if (loading) return h('div', { className: 'msa-page' }, h('div', { className: 'msa-empty' }, 'Loading…'));
       if (search.trim()) return h(SearchResults, { q: search.trim(), data: { bookings, clients, suppliers, tasks, leads }, route: routeTo, openBooking, clear: () => setSearch('') });
       switch (tab) {
+        case 'operations': return window.MS_OperationsMap ? h(window.MS_OperationsMap, { bookings, suppliers, openBooking, reload: reloadAll, isAdmin: isAdminRole() }) : h('div', { className: 'msa-empty' }, 'Operations map unavailable.');
         case 'bookings': return h(Bookings, { bookings, reload: reloadAll, settings, focusBooking, clearFocus: () => setFocusBooking(null), suppliers });
         case 'calendar': return h(CalendarTab, { bookings, openBooking });
         case 'clients': return h(Clients, { clients, bookings, reload: reloadAll, initialQuery: clientQuery });
         case 'suppliers': return h(Suppliers, { suppliers, bookings, leads, reload: reloadAll, seed: supSeed, clearSeed: () => setSupSeed(null) });
-        case 'finance': return isAdmin ? h(Finance, { bookings, suppliers }) : h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
+        case 'finance': return isAdmin ? h(Finance, { bookings, suppliers }) : h(Dashboard, { bookings, tasks, leads, clients, suppliers, go: setTab, openBooking, reload: reloadAll, isAdmin });
         case 'tasks': return h(Workspace, { tasks, reload: reloadAll });
         case 'requests': return h(Requests, { leads, bookings, reload: reloadAll, settings, suppliers });
         case 'social': return h(SocialMedia, {});
         case 'insights': return h(Insights, {});
         case 'settings': return h(Settings, { settings, onSaved: reloadAll });
-        default: return h(Dashboard, { bookings, tasks, leads, clients, go: setTab, openBooking, reload: reloadAll, isAdmin });
+        default: return h(Dashboard, { bookings, tasks, leads, clients, suppliers, go: setTab, openBooking, reload: reloadAll, isAdmin });
       }
     };
 

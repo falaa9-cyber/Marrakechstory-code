@@ -137,6 +137,8 @@ ${msg}`);
     "input",
     {
       autoComplete: "name",
+      name: "name",
+      "aria-label": t("collab_name"),
       required: true,
       value: name,
       onChange: (e) => setName(e.target.value),
@@ -146,16 +148,20 @@ ${msg}`);
     "input",
     {
       autoComplete: "email",
+      name: "email",
+      "aria-label": t("collab_email"),
       type: "email",
       required: true,
       value: email,
       onChange: (e) => setEmail(e.target.value),
       placeholder: t("collab_email")
     }
-  )), /* @__PURE__ */ React.createElement("select", { value: type, onChange: (e) => setType(e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "" }, t("collab_type")), types.map((tp) => /* @__PURE__ */ React.createElement("option", { key: tp.v, value: tp.v }, tp.l))), /* @__PURE__ */ React.createElement(
+  )), /* @__PURE__ */ React.createElement("select", { name: "collaborationType", "aria-label": t("collab_type"), value: type, onChange: (e) => setType(e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "" }, t("collab_type")), types.map((tp) => /* @__PURE__ */ React.createElement("option", { key: tp.v, value: tp.v }, tp.l))), /* @__PURE__ */ React.createElement(
     "textarea",
     {
       rows: 2,
+      name: "message",
+      "aria-label": t("collab_msg"),
       autoComplete: "off",
       value: msg,
       onChange: (e) => setMsg(e.target.value),

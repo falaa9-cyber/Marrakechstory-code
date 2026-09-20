@@ -1797,3 +1797,11 @@ body::-webkit-scrollbar,
   display: none !important;
   background: transparent !important;
 }
+
+/* Fast contact shortcuts beside Requests and New Booking. */
+#ms-admin-root .msa-head-actions{display:flex;align-items:center;gap:8px}
+#ms-admin-root .msa-quick-contact{width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--msa-line,#e4e7ec);border-radius:50%;background:#fff;text-decoration:none;line-height:1;box-shadow:0 3px 10px rgba(40,45,55,.08);transition:transform .2s ease,box-shadow .2s ease}
+#ms-admin-root .msa-quick-contact svg{width:18px;height:18px}
+#ms-admin-root .msa-quick-contact:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(40,45,55,.14)}
+#ms-admin-root .msa-quick-mail{color:#d94832;border-color:#f0c5bb;background:#fff8f6}
+#ms-admin-root .msa-quick-whatsapp{color:#1c9b55;border-color:#bfe4cf;background:#f4fcf7}
