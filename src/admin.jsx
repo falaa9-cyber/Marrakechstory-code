@@ -8,7 +8,7 @@
   const { useState, useEffect, useMemo, useCallback } = R;
   const h = R.createElement;
 
-  const DEFAULT_ADMIN_EMAIL = 'f.alaa9@gmail.com';
+  const DEFAULT_ADMIN_EMAIL = 'f.alaa@live.com';
   const PARTNER_HINT_EMAIL = 'faizsofia20@gmail.com';   // login prefill only — real access is RLS/role-gated
   const COMPANY = (window.MS_CTX && window.MS_CTX.COMPANY) || { phone: '+47 457 74 743', whatsapp: '4745774743' };
 
@@ -492,7 +492,9 @@
       (async () => {
         const sb = getSB(); if (!sb) return;
         const { data } = await sb.from('admin_settings').select('admin_email').eq('id', 1).maybeSingle();
-        const nextAdminEmail = normEmail(data && data.admin_email) || DEFAULT_ADMIN_EMAIL;
+        // Keep the configured operations login stable. The settings row may
+        // contain a legacy address from the old admin account.
+        const nextAdminEmail = DEFAULT_ADMIN_EMAIL;
         if (!alive) return;
         setAdminHintEmail(nextAdminEmail);
         setEmail((curr) => mode === 'admin' && (!curr || normEmail(curr) === normEmail(DEFAULT_ADMIN_EMAIL)) ? nextAdminEmail : curr);
