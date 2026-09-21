@@ -9,6 +9,30 @@
   --msa-ink: #111114; --msa-ink2: #2b2b30; --msa-dim: #54545c;
   --msa-bg: #f5f5f7; --msa-card: #ffffff; --msa-line: #e6e6ea; --msa-radius: 18px;
 }
+
+/* Trip workspace visual system: shared with the map and itinerary planner. */
+#ms-admin-root{
+  --msa-bg:#f7f5f1;
+  --msa-card:#fff;
+  --msa-line:#e7e2db;
+  --msa-ink:#202124;
+  --msa-ink2:#35363a;
+  --msa-dim:#746f68;
+  --msa-brand:#ed4b2d;
+  --msa-brand-deep:#cf3b22;
+  --msa-brand-soft:#fff0eb;
+  font-family:"DM Sans",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--msa-bg);
+}
+#ms-admin-root .msa-page-head h1,
+#ms-admin-root .mso-panel h2,
+#ms-admin-root .mso-detail h3{letter-spacing:-.035em}
+#ms-admin-root .msa-card,
+#ms-admin-root .msa-kpi{border-color:var(--msa-line);box-shadow:0 10px 30px rgba(55,43,31,.045)}
+#ms-admin-root .msa-btn{border-radius:12px}
+#ms-admin-root .msa-sidebar{border-color:var(--msa-line)}
+#ms-admin-root .msa-nav-btn.active{background:#fff0eb;color:var(--msa-brand)}
+#ms-admin-root .msa-nav-btn.active svg{color:var(--msa-brand)}
 #ms-admin-root { position: fixed; inset: 0; z-index: 100000; background: var(--msa-bg); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; color: var(--msa-ink); overflow: hidden; -webkit-font-smoothing: antialiased; zoom: 0.96; }
 #ms-admin-root * { box-sizing: border-box; }
 #ms-admin-root strong { color: var(--msa-ink); }
