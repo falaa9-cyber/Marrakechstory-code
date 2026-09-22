@@ -931,6 +931,10 @@
     const Y = cursor.getFullYear(), M = cursor.getMonth();
     const MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const todayStr = todayISO();
+    const urgencyForDate = (k) => {
+      const distance = Math.round((Date.parse(k + "T12:00:00Z") - Date.parse(todayStr + "T12:00:00Z")) / 864e5);
+      return distance < 0 ? "past" : distance === 0 ? "active" : distance <= 2 ? "imminent" : distance <= 7 ? "soon" : "later";
+    };
     const dayMap = useMemo(() => {
       const m = {};
       bookings.forEach((b) => {
@@ -960,8 +964,7 @@
           const k = new Date(Y, mi, d).toISOString().slice(0, 10);
           const items = dayMap[k] || [];
           const cnt = items.length;
-          const st = cnt ? { background: bkColor(items[0]), color: "#fff", fontWeight: 700 } : null;
-          cells2.push(h("span", { key: d, className: "msa-yr-day" + (k === todayStr ? " today" : ""), style: st, onClick: () => onSelect && onSelect(k), title: cnt ? cnt + " booking(s)" : "" }, d));
+          cells2.push(h("span", { key: d, className: "msa-yr-day" + (k === todayStr ? " today" : "") + (cnt ? " has-bookings is-" + urgencyForDate(k) : ""), onClick: () => onSelect && onSelect(k), title: cnt ? cnt + " booking(s)" : "" }, d));
         }
         return h("div", { key: mi, className: "msa-yr-month" }, h("div", { className: "msa-yr-name", onClick: () => onSelect && onSelect(new Date(Y, mi, 1).toISOString().slice(0, 10)) }, MON[mi]), h("div", { className: "msa-yr-days" }, cells2));
       };
@@ -998,7 +1001,7 @@
       const isToday = k === todayStr;
       cells.push(h(
         "div",
-        { key: d, className: "msa-cal-cell" + (isToday ? " is-today" : "") + (k === sel ? " is-sel" : "") + (compact ? " mini" : ""), onClick: () => onSelect && onSelect(k) },
+        { key: d, className: "msa-cal-cell" + (isToday ? " is-today" : "") + (k === sel ? " is-sel" : "") + (compact ? " mini" : "") + (cnt ? " has-bookings is-" + urgencyForDate(k) : ""), onClick: () => onSelect && onSelect(k) },
         h("span", { className: "msa-cal-num" }, d),
         cnt > 0 && h("span", { className: "msa-cal-dot " + (cnt > 1 ? "multi" : "single") }, cnt),
         cnt > 0 && h(
@@ -1084,10 +1087,15 @@
       )))
     );
   }
-  function Dashboard({ bookings, tasks, leads, clients, suppliers, go, openBooking, reload }) {
+  function Dashboard({ bookings, tasks, leads, clients, suppliers, go, openBooking, openPlanner, savePlannerBooking, reload, refreshNow, refreshing, initialJourneyId = "" }) {
     const isAdmin = isAdminRole();
     const [addTask, setAddTask] = useState(false);
     const [reqPop, setReqPop] = useState(false);
+    const [selectedJourneyId, setSelectedJourneyId] = useState(initialJourneyId);
+    useEffect(() => {
+      if (initialJourneyId) setSelectedJourneyId(initialJourneyId);
+    }, [initialJourneyId]);
+    const showJourney = (booking) => setSelectedJourneyId(String((booking == null ? void 0 : booking.id) || ""));
     const _now = /* @__PURE__ */ new Date();
     const T = _now.getFullYear() + "-" + String(_now.getMonth() + 1).padStart(2, "0") + "-" + String(_now.getDate()).padStart(2, "0");
     const dStr = (v) => (v || "").slice(0, 10);
@@ -1177,61 +1185,46 @@
         { className: "msa-page" },
         h(
           "header",
-          { className: "msa-page-head msa-row" },
-          h("div", null, h("h1", null, "Dashboard"), h("p", null, "Status for " + today)),
+          { className: "msa-page-head msa-row msa-dashboard-topline" },
+          h("div", { className: "msa-dashboard-title" }, h("h1", null, "Dashboard"), h("p", null, "Status for " + today)),
+          h(
+            "section",
+            { className: "msa-card msa-data-health", "aria-label": "Data health" },
+            h("div", { className: "msa-health-grid" }, [
+              ["Confirmed", confirmedCount, "bookings"],
+              ["Unconfirmed", unconfirmedCount, "bookings"],
+              ["Deposits pending", pendingDepositCount, "bookings"],
+              ["Unpaid balances", unpaidCount, "finance"],
+              ["Missing itinerary", missingItineraryCount, "bookings"],
+              ["Missing accommodation", missingAccommodationCount, "bookings"],
+              ["Missing driver", missingDriverCount, "bookings"],
+              ["Supplier confirmations pending", pendingSupplierCount, "bookings"],
+              ["Incomplete records", incompleteCount, "bookings"]
+            ].map(([label, value, tab]) => h("button", { key: label, className: "msa-health-item", onClick: () => go(tab) }, h("strong", null, value), h("span", null, label))))
+          ),
           h(
             "div",
             { className: "msa-head-actions" },
+            h(
+              "div",
+              { className: "msa-header-metrics", "aria-label": "Booking and finance summary" },
+              h("button", { onClick: () => go("bookings") }, h("strong", null, bookings.length), h("span", null, "Bookings")),
+              isAdmin && h("button", { className: "msa-finance-metric is-income", onClick: () => go("finance"), "aria-label": "Reveal income on hover; open Finance on click" }, h("strong", null, kr(revenue)), h("span", null, "Income")),
+              isAdmin && h("button", { className: "msa-finance-metric is-cost", onClick: () => go("finance"), "aria-label": "Reveal cost on hover; open Finance on click" }, h("strong", null, kr(cost)), h("span", null, "Cost")),
+              isAdmin && h("button", { className: "msa-finance-metric is-benefit", onClick: () => go("finance"), "aria-label": "Reveal benefit on hover; open Finance on click" }, h("strong", null, kr(benefit)), h("span", null, "Benefit"))
+            ),
             h("button", { className: "msa-notif-btn", onClick: () => setReqPop(true), title: "Latest requests" }, ICON.requests(), newRequests.length > 0 ? h("span", { className: "msa-notif-badge" }, newRequests.length) : null),
+            h("button", { className: "msa-notif-btn msa-dashboard-refresh", type: "button", onClick: refreshNow, disabled: refreshing, title: "Refresh latest updates", "aria-label": refreshing ? "Refreshing dashboard" : "Refresh dashboard" }, ICON.refresh()),
             h("a", { className: "msa-quick-contact msa-quick-mail", href: "mailto:marrakechstory@outlook.com", title: "Email MarrakechStory", "aria-label": "Email MarrakechStory" }, ICON.mail()),
             h("a", { className: "msa-quick-contact msa-quick-whatsapp", href: "https://wa.me/212694345354", target: "_blank", rel: "noopener noreferrer", title: "WhatsApp MarrakechStory", "aria-label": "WhatsApp MarrakechStory" }, ICON.whatsapp()),
             h("button", { className: "msa-btn msa-btn-primary", onClick: () => openBooking({}) }, ICON.plus(), "New Booking")
           )
         ),
-        // Top section — 4 equal stat boxes
-        h(
-          "div",
-          { className: "msa-dash-top" },
-          h(
-            "button",
-            { className: "msa-kpi msa-kpi-plain msa-kpi-dual", onClick: () => go("bookings") },
-            h("span", { className: "msa-kpi-label" }, "Bookings"),
-            h(
-              "div",
-              { className: "msa-kpi-dual-row" },
-              h("div", null, h("span", { className: "msa-kpi-value" }, active), h("span", { className: "msa-kpi-sub" }, "Active")),
-              h("div", { className: "msa-kpi-divider" }),
-              h("div", null, h("span", { className: "msa-kpi-value" }, future.length), h("span", { className: "msa-kpi-sub" }, "Upcoming")),
-              h("div", { className: "msa-kpi-divider" }),
-              h("div", null, h("span", { className: "msa-kpi-value" }, past), h("span", { className: "msa-kpi-sub" }, "Past"))
-            )
-          ),
-          isAdmin ? kpi("Total Income", kr(revenue), "msa-kpi-income", "finance") : kpi("Clients", nf(clients.length), "msa-kpi-plain", "clients"),
-          isAdmin ? kpi("Total Cost", kr(cost), "msa-kpi-cost", "finance") : kpi("Requests", nf(leads.length), "msa-kpi-plain", "requests"),
-          isAdmin ? kpi("Total Benefit", kr(benefit), "msa-kpi-benefit", "finance") : kpi("Open tasks", nf(tasks.filter((t) => t.status !== "completed").length), "msa-kpi-plain", "tasks")
-        ),
-        h(
-          "section",
-          { className: "msa-card msa-data-health" },
-          h("div", { className: "msa-card-head" }, h("h3", null, "Data health"), h("span", { className: "msa-dim" }, "Live canonical database checks")),
-          h("div", { className: "msa-health-grid" }, [
-            ["Total bookings", bookings.length, "bookings"],
-            ["Confirmed", confirmedCount, "bookings"],
-            ["Unconfirmed", unconfirmedCount, "bookings"],
-            ["Deposits pending", pendingDepositCount, "bookings"],
-            ["Unpaid balances", unpaidCount, "finance"],
-            ["Missing itinerary", missingItineraryCount, "bookings"],
-            ["Missing accommodation", missingAccommodationCount, "bookings"],
-            ["Missing driver", missingDriverCount, "bookings"],
-            ["Supplier confirmations pending", pendingSupplierCount, "bookings"],
-            ["Incomplete records", incompleteCount, "bookings"]
-          ].map(([label, value, tab]) => h("button", { key: label, className: "msa-health-item", onClick: () => go(tab) }, h("strong", null, value), h("span", null, label))))
-        ),
         window.MS_OperationsMap && h(
           "section",
           { className: "msa-dashboard-operations" },
-          h("div", { className: "msa-card-head msa-dashboard-operations-head" }, h("div", null, h("h2", null, "Live operations")), h("button", { className: "msa-link", onClick: () => go("operations") }, "Open full map \u2192")),
-          h(window.MS_OperationsMap, { bookings, suppliers, openBooking, reload, embedded: true, isAdmin })
+          h("div", { className: "msa-card-head msa-dashboard-operations-head" }, h("div", null, h("h2", null, "Map & daily agenda"), h("p", { className: "msa-dim" }, "Select a booking to inspect its route and daily program.")), h("button", { className: "msa-link", onClick: () => go("operations") }, "Open full map \u2192")),
+          h(window.MS_OperationsMap, { bookings, suppliers, openBooking, openPlanner: showJourney, activeProgramId: selectedJourneyId, onCloseProgram: () => setSelectedJourneyId(""), renderProgram: (booking, bridge) => window.MS_TripPlanner && h(window.MS_TripPlanner, { bookings, suppliers, leads, initialBookingId: booking.id, initialTab: "day-1", agendaMode: true, mapPoint: bridge.mapPoint, operationalPoints: bridge.points, operationToday: bridge.today, operationClock: bridge.clock, onViewChange: bridge.onViewChange, openBooking, openPdf: openBooking, saveBooking: savePlannerBooking, reload }), reload, embedded: true, isAdmin })
         ),
         // Main row — calendar (left) + upcoming bookings / workspace stacked (right)
         h(
@@ -1241,7 +1234,7 @@
             "div",
             { className: "msa-card msa-dash-cal" },
             h(MonthCalendar, { bookings, sel: todayISO(), onSelect: () => go("calendar"), year: true }),
-            h("div", { className: "msa-cal-legend", style: { marginTop: 12 } }, h("span", null, h("i", { className: "msa-lg msa-lg-today" }), "Today"), h("span", null, h("i", { className: "msa-lg msa-lg-single" }), "Single booking"), h("span", null, h("i", { className: "msa-lg msa-lg-multi" }), "Multiple bookings"))
+            h("div", { className: "msa-cal-legend", style: { marginTop: 12 } }, h("span", null, h("i", { className: "msa-lg msa-lg-today" }), "Today"), h("span", null, h("i", { className: "msa-lg msa-lg-imminent" }), "Next 2 days"), h("span", null, h("i", { className: "msa-lg msa-lg-soon" }), "Next 7 days"), h("span", null, h("i", { className: "msa-lg msa-lg-later" }), "Later"), h("span", null, h("i", { className: "msa-lg msa-lg-past" }), "Past"))
           ),
           h(
             "div",
@@ -1574,11 +1567,18 @@
       delete row.id;
       delete row.created_at;
       delete row.routed_booking_id;
+      delete row._openEditor;
       const res = b.id ? await dbUpdate("bookings", b.id, row) : await dbInsert("bookings", { ...row, created_by: CURRENT_EMAIL || DEFAULT_ADMIN_EMAIL });
       setBusy(false);
       if (res.error) {
         alert("Save failed: " + res.error.message);
         return;
+      }
+      const savedId = b.id || res.data && res.data[0] && res.data[0].id;
+      const sourceRequestId = row.planner_preferences && row.planner_preferences.source_request_id;
+      if (savedId && sourceRequestId) {
+        const link = await dbUpdate("form_submissions", sourceRequestId, { routed_booking_id: savedId });
+        if (link.error) alert("Booking saved, but the website request could not be linked: " + link.error.message);
       }
       logAudit(b.id ? "updated booking" : "created booking", "booking", b.id || res.data && res.data[0] && res.data[0].id, row.client_name || row.reference);
       onSaved(closeAfter);
@@ -2645,8 +2645,8 @@
     const [archiveOpen, setArchiveOpen] = useState(false);
     useEffect(() => {
       if (focusBooking) {
-        if (focusBooking.id) setDoc({ booking: focusBooking, type: "itinerary" });
-        else setEdit(EMPTY_BOOKING);
+        if (focusBooking.id && !focusBooking._openEditor) setDoc({ booking: focusBooking, type: "itinerary" });
+        else setEdit({ ...EMPTY_BOOKING, ...focusBooking });
         clearFocus && clearFocus();
       }
     }, [focusBooking]);
@@ -2798,7 +2798,7 @@
       } })
     );
   }
-  function Clients({ clients, bookings, reload, initialQuery }) {
+  function Clients({ clients, bookings, reload, initialQuery, openPlanner }) {
     const [adding, setAdding] = useState(false);
     const [q, setQ] = useState(initialQuery || "");
     const [f, setF] = useState({ name: "", email: "", phone: "", country: "" });
@@ -2905,6 +2905,10 @@
               isAdminRole() && h("span", { className: "msa-text-brand", style: { fontWeight: 700 } }, kr(b.selling_price)),
               itin.length > 0 && h("span", { className: "msa-cl-bk-chev" }, expanded["itin-" + b.id] ? "\u2303" : "\u2304")
             ),
+            h("button", { className: "msa-btn msa-btn-sm", onClick: (e) => {
+              e.stopPropagation();
+              openPlanner && openPlanner(b);
+            } }, "Open visual planner"),
             h("div", { className: "msa-cl-bk-sub" }, fmtDate(b.arrival_date) + " \u2192 " + fmtDate(b.departure_date) + " \xB7 " + (b.total_nights || 0) + "N/" + (b.total_days || 0) + "D \xB7 " + ((b.adults || 0) + (b.kids || 0)) + " pax" + (itin.length ? "" : " \xB7 no itinerary yet")),
             itin.length > 0 && expanded["itin-" + b.id] ? h("div", { className: "msa-cl-itin" }, itin.map((d, i) => h(
               "div",
@@ -4963,27 +4967,45 @@
       )
     );
   }
-  const TABS = [["dashboard", "Dashboard", "dashboard"], ["planner", "Trip planner", "calendar"], ["bookings", "Bookings", "bookings"], ["calendar", "Calendar", "calendar"], ["clients", "Clients", "clients"], ["suppliers", "Collaborators", "collab"], ["finance", "Finance", "finance"], ["tasks", "Workspace", "tasks"], ["requests", "Requests", "requests"], ["social", "Social media", "invoice"], ["insights", "Insights", "insights"], ["settings", "Settings", "settings"]];
+  const TABS = [["dashboard", "Dashboard", "dashboard"], ["bookings", "Bookings", "bookings"], ["calendar", "Calendar", "calendar"], ["clients", "Clients", "clients"], ["suppliers", "Collaborators", "collab"], ["finance", "Finance", "finance"], ["tasks", "Workspace", "tasks"], ["requests", "Requests", "requests"], ["social", "Social media", "invoice"], ["insights", "Insights", "insights"], ["settings", "Settings", "settings"]];
   function Shell({ user, role, onLogout }) {
     const isAdmin = role === "admin";
     const [tab, setTab] = useState("dashboard");
     const [navOpen, setNavOpen] = useState(false);
-    const [dark, setDark] = useState(() => {
+    const [themeChoice, setThemeChoice] = useState(() => {
       try {
-        return localStorage.getItem("ms-admin-theme") === "dark";
+        return localStorage.getItem("ms-theme-preference") || "system";
       } catch (e) {
-        return false;
+        return "system";
       }
     });
+    const [systemDark, setSystemDark] = useState(() => {
+      var _a;
+      return ((_a = window.matchMedia) == null ? void 0 : _a.call(window, "(prefers-color-scheme: dark)").matches) || false;
+    });
+    const dark = themeChoice === "system" ? systemDark : themeChoice === "dark";
+    useEffect(() => {
+      var _a, _b;
+      const media = (_a = window.matchMedia) == null ? void 0 : _a.call(window, "(prefers-color-scheme: dark)");
+      if (!media) return;
+      const update = (event) => setSystemDark(event.matches);
+      (_b = media.addEventListener) == null ? void 0 : _b.call(media, "change", update);
+      return () => {
+        var _a2;
+        return (_a2 = media.removeEventListener) == null ? void 0 : _a2.call(media, "change", update);
+      };
+    }, []);
     useEffect(() => {
       const root2 = document.getElementById("ms-admin-root") || document.body;
       if (dark) root2.classList.add("msa-dark");
       else root2.classList.remove("msa-dark");
+    }, [dark]);
+    useEffect(() => {
       try {
-        localStorage.setItem("ms-admin-theme", dark ? "dark" : "light");
+        localStorage.setItem("ms-theme-preference", themeChoice);
       } catch (e) {
       }
-    }, [dark]);
+    }, [themeChoice]);
     useEffect(() => () => {
       const r = document.getElementById("ms-admin-root");
       if (r) r.classList.remove("msa-dark");
@@ -5018,6 +5040,7 @@
     const [refreshing, setRefreshing] = useState(false);
     const [supSeed, setSupSeed] = useState(null);
     const [focusBooking, setFocusBooking] = useState(null);
+    const [plannerBookingId, setPlannerBookingId] = useState("");
     const [clientQuery, setClientQuery] = useState("");
     const [search, setSearch] = useState("");
     const [settings, setSettings] = useState({});
@@ -5090,13 +5113,22 @@
       };
     }, [tab, reloadAll]);
     const openBooking = (b) => {
-      setFocusBooking(b && b.id ? b : EMPTY_BOOKING);
+      setFocusBooking(b && b.id ? b : { ...EMPTY_BOOKING, ...b || {} });
       setSearch("");
       setTab("bookings");
     };
+    const editBooking = (b) => openBooking(b && b.id ? { ...b, _openEditor: true } : b);
+    const openPlanner = (b) => {
+      setPlannerBookingId(String((b == null ? void 0 : b.id) || ""));
+      setSearch("");
+      setTab("dashboard");
+    };
     const savePlannerBooking = async (booking, patch) => {
       const r = await dbUpdate("bookings", booking.id, patch);
-      return r && r.error ? r : { ok: true };
+      if (r == null ? void 0 : r.error) return r;
+      if (!Array.isArray(r == null ? void 0 : r.data) || r.data.length !== 1) return { error: { message: "Booking was not updated. Check staff permissions and try again." } };
+      logAudit("updated itinerary", "booking", booking.id, booking.reference || booking.client_name || "Trip planner");
+      return { ok: true };
     };
     const routeTo = (t, term) => {
       setSearch("");
@@ -5108,19 +5140,19 @@
       if (search.trim()) return h(SearchResults, { q: search.trim(), data: { bookings, clients, suppliers, tasks, leads }, route: routeTo, openBooking, clear: () => setSearch("") });
       switch (tab) {
         case "planner":
-          return window.MS_TripPlanner ? h(window.MS_TripPlanner, { bookings, suppliers, openBooking, saveBooking: savePlannerBooking, reload: reloadAll }) : h("div", { className: "msa-empty" }, "Trip planner unavailable.");
+          return window.MS_TripPlanner ? h(window.MS_TripPlanner, { bookings, suppliers, leads, initialBookingId: plannerBookingId, openBooking: editBooking, openPdf: openBooking, saveBooking: savePlannerBooking, reload: reloadAll }) : h("div", { className: "msa-empty" }, "Trip planner unavailable.");
         case "operations":
-          return window.MS_OperationsMap ? h(window.MS_OperationsMap, { bookings, suppliers, openBooking, reload: reloadAll, isAdmin: isAdminRole() }) : h("div", { className: "msa-empty" }, "Operations map unavailable.");
+          return window.MS_OperationsMap ? h(window.MS_OperationsMap, { bookings, suppliers, openBooking, openPlanner, reload: reloadAll, isAdmin: isAdminRole() }) : h("div", { className: "msa-empty" }, "Operations map unavailable.");
         case "bookings":
           return h(Bookings, { bookings, reload: reloadAll, settings, focusBooking, clearFocus: () => setFocusBooking(null), suppliers });
         case "calendar":
           return h(CalendarTab, { bookings, openBooking });
         case "clients":
-          return h(Clients, { clients, bookings, reload: reloadAll, initialQuery: clientQuery });
+          return h(Clients, { clients, bookings, reload: reloadAll, initialQuery: clientQuery, openPlanner });
         case "suppliers":
           return h(Suppliers, { suppliers, bookings, leads, reload: reloadAll, seed: supSeed, clearSeed: () => setSupSeed(null) });
         case "finance":
-          return isAdmin ? h(Finance, { bookings, suppliers }) : h(Dashboard, { bookings, tasks, leads, clients, suppliers, go: setTab, openBooking, reload: reloadAll, isAdmin });
+          return isAdmin ? h(Finance, { bookings, suppliers }) : h(Dashboard, { bookings, tasks, leads, clients, suppliers, go: setTab, openBooking, openPlanner, reload: reloadAll, refreshNow, refreshing, isAdmin });
         case "tasks":
           return h(Workspace, { tasks, reload: reloadAll });
         case "requests":
@@ -5132,21 +5164,11 @@
         case "settings":
           return h(Settings, { settings, onSaved: reloadAll });
         default:
-          return h(Dashboard, { bookings, tasks, leads, clients, suppliers, go: setTab, openBooking, reload: reloadAll, isAdmin });
+          return h(Dashboard, { bookings, tasks, leads, clients, suppliers, go: setTab, openBooking, openPlanner, savePlannerBooking, reload: reloadAll, refreshNow, refreshing, initialJourneyId: plannerBookingId, isAdmin });
       }
     };
     const navButtons = [];
     visibleTabs.forEach(([id, label, icon]) => {
-      if (id === "requests") {
-        navButtons.push(
-          h(
-            "button",
-            { key: "refresh-nav", className: "msa-nav-refresh", type: "button", onClick: refreshNow, disabled: refreshing, title: "Refresh latest updates" },
-            h("span", { className: "msa-nav-ico" }, ICON.refresh()),
-            h("span", { className: "msa-nav-label" }, refreshing ? "Refreshing\u2026" : "Refresh")
-          )
-        );
-      }
       navButtons.push(
         h(
           "button",
@@ -5183,7 +5205,7 @@
           h(
             "div",
             { className: "msa-emoji-row" },
-            h("button", { className: "msa-emoji-btn", onClick: () => setDark((d) => !d), title: dark ? "Light mode" : "Night mode" }, dark ? "\u2600\uFE0F" : "\u{1F319}"),
+            h("button", { className: "msa-emoji-btn", onClick: () => setThemeChoice(dark ? "light" : "dark"), onDoubleClick: () => setThemeChoice("system"), title: `${dark ? "Light mode" : "Night mode"} \xB7 double-click to follow device` }, dark ? "\u2600\uFE0F" : "\u{1F319}"),
             h("a", { className: "msa-emoji-btn", href: websiteHomeUrl(), onClick: () => setNavOpen(false), title: "Back to website" }, "\u{1F310}")
           ),
           h("div", { className: "msa-user-info" }, h("strong", null, user.user_metadata && user.user_metadata.name || (isAdmin ? "Aladdin faiz" : "Partner")), h("span", { className: "msa-dim" }, isAdmin ? "Administrator" : "Partner \xB7 assistant")),

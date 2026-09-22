@@ -15,7 +15,7 @@ import { compileJsxTree, rewriteHtmlScriptEntries } from './scripts/browser-js.m
 
 function copyStaticTree() {
   const root = process.cwd();
-  const include = ['src', 'assets', 'styles.css', 'apple-redesign.css', 'admin.css', 'trip-planner.css', 'robots.txt', 'sitemap.xml', 'googled9fb7d24e8ddbe07.html', 'site.webmanifest'];
+  const include = ['src', 'assets', 'styles.css', 'apple-redesign.css', 'admin.css', 'trip-planner.css', 'admin-trip-workspace.css', 'robots.txt', 'sitemap.xml', 'googled9fb7d24e8ddbe07.html', 'site.webmanifest'];
 
   return {
     name: 'copy-static-tree',
@@ -91,6 +91,21 @@ function compileBrowserJsx() {
   };
 }
 
+// The checked-in Supabase UMD bundle contains text that Vite's dependency
+// scanner mistakes for an ES module. Serve this browser global unchanged in dev.
+function serveBrowserVendorRaw() {
+  return {
+    name: 'serve-browser-vendor-raw',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/assets/vendor/supabase-globals.js', (_req, res) => {
+        res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
+        fs.createReadStream(path.resolve(process.cwd(), 'assets/vendor/supabase-globals.js')).pipe(res);
+      });
+    }
+  };
+}
+
 export default defineConfig(({ mode }) => {
   // Load .env / .env.[mode] including all keys (no prefix filter) so we
   // can read both NEXT_PUBLIC_* and VITE_* style names.
@@ -115,6 +130,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     plugins: [
+      serveBrowserVendorRaw(),
       copyStaticTree(),
       generateEnvJs(env),
       compileBrowserJsx()

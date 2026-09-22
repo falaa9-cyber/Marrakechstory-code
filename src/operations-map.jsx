@@ -162,6 +162,7 @@
       let cancelled = false;
       const located = points.filter(p => p.coords);
       if (!route || located.length < 2) { setRoadRoute(null); setRouteLoading(false); return undefined; }
+      setRoadRoute(null);
       setRouteLoading(true);
       const coordinates = located.map(p => `${p.coords[1]},${p.coords[0]}`).join(';');
       fetch(`https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson&steps=false`, { headers: { Accept: 'application/json' } })
@@ -219,6 +220,7 @@
       const recluster = () => { /* zoom triggers the same render through local state below */ setZoom(z => z + 1); };
       m.on('zoomend', recluster); return () => m.off('zoomend', recluster);
     }, [points, route, roadRoute, selected?.id, hovered?.id, today, clock, zoom]);
+    useEffect(() => { if (selected?.coords && map.current) map.current.flyTo(selected.coords, Math.max(map.current.getZoom(), 13), { duration: .45 }); }, [selected?.id]);
     const extentKey = points.filter(p => p.coords).map(p => `${p.id}:${p.coords.join(',')}`).join('|');
     useEffect(() => {
       const L = window.L, m = map.current;
@@ -278,15 +280,20 @@
     const [calendarView, setCalendarView] = useState('year');
     const currentMonthDay = `${today.slice(0, 7)}-01`;
     const [calendarAnchor, setCalendarAnchor] = useState(currentMonthDay);
-    const bookingPalette = ['#e0432a', '#0a84ff', '#34c759', '#ff9f0a', '#af52de', '#ff2d55', '#0aa2c0', '#a2845e', '#d4a017', '#1c7a3f', '#5856d6', '#ff6482', '#00b8a3', '#c2410c'];
-    const bookingColor = b => { const key = String(b.reference || b.id || b.client_name || ''); let hash = 0; for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0; return bookingPalette[hash % bookingPalette.length]; };
+    const calendarScroll = useRef(null);
+    useEffect(() => {
+      if (calendarView !== 'year' || !calendarScroll.current) return;
+      const container = calendarScroll.current;
+      const month = container.querySelector('[data-current-month="true"]');
+      if (month) container.scrollTop += month.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    }, [calendarView, calendarAnchor]);
     const base = new Date(calendarAnchor + 'T12:00:00Z');
     const weekStart = new Date(base);
     weekStart.setUTCDate(base.getUTCDate() - base.getUTCDay());
     const viewButtons = [['month', 'Month'], ['week', 'Week'], ['day', 'Day']];
     // Year mode is the default and is intentionally a vertically scrollable timeline.
     // Keep a broad window around the focused year so history and coming years are both reachable.
-    const yearOffsets = Array.from({ length: 48 }, (_, offset) => offset);
+    const yearOffsets = Array.from({ length: 120 }, (_, offset) => offset - 60);
     const months = (calendarView === 'year' ? yearOffsets : calendarView === 'month' ? [0] : []).map(offset => new Date(Date.UTC(base.getUTCFullYear(), calendarView === 'year' ? base.getUTCMonth() + offset : base.getUTCMonth() + offset, 1)));
     const bookingDays = new Map();
     (bookings || []).forEach(b => {
@@ -306,7 +313,9 @@
     const dayActivities = day => dayMatches(day).flatMap(b => (Array.isArray(b.daily_itinerary) ? b.daily_itinerary.filter(x => dateOnly(x.date) === day).flatMap(x => Array.isArray(x.activities) ? x.activities : []) : [])).map(a => a.location_name || a.type || a.details).filter(Boolean);
     const renderDay = (day, label, className = '') => {
       const matches = bookingDays.get(day) || [];
-      return h('button', { key: day, className: 'mso-calendar-focus-day ' + className + (day === today ? ' is-today' : '') + (matches.length ? ' has-bookings' : ''), onClick: () => onPick(day) }, h('span', { className: 'mso-calendar-focus-label' }, label), h('strong', null, new Date(day + 'T12:00:00Z').getUTCDate()), h('small', null, matches.length ? `${matches.length} booking${matches.length > 1 ? 's' : ''}` : 'No bookings'));
+      const distance = daysBetween(today, day);
+      const urgency = matches.length ? distance < 0 ? ' is-past' : distance === 0 ? ' is-active' : distance <= 2 ? ' is-imminent' : distance <= 7 ? ' is-soon' : ' is-later' : '';
+      return h('button', { key: day, className: 'mso-calendar-focus-day ' + className + (day === today ? ' is-today' : '') + (matches.length ? ' has-bookings' : '') + urgency, onClick: () => onPick(day) }, h('span', { className: 'mso-calendar-focus-label' }, label), h('strong', null, new Date(day + 'T12:00:00Z').getUTCDate()), h('small', null, matches.length ? `${matches.length} booking${matches.length > 1 ? 's' : ''}` : 'No bookings'));
     };
     const shiftCalendar = direction => {
       const next = new Date(base);
@@ -318,19 +327,21 @@
     };
     const focusView = calendarView === 'week' ? h('div', { className: 'mso-calendar-focus mso-calendar-week-view' }, Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart); d.setUTCDate(weekStart.getUTCDate() + i); const key = d.toISOString().slice(0, 10); return renderDay(key, d.toLocaleDateString('en-GB', { weekday: 'short' })); })) : calendarView === 'day' ? h('div', { className: 'mso-calendar-focus mso-calendar-day-view' }, renderDay(calendarAnchor, new Date(calendarAnchor + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))) : null;
     return h('div', { className: 'mso-calendar-strip' },
-      h('div', { className: 'mso-calendar-strip-head' }, h('div', null, h('strong', null, calendarView === 'year' ? `${months[0]?.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })} – ${months[months.length - 1]?.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}` : base.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })), h('small', { className: 'mso-calendar-selection' }, calendarAnchor === currentMonthDay ? 'Current month · scroll to browse' : `Focused ${calendarAnchor}`)), h('div', { className: 'mso-calendar-actions' }, h('div', { className: 'mso-calendar-nav' }, h('button', { onClick: () => shiftCalendar(-1), 'aria-label': 'Previous period' }, '‹'), h('button', { onClick: () => setCalendarAnchor(currentMonthDay), className: 'mso-calendar-today' }, 'Current month'), h('button', { onClick: () => shiftCalendar(1), 'aria-label': 'Next period' }, '›')), h('div', { className: 'mso-calendar-view-buttons' }, viewButtons.map(([value, label]) => h('button', { key: value, className: calendarView === value ? 'is-active' : '', onClick: () => { setCalendarView(value); } }, label))))),
-      h('div', { className: 'mso-calendar-scroll' }, focusView || h('div', { className: 'mso-calendar-months' }, months.map(month => {
+      h('div', { className: 'mso-calendar-strip-head' }, h('div', null, h('strong', null, base.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })), h('small', { className: 'mso-calendar-selection' }, calendarView === 'year' ? 'Scroll up for previous months · down for upcoming' : `Focused ${calendarAnchor}`)), h('div', { className: 'mso-calendar-actions' }, h('div', { className: 'mso-calendar-nav' }, h('button', { onClick: () => shiftCalendar(-1), 'aria-label': 'Previous period' }, '‹'), h('button', { onClick: () => setCalendarAnchor(currentMonthDay), className: 'mso-calendar-today' }, 'Current month'), h('button', { onClick: () => shiftCalendar(1), 'aria-label': 'Next period' }, '›')), h('div', { className: 'mso-calendar-view-buttons' }, viewButtons.map(([value, label]) => h('button', { key: value, className: calendarView === value ? 'is-active' : '', onClick: () => { setCalendarView(value); } }, label))))),
+      h('div', { className: 'mso-calendar-scroll', ref: calendarScroll }, focusView || h('div', { className: 'mso-calendar-months' }, months.map(month => {
         const y = month.getUTCFullYear(), m = month.getUTCMonth(), days = new Date(Date.UTC(y, m + 1, 0)).getUTCDate(), first = month.getUTCDay();
         const cells = [];
         for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'mso-cal-day is-empty' }));
         for (let d = 1; d <= days; d++) {
           const day = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, matches = dayMatches(day), activities = dayActivities(day), departures = matches.filter(b => dateOnly(b.departure_date) === day);
           const tooltip = matches.length ? h('span', { className: 'mso-cal-tooltip' }, matches.map((b, i) => h('span', { key: `${b.id || b.reference}-${i}` }, h('strong', null, b.client_name || 'Booking'), activities.length ? h('small', null, activities.slice(0, 3).join(' · ')) : null, dateOnly(b.departure_date) === day ? h('em', null, 'Departure day') : null))) : null;
-          cells.push(h('button', { key: day, className: 'mso-cal-day' + (day === today ? ' is-today' : '') + (matches.length ? ' has-bookings' : '') + (matches.length > 1 ? ' is-multi' : '') + (departures.length ? ' is-departure' : ''), style: matches.length && day !== today ? { background: bookingColor(matches[0]), color: '#fff', fontWeight: 700 } : undefined, title: matches.map(b => b.client_name || 'Booking').join(', '), onMouseEnter: () => setHoverDay(day), onMouseLeave: () => setHoverDay(null), onClick: () => onPick(day) }, h('span', null, d), matches.length ? h('i', null, matches.length > 3 ? '3+' : matches.length) : null, hoverDay === day ? tooltip : null));
+          const distance = daysBetween(today, day);
+          const urgency = matches.length ? distance < 0 ? ' is-past' : distance === 0 ? ' is-active' : distance <= 2 ? ' is-imminent' : distance <= 7 ? ' is-soon' : ' is-later' : '';
+          cells.push(h('button', { key: day, className: 'mso-cal-day' + (day === today ? ' is-today' : '') + (matches.length ? ' has-bookings' : '') + (matches.length > 1 ? ' is-multi' : '') + (departures.length ? ' is-departure' : '') + urgency + (matches.some(b => dateOnly(b.arrival_date) === day) && distance >= 0 && distance <= 2 ? ' is-arrival-soon' : ''), title: matches.map(b => b.client_name || 'Booking').join(', '), onMouseEnter: () => setHoverDay(day), onMouseLeave: () => setHoverDay(null), onClick: () => onPick(day) }, h('span', null, d), matches.length ? h('i', null, matches.length > 3 ? '3+' : matches.length) : null, hoverDay === day ? tooltip : null));
         }
-        return h('div', { className: 'mso-calendar-month', key: `${y}-${m}` }, h('strong', null, month.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })), h('div', { className: 'mso-cal-weekdays' }, ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => h('span', { key: i }, d))), h('div', { className: 'mso-cal-grid' }, cells));
+        return h('div', { className: 'mso-calendar-month', key: `${y}-${m}`, 'data-current-month': `${y}-${String(m + 1).padStart(2, '0')}` === calendarAnchor.slice(0, 7) ? 'true' : undefined }, h('strong', null, month.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })), h('div', { className: 'mso-cal-weekdays' }, ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => h('span', { key: i }, d))), h('div', { className: 'mso-cal-grid' }, cells));
       }))),
-      calendarView === 'year' && h('div', { className: 'mso-calendar-legend' }, h('span', null, h('i', { className: 'is-today' }), 'Today'), h('span', null, h('i', { className: 'is-single' }), 'Single booking'), h('span', null, h('i', { className: 'is-multiple' }), 'Multiple bookings')));
+      calendarView === 'year' && h('div', { className: 'mso-calendar-legend' }, h('span', null, h('i', { className: 'is-today' }), 'Today / active'), h('span', null, h('i', { className: 'is-imminent' }), 'Next 2 days'), h('span', null, h('i', { className: 'is-soon' }), 'Next 7 days'), h('span', null, h('i', { className: 'is-later' }), 'Later'), h('span', null, h('i', { className: 'is-past' }), 'Past')));
   }
   function CommunicationDock() {
     const [tab, setTab] = useState('outlook');
@@ -373,12 +384,16 @@
           wa.status === 'connected' ? h('div', { className: 'mso-wa-connected' }, h('div', { className: 'mso-mailbox-toolbar' }, h('span', { className: 'is-connected' }, '● WhatsApp connected'), h('small', null, 'Live session')), h('div', { className: 'mso-wa-thread' }, wa.messages.length ? wa.messages.map(message => h('div', { key: message.id, className: 'mso-wa-message' }, h('strong', null, message.name || message.from), h('p', null, message.text))) : h('p', { className: 'mso-empty' }, 'No recent WhatsApp messages.'))) : h('div', { className: 'mso-comms-empty mso-wa-connect' }, h('strong', null, 'Connect WhatsApp'), h('p', null, 'Scan the QR code with WhatsApp → Linked devices. The session stays private to this browser bridge.'), wa.qr ? h('img', { src: wa.qr, alt: 'WhatsApp connection QR code' }) : h('div', { className: 'mso-qr-placeholder' }, 'QR will appear here'), h('a', { href: 'https://web.whatsapp.com/', target: '_blank', rel: 'noopener noreferrer' }, 'Open WhatsApp Web ↗')))
       );
   }
-  function OperationsMap({ bookings, suppliers, openBooking, reload, embedded, isAdmin = false }) {
+  function OperationsMap({ bookings, suppliers, openBooking, openPlanner, activeProgramId, onCloseProgram, renderProgram, reload, embedded, isAdmin = false }) {
     const [now, setNow] = useState(() => ({ today: dayInMorocco(), clock: timeInMorocco() }));
+    const agendaScroll = useRef(null);
+    const agendaInitialPositioned = useRef(false);
     useEffect(() => { const timer = setInterval(() => setNow({ today: dayInMorocco(), clock: timeInMorocco() }), 60000); return () => clearInterval(timer); }, []);
     const today = now.today;
     const [range, setRange] = useState(embedded ? 'month' : 'month'), [from, setFrom] = useState(today), [to, setTo] = useState(today);
     const [status, setStatus] = useState(''), [service, setService] = useState(''), [person, setPerson] = useState(''), [destination, setDestination] = useState(''), [supplier, setSupplier] = useState(''), [driver, setDriver] = useState(''), [guide, setGuide] = useState(''), [confirmation, setConfirmation] = useState(''), [payment, setPayment] = useState(''), [flag, setFlag] = useState(''), [archived, setArchived] = useState('active'), [query, setQuery] = useState(''), [selected, setSelected] = useState(null), [hovered, setHovered] = useState(null), [activeBookingId, setActiveBookingId] = useState(null), [hoveredBookingId, setHoveredBookingId] = useState(null);
+    const [visualView, setVisualView] = useState({ tab: 'overview', dayNumber: 0, sourceIndex: null });
+    useEffect(() => { if (activeProgramId) setActiveBookingId(activeProgramId); }, [activeProgramId]);
     const bounds = range === 'custom' ? [from, to] : [today, addDay(today, range === 'tomorrow' ? 1 : range === 'week' ? 6 : range === 'month' ? 29 : 0)];
     if (range === 'tomorrow') bounds[0] = bounds[1];
     const raw = useMemo(() => bookings.flatMap(pointsFor), [bookings]);
@@ -442,7 +457,7 @@
     }).sort((a, b) => {
       const aActive = dateOnly(a.arrival_date) <= today && (!dateOnly(a.departure_date) || dateOnly(a.departure_date) >= today), bActive = dateOnly(b.arrival_date) <= today && (!dateOnly(b.departure_date) || dateOnly(b.departure_date) >= today);
       const aPast = dateOnly(a.departure_date) && dateOnly(a.departure_date) < today, bPast = dateOnly(b.departure_date) && dateOnly(b.departure_date) < today;
-      return Number(bActive) - Number(aActive) || Number(aPast) - Number(bPast) || str(a.arrival_date).localeCompare(str(b.arrival_date));
+      return Number(bPast) - Number(aPast) || Number(bActive) - Number(aActive) || str(a.arrival_date).localeCompare(str(b.arrival_date));
     });
     const calendarBookings = bookings.filter(b => b && b.status !== 'cancelled');
     const focusId = hoveredBookingId || activeBookingId;
@@ -450,8 +465,15 @@
     const upcomingAgendaCount = agendaBookings.filter(b => dateOnly(b.arrival_date) > today).length;
     const previousAgendaBookings = agendaBookings.filter(b => dateOnly(b.departure_date) && dateOnly(b.departure_date) < today);
     const previousAgendaCount = previousAgendaBookings.length;
-    const firstPreviousAgendaIndex = agendaBookings.findIndex(b => dateOnly(b.departure_date) && dateOnly(b.departure_date) < today);
-    const mapPoints = focusId ? enrichedRaw.filter(p => String(p.booking.id) === String(focusId)) : points;
+    const firstCurrentAgendaIndex = agendaBookings.findIndex(b => !dateOnly(b.departure_date) || dateOnly(b.departure_date) >= today);
+    useEffect(() => {
+      if (agendaInitialPositioned.current || !agendaScroll.current || !agendaBookings.length) return;
+      const container = agendaScroll.current;
+      const current = container.querySelector('[data-agenda-current="true"]');
+      if (current) container.scrollTop += current.getBoundingClientRect().top - container.getBoundingClientRect().top;
+      agendaInitialPositioned.current = true;
+    }, [agendaBookings.length]);
+    const mapPoints = focusId ? enrichedRaw.filter(p => String(p.booking.id) === String(focusId) && (!activeProgramId || visualView.dayNumber < 1 || visualView.tab === 'overview' || (visualView.tab !== 'unplanned' && p.dayNumber === visualView.dayNumber))) : points;
     const mapSelected = focusId && selected && String(selected.booking.id) !== String(focusId) ? null : selected;
     const mapHovered = focusId && hovered && String(hovered.booking.id) !== String(focusId) ? null : hovered;
     const selectPoint = p => {
@@ -460,38 +482,52 @@
       if (selected?.id === p.id) { setSelected(null); setActiveBookingId(null); return; }
       setSelected(p); setActiveBookingId(p.booking.id);
     };
+    const onVisualViewChange = view => {
+      setVisualView(view);
+      if (view.sourceIndex == null) { setSelected(null); return; }
+      const match = enrichedRaw.find(p => String(p.booking.id) === String(activeProgramId) && p.sourceIndex?.[0] === view.dayNumber - 1 && p.sourceIndex?.[1] === view.sourceIndex && p.locationRole !== 'dropoff');
+      setSelected(match || null);
+    };
     const pick = (label, value, set, options) => h('label', { className: 'mso-filter' }, h('span', null, label), h('select', { value, onChange: e => set(e.target.value) }, options.map(([v, t]) => h('option', { key: v, value: v }, t))));
-    return h('div', { className: 'msa-page mso-page' + (embedded ? ' mso-embedded' : '') },
+    return h('div', { className: 'msa-page mso-page' + (embedded ? ' mso-embedded' : '') + (activeProgramId ? ' mso-has-program' : '') },
       !embedded && h('header', { className: 'msa-page-head mso-hero' }, h('div', null, h('span', { className: 'mso-eyebrow' }, 'MARRAKECHSTORY · LIVE OPERATIONS'), h('h1', null, 'Operations Map'), h('p', null, 'A clear view of every journey, handoff and detail that needs attention.')), h('button', { className: 'msa-btn', onClick: reload }, '↻ Refresh')),
       !embedded && h('div', { className: 'mso-summary' }, [['In map range', bookingCount], ['Services', points.length], ['Mapped', points.filter(p => p.coords).length], ['Needs attention', selectedIssues.length]].map(([k, v]) => h('div', { className: 'mso-summary-card', key: k }, h('span', null, k), h('strong', null, v)))),
       !embedded && h('div', { className: 'mso-range', role: 'group', 'aria-label': 'Date range' }, [['today', 'Today'], ['tomorrow', 'Tomorrow'], ['week', 'Next 7 days'], ['month', 'Next 30 days'], ['custom', 'Custom']].map(([v, t]) => h('button', { key: v, className: range === v ? 'active' : '', onClick: () => setRange(v) }, t)), range === 'custom' && h(React.Fragment, null, h('input', { type: 'date', 'aria-label': 'From date', value: from, onChange: e => setFrom(e.target.value) }), h('input', { type: 'date', 'aria-label': 'To date', value: to, min: from, onChange: e => setTo(e.target.value) }))),
       h('div', { className: 'mso-toolbar' }, h('label', { className: 'mso-filter mso-search' }, h('span', null, 'Find a journey or place'), h('input', { value: query, placeholder: 'Search reference, guest, city or venue…', onChange: e => setQuery(e.target.value) })), h('details', { className: 'mso-filter-drawer' }, h('summary', null, 'Filters', ' ', h('span', null, '⌄')), h('div', { className: 'mso-filters' }, h('label', { className: 'mso-filter' }, h('span', null, 'Client / reference'), h('input', { value: person, onChange: e => setPerson(e.target.value) })), h('label', { className: 'mso-filter' }, h('span', null, 'Destination'), h('input', { value: destination, onChange: e => setDestination(e.target.value) })), pick('Status', status, setStatus, [['', 'All statuses'], ...['new','quotation_sent','waiting_confirmation','confirmed','deposit_paid','fully_paid','ongoing','completed','cancelled'].map(v => [v, v.replaceAll('_', ' ')])]), pick('Service', service, setService, [['', 'All services'], ...Object.entries(CATS).filter(([k]) => k !== 'issue').map(([k, v]) => [k, v[0]])]), pick('Collaborator / supplier', supplier, setSupplier, [['', 'All collaborators'], ...(suppliers || []).map(s => [String(s.id), s.name])]), pick('Driver', driver, setDriver, [['', 'All drivers'], ...(suppliers || []).filter(s => s.type === 'driver').map(s => [String(s.id), s.name])]), pick('Guide', guide, setGuide, [['', 'All guides'], ...(suppliers || []).filter(s => s.type === 'guide').map(s => [String(s.id), s.name])]), pick('Confirmation', confirmation, setConfirmation, [['', 'All'], ['confirmed', 'Confirmed'], ['unconfirmed', 'Unconfirmed']]), pick('Payment', payment, setPayment, [['', 'All payments'], ['paid', 'Paid'], ['partial', 'Partially paid'], ['unpaid', 'Unpaid']]), pick('Attention', flag, setFlag, [['', 'All'], ['attention', 'Any alert'], ['missing-address', 'Missing address'], ['missing-collaborator', 'Missing collaborator'], ['conflict', 'Assignment conflict']]), pick('Archive', archived, setArchived, [['active', 'Active'], ['archived', 'Archived'], ['all', 'All']])))),
       h('div', { className: 'mso-main' }, h('div', { className: 'mso-map-card' }, h('div', { className: 'mso-map-head' }, h('div', null, h('span', { className: 'mso-eyebrow' }, focusId ? 'JOURNEY IN FOCUS' : 'LIVE OPERATIONS'), h('strong', null, focusId ? (bookings.find(b => String(b.id) === String(focusId))?.client_name || 'Booking journey') : 'All journeys on the map')), focusId && h('button', { onClick: () => { setActiveBookingId(null); setHoveredBookingId(null); setSelected(null); } }, 'Show all bookings')), h(MapCanvas, { points: mapPoints, route: !!focusId, selected: mapSelected, hovered: mapHovered, onSelect: selectPoint, onHover: setHovered, today, clock: now.clock }), h(OperationsCalendar, { bookings: calendarBookings, today, onPick: day => { setRange('custom'); setFrom(day); setTo(day); } })),
         h('aside', { className: 'mso-panel' }, h('div', { className: 'mso-panel-head' }, h('span', { className: 'mso-eyebrow' }, `${today} · ${now.clock} MOROCCO TIME`), h('h2', null, 'Daily agenda'), h('div', { className: 'mso-panel-stats' }, h('span', null, h('strong', null, activeAgendaCount), ' active'), h('span', null, h('strong', null, upcomingAgendaCount), ' upcoming'), h('span', { className: 'is-previous' }, h('strong', null, previousAgendaCount), ' previous'))),
-          h('div', { className: 'mso-booking-list' }, agendaBookings.length ? agendaBookings.map((b, agendaIndex) => {
+          h('div', { className: 'mso-booking-list', ref: agendaScroll }, agendaBookings.length ? agendaBookings.map((b, agendaIndex) => {
             const active = dateOnly(b.arrival_date) <= today && (!dateOnly(b.departure_date) || dateOnly(b.departure_date) >= today);
             const previous = dateOnly(b.departure_date) && dateOnly(b.departure_date) < today;
             const countdown = daysBetween(today, dateOnly(active ? b.departure_date : previous ? b.departure_date : b.arrival_date));
-            const timing = active ? 'On trip · ' + (countdown === 0 ? 'ends today' : 'ends in ' + countdown + (countdown === 1 ? ' day' : ' days')) : previous ? 'Ended ' + Math.max(0, countdown) + (countdown === 1 ? ' day ago' : ' days ago') : 'Starts ' + (countdown === 0 ? 'today' : countdown === 1 ? 'tomorrow' : 'in ' + countdown + ' days');
+            const timing = active ? 'On trip · ' + (countdown === 0 ? 'ends today' : 'ends in ' + countdown + (countdown === 1 ? ' day' : ' days')) : previous ? 'Ended ' + Math.abs(countdown) + (Math.abs(countdown) === 1 ? ' day ago' : ' days ago') : 'Starts ' + (countdown === 0 ? 'today' : countdown === 1 ? 'tomorrow' : 'in ' + countdown + ' days');
             const route = [b.arrival_city, b.departure_city].filter(Boolean).join(' → ');
             const trip = [route, b.total_days ? b.total_days + 'D' : '', ((+b.adults || 0) + (+b.kids || 0)) + ' pax'].filter(Boolean).join(' · ');
             const activity = bookingActivity(b, today);
             const expanded = String(activeBookingId) === String(b.id);
             const bookingPoints = enrichedRaw.filter(p => String(p.booking.id) === String(b.id));
+            const serviceItems = (Array.isArray(b.daily_itinerary) ? b.daily_itinerary : []).flatMap(day => Array.isArray(day.activities) ? day.activities : []);
             return h(React.Fragment, { key: b.id },
-              agendaIndex === firstPreviousAgendaIndex && h('div', { className: 'mso-booking-section-label' }, `Previous bookings · ${previousAgendaCount}`),
-              h('div', { className: 'mso-booking-entry' + (expanded ? ' is-open' : '') + (previous ? ' is-previous' : ''), key: `${b.id}-entry`, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
-              h('button', { className: 'mso-booking-card', 'aria-expanded': expanded, onFocus: () => setHoveredBookingId(b.id), onBlur: () => setHoveredBookingId(null), onClick: () => { setActiveBookingId(expanded ? null : b.id); setSelected(null); } },
+              agendaIndex === 0 && previousAgendaCount > 0 && h('div', { className: 'mso-booking-section-label' }, `Previous bookings · ${previousAgendaCount} · scroll up to review`),
+              agendaIndex === firstCurrentAgendaIndex && previousAgendaCount > 0 && h('div', { className: 'mso-booking-section-label is-current', 'data-agenda-current': 'true' }, 'Current & upcoming · start here'),
+              h('div', { className: 'mso-booking-entry' + (expanded ? ' is-open' : '') + (previous ? ' is-previous' : '') + (!active && !previous && countdown <= 2 ? ' is-imminent' : !active && !previous && countdown <= 7 ? ' is-soon' : ''), key: `${b.id}-entry`, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
+              h('button', { className: 'mso-booking-card', 'aria-expanded': expanded, onFocus: () => setHoveredBookingId(b.id), onBlur: () => setHoveredBookingId(null), onClick: () => { if (expanded) onCloseProgram?.(); else if (renderProgram) openPlanner?.(b); setActiveBookingId(expanded ? null : b.id); setSelected(null); } },
                 h('span', { className: 'mso-booking-status ' + (active ? 'is-active' : previous ? 'is-previous' : 'is-upcoming') }, active ? '● ON TRIP' : previous ? 'PREVIOUS' : 'UPCOMING'),
                 h('strong', null, b.client_name || 'Guest'),
                 h('small', { className: 'mso-booking-dates' }, `${b.reference || '—'} · ${dateOnly(b.arrival_date)} → ${dateOnly(b.departure_date) || '—'}`),
                 activity && h('span', { className: 'mso-booking-activity' }, activity),
-                h('span', { className: 'mso-booking-countdown-block ' + (active ? 'is-active' : previous ? 'is-previous' : countdown <= 30 ? 'is-soon' : 'is-far') }, h('strong', null, active ? 'NOW' : previous ? '✓' : Math.max(0, countdown)), h('small', null, active ? 'ON TRIP' : previous ? 'DONE' : countdown === 1 ? 'DAY' : 'DAYS')),
-                h('span', { className: 'mso-booking-countdown ' + (active ? 'is-active' : previous ? 'is-previous' : 'is-upcoming') }, timing),
+                h('span', { className: 'mso-booking-countdown-block ' + (active ? 'is-active' : previous ? 'is-previous' : countdown <= 2 ? 'is-imminent' : countdown <= 7 ? 'is-soon' : 'is-far') }, h('strong', null, active ? 'NOW' : previous ? '✓' : Math.max(0, countdown)), h('small', null, active ? 'ON TRIP' : previous ? 'DONE' : countdown === 1 ? 'DAY' : 'DAYS')),
+                h('span', { className: 'mso-booking-countdown ' + (active ? 'is-active' : previous ? 'is-previous' : countdown <= 2 ? 'is-imminent' : countdown <= 7 ? 'is-soon' : 'is-far') }, timing),
                 h('span', { className: 'mso-booking-meta' }, trip),
                 h('span', { className: 'mso-booking-footer' }, h('span', { className: 'msa-badge msa-st-' + b.status }, statusLabel[b.status] || b.status || '—'), isAdmin && +b.balance > 0 && h('span', { className: 'mso-booking-owed' }, 'Owes ' + money(b.balance))),
                 h('span', { className: 'mso-booking-count' }, `${bookingPoints.length} stops`, h('span', null, expanded ? '⌃' : '⌄'))),
-              expanded && h('div', { className: 'mso-booking-itinerary' }, h('div', { className: 'mso-booking-actions' }, h('span', null, 'Day-by-day itinerary'), h('button', { onClick: () => openBooking(b) }, 'Open booking ↗')), h(ItineraryDays, { points: bookingPoints, today, clock: now.clock, selected: selected?.booking.id === b.id ? selected : null, hovered: hovered?.booking.id === b.id ? hovered : null, onSelect: selectPoint, onHover: setHovered, suppliers }), hovered?.booking.id === b.id && hovered.id !== selected?.id && h(PointDetail, { point: hovered, suppliers, onBooking: openBooking }))));
+              expanded && h('div', { className: 'mso-booking-itinerary' },
+                h('div', { className: 'mso-booking-actions' }, h('span', null, 'Daily itinerary'), h('div', null, h('button', { onClick: () => openBooking(b) }, 'Open booking ↗'))),
+                renderProgram ? h('div', { className: 'mso-agenda-program', 'aria-label': `${b.client_name || 'Guest'} daily program` },
+                  h('div', { className: 'mso-agenda-context' }, h('span', null, `${bookingPoints.length} route points`), h('span', null, `${serviceItems.filter(item => item.confirmed === true).length} confirmed services`), h('span', null, `${serviceItems.filter(item => item.confirmed !== true).length} to confirm`)),
+                  renderProgram(b, { mapPoint: selected, onViewChange: onVisualViewChange, points: bookingPoints, today, clock: now.clock }))
+                : h(ItineraryDays, { points: bookingPoints, today, clock: now.clock, selected: selected?.booking.id === b.id ? selected : null, hovered: hovered?.booking.id === b.id ? hovered : null, onSelect: selectPoint, onHover: setHovered, suppliers }),
+                !renderProgram && hovered?.booking.id === b.id && hovered.id !== selected?.id && h(PointDetail, { point: hovered, suppliers, onBooking: openBooking }))));
           }) : h('p', { className: 'mso-empty' }, 'No bookings match this view.')))),
       selectedIssues.length > 0 && h('section', { className: 'mso-alerts' }, h('h2', null, `Needs attention · ${selectedIssues.length}`), selectedIssues.slice(0, 30).map((x, i) => h('button', { key: `${x.point.id}-${i}`, onClick: () => { setSelected(x.point); setActiveBookingId(x.point.booking.id); } }, h('strong', null, `${CATS[x.point.category]?.[1] || '⚠️'}  ${x.label}`), h('span', null, `${x.point.reference} · ${x.point.title} · ${x.point.day || 'Undated'}${x.action ? ` · ${x.action}` : ''}`)))));
   }

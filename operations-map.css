@@ -557,3 +557,44 @@
 #ms-admin-root .mso-page .mso-detail{border-radius:14px;background:#fff8f5;border-color:#f2d7ce}
 #ms-admin-root .mso-page .mso-range button.active{background:var(--mso-coral);border-color:var(--mso-coral);box-shadow:0 6px 16px rgba(230,75,50,.2)}
 @media(max-width:650px){#ms-admin-root .mso-page .mso-map-card,#ms-admin-root .mso-page .mso-panel{border-radius:16px}}
+/* Urgency is consistent between agenda countdowns and the dashboard calendar. */
+#ms-admin-root .mso-page{--mso-priority-green-bg:#edf4ee;--mso-priority-green-border:#dcebdd;--mso-priority-green-text:#316546;--mso-priority-yellow-bg:#f5f1e8;--mso-priority-yellow-border:#ece2d0;--mso-priority-yellow-text:#785d31;--mso-priority-blue-bg:#edf2f9;--mso-priority-blue-border:#dce6f3;--mso-priority-blue-text:#355c83}
+#ms-admin-root .mso-booking-entry.is-imminent{border-color:var(--mso-priority-green-border);box-shadow:0 0 0 2px rgba(49,101,70,.09),0 6px 18px rgba(49,101,70,.07)}
+#ms-admin-root .mso-booking-entry.is-imminent .mso-booking-card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--mso-priority-green-text)}
+#ms-admin-root .mso-booking-entry.is-soon .mso-booking-card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--mso-priority-yellow-text)}
+#ms-admin-root .mso-booking-countdown-block.is-imminent,#ms-admin-root .mso-booking-countdown-block.is-active{background:var(--mso-priority-green-bg);color:var(--mso-priority-green-text);box-shadow:inset 0 0 0 1px var(--mso-priority-green-border),0 0 0 3px rgba(49,101,70,.07)}
+#ms-admin-root .mso-booking-countdown-block.is-soon{background:var(--mso-priority-yellow-bg);color:var(--mso-priority-yellow-text);box-shadow:inset 0 0 0 1px var(--mso-priority-yellow-border)}
+#ms-admin-root .mso-booking-countdown-block.is-far{background:var(--mso-priority-blue-bg);color:var(--mso-priority-blue-text);box-shadow:inset 0 0 0 1px var(--mso-priority-blue-border)}
+#ms-admin-root .mso-booking-countdown-block.is-imminent strong,#ms-admin-root .mso-booking-countdown-block.is-imminent small,#ms-admin-root .mso-booking-countdown-block.is-active strong,#ms-admin-root .mso-booking-countdown-block.is-active small{color:var(--mso-priority-green-text)!important}
+#ms-admin-root .mso-booking-countdown-block.is-soon strong,#ms-admin-root .mso-booking-countdown-block.is-soon small{color:var(--mso-priority-yellow-text)!important}
+#ms-admin-root .mso-booking-countdown-block.is-far strong,#ms-admin-root .mso-booking-countdown-block.is-far small{color:var(--mso-priority-blue-text)!important}
+#ms-admin-root .mso-booking-countdown.is-imminent,#ms-admin-root .mso-booking-countdown.is-active{background:var(--mso-priority-green-bg);color:var(--mso-priority-green-text)}
+#ms-admin-root .mso-booking-countdown.is-soon{background:var(--mso-priority-yellow-bg);color:var(--mso-priority-yellow-text)}
+#ms-admin-root .mso-booking-countdown.is-far{background:var(--mso-priority-blue-bg);color:var(--mso-priority-blue-text)}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.has-bookings.is-past{background:#e9ebed;color:#69737b}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.has-bookings.is-later{background:var(--mso-priority-blue-bg);color:var(--mso-priority-blue-text)}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.has-bookings.is-soon{background:var(--mso-priority-yellow-bg);color:var(--mso-priority-yellow-text)}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.has-bookings.is-imminent{background:var(--mso-priority-green-bg);color:var(--mso-priority-green-text)}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.is-arrival-soon::after{content:"";position:absolute;inset:-3px;border:1.5px solid var(--mso-priority-green-text);border-radius:50%;pointer-events:none}
+#ms-admin-root .mso-calendar-strip .mso-calendar-focus-day.is-past{background:#f2f3f4;border-color:#d8dce0}
+#ms-admin-root .mso-calendar-strip .mso-calendar-focus-day.is-later{background:var(--mso-priority-blue-bg);border-color:var(--mso-priority-blue-border)}
+#ms-admin-root .mso-calendar-strip .mso-calendar-focus-day.is-soon{background:var(--mso-priority-yellow-bg);border-color:var(--mso-priority-yellow-border)}
+#ms-admin-root .mso-calendar-strip .mso-calendar-focus-day.is-imminent{background:var(--mso-priority-green-bg);border-color:var(--mso-priority-green-border)}
+#ms-admin-root .mso-calendar-legend{flex-wrap:wrap;gap:7px 14px}
+#ms-admin-root .mso-calendar-legend i.is-imminent{background:#edf4ee;border:1px solid #dcebdd}
+#ms-admin-root .mso-calendar-legend i.is-soon{background:#f5f1e8;border:1px solid #ece2d0}
+#ms-admin-root .mso-calendar-legend i.is-later{background:#edf2f9;border:1px solid #dce6f3}
+#ms-admin-root .mso-calendar-legend i.is-past{background:#e9ebed;border:1px solid #d9dfe3}
+@media(prefers-reduced-motion:reduce){#ms-admin-root .mso-booking-entry.is-imminent{transition:none}}
+/* Active is green; departures within two days use a soft alert red. */
+#ms-admin-root .mso-booking-entry.is-imminent{border-color:#efcfc7;box-shadow:0 0 0 2px rgba(172,70,51,.07)}
+#ms-admin-root .mso-booking-entry.is-imminent .mso-booking-card::before{background:#a74735}
+#ms-admin-root .mso-booking-countdown-block.is-imminent,#ms-admin-root .mso-booking-countdown.is-imminent{background:#f8eeea;color:#925b48}
+#ms-admin-root .mso-booking-countdown-block.is-imminent{box-shadow:inset 0 0 0 1px #f0ddd5,0 0 0 3px rgba(172,70,51,.06)}
+#ms-admin-root .mso-booking-countdown-block.is-imminent strong,#ms-admin-root .mso-booking-countdown-block.is-imminent small{color:#925b48!important}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.has-bookings.is-active{background:#edf4ee;color:#316546}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.has-bookings.is-imminent{background:#f8eeea;color:#925b48}
+#ms-admin-root .mso-calendar-strip .mso-cal-day.is-arrival-soon::after{border-color:#a74735}
+#ms-admin-root .mso-calendar-strip .mso-calendar-focus-day.is-active{background:#edf4ee;border-color:#dcebdd}
+#ms-admin-root .mso-calendar-strip .mso-calendar-focus-day.is-imminent{background:#f8eeea;border-color:#f0ddd5}
+#ms-admin-root .mso-calendar-legend i.is-imminent{background:#f8eeea;border-color:#f0ddd5}

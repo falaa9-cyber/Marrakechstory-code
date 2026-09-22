@@ -1,47 +1,51 @@
-# Marrakechstory Trip Planner — Design QA
+# Marrakechstory Visual Trip Planner — Design QA
 
-- Source visual truth: `/Users/kjaerekunde/.codex/generated_images/01a0c0f4-d2ba-7661-9b61-a7f18be8bebc/exec-628dd3a4-40a1-4d15-ad68-c828a30ce63a.png`
-- Implementation: `http://127.0.0.1:5173/trip-planner.html`
-- Browser-rendered evidence: Chrome tab `Atlas to Sahara · Marrakechstory Planner`, captured and inspected on 2026-09-20
-- Viewport: 2160 × 1200 browser content capture; responsive CSS additionally covers 1100px, 820px, and 520px breakpoints
-- Source pixels: 1536 × 1024
-- Implementation pixels: 2160 × 1200
-- Normalization: compared by app-owned regions and proportional layout because the available Chrome window is wider than the 3:2 source concept
-- State: Day 3 selected, Ait Ben Haddou selected, map tiles loaded
+- Source: `/Users/kjaerekunde/Downloads/ScreenRecording_09-20-2026 01-47-46_1.MP4`
+- Extracted frames: `/private/tmp/marrakechstory-video-frames/clip-{0,5,10,15,20,25,30,35,40}.m4v.png`
+- Implementation: authenticated `http://127.0.0.1:5173/admin.html` → Trip planner
+- Browser evidence: Chrome, inspected 2026-09-20 at 1638 × 1197
+- Source: 589 × 1280 Reel captures containing an inner tablet app
+- State: persisted booking `MS-3Z7I7C`, Day 1 selected
 
-## Full-view comparison evidence
+## Comparison evidence
 
-The implementation preserves the source's defining 76px navigation rail, compact 100px trip header, near-even map/planner split, floating warm-white surfaces, red route/numbered markers, scrollable day tabs, and compact three-stop timeline. The wider live viewport intentionally provides more map width and lower apparent type scale while keeping the same hierarchy.
+Instagram chrome, captions, hands, and filmed-device distortion were excluded. The implementation reproduces the inner app's dominant map, horizontal Overview/Day/Unplanned navigation, white itinerary panel, compact rows, and persistent trip header. The desktop experience is integrated into Marrakechstory's existing admin shell; responsive CSS converts it to a map with overlapping itinerary sheet on tablet/mobile.
 
-## Focused region comparison evidence
+The reference flow also contains destination discovery, calendar/preferences/budget steps, staged generation, photographic recommendations, and a map/day planner. The implemented slice currently provides real booking selection, persisted `daily_itinerary`, Overview/day tabs, map/card selection, drag ordering, explicit confirmation, draft-item creation, and existing booking/PDF handoffs.
 
-The trip header, day tabs, selected itinerary row, status controls, route markers, route legend, and add-item affordance were inspected at readable scale. Existing Marrakechstory photo assets replace the concept photography, as required for brand/source fidelity. The real Leaflet/OpenStreetMap surface is more detailed than the generated concept map but maintains the intended warm-neutral visual balance.
+## Fidelity surfaces
 
-## Required fidelity surfaces
+- Typography: compact hierarchy is aligned while existing admin fonts are intentionally retained.
+- Layout: split map/planner composition and day tabs match the recorded interaction model.
+- Tokens: existing admin status semantics remain; terracotta marks primary actions.
+- Imagery: bookings without image fields cannot show photographic item thumbnails.
+- Content: real Marrakechstory bookings replace the reference app's Bali examples.
 
-- Fonts and typography: Fraunces provides the editorial trip-title hierarchy; DM Sans provides compact, readable UI text. Weights, line heights, and wrapping preserve the concept's hierarchy.
-- Spacing and layout rhythm: map and timeline remain visible together; header, tab strip, timeline rows, radii, and restrained shadows match the selected direction. No persistent controls overflow.
-- Colors and tokens: centralized cream, white, terracotta, espresso, sand/olive, blue, success, and warning tokens map to the source direction with accessible text contrast.
-- Image quality and asset fidelity: real local Marrakechstory imagery is used for each stop; no placeholder or generated substitute remains. The existing logo and icon system are reused.
-- Copy and content: trip reference, dates, traveler count, route, stops, travel durations, confirmation states, day notes, share, and PDF actions match the chosen concept and the product brief.
+## Findings
 
-## Interaction verification
+- [P1] Complete seven-step persisted creation wizard is not yet integrated.
+- [P1] Discovery/import, AI provider contract, secure client sharing, and share-token lifecycle are not end-to-end.
+- [P1] Activities without coordinates cannot produce accurate markers or routed geometry.
+- [P2] Detail drawers do not expose every supplier, payment, assignment, document, and note field.
+- [P2] Automated RLS, route-cache, secure-share, PDF-data, and generator retry tests are missing.
+- [P2] Responsive CSS exists, but dedicated app-size browser QA remains.
 
-- Overview tab switches content and refits the map.
-- Day 3 restores the itinerary and route.
-- Add item opens the categorized side drawer and a selection closes it with feedback.
-- Confirmation status toggles without implying that suggestions are booked.
-- Map markers expose accessible place names and synchronize through the same selected-item state as itinerary rows.
-- Share and PDF buttons provide non-destructive prototype feedback.
-- Chrome accessibility tree exposes semantic tabs, controls, headings, and map fallback description.
+## Verified
 
-## Comparison history
+- Original Dashboard remains the default.
+- Authenticated planner loads real RLS-backed bookings.
+- Overview and dynamic day tabs work.
+- Saved itinerary items appear on the correct day.
+- Add-item writes through the existing booking update callback.
+- Confirmation remains explicit.
+- Existing booking editor and client-safe PDF flow stay linked.
+- Production build succeeds.
 
-- Initial inspection: no P0/P1/P2 mismatch found. The live map has denser labels and the user Chrome viewport is wider than the source; these are acceptable environment differences rather than design defects.
+## History
 
-## Follow-up polish
+- Pass 1: cached bundles hid the new entry; asset versions were bumped.
+- Pass 2: a persisted eight-day booking was selected and its tabs/items verified.
 
-- P3: replace straight cached prototype polylines with routed geometry when a routing provider is configured.
-- P3: connect PDF/share controls to production services during the integration phase.
+final result: blocked
 
-final result: passed
+Blocker: the P1/P2 items above remain before this can satisfy the full production acceptance criteria.
