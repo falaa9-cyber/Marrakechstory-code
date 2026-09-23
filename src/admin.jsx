@@ -2156,6 +2156,8 @@
     const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const DOW = CAL_DOW;
     const todayStr = todayISO();
+    const calendarTone = (k) => { const distance = Math.round((Date.parse(k + 'T12:00:00Z') - Date.parse(todayStr + 'T12:00:00Z')) / 864e5); return distance < 0 ? 'past' : distance === 0 ? 'active' : distance <= 2 ? 'imminent' : distance <= 7 ? 'soon' : 'later'; };
+    const calendarToneColor = (k) => ({ active: '#316546', imminent: '#925b48', soon: '#785d31', later: '#355c83', past: '#69737b' }[calendarTone(k)]);
     const dayMap = useMemo(() => { const m = {}; bookings.forEach(b => { if (b.arrival_date) (m[b.arrival_date] = m[b.arrival_date] || { arr: [], dep: [], on: [] }).arr.push(b); if (b.departure_date) (m[b.departure_date] = m[b.departure_date] || { arr: [], dep: [], on: [] }).dep.push(b);
       if (b.arrival_date && b.departure_date) { let d = new Date(b.arrival_date); const e = new Date(b.departure_date); let g = 0; while (d <= e && g++ < 400) { const k = d.toISOString().slice(0, 10); (m[k] = m[k] || { arr: [], dep: [], on: [] }).on.push(b); d = new Date(d.getTime() + 864e5); } } }); return m; }, [bookings]);
 
@@ -2171,8 +2173,7 @@
       CAL_DOW_MINI.forEach((d, i) => cells.push(h('span', { key: 'h' + i, className: 'msa-yr-dow' }, d)));
       for (let i = 0; i < first; i++) cells.push(h('span', { key: 'e' + i, className: 'msa-yr-day empty' }));
       for (let d = 1; d <= dim; d++) { const k = new Date(Y, mi, d).toISOString().slice(0, 10); const info = dayMap[k]; const cnt = info ? info.on.length : 0;
-        const st = cnt ? { background: bkColor(info.on[0]), color: '#fff', fontWeight: 700 } : null;
-        cells.push(h('span', { key: d, className: 'msa-yr-day' + (k === todayStr ? ' today' : ''), style: st, onClick: () => openDay(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
+        cells.push(h('span', { key: d, className: 'msa-yr-day' + (k === todayStr ? ' today' : '') + (cnt ? ' has-bookings is-' + calendarTone(k) : ''), onClick: () => openDay(k), title: cnt ? cnt + ' booking(s)' : '' }, d)); }
       return h('div', { key: mi, className: 'msa-yr-month' }, h('div', { className: 'msa-yr-name', onClick: () => { setCursor(new Date(Y, mi, 1)); setView('month'); } }, MON[mi]), h('div', { className: 'msa-yr-days' }, cells));
     };
     const todayLong = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -2191,12 +2192,12 @@
       DOW.forEach((d, i) => cells.push(h('div', { key: 'dow' + i, className: 'msa-cal-dow' }, d)));
       for (let i = 0; i < first; i++) cells.push(h('div', { key: 'e' + i, className: 'msa-cal-cell out' }));
       for (let d = 1; d <= dim; d++) { const k = new Date(Y, M, d).toISOString().slice(0, 10); const info = dayMap[k] || { arr: [], dep: [], on: [] }; const isToday = k === todayStr;
-        const bars = info.on.slice(0, 4).map(b => { const c = bkColor(b); const isStart = b.arrival_date === k; const isEnd = b.departure_date === k;
+        const bars = info.on.slice(0, 4).map(b => { const c = calendarToneColor(k); const isStart = b.arrival_date === k; const isEnd = b.departure_date === k;
           return h('div', { key: b.id, className: 'msa-cal-ev' + (isStart ? ' start' : '') + (isEnd ? ' end' : '') + (!isStart && !isEnd ? ' mid' : ''), style: { background: c }, title: b.client_name + (isStart ? ' — arrival' : isEnd ? ' — departure' : ''), onClick: (e) => { e.stopPropagation(); openBooking(b); } },
             isStart ? h('span', { className: 'msa-cal-ev-cap' }, '▶') : null,
             h('span', { className: 'msa-cal-ev-name' }, (isStart || k === new Date(Y, M, 1).toISOString().slice(0, 10) || new Date(k).getDay() === 0) ? ((b.client_name || '').split(' ')[0]) : ''),
             isEnd ? h('span', { className: 'msa-cal-ev-cap' }, '◀') : null); });
-        cells.push(h('div', { key: d, className: 'msa-cal-cell tall' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : ''), onClick: () => setSel(k), onDoubleClick: () => openDay(k) },
+        cells.push(h('div', { key: d, className: 'msa-cal-cell tall' + (isToday ? ' is-today' : '') + (k === sel ? ' is-sel' : '') + (info.on.length ? ' has-bookings is-' + calendarTone(k) : ''), onClick: () => setSel(k), onDoubleClick: () => openDay(k) },
           h('span', { className: 'msa-cal-num' }, d), h('div', { className: 'msa-cal-evs' }, bars, info.on.length > 4 && h('span', { className: 'msa-cal-more' }, '+' + (info.on.length - 4))))); }
       return h('div', { className: 'msa-cal-grid' }, cells); };
     // Find the itinerary day for a booking that matches a calendar date k
@@ -2218,9 +2219,9 @@
         const prog = dayProgram(b, k);
         const acts = (prog && Array.isArray(prog.activities)) ? prog.activities : [];
         const dayNo = prog && prog.day ? ('Day ' + prog.day) : null;
-        return h('div', { key: b.id, className: 'msa-cal-prog', style: { borderLeft: '4px solid ' + bkColor(b) } },
+        return h('div', { key: b.id, className: 'msa-cal-prog', style: { borderLeft: '4px solid ' + calendarToneColor(k) } },
           h('div', { className: 'msa-cal-prog-head' },
-            h('span', { className: 'msa-key-dot', style: { background: bkColor(b) } }),
+            h('span', { className: 'msa-key-dot', style: { background: calendarToneColor(k) } }),
             h('strong', null, b.client_name),
             kinds.map((kd, i) => h('span', { key: i, className: 'msa-badge ' + (kd === 'Arrival' ? 'msa-ev-arrival' : kd === 'Departure' ? 'msa-ev-departure' : 'msa-st-' + b.status) }, kd === 'On trip' ? STATUS_LABEL[b.status] : kd)),
             dayNo ? h('span', { className: 'msa-dim msa-cal-prog-dayno' }, dayNo) : null,
@@ -2240,16 +2241,10 @@
           b.special_requests ? h('div', { className: 'msa-cal-prog-note' }, '📝 ' + b.special_requests) : null);
       }));
     };
-    // Color key — which booking is which color (this month)
-    const monthBookings = bookings.filter(b => { if (!b.arrival_date && !b.departure_date) return false; const a = b.arrival_date || b.departure_date; const e = b.departure_date || b.arrival_date; return !(e < new Date(Y, M, 1).toISOString().slice(0, 10) || a > new Date(Y, M + 1, 0).toISOString().slice(0, 10)); });
-    const colorKey = () => monthBookings.length === 0 ? null : h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Booking colors')),
-      h('div', { className: 'msa-keylist' }, monthBookings.map(b => h('button', { key: b.id, className: 'msa-keyitem', onClick: () => openBooking(b) },
-        h('span', { className: 'msa-key-dot', style: { background: bkColor(b) } }), h('strong', null, b.client_name), h('span', { className: 'msa-dim' }, (b.arrival_date || '?') + ' → ' + (b.departure_date || '?'))))));
     const monthView = () => h('div', null,
       h('div', { className: 'msa-cols msa-cols-21' },
         h('div', { className: 'msa-card' }, monthGrid()),
-        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, fmtDate(sel)), h('button', { className: 'msa-link', onClick: () => setView('day') }, 'Day view →')), dayPanel(sel))),
-      colorKey());
+        h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, fmtDate(sel)), h('button', { className: 'msa-link', onClick: () => setView('day') }, 'Day view →')), dayPanel(sel))));
     const dayView = () => h('div', { className: 'msa-card' }, h('div', { className: 'msa-card-head' }, h('h3', null, 'Schedule'), h('span', { className: 'msa-dim' }, sel === todayStr ? 'Today' : countdownLabel(sel))), dayPanel(sel, false));
 
     return h('div', { className: 'msa-page' },
@@ -2258,7 +2253,7 @@
       h('div', { className: 'msa-cal-toolbar' },
         h('div', { className: 'msa-cal-controls' }, h('button', { className: 'msa-icon-btn', onClick: prev }, ICON.chevL()), h('button', { className: 'msa-btn msa-btn-sm', onClick: goToday }, 'Today'), h('button', { className: 'msa-icon-btn', onClick: next }, ICON.chevR())),
         h('div', { className: 'msa-cal-title' }, title),
-        h('div', { className: 'msa-cal-legend' }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today'), h('span', null, h('i', { className: 'msa-lg msa-lg-single' }), 'Single'), h('span', null, h('i', { className: 'msa-lg msa-lg-multi' }), 'Multiple'))),
+        h('div', { className: 'msa-cal-legend' }, h('span', null, h('i', { className: 'msa-lg msa-lg-today' }), 'Today / active'), h('span', null, h('i', { className: 'msa-lg msa-lg-imminent' }), 'Next 2 days'), h('span', null, h('i', { className: 'msa-lg msa-lg-soon' }), 'Next 7 days'), h('span', null, h('i', { className: 'msa-lg msa-lg-later' }), 'Later'), h('span', null, h('i', { className: 'msa-lg msa-lg-past' }), 'Past'))),
       view === 'year' ? yearView() : view === 'month' ? monthView() : dayView());
   }
 
