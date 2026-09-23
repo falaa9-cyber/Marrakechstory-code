@@ -517,7 +517,7 @@
     );
   }
   function OperationsMap({ bookings, suppliers, openBooking, openPlanner, activeProgramId, onCloseProgram, renderProgram, reload, embedded, isAdmin = false }) {
-    var _a, _b;
+    var _a, _b, _c;
     const [now, setNow] = useState(() => ({ today: dayInMorocco(), clock: timeInMorocco() }));
     const agendaScroll = useRef(null);
     const agendaInitialPositioned = useRef(false);
@@ -527,7 +527,8 @@
     }, []);
     const today = now.today;
     const [range, setRange] = useState(embedded ? "month" : "month"), [from, setFrom] = useState(today), [to, setTo] = useState(today);
-    const [status, setStatus] = useState(""), [service, setService] = useState(""), [person, setPerson] = useState(""), [destination, setDestination] = useState(""), [supplier, setSupplier] = useState(""), [driver, setDriver] = useState(""), [guide, setGuide] = useState(""), [confirmation, setConfirmation] = useState(""), [payment, setPayment] = useState(""), [flag, setFlag] = useState(""), [archived, setArchived] = useState("active"), [query, setQuery] = useState(""), [selected, setSelected] = useState(null), [hovered, setHovered] = useState(null), [activeBookingId, setActiveBookingId] = useState(null), [hoveredBookingId, setHoveredBookingId] = useState(null);
+    const initialUpcomingId = ((_a = bookings.find((b) => dateOnly(b.arrival_date) > today && b.status !== "cancelled")) == null ? void 0 : _a.id) || null;
+    const [status, setStatus] = useState(""), [service, setService] = useState(""), [person, setPerson] = useState(""), [destination, setDestination] = useState(""), [supplier, setSupplier] = useState(""), [driver, setDriver] = useState(""), [guide, setGuide] = useState(""), [confirmation, setConfirmation] = useState(""), [payment, setPayment] = useState(""), [flag, setFlag] = useState(""), [archived, setArchived] = useState("active"), [query, setQuery] = useState(""), [selected, setSelected] = useState(null), [hovered, setHovered] = useState(null), [activeBookingId, setActiveBookingId] = useState(initialUpcomingId), [hoveredBookingId, setHoveredBookingId] = useState(null);
     const [visualView, setVisualView] = useState({ tab: "overview", dayNumber: 0, sourceIndex: null });
     const agendaDefaultSelected = useRef(false);
     useEffect(() => {
@@ -615,7 +616,7 @@
       return Number(bPast) - Number(aPast) || Number(bActive) - Number(aActive) || str(a.arrival_date).localeCompare(str(b.arrival_date));
     });
     const calendarBookings = bookings.filter((b) => b && b.status !== "cancelled");
-    const defaultUpcomingId = ((_a = agendaBookings.find((b) => dateOnly(b.arrival_date) > today && b.status !== "cancelled")) == null ? void 0 : _a.id) || null;
+    const defaultUpcomingId = ((_b = agendaBookings.find((b) => dateOnly(b.arrival_date) > today && b.status !== "cancelled")) == null ? void 0 : _b.id) || null;
     const focusId = hoveredBookingId || activeBookingId || (!agendaDefaultSelected.current ? defaultUpcomingId : null);
     const activeAgendaCount = agendaBookings.filter((b) => dateOnly(b.arrival_date) <= today && dateOnly(b.departure_date) >= today).length;
     const upcomingAgendaCount = agendaBookings.filter((b) => dateOnly(b.arrival_date) > today).length;
@@ -672,7 +673,7 @@
       h(
         "div",
         { className: "mso-main" },
-        h("div", { className: "mso-map-card" }, h("div", { className: "mso-map-head" }, h("div", null, h("span", { className: "mso-eyebrow" }, focusId ? "JOURNEY IN FOCUS" : "LIVE OPERATIONS"), h("strong", null, focusId ? ((_b = bookings.find((b) => String(b.id) === String(focusId))) == null ? void 0 : _b.client_name) || "Booking journey" : "All journeys on the map")), focusId && h("button", { onClick: () => {
+        h("div", { className: "mso-map-card" }, h("div", { className: "mso-map-head" }, h("div", null, h("span", { className: "mso-eyebrow" }, focusId ? "JOURNEY IN FOCUS" : "LIVE OPERATIONS"), h("strong", null, focusId ? ((_c = bookings.find((b) => String(b.id) === String(focusId))) == null ? void 0 : _c.client_name) || "Booking journey" : "All journeys on the map")), focusId && h("button", { onClick: () => {
           setActiveBookingId(null);
           setHoveredBookingId(null);
           setSelected(null);
