@@ -517,7 +517,7 @@
     );
   }
   function OperationsMap({ bookings, suppliers, openBooking, openPlanner, activeProgramId, onCloseProgram, renderProgram, reload, embedded, isAdmin = false }) {
-    var _a;
+    var _a, _b;
     const [now, setNow] = useState(() => ({ today: dayInMorocco(), clock: timeInMorocco() }));
     const agendaScroll = useRef(null);
     const agendaInitialPositioned = useRef(false);
@@ -529,6 +529,7 @@
     const [range, setRange] = useState(embedded ? "month" : "month"), [from, setFrom] = useState(today), [to, setTo] = useState(today);
     const [status, setStatus] = useState(""), [service, setService] = useState(""), [person, setPerson] = useState(""), [destination, setDestination] = useState(""), [supplier, setSupplier] = useState(""), [driver, setDriver] = useState(""), [guide, setGuide] = useState(""), [confirmation, setConfirmation] = useState(""), [payment, setPayment] = useState(""), [flag, setFlag] = useState(""), [archived, setArchived] = useState("active"), [query, setQuery] = useState(""), [selected, setSelected] = useState(null), [hovered, setHovered] = useState(null), [activeBookingId, setActiveBookingId] = useState(null), [hoveredBookingId, setHoveredBookingId] = useState(null);
     const [visualView, setVisualView] = useState({ tab: "overview", dayNumber: 0, sourceIndex: null });
+    const agendaDefaultSelected = useRef(false);
     useEffect(() => {
       if (activeProgramId) setActiveBookingId(activeProgramId);
     }, [activeProgramId]);
@@ -559,8 +560,8 @@
           }
         }));
         hits.filter(Boolean).forEach(({ point, hit }) => geocodeCandidates.filter((candidate) => {
-          var _a2, _b;
-          return (candidate.address || candidate.title) === (point.address || point.title) && (((_a2 = candidate.booking) == null ? void 0 : _a2.arrival_city) || "Marrakech") === (((_b = point.booking) == null ? void 0 : _b.arrival_city) || "Marrakech");
+          var _a2, _b2;
+          return (candidate.address || candidate.title) === (point.address || point.title) && (((_a2 = candidate.booking) == null ? void 0 : _a2.arrival_city) || "Marrakech") === (((_b2 = point.booking) == null ? void 0 : _b2.arrival_city) || "Marrakech");
         }).forEach((candidate) => {
           next[candidate.id] = { coords: [+hit.lat, +hit.lon], sourceUrl: `https://www.openstreetmap.org/?mlat=${hit.lat}&mlon=${hit.lon}#map=17/${hit.lat}/${hit.lon}` };
         }));
@@ -614,12 +615,21 @@
       return Number(bPast) - Number(aPast) || Number(bActive) - Number(aActive) || str(a.arrival_date).localeCompare(str(b.arrival_date));
     });
     const calendarBookings = bookings.filter((b) => b && b.status !== "cancelled");
-    const focusId = hoveredBookingId || activeBookingId;
+    const defaultUpcomingId = ((_a = agendaBookings.find((b) => dateOnly(b.arrival_date) > today && b.status !== "cancelled")) == null ? void 0 : _a.id) || null;
+    const focusId = hoveredBookingId || activeBookingId || (!agendaDefaultSelected.current ? defaultUpcomingId : null);
     const activeAgendaCount = agendaBookings.filter((b) => dateOnly(b.arrival_date) <= today && dateOnly(b.departure_date) >= today).length;
     const upcomingAgendaCount = agendaBookings.filter((b) => dateOnly(b.arrival_date) > today).length;
     const previousAgendaBookings = agendaBookings.filter((b) => dateOnly(b.departure_date) && dateOnly(b.departure_date) < today);
     const previousAgendaCount = previousAgendaBookings.length;
     const firstCurrentAgendaIndex = agendaBookings.findIndex((b) => !dateOnly(b.departure_date) || dateOnly(b.departure_date) >= today);
+    useEffect(() => {
+      if (agendaDefaultSelected.current || activeBookingId || !agendaBookings.length) return;
+      const upcoming = agendaBookings.find((b) => dateOnly(b.arrival_date) > today && b.status !== "cancelled");
+      if (upcoming) {
+        setActiveBookingId(upcoming.id);
+        agendaDefaultSelected.current = true;
+      }
+    }, [agendaBookings, today, activeBookingId]);
     useEffect(() => {
       if (agendaInitialPositioned.current || !agendaScroll.current || !agendaBookings.length) return;
       const container = agendaScroll.current;
@@ -646,8 +656,8 @@
         return;
       }
       const match = enrichedRaw.find((p) => {
-        var _a2, _b;
-        return String(p.booking.id) === String(activeProgramId) && ((_a2 = p.sourceIndex) == null ? void 0 : _a2[0]) === view.dayNumber - 1 && ((_b = p.sourceIndex) == null ? void 0 : _b[1]) === view.sourceIndex && p.locationRole !== "dropoff";
+        var _a2, _b2;
+        return String(p.booking.id) === String(activeProgramId) && ((_a2 = p.sourceIndex) == null ? void 0 : _a2[0]) === view.dayNumber - 1 && ((_b2 = p.sourceIndex) == null ? void 0 : _b2[1]) === view.sourceIndex && p.locationRole !== "dropoff";
       });
       setSelected(match || null);
     };
@@ -662,7 +672,7 @@
       h(
         "div",
         { className: "mso-main" },
-        h("div", { className: "mso-map-card" }, h("div", { className: "mso-map-head" }, h("div", null, h("span", { className: "mso-eyebrow" }, focusId ? "JOURNEY IN FOCUS" : "LIVE OPERATIONS"), h("strong", null, focusId ? ((_a = bookings.find((b) => String(b.id) === String(focusId))) == null ? void 0 : _a.client_name) || "Booking journey" : "All journeys on the map")), focusId && h("button", { onClick: () => {
+        h("div", { className: "mso-map-card" }, h("div", { className: "mso-map-head" }, h("div", null, h("span", { className: "mso-eyebrow" }, focusId ? "JOURNEY IN FOCUS" : "LIVE OPERATIONS"), h("strong", null, focusId ? ((_b = bookings.find((b) => String(b.id) === String(focusId))) == null ? void 0 : _b.client_name) || "Booking journey" : "All journeys on the map")), focusId && h("button", { onClick: () => {
           setActiveBookingId(null);
           setHoveredBookingId(null);
           setSelected(null);
@@ -693,7 +703,7 @@
               agendaIndex === firstCurrentAgendaIndex && previousAgendaCount > 0 && h("div", { className: "mso-booking-section-label is-current", "data-agenda-current": "true" }, "Current & upcoming \xB7 start here"),
               h(
                 "div",
-                { className: "mso-booking-entry" + (expanded ? " is-open" : "") + (previous ? " is-previous" : "") + (!active && !previous && countdown <= 2 ? " is-imminent" : !active && !previous && countdown <= 7 ? " is-soon" : ""), key: `${b.id}-entry`, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
+                { className: "mso-booking-entry" + (expanded ? " is-open" : "") + (previous ? " is-previous" : "") + (!active && !previous && countdown <= 2 ? " is-imminent" : !active && !previous && countdown <= 7 ? " is-soon" : !active && !previous && countdown <= 15 ? " is-later" : !active && !previous ? " is-far" : ""), key: `${b.id}-entry`, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
                 h(
                   "button",
                   { className: "mso-booking-card", "aria-expanded": expanded, onFocus: () => setHoveredBookingId(b.id), onBlur: () => setHoveredBookingId(null), onClick: () => {
@@ -706,8 +716,8 @@
                   h("strong", null, b.client_name || "Guest"),
                   h("small", { className: "mso-booking-dates" }, `${b.reference || "\u2014"} \xB7 ${dateOnly(b.arrival_date)} \u2192 ${dateOnly(b.departure_date) || "\u2014"}`),
                   activity && h("span", { className: "mso-booking-activity" }, activity),
-                  h("span", { className: "mso-booking-countdown-block " + (active ? "is-active" : previous ? "is-previous" : countdown <= 2 ? "is-imminent" : countdown <= 7 ? "is-soon" : "is-far") }, h("strong", null, active ? "NOW" : previous ? "\u2713" : Math.max(0, countdown)), h("small", null, active ? "ON TRIP" : previous ? "DONE" : countdown === 1 ? "DAY" : "DAYS")),
-                  h("span", { className: "mso-booking-countdown " + (active ? "is-active" : previous ? "is-previous" : countdown <= 2 ? "is-imminent" : countdown <= 7 ? "is-soon" : "is-far") }, timing),
+                  h("span", { className: "mso-booking-countdown-block " + (active ? "is-active" : previous ? "is-previous" : countdown <= 2 ? "is-imminent" : countdown <= 7 ? "is-soon" : countdown <= 15 ? "is-later" : "is-far") }, h("strong", null, active ? "NOW" : previous ? "\u2713" : Math.max(0, countdown)), h("small", null, active ? "ON TRIP" : previous ? "DONE" : countdown === 1 ? "DAY" : "DAYS")),
+                  h("span", { className: "mso-booking-countdown " + (active ? "is-active" : previous ? "is-previous" : countdown <= 2 ? "is-imminent" : countdown <= 7 ? "is-soon" : countdown <= 15 ? "is-later" : "is-far") }, timing),
                   h("span", { className: "mso-booking-meta" }, trip),
                   h("span", { className: "mso-booking-footer" }, h("span", { className: "msa-badge msa-st-" + b.status }, statusLabel[b.status] || b.status || "\u2014"), isAdmin && +b.balance > 0 && h("span", { className: "mso-booking-owed" }, "Owes " + money(b.balance))),
                   h("span", { className: "mso-booking-count" }, `${bookingPoints.length} stops`, h("span", null, expanded ? "\u2303" : "\u2304"))

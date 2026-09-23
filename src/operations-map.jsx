@@ -393,6 +393,7 @@
     const [range, setRange] = useState(embedded ? 'month' : 'month'), [from, setFrom] = useState(today), [to, setTo] = useState(today);
     const [status, setStatus] = useState(''), [service, setService] = useState(''), [person, setPerson] = useState(''), [destination, setDestination] = useState(''), [supplier, setSupplier] = useState(''), [driver, setDriver] = useState(''), [guide, setGuide] = useState(''), [confirmation, setConfirmation] = useState(''), [payment, setPayment] = useState(''), [flag, setFlag] = useState(''), [archived, setArchived] = useState('active'), [query, setQuery] = useState(''), [selected, setSelected] = useState(null), [hovered, setHovered] = useState(null), [activeBookingId, setActiveBookingId] = useState(null), [hoveredBookingId, setHoveredBookingId] = useState(null);
     const [visualView, setVisualView] = useState({ tab: 'overview', dayNumber: 0, sourceIndex: null });
+    const agendaDefaultSelected = useRef(false);
     useEffect(() => { if (activeProgramId) setActiveBookingId(activeProgramId); }, [activeProgramId]);
     const bounds = range === 'custom' ? [from, to] : [today, addDay(today, range === 'tomorrow' ? 1 : range === 'week' ? 6 : range === 'month' ? 29 : 0)];
     if (range === 'tomorrow') bounds[0] = bounds[1];
@@ -460,12 +461,18 @@
       return Number(bPast) - Number(aPast) || Number(bActive) - Number(aActive) || str(a.arrival_date).localeCompare(str(b.arrival_date));
     });
     const calendarBookings = bookings.filter(b => b && b.status !== 'cancelled');
-    const focusId = hoveredBookingId || activeBookingId;
+    const defaultUpcomingId = agendaBookings.find(b => dateOnly(b.arrival_date) > today && b.status !== 'cancelled')?.id || null;
+    const focusId = hoveredBookingId || activeBookingId || (!agendaDefaultSelected.current ? defaultUpcomingId : null);
     const activeAgendaCount = agendaBookings.filter(b => dateOnly(b.arrival_date) <= today && dateOnly(b.departure_date) >= today).length;
     const upcomingAgendaCount = agendaBookings.filter(b => dateOnly(b.arrival_date) > today).length;
     const previousAgendaBookings = agendaBookings.filter(b => dateOnly(b.departure_date) && dateOnly(b.departure_date) < today);
     const previousAgendaCount = previousAgendaBookings.length;
     const firstCurrentAgendaIndex = agendaBookings.findIndex(b => !dateOnly(b.departure_date) || dateOnly(b.departure_date) >= today);
+    useEffect(() => {
+      if (agendaDefaultSelected.current || activeBookingId || !agendaBookings.length) return;
+      const upcoming = agendaBookings.find(b => dateOnly(b.arrival_date) > today && b.status !== 'cancelled');
+      if (upcoming) { setActiveBookingId(upcoming.id); agendaDefaultSelected.current = true; }
+    }, [agendaBookings, today, activeBookingId]);
     useEffect(() => {
       if (agendaInitialPositioned.current || !agendaScroll.current || !agendaBookings.length) return;
       const container = agendaScroll.current;
@@ -510,14 +517,14 @@
             return h(React.Fragment, { key: b.id },
               agendaIndex === 0 && previousAgendaCount > 0 && h('div', { className: 'mso-booking-section-label' }, `Previous bookings · ${previousAgendaCount} · scroll up to review`),
               agendaIndex === firstCurrentAgendaIndex && previousAgendaCount > 0 && h('div', { className: 'mso-booking-section-label is-current', 'data-agenda-current': 'true' }, 'Current & upcoming · start here'),
-              h('div', { className: 'mso-booking-entry' + (expanded ? ' is-open' : '') + (previous ? ' is-previous' : '') + (!active && !previous && countdown <= 2 ? ' is-imminent' : !active && !previous && countdown <= 7 ? ' is-soon' : ''), key: `${b.id}-entry`, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
+              h('div', { className: 'mso-booking-entry' + (expanded ? ' is-open' : '') + (previous ? ' is-previous' : '') + (!active && !previous && countdown <= 2 ? ' is-imminent' : !active && !previous && countdown <= 7 ? ' is-soon' : !active && !previous && countdown <= 15 ? ' is-later' : !active && !previous ? ' is-far' : ''), key: `${b.id}-entry`, onMouseEnter: () => setHoveredBookingId(b.id), onMouseLeave: () => setHoveredBookingId(null) },
               h('button', { className: 'mso-booking-card', 'aria-expanded': expanded, onFocus: () => setHoveredBookingId(b.id), onBlur: () => setHoveredBookingId(null), onClick: () => { if (expanded) onCloseProgram?.(); else if (renderProgram) openPlanner?.(b); setActiveBookingId(expanded ? null : b.id); setSelected(null); } },
                 h('span', { className: 'mso-booking-status ' + (active ? 'is-active' : previous ? 'is-previous' : 'is-upcoming') }, active ? '● ON TRIP' : previous ? 'PREVIOUS' : 'UPCOMING'),
                 h('strong', null, b.client_name || 'Guest'),
                 h('small', { className: 'mso-booking-dates' }, `${b.reference || '—'} · ${dateOnly(b.arrival_date)} → ${dateOnly(b.departure_date) || '—'}`),
                 activity && h('span', { className: 'mso-booking-activity' }, activity),
-                h('span', { className: 'mso-booking-countdown-block ' + (active ? 'is-active' : previous ? 'is-previous' : countdown <= 2 ? 'is-imminent' : countdown <= 7 ? 'is-soon' : 'is-far') }, h('strong', null, active ? 'NOW' : previous ? '✓' : Math.max(0, countdown)), h('small', null, active ? 'ON TRIP' : previous ? 'DONE' : countdown === 1 ? 'DAY' : 'DAYS')),
-                h('span', { className: 'mso-booking-countdown ' + (active ? 'is-active' : previous ? 'is-previous' : countdown <= 2 ? 'is-imminent' : countdown <= 7 ? 'is-soon' : 'is-far') }, timing),
+                h('span', { className: 'mso-booking-countdown-block ' + (active ? 'is-active' : previous ? 'is-previous' : countdown <= 2 ? 'is-imminent' : countdown <= 7 ? 'is-soon' : countdown <= 15 ? 'is-later' : 'is-far') }, h('strong', null, active ? 'NOW' : previous ? '✓' : Math.max(0, countdown)), h('small', null, active ? 'ON TRIP' : previous ? 'DONE' : countdown === 1 ? 'DAY' : 'DAYS')),
+                h('span', { className: 'mso-booking-countdown ' + (active ? 'is-active' : previous ? 'is-previous' : countdown <= 2 ? 'is-imminent' : countdown <= 7 ? 'is-soon' : countdown <= 15 ? 'is-later' : 'is-far') }, timing),
                 h('span', { className: 'mso-booking-meta' }, trip),
                 h('span', { className: 'mso-booking-footer' }, h('span', { className: 'msa-badge msa-st-' + b.status }, statusLabel[b.status] || b.status || '—'), isAdmin && +b.balance > 0 && h('span', { className: 'mso-booking-owed' }, 'Owes ' + money(b.balance))),
                 h('span', { className: 'mso-booking-count' }, `${bookingPoints.length} stops`, h('span', null, expanded ? '⌃' : '⌄'))),

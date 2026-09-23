@@ -556,6 +556,19 @@
 #ms-admin-root .mso-page .mso-route-badge{background:rgba(255,255,255,.94);border-color:#efd3c9;color:#bd4935;box-shadow:0 6px 18px rgba(51,42,32,.1)}
 #ms-admin-root .mso-page .mso-detail{border-radius:14px;background:#fff8f5;border-color:#f2d7ce}
 #ms-admin-root .mso-page .mso-range button.active{background:var(--mso-coral);border-color:var(--mso-coral);box-shadow:0 6px 16px rgba(230,75,50,.2)}
+#ms-admin-root .mso-booking-entry.is-imminent{background:linear-gradient(100deg,#f1fff4 0%,#fff 72%);border-color:#a8dfb6;animation:mso-upcoming-breathe 3.6s ease-in-out infinite}
+#ms-admin-root .mso-booking-entry.is-later{background:linear-gradient(100deg,#f2f6ff 0%,#fff 72%);border-color:#c8d8f5}
+#ms-admin-root .mso-booking-entry.is-far{background:linear-gradient(100deg,#fff3f0 0%,#fff 72%);border-color:#f0c3b9}
+#ms-admin-root .mso-booking-countdown-block.is-imminent{background:#e9f9ed;color:#23834d;box-shadow:0 4px 12px rgba(57,145,83,.16)}
+#ms-admin-root .mso-booking-countdown-block.is-later{background:#e8f0ff;color:#2d65bd;box-shadow:0 4px 12px rgba(52,101,189,.13)}
+#ms-admin-root .mso-booking-countdown-block.is-far{background:#fde8e4;color:#bc3927;box-shadow:0 4px 12px rgba(224,67,42,.14)}
+#ms-admin-root .mso-booking-countdown.is-imminent{background:#e9f9ed;color:#23834d}
+#ms-admin-root .mso-booking-countdown.is-later{background:#e8f0ff;color:#2d65bd}
+#ms-admin-root .mso-booking-countdown.is-far{background:#fde8e4;color:#bc3927}
+#ms-admin-root .mso-calendar-scroll{max-height:440px}
+@keyframes mso-upcoming-breathe{0%,100%{box-shadow:0 3px 12px rgba(57,145,83,.05)}50%{box-shadow:0 7px 22px rgba(57,145,83,.18)}}
+@media(max-width:650px){#ms-admin-root .mso-calendar-scroll{max-height:500px}}
+@media(prefers-reduced-motion:reduce){#ms-admin-root .mso-booking-entry.is-imminent{animation:none}}
 @media(max-width:650px){#ms-admin-root .mso-page .mso-map-card,#ms-admin-root .mso-page .mso-panel{border-radius:16px}}
 /* Urgency is consistent between agenda countdowns and the dashboard calendar. */
 #ms-admin-root .mso-page{--mso-priority-green-bg:#edf4ee;--mso-priority-green-border:#dcebdd;--mso-priority-green-text:#316546;--mso-priority-yellow-bg:#f5f1e8;--mso-priority-yellow-border:#ece2d0;--mso-priority-yellow-text:#785d31;--mso-priority-blue-bg:#edf2f9;--mso-priority-blue-border:#dce6f3;--mso-priority-blue-text:#355c83}
