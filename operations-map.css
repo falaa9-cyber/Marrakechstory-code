@@ -565,7 +565,7 @@
 #ms-admin-root .mso-booking-countdown.is-imminent{background:#e9f9ed;color:#23834d}
 #ms-admin-root .mso-booking-countdown.is-later{background:#e8f0ff;color:#2d65bd}
 #ms-admin-root .mso-booking-countdown.is-far{background:#fde8e4;color:#bc3927}
-#ms-admin-root .mso-calendar-scroll{max-height:440px}
+#ms-admin-root .mso-calendar-scroll{max-height:440px;overflow-anchor:none}
 @keyframes mso-upcoming-breathe{0%,100%{box-shadow:0 3px 12px rgba(57,145,83,.05)}50%{box-shadow:0 7px 22px rgba(57,145,83,.18)}}
 @media(max-width:650px){#ms-admin-root .mso-calendar-scroll{max-height:500px}}
 @media(prefers-reduced-motion:reduce){#ms-admin-root .mso-booking-entry.is-imminent{animation:none}}

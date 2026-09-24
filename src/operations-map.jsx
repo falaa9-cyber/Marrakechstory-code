@@ -279,21 +279,32 @@
     const firstBookedDay = (bookings || []).map(b => dateOnly(b.arrival_date)).filter(Boolean).sort()[0] || today;
     const [calendarView, setCalendarView] = useState('year');
     const currentMonthDay = `${today.slice(0, 7)}-01`;
-    const [calendarAnchor, setCalendarAnchor] = useState(currentMonthDay);
+    const currentYearDay = `${today.slice(0, 4)}-01-01`;
+    const [calendarAnchor, setCalendarAnchor] = useState(currentYearDay);
     const calendarScroll = useRef(null);
     useEffect(() => {
       if (calendarView !== 'year' || !calendarScroll.current) return;
       const container = calendarScroll.current;
-      const month = container.querySelector('[data-current-month="true"]');
-      if (month) container.scrollTop += month.getBoundingClientRect().top - container.getBoundingClientRect().top;
-    }, [calendarView, calendarAnchor]);
+      const alignCurrentMonth = () => {
+        const month = container.querySelector('[data-current-month="true"]');
+        if (!month) return;
+        // Align the focused month to the top of the scroll window after the
+        // long year list has finished laying out. This keeps the current year
+        // visible by default while preserving up/down browsing through years.
+        container.scrollTop = Math.max(0, container.scrollTop + month.getBoundingClientRect().top - container.getBoundingClientRect().top - 2);
+      };
+      // Wait for the full 120-year list to finish painting before measuring;
+      // otherwise browser scroll anchoring can leave an earlier month visible.
+      const timer = setTimeout(alignCurrentMonth, 300);
+      return () => clearTimeout(timer);
+    }, [calendarView, calendarAnchor, bookings.length]);
     const base = new Date(calendarAnchor + 'T12:00:00Z');
     const weekStart = new Date(base);
     weekStart.setUTCDate(base.getUTCDate() - base.getUTCDay());
     const viewButtons = [['month', 'Month'], ['week', 'Week'], ['day', 'Day']];
     // Year mode is the default and is intentionally a vertically scrollable timeline.
     // Keep a broad window around the focused year so history and coming years are both reachable.
-    const yearOffsets = Array.from({ length: 120 }, (_, offset) => offset - 60);
+    const yearOffsets = Array.from({ length: 120 }, (_, offset) => offset);
     const months = (calendarView === 'year' ? yearOffsets : calendarView === 'month' ? [0] : []).map(offset => new Date(Date.UTC(base.getUTCFullYear(), calendarView === 'year' ? base.getUTCMonth() + offset : base.getUTCMonth() + offset, 1)));
     const bookingDays = new Map();
     (bookings || []).forEach(b => {
