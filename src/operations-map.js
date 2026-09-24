@@ -527,7 +527,7 @@
     }, []);
     const today = now.today;
     const [range, setRange] = useState(embedded ? "month" : "month"), [from, setFrom] = useState(today), [to, setTo] = useState(today);
-    const initialUpcomingId = ((_a = bookings.find((b) => dateOnly(b.arrival_date) > today && b.status !== "cancelled")) == null ? void 0 : _a.id) || null;
+    const initialUpcomingId = ((_a = bookings.filter((b) => dateOnly(b.arrival_date) > today && b.status !== "cancelled").sort((a, b) => dateOnly(a.arrival_date).localeCompare(dateOnly(b.arrival_date)))[0]) == null ? void 0 : _a.id) || null;
     const [status, setStatus] = useState(""), [service, setService] = useState(""), [person, setPerson] = useState(""), [destination, setDestination] = useState(""), [supplier, setSupplier] = useState(""), [driver, setDriver] = useState(""), [guide, setGuide] = useState(""), [confirmation, setConfirmation] = useState(""), [payment, setPayment] = useState(""), [flag, setFlag] = useState(""), [archived, setArchived] = useState("active"), [query, setQuery] = useState(""), [selected, setSelected] = useState(null), [hovered, setHovered] = useState(null), [activeBookingId, setActiveBookingId] = useState(initialUpcomingId), [hoveredBookingId, setHoveredBookingId] = useState(null);
     const [visualView, setVisualView] = useState({ tab: "overview", dayNumber: 0, sourceIndex: null });
     const agendaDefaultSelected = useRef(false);
